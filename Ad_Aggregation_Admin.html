@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>正式投放後台管理系統</title>
+  <style>
+    :root {
+      --primary: #1677ff;
+      --primary-weak: #eaf3ff;
+      --nav: #123457;
+      --nav-active: #1f73e8;
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --line: #e5eaf2;
+      --text: #1f2a37;
+      --muted: #7a8797;
+      --danger: #ff4d4f;
+      --success: #22c55e;
+      --shadow: 0 8px 30px rgba(25, 55, 99, .08);
+      --sidebar-width: 248px;
+      --sidebar-collapsed-width: 72px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, "PingFang TC", "Microsoft JhengHei", Arial, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+
+    .app {
+      display: block;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      width: var(--sidebar-width);
+      background: var(--nav);
+      color: #fff;
+      z-index: 10;
+      overflow-x: hidden;
+      overflow-y: auto;
+      transition: width .22s ease;
+    }
+
+    .brand {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 20px;
+      font-size: 22px;
+      font-weight: 700;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .brand-icon {
+      min-width: 28px;
+      text-align: center;
+    }
+
+    .brand-text {
+      opacity: 1;
+      transition: opacity .15s ease;
+    }
+
+    .menu {
+      padding: 14px 10px 30px;
+    }
+
+    .menu-section {
+      margin-bottom: 8px;
+    }
+
+    .menu-title,
+    .submenu-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 9px;
+      color: #dbe9f8;
+      user-select: none;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .menu-title {
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    .menu-title:hover,
+    .submenu-item:hover {
+      background: rgba(255,255,255,.08);
+    }
+
+    .menu-icon {
+      width: 18px;
+      min-width: 18px;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    .menu-label {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chev {
+      margin-left: auto;
+      transition: transform .2s ease;
+      font-size: 12px;
+    }
+
+    .menu-section.open > .menu-title .chev {
+      transform: rotate(180deg);
+    }
+
+    .submenu {
+      padding-left: 12px;
+      display: none;
+    }
+
+    .menu-section.open > .submenu {
+      display: block;
+    }
+
+    .submenu-item {
+      font-size: 14px;
+      cursor: pointer;
+      margin: 4px 0;
+    }
+
+    .submenu-item.active {
+      background: var(--nav-active);
+      color: #fff;
+    }
+
+    .single-item {
+      cursor: pointer;
+      margin: 4px 0;
+    }
+
+    .main {
+      margin-left: var(--sidebar-width);
+      min-height: 100vh;
+      transition: margin-left .22s ease;
+    }
+
+    .topbar {
+      height: 66px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .sidebar-toggle {
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      color: #41546a;
+      font-size: 18px;
+    }
+
+    .sidebar-toggle:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .topbar-right {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .pill {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 8px 12px;
+      background: #fff;
+    }
+
+    .content {
+      padding: 20px 24px 40px;
+    }
+
+    .breadcrumb {
+      color: #7c8da2;
+      font-size: 14px;
+      margin-bottom: 14px;
+    }
+
+    .page-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+    }
+
+    .card-head {
+      padding: 15px 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .card-body {
+      padding: 18px;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(180px, 1fr));
+      gap: 14px;
+      align-items: end;
+    }
+
+    .field {
+      margin-bottom: 0;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 7px;
+    }
+
+    .input, .select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #fff;
+      outline: none;
+    }
+
+    .btn {
+      border-radius: 9px;
+      padding: 9px 16px;
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 12px 10px;
+      text-align: left;
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    th {
+      background: #fafbfd;
+      font-weight: 650;
+      color: #384658;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: #edf4ff;
+      color: var(--primary);
+    }
+
+
+    .report-filter-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(210px, 1fr));
+      gap: 14px 18px;
+      align-items: end;
+    }
+
+    .date-range {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .date-range .input {
+      min-width: 0;
+    }
+
+    .quick-date-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .report-filter-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .report-table-wrap {
+      overflow: auto;
+      max-height: 520px;
+    }
+
+    .report-table {
+      min-width: 1900px;
+    }
+
+    .report-table th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      white-space: nowrap;
+    }
+
+    .report-table td {
+      white-space: nowrap;
+    }
+
+    .json-cell {
+      width: 280px;
+      min-width: 280px;
+      max-width: 280px;
+      white-space: normal !important;
+      word-break: break-all;
+      line-height: 1.55;
+      color: #44546a;
+    }
+
+    .status-success {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 7px;
+      color: #22a447;
+      background: #effaf2;
+      border: 1px solid #ccefd5;
+      font-size: 12px;
+    }
+
+    .status-failed {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 7px;
+      color: #d4380d;
+      background: #fff2e8;
+      border: 1px solid #ffd8bf;
+      font-size: 12px;
+    }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 14px 18px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .page-btn {
+      min-width: 32px;
+      height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fff;
+    }
+
+    .page-btn.active {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-weak);
+    }
+
+    @media (max-width: 1180px) {
+      .report-filter-grid {
+        grid-template-columns: repeat(2, minmax(220px, 1fr));
+      }
+    }
+
+    /* ===== 整个 Sidebar 收缩 ===== */
+    body.sidebar-collapsed .sidebar {
+      width: var(--sidebar-collapsed-width);
+    }
+
+    body.sidebar-collapsed .main {
+      margin-left: var(--sidebar-collapsed-width);
+    }
+
+    body.sidebar-collapsed .brand {
+      justify-content: center;
+      padding: 0;
+    }
+
+    body.sidebar-collapsed .brand-text,
+    body.sidebar-collapsed .menu-label,
+    body.sidebar-collapsed .chev {
+      display: none;
+    }
+
+    body.sidebar-collapsed .menu-title,
+    body.sidebar-collapsed .submenu-item {
+      justify-content: center;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+    body.sidebar-collapsed .submenu {
+      display: none !important;
+    }
+
+    body.sidebar-collapsed .menu {
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+
+    /* 收缩后 hover 显示文字提示 */
+    body.sidebar-collapsed .menu-title,
+    body.sidebar-collapsed .single-item {
+      position: relative;
+      overflow: visible;
+    }
+
+    body.sidebar-collapsed .menu-title:hover::after,
+    body.sidebar-collapsed .single-item:hover::after {
+      content: attr(data-tooltip);
+      position: fixed;
+      left: 80px;
+      margin-top: 0;
+      background: #1f2a37;
+      color: #fff;
+      border-radius: 7px;
+      padding: 7px 10px;
+      font-size: 13px;
+      white-space: nowrap;
+      z-index: 100;
+      box-shadow: 0 5px 18px rgba(0,0,0,.18);
+    }
+
+    @media (max-width: 900px) {
+      .sidebar {
+        transform: translateX(0);
+      }
+
+      body.sidebar-mobile-hidden .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .main,
+      body.sidebar-collapsed .main {
+        margin-left: 0;
+      }
+
+      .filter-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <section id="app" class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-icon">◆</span>
+        <span class="brand-text">正式投放後台管理系統</span>
+      </div>
+
+      <nav class="menu">
+        <div class="menu-section open">
+          <div class="menu-title" data-tooltip="廣告商務配置">
+            <span class="menu-icon">◉</span>
+            <span class="menu-label">廣告商務配置</span>
+            <span class="chev">⌃</span>
+          </div>
+          <div class="submenu">
+            <div class="submenu-item" data-page="advertiser">
+              <span class="menu-icon">·</span>
+              <span class="menu-label">廣告商務配置</span>
+            </div>
+            <div class="submenu-item" data-page="eventConfig">
+              <span class="menu-icon">·</span>
+              <span class="menu-label">事件配置</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-section open">
+          <div class="menu-title" data-tooltip="渠道配置">
+            <span class="menu-icon">▣</span>
+            <span class="menu-label">渠道配置</span>
+            <span class="chev">⌃</span>
+          </div>
+          <div class="submenu">
+            <div class="submenu-item active" data-page="channel">
+              <span class="menu-icon">·</span>
+              <span class="menu-label">渠道配置</span>
+            </div>
+            <div class="submenu-item" data-page="partner">
+              <span class="menu-icon">·</span>
+              <span class="menu-label">渠道商配置</span>
+            </div>
+            <div class="submenu-item" data-page="tracking">
+              <span class="menu-icon">·</span>
+              <span class="menu-label">廣告鏈結生成</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-section open">
+          <div class="menu-title" data-tooltip="廣告配置">
+            <span class="menu-icon">▤</span>
+            <span class="menu-label">廣告配置</span>
+            <span class="chev">⌃</span>
+          </div>
+          <div class="submenu">
+            <div class="submenu-item" data-page="campaign">
+              <span class="menu-icon">·</span>
+              <span class="menu-label">廣告內容配置</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-section open">
+          <div class="menu-title" data-tooltip="報表">
+            <span class="menu-icon">▥</span>
+            <span class="menu-label">報表</span>
+            <span class="chev">⌃</span>
+          </div>
+          <div class="submenu">
+            <div class="submenu-item" data-page="uploadLog">
+              <span class="menu-icon">·</span>
+              <span class="menu-label">上報日誌</span>
+            </div>
+            <div class="submenu-item" data-page="settlement">
+              <span class="menu-icon">·</span>
+              <span class="menu-label">結算報表</span>
+            </div>
+            <div class="submenu-item" data-page="attribution">
+              <span class="menu-icon">·</span>
+              <span class="menu-label">歸因報表</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="submenu-item single-item" data-page="response" data-tooltip="上報規範化回應">
+          <span class="menu-icon">⇆</span>
+          <span class="menu-label">上報規範化回應</span>
+        </div>
+
+        <div class="submenu-item single-item" data-page="account" data-tooltip="帳號管理">
+          <span class="menu-icon">♙</span>
+          <span class="menu-label">帳號管理</span>
+        </div>
+
+        <div class="submenu-item single-item" data-page="role" data-tooltip="角色權限管理">
+          <span class="menu-icon">◇</span>
+          <span class="menu-label">角色權限管理</span>
+        </div>
+
+        <div class="submenu-item single-item" data-page="dataPermission" data-tooltip="數據權限管理">
+          <span class="menu-icon">◎</span>
+          <span class="menu-label">數據權限管理</span>
+        </div>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button
+          id="sidebarToggle"
+          class="sidebar-toggle"
+          title="展開 / 收合側邊欄"
+          aria-label="展開或收合側邊欄"
+        >☰</button>
+
+        <div class="topbar-right">
+          <div class="pill">🌐 Brazil</div>
+          <div class="pill">◉ admin</div>
+        </div>
+      </header>
+
+      <div id="content" class="content"></div>
+    </main>
+  </section>
+
+  <script>
+    const pages = {
+      advertiser: {
+        title: '廣告商務配置',
+        description: '配置甲方可使用的廣告商。'
+      },
+      eventConfig: {
+        title: '事件配置',
+        description: '配置各廣告商可使用的標準事件、事件代碼與必要參數。'
+      },
+      channel: {
+        title: '渠道配置',
+        description: '維護投放渠道及渠道基礎資料。'
+      },
+      partner: {
+        title: '渠道商配置',
+        description: '管理已對接的渠道商與合作資訊。'
+      },
+      tracking: {
+        title: '廣告鏈結生成',
+        description: '依渠道及廣告配置產生 Tracking Link。'
+      },
+      campaign: {
+        title: '廣告內容配置',
+        description: '配置廣告內容、圖檔、影片、落地頁與可使用廣告商。'
+      },
+      uploadLog: {
+        title: '上報日誌',
+        description: '查詢事件埋點上報紀錄與處理結果。'
+      },
+      settlement: {
+        title: '結算報表',
+        description: '查看渠道結算、有效轉化與應付金額。'
+      },
+      attribution: {
+        title: '歸因報表',
+        description: '查看 Click、Register、FTD 與渠道歸因結果。'
+      },
+      response: {
+        title: '上報規範化回應',
+        description: '管理事件上報格式、標準欄位與回應規格。'
+      },
+      account: {
+        title: '帳號管理',
+        description: '建立、停用及管理後台操作帳號。'
+      },
+      role: {
+        title: '角色權限管理',
+        description: '配置角色可操作的功能選單與按鈕權限。'
+      },
+      dataPermission: {
+        title: '數據權限管理',
+        description: '限制角色或帳號可查看的渠道、國家與資料範圍。'
+      }
+    };
+
+    function renderPage(page) {
+      if (page === 'uploadLog') {
+        renderUploadLog();
+        return;
+      }
+
+      if (page === 'eventConfig') {
+        renderEventConfig();
+        return;
+      }
+
+      if (page === 'attribution') {
+        renderAttributionReport();
+        return;
+      }
+
+      const config = pages[page] || pages.channel;
+      const isReportPage = ['settlement', 'attribution'].includes(page);
+
+      document.getElementById('content').innerHTML = `
+        <div class="breadcrumb">${config.title} &nbsp;›&nbsp; 列表</div>
+        <div class="page-title">${config.title}</div>
+
+        <div class="card">
+          <div class="card-body">
+            <div class="filter-grid">
+              <div class="field">
+                <label>關鍵字</label>
+                <input class="input" placeholder="請輸入關鍵字">
+              </div>
+
+              <div class="field">
+                <label>狀態</label>
+                <select class="select">
+                  <option>全部</option>
+                  <option>啟用</option>
+                  <option>停用</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label>國家</label>
+                <select class="select">
+                  <option>Brazil</option>
+                  <option>Mexico</option>
+                </select>
+              </div>
+
+              <div class="filter-actions">
+                <button class="btn btn-primary">查詢</button>
+                <button class="btn">重置</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <strong>${config.title}列表</strong>
+            ${isReportPage ? '' : '<button class="btn btn-primary">新增</button>'}
+          </div>
+          <div class="card-body" style="padding:0;overflow:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>序號</th>
+                  <th>名稱</th>
+                  <th>說明</th>
+                  <th>狀態</th>
+                  <th>更新時間</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>${config.title} Demo</td>
+                  <td>${config.description}</td>
+                  <td><span class="badge">啟用</span></td>
+                  <td>2026-08-31 17:30</td>
+                  <td><button class="btn">查看</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+
+    function renderEventConfig() {
+      const rows = [
+        ['1','TikTok Ads','TikTok','CompleteRegistration','註冊','register','event_id, uid, event_time','啟用','2026-08-31 17:20'],
+        ['2','TikTok Ads','TikTok','Purchase','充值','deposit','event_id, uid, order_id, value, currency','啟用','2026-08-31 17:18'],
+        ['3','Google Ads','Google','GB_login','登入','login','event_id, uid, event_time','啟用','2026-08-30 12:41'],
+        ['4','Google Ads','Google','first_deposit','首充','first_deposit','event_id, uid, order_id, amount, currency','啟用','2026-08-30 11:33'],
+        ['5','Meta Ads','Facebook','CompleteRegistration','註冊','register','event_id, uid, event_time','停用','2026-08-29 15:12']
+      ];
+      const body = rows.map(r => `<tr>
+        <td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td>
+        <td><span class="badge">${r[5]}</span></td>
+        <td style="min-width:280px;white-space:normal;line-height:1.5">${r[6]}</td>
+        <td><span class="${r[7]==='啟用'?'status-success':'status-failed'}">${r[7]}</span></td>
+        <td>${r[8]}</td><td><button class="btn" onclick="alert('編輯事件配置 Demo')">編輯</button></td>
+      </tr>`).join('');
+
+      document.getElementById('content').innerHTML = `
+        <div class="breadcrumb">廣告商務配置 &nbsp;›&nbsp; 事件配置</div>
+        <div class="page-title">事件配置</div>
+        <div class="card"><div class="card-body">
+          <div class="filter-grid">
+            <div class="field"><label>廣告商</label><select class="select"><option>全部</option><option>TikTok Ads</option><option>Google Ads</option><option>Meta Ads</option></select></div>
+            <div class="field"><label>平台</label><select class="select"><option>全部</option><option>TikTok</option><option>Google</option><option>Facebook</option></select></div>
+            <div class="field"><label>事件名稱 / 事件代碼</label><input class="input" placeholder="請輸入事件名稱或事件代碼"></div>
+            <div class="field"><label>狀態</label><select class="select"><option>全部</option><option>啟用</option><option>停用</option></select></div>
+          </div>
+          <div class="report-filter-footer"><button class="btn btn-primary">查詢</button><button class="btn">重置</button></div>
+        </div></div>
+        <div class="card">
+          <div class="card-head"><strong>事件配置列表</strong><button class="btn btn-primary" onclick="alert('新增事件配置 Demo')">新增事件</button></div>
+          <div class="card-body" style="padding:0;overflow:auto"><table style="min-width:1250px">
+            <thead><tr><th>ID</th><th>廣告商</th><th>平台</th><th>事件代碼</th><th>事件名稱</th><th>標準化事件</th><th>必要參數</th><th>狀態</th><th>更新時間</th><th>操作</th></tr></thead>
+            <tbody>${body}</tbody>
+          </table></div>
+        </div>`;
+    }
+
+    function renderAttributionReport() {
+      const headers = ['日期','總消耗','展示量','千次展示費用','點擊量','安裝量','安裝成本','卸載量','打開數','打開率','註冊人數','註冊轉化率','充值人數','首充人數','首充成本','新充人數','首充金額','新充金額','總充金額','首充ARPPU','新充ARPPU','投充比'];
+      const rows = [
+        ['2026-08-25','-','-','-','0','-','-','-','-','-','11','81.82%','9','7','14500','7','14500','14500','20500','-','-','-'],
+        ['2026-08-24','1165.48','67155','17.36','-','-','-','-','-','-','7','14.29%','1','1','5000','1','5000','5000','5000','-','-','-'],
+        ['2026-08-23','1730.23','84890','20.38','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-'],
+        ['2026-08-22','1835.89','72295','25.39','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-'],
+        ['總計','4731.6','224340','63.13','-','-','-','-','-','-','42','47.62%','20','18','35340','15','35340','24120','41340','-','-','-']
+      ];
+      const body = rows.map((r,i)=>`<tr ${i===rows.length-1?'style="font-weight:700;background:#fafbfd"':''}>${r.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('');
+      document.getElementById('content').innerHTML = `
+        <div class="breadcrumb">報表 &nbsp;›&nbsp; 歸因報表</div>
+        <div class="page-title">歸因報表</div>
+        <div class="card"><div class="card-body">
+          <div class="report-filter-grid" style="grid-template-columns:repeat(3,minmax(230px,1fr))">
+            <div class="field"><label>總代篩選</label><select class="select"><option>全部</option><option>Yark260824</option><option>Max-0825test</option></select></div>
+            <div class="field"><label>渠道ID篩選</label><select class="select"><option>請選擇渠道ID篩選</option><option>4780097</option><option>4780098</option><option>2250001</option></select></div>
+            <div class="field"><label>代投時間起訖</label><div class="date-range"><input class="input" value="2026-08-01"><span>→</span><input class="input" value="2026-08-31"></div></div>
+          </div>
+          <div class="quick-date-row"><button class="btn">本周</button><button class="btn">上周</button><button class="btn">本月</button><button class="btn">上月</button></div>
+          <div class="report-filter-footer"><button class="btn btn-primary">查詢</button><button class="btn">重置</button><button class="btn">導出CSV</button></div>
+        </div></div>
+        <div class="card">
+          <div class="report-table-wrap" style="max-height:none"><table class="report-table" style="min-width:2550px">
+            <thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${body}</tbody>
+          </table></div>
+          <div class="pagination"><button class="page-btn">‹</button><button class="page-btn active">1</button><button class="page-btn">2</button><button class="page-btn">›</button><span>前往</span><input class="input" value="1" style="width:54px;padding:6px 8px"><span>頁</span><select class="select" style="width:100px;padding:6px 8px"><option>10條/頁</option><option>20條/頁</option><option>50條/頁</option></select><span>共 14 條記錄</span></div>
+        </div>`;
+    }
+
+    function renderUploadLog() {
+      const rows = [
+        {
+          id: 178,
+          partner: 'Yark260824',
+          uid: '4168830563102226944',
+          channel: '4780097',
+          platform: 'Google',
+          event: 'GB_login',
+          eventId: '5',
+          orderNo: '-',
+          request: '{"currency":"BRL","ip":"36.237.225.168","items":[],"transaction_id":"","uid":"4168830563102226944","user_agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/151.0.0.0 Safari/537.36"}',
+          response: '-',
+          time: '2026-08-28 10:53:01',
+          status: '成功'
+        },
+        {
+          id: 177,
+          partner: 'Yark260824',
+          uid: '4168830563102226945',
+          channel: '4780098',
+          platform: 'Facebook',
+          event: 'Purchase',
+          eventId: 'evt_202608280002',
+          orderNo: 'ORD20260828001',
+          request: '{"currency":"BRL","value":"100","type":"casino","uid":"4168830563102226945","event_id":"purchase:001"}',
+          response: '{"code":200,"message":"received"}',
+          time: '2026-08-28 10:50:14',
+          status: '成功'
+        },
+        {
+          id: 176,
+          partner: 'Max-0825test',
+          uid: '4168830563102226946',
+          channel: '2250001',
+          platform: 'TikTok',
+          event: 'Register',
+          eventId: 'evt_202608280003',
+          orderNo: '-',
+          request: '{"currency":"BRL","event_id":"register:003","uid":"4168830563102226946"}',
+          response: '{"code":400,"message":"invalid event parameter"}',
+          time: '2026-08-28 10:42:33',
+          status: '失敗'
+        }
+      ];
+
+      const rowHtml = rows.map(x => `
+        <tr>
+          <td>${x.id}</td>
+          <td>${x.partner}</td>
+          <td>${x.uid}</td>
+          <td>${x.channel}</td>
+          <td>${x.platform}</td>
+          <td>${x.event}</td>
+          <td>${x.eventId}</td>
+          <td>${x.orderNo}</td>
+          <td class="json-cell">${escapeHtml(x.request)}</td>
+          <td class="json-cell">${escapeHtml(x.response)}</td>
+          <td>${x.time}</td>
+          <td><span class="${x.status === '成功' ? 'status-success' : 'status-failed'}">${x.status}</span></td>
+          <td><button class="btn" onclick="alert('查看上報明細 Demo')">查看</button></td>
+        </tr>
+      `).join('');
+
+      document.getElementById('content').innerHTML = `
+        <div class="breadcrumb">報表 &nbsp;›&nbsp; 上報日誌</div>
+        <div class="page-title">上報日誌</div>
+
+        <div class="card">
+          <div class="card-body">
+            <div class="report-filter-grid">
+              <div class="field">
+                <label>UID / 訂單號</label>
+                <input class="input" placeholder="搜尋 UID / 訂單號">
+              </div>
+
+              <div class="field">
+                <label>渠道商</label>
+                <select class="select">
+                  <option>全部</option>
+                  <option>Yark260824</option>
+                  <option>Max-0825test</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label>渠道號</label>
+                <select class="select">
+                  <option>請選擇渠道號</option>
+                  <option>4780097</option>
+                  <option>4780098</option>
+                  <option>2250001</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label>上報事件</label>
+                <select class="select">
+                  <option>請選擇</option>
+                  <option>GB_login</option>
+                  <option>Register</option>
+                  <option>Purchase</option>
+                  <option>First Deposit</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label>上報平台</label>
+                <select class="select">
+                  <option>請選擇</option>
+                  <option>Google</option>
+                  <option>Facebook</option>
+                  <option>TikTok</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label>發送狀態</label>
+                <select class="select">
+                  <option>請選擇</option>
+                  <option>成功</option>
+                  <option>失敗</option>
+                  <option>處理中</option>
+                </select>
+              </div>
+
+              <div class="field" style="grid-column:span 2;">
+                <label>時間起迄</label>
+                <div class="date-range">
+                  <input class="input" value="2026-08-01 00:00:00">
+                  <span>→</span>
+                  <input class="input" value="2026-08-31 23:59:59">
+                </div>
+              </div>
+            </div>
+
+            <div class="quick-date-row">
+              <button class="btn">本周</button>
+              <button class="btn">上周</button>
+              <button class="btn">本月</button>
+              <button class="btn">上月</button>
+            </div>
+
+            <div class="report-filter-footer">
+              <button class="btn btn-primary">查詢</button>
+              <button class="btn">重置</button>
+              <button class="btn">導出 CSV</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="report-table-wrap">
+            <table class="report-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>渠道商</th>
+                  <th>UID</th>
+                  <th>渠道號</th>
+                  <th>上報平台</th>
+                  <th>上報事件</th>
+                  <th>事件ID</th>
+                  <th>訂單號</th>
+                  <th>上報資料</th>
+                  <th>上報回應資料</th>
+                  <th>上報時間</th>
+                  <th>Status</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>${rowHtml}</tbody>
+            </table>
+          </div>
+
+          <div class="pagination">
+            <span>共 1,248 條</span>
+            <select class="select" style="width:100px;padding:6px 8px;">
+              <option>10條/頁</option>
+              <option>20條/頁</option>
+              <option>50條/頁</option>
+            </select>
+            <button class="page-btn">‹</button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn">4</button>
+            <button class="page-btn">5</button>
+            <span>...</span>
+            <button class="page-btn">125</button>
+            <button class="page-btn">›</button>
+            <span>前往</span>
+            <input class="input" value="1" style="width:54px;padding:6px 8px;">
+            <span>頁</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function toggleSidebar() {
+      if (window.innerWidth <= 900) {
+        document.body.classList.toggle('sidebar-mobile-hidden');
+        return;
+      }
+
+      document.body.classList.toggle('sidebar-collapsed');
+
+      localStorage.setItem(
+        'ad-admin-sidebar-collapsed',
+        document.body.classList.contains('sidebar-collapsed') ? '1' : '0'
+      );
+    }
+
+    function restoreSidebarState() {
+      if (
+        window.innerWidth > 900 &&
+        localStorage.getItem('ad-admin-sidebar-collapsed') === '1'
+      ) {
+        document.body.classList.add('sidebar-collapsed');
+      }
+    }
+
+    document.getElementById('sidebarToggle').addEventListener('click', toggleSidebar);
+
+    document.addEventListener('click', event => {
+      const menuTitle = event.target.closest('.menu-title');
+
+      if (menuTitle) {
+        if (document.body.classList.contains('sidebar-collapsed')) {
+          document.body.classList.remove('sidebar-collapsed');
+          localStorage.setItem('ad-admin-sidebar-collapsed', '0');
+        }
+
+        menuTitle.closest('.menu-section').classList.toggle('open');
+        return;
+      }
+
+      const item = event.target.closest('[data-page]');
+
+      if (!item) return;
+
+      document.querySelectorAll('[data-page]').forEach(node => {
+        node.classList.remove('active');
+      });
+
+      item.classList.add('active');
+      renderPage(item.dataset.page);
+    });
+
+    restoreSidebarState();
+    renderPage('channel');
+  </script>
+</body>
+</html>
