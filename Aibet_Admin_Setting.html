@@ -1,0 +1,2298 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aibet Admin - PayCode</title>
+    <style>
+        :root {
+            --blue: #2d7fd8;
+            --blue-dark: #256ec0;
+            --blue-soft: #eef6ff;
+            --border: #dfe4ea;
+            --text: #111827;
+            --muted: #667085;
+            --content: #f3f7fd;
+            --header-h: 52px;
+            --sidebar-w: 260px;
+            --shadow: 0 2px 8px rgba(0, 0, 0, .06);
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #f6bd11;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            min-height: 100%;
+            font-family: Arial, "Microsoft JhengHei", sans-serif;
+            color: var(--text);
+            font-size: 14px;
+            background: #fff;
+        }
+
+        button,
+        input,
+        select {
+            font-family: inherit;
+        }
+
+        .topbar {
+            height: var(--header-h);
+            background: var(--blue);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 1px 0 rgba(0, 0, 0, .08);
+        }
+
+        .brand {
+            width: var(--sidebar-w);
+            flex: 0 0 var(--sidebar-w);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 12px;
+        }
+
+        .menu-toggle {
+            border: 0;
+            background: transparent;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+        }
+
+        .menu-toggle:hover {
+            background: rgba(255, 255, 255, .12);
+        }
+
+        .logo {
+            font-size: 30px;
+            line-height: 1;
+            font-style: italic;
+            font-weight: 900;
+            letter-spacing: -2px;
+            color: #fff;
+        }
+
+        .tabs {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            align-self: center;
+            background: rgba(0, 0, 0, .06);
+            overflow-x: auto;
+            max-width: min(860px, 48vw);
+            scrollbar-width: none;
+        }
+
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 0 14px;
+            background: #2b77cf;
+            color: #fff;
+            border-left: 1px solid rgba(255, 255, 255, .06);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .tab.active {
+            background: var(--blue-dark);
+            font-weight: 800;
+        }
+
+        .tab .close {
+            width: 18px;
+            height: 18px;
+            display: grid;
+            place-items: center;
+            border-radius: 3px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, .12);
+        }
+
+        .top-spacer {
+            flex: 1;
+        }
+
+        .clock {
+            font-size: 13px;
+            margin-right: 14px;
+            white-space: nowrap;
+        }
+
+        .country-context {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-right: 10px;
+            padding: 6px 10px;
+            border-radius: 7px;
+            background: rgba(255, 255, 255, .14);
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 10px;
+            font-size: 13px;
+        }
+
+        .avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2b4f87, #9bb5d7);
+        }
+
+        .layout {
+            display: flex;
+            min-height: calc(100vh - var(--header-h));
+        }
+
+        .sidebar {
+            width: var(--sidebar-w);
+            flex: 0 0 var(--sidebar-w);
+            background: #fff;
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            height: calc(100vh - var(--header-h));
+            position: sticky;
+            top: var(--header-h);
+            transition: .2s width, .2s flex-basis;
+        }
+
+        .content {
+            flex: 1;
+            padding: 16px;
+            background: var(--content);
+            min-width: 0;
+            overflow: auto;
+            height: calc(100vh - var(--header-h));
+        }
+
+        .menu-section {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .menu-item {
+            height: 44px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px 0 12px;
+            gap: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            position: relative;
+            background: #fff;
+        }
+
+        .menu-item:hover {
+            background: #f7fbff;
+        }
+
+        .menu-icon {
+            width: 22px;
+            height: 22px;
+            display: grid;
+            place-items: center;
+            color: var(--blue);
+            font-size: 18px;
+            flex: 0 0 22px;
+        }
+
+        .chev {
+            margin-left: auto;
+            color: #777;
+            transition: .2s transform;
+        }
+
+        .menu-section.open > .menu-item .chev {
+            transform: rotate(180deg);
+        }
+
+        .submenu {
+            display: none;
+            padding: 4px 0 8px;
+            background: #fff;
+        }
+
+        .menu-section.open > .submenu {
+            display: block;
+        }
+
+        .submenu .sub {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            padding-left: 38px;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .submenu .sub:hover,
+        .submenu .sub.active {
+            background: var(--blue-soft);
+        }
+
+        .submenu .sub.active {
+            color: var(--blue);
+            font-weight: 800;
+            border-left: 3px solid var(--blue);
+            padding-left: 35px;
+        }
+
+        .nested .sub.active {
+            padding-left: 57px;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #bfc1c4;
+        }
+
+        .sub.active .dot {
+            background: var(--blue);
+        }
+
+        .sub-label {
+            flex: 1;
+        }
+
+        .nested {
+            display: none;
+        }
+
+        .nested.open {
+            display: block;
+        }
+
+        .nested .sub {
+            padding-left: 60px;
+        }
+
+        body.collapsed .brand,
+        body.collapsed .sidebar {
+            width: 56px;
+            flex-basis: 56px;
+        }
+
+        body.collapsed .logo,
+        body.collapsed .menu-label,
+        body.collapsed .chev,
+        body.collapsed .submenu {
+            display: none;
+        }
+
+        body.collapsed .menu-item {
+            justify-content: center;
+            padding: 0;
+        }
+
+        .breadcrumb {
+            font-size: 12px;
+            color: #777;
+            margin-bottom: 10px;
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 900;
+            margin: 0 0 12px;
+        }
+
+        .panel,
+        .filter-box {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .filter-box {
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(170px, 1fr));
+            gap: 12px;
+        }
+
+        .form-field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 800;
+            color: #344054;
+            margin-bottom: 5px;
+        }
+
+        .form-field input,
+        .form-field select {
+            width: 100%;
+            height: 36px;
+            border: 1px solid #d6deeb;
+            border-radius: 6px;
+            padding: 0 10px;
+            background: #fff;
+        }
+
+        .action-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            border: 0;
+            border-radius: 5px;
+            padding: 8px 14px;
+            color: #fff;
+            font-weight: 800;
+            font-size: 13px;
+            cursor: pointer;
+            background: var(--blue);
+        }
+
+        .btn:hover {
+            filter: brightness(.97);
+        }
+
+        .btn.reset {
+            background: var(--warning);
+            color: #111;
+        }
+
+        .btn.gray {
+            background: #7e8795;
+        }
+
+        .btn.light {
+            background: #fff;
+            color: #111;
+            border: 1px solid #d6deeb;
+        }
+
+        .btn.danger {
+            background: var(--danger);
+        }
+
+        .panel {
+            overflow: hidden;
+        }
+
+        .panel-head {
+            min-height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-head h2 {
+            margin: 0;
+            font-size: 17px;
+        }
+
+        .table-wrap {
+            overflow: auto;
+        }
+
+        .table {
+            width: 100%;
+            min-width: 1450px;
+            border-collapse: collapse;
+            background: #fff;
+            font-size: 13px;
+        }
+
+        .table th,
+        .table td {
+            border-bottom: 1px solid #edf0f3;
+            text-align: left;
+            padding: 10px 12px;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        .table th {
+            background: #f8fbff;
+            color: #344054;
+            font-weight: 900;
+        }
+
+        .table tr:hover td {
+            background: #fbfdff;
+        }
+
+        .status-switch {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .status-switch input {
+            display: none;
+        }
+
+        .status-slider {
+            width: 42px;
+            height: 22px;
+            border-radius: 999px;
+            background: #c7d0dd;
+            position: relative;
+            transition: .2s;
+        }
+
+        .status-slider::before {
+            content: "";
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #fff;
+            left: 2px;
+            top: 2px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .25);
+            transition: .2s;
+        }
+
+        .status-switch input:checked + .status-slider {
+            background: var(--blue);
+        }
+
+        .status-switch input:checked + .status-slider::before {
+            left: 22px;
+        }
+
+        .status-switch-text {
+            min-width: 42px;
+            font-size: 12px;
+            font-weight: 900;
+            color: #667085;
+        }
+
+        .status-switch input:checked ~ .status-switch-text {
+            color: var(--success);
+        }
+
+        .link-action {
+            border: 0;
+            background: transparent;
+            color: #1677ff;
+            cursor: pointer;
+            padding: 0 7px;
+        }
+
+        .link-action.remove {
+            color: #ef4444;
+        }
+
+        .empty {
+            text-align: center !important;
+            color: #98a2b3;
+            padding: 24px !important;
+        }
+
+        .modal-mask {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, .48);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+        }
+
+        .modal-mask.open {
+            display: flex;
+        }
+
+        .modal {
+            width: min(720px, 100%);
+            max-height: 90vh;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 24px 70px rgba(0, 0, 0, .25);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-head {
+            min-height: 54px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 18px;
+            border-bottom: 1px solid var(--border);
+            background: #fbfdff;
+        }
+
+        .modal-head h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .modal-close {
+            border: 0;
+            background: transparent;
+            font-size: 26px;
+            color: #667085;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 18px;
+            overflow: auto;
+        }
+
+        .modal-foot {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 12px 18px;
+            border-top: 1px solid var(--border);
+            background: #fbfdff;
+        }
+
+        .modal-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px 16px;
+        }
+
+        .modal-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .modal-field.full {
+            grid-column: 1 / -1;
+        }
+
+        .modal-field label {
+            font-size: 13px;
+            color: #344054;
+            font-weight: 900;
+        }
+
+        .modal-field input,
+        .modal-field select {
+            width: 100%;
+            height: 40px;
+            border: 1px solid #d6deeb;
+            border-radius: 7px;
+            padding: 0 10px;
+            background: #fff;
+        }
+
+        .required {
+            color: #ef4444;
+        }
+
+        .form-note {
+            margin-top: 4px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .toast {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            background: #111;
+            color: #fff;
+            border-radius: 8px;
+            padding: 10px 14px;
+            z-index: 500;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, .25);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: .25s;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: none;
+        }
+
+        .placeholder-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 22px;
+            box-shadow: var(--shadow);
+        }
+
+        .placeholder-card h2 {
+            margin-top: 0;
+        }
+
+        .setting-page {
+            max-width: 1180px;
+        }
+
+        .setting-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 14px;
+            padding: 14px 16px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .setting-toolbar-title {
+            font-size: 14px;
+            font-weight: 900;
+            color: #344054;
+        }
+
+        .setting-toolbar-note {
+            margin-top: 4px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .publish-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .publish-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 9px;
+            border-radius: 999px;
+            background: #eef8f0;
+            color: #16803d;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .publish-badge.draft {
+            background: #fff7df;
+            color: #9a6700;
+        }
+
+        .setting-section {
+            margin-bottom: 14px;
+            overflow: hidden;
+        }
+
+        .setting-section-head {
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--border);
+            background: #fbfdff;
+        }
+
+        .setting-section-head h2 {
+            margin: 0;
+            font-size: 17px;
+        }
+
+        .setting-section-head p {
+            margin: 5px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .setting-list {
+            background: #fff;
+        }
+
+        .setting-row {
+            display: grid;
+            grid-template-columns: minmax(220px, 1.2fr) minmax(300px, 2fr) 130px;
+            align-items: center;
+            gap: 18px;
+            min-height: 78px;
+            padding: 14px 18px;
+            border-bottom: 1px solid #edf0f3;
+        }
+
+        .setting-row:last-child {
+            border-bottom: 0;
+        }
+
+        .setting-name {
+            font-size: 14px;
+            font-weight: 900;
+            color: #1f2937;
+        }
+
+        .setting-desc {
+            margin-top: 5px;
+            font-size: 12px;
+            line-height: 1.55;
+            color: var(--muted);
+        }
+
+        .setting-desc.important {
+            color: #b54708;
+            font-weight: 700;
+        }
+
+        .setting-switch-wrap {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .setting-switch-label {
+            min-width: 54px;
+            font-size: 12px;
+            font-weight: 900;
+            color: #667085;
+        }
+
+        .setting-row.is-on .setting-switch-label {
+            color: var(--success);
+        }
+
+        .publish-footer {
+            position: sticky;
+            bottom: 0;
+            z-index: 20;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 14px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, .96);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 -4px 16px rgba(15, 23, 42, .06);
+            backdrop-filter: blur(6px);
+        }
+
+        @media (max-width: 760px) {
+            .setting-toolbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .setting-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .setting-switch-wrap {
+                justify-content: flex-start;
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .filter-grid {
+                grid-template-columns: repeat(2, minmax(160px, 1fr));
+            }
+
+            .clock {
+                display: none;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                position: fixed;
+                left: -270px;
+                top: var(--header-h);
+                z-index: 80;
+                width: 260px;
+                flex-basis: 260px;
+                transition: left .2s;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .tabs,
+            .user span {
+                display: none;
+            }
+
+            .filter-grid,
+            .modal-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-field.full {
+                grid-column: auto;
+            }
+
+            .country-context {
+                margin-left: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand">
+            <button class="menu-toggle" id="menuToggle" type="button">☰</button>
+            <div class="logo">Aibet</div>
+        </div>
+        <div class="tabs" id="tabs"></div>
+        <div class="top-spacer"></div>
+        <div class="clock" id="clock"></div>
+        <div class="country-context">☰ All Functions</div>
+        <div class="user">
+            <span>Ai9_yark</span>
+            <div class="avatar"></div>
+        </div>
+    </header>
+
+    <div class="layout">
+        <aside class="sidebar" id="sidebar">
+            <nav id="menu"></nav>
+        </aside>
+        <main class="content" id="content"></main>
+    </div>
+
+
+    <div class="modal-mask" id="merchantModalMask">
+        <div class="modal">
+            <div class="modal-head">
+                <h3 id="merchantModalTitle">Add Merchant</h3>
+                <button class="modal-close" id="merchantModalClose" type="button">×</button>
+            </div>
+            <div class="modal-body" id="merchantModalBody"></div>
+            <div class="modal-foot">
+                <button class="btn light" id="merchantModalCancel" type="button">Cancel</button>
+                <button class="btn" id="merchantModalSave" type="button">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-mask" id="payCodeModalMask">
+        <div class="modal">
+            <div class="modal-head">
+                <h3 id="payCodeModalTitle">新增 PayCode</h3>
+                <button class="modal-close" id="payCodeModalClose" type="button">×</button>
+            </div>
+            <div class="modal-body" id="payCodeModalBody"></div>
+            <div class="modal-foot">
+                <button class="btn light" id="payCodeModalCancel" type="button">取消</button>
+                <button class="btn" id="payCodeModalSave" type="button">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-mask" id="confirmMask">
+        <div class="modal" style="width:min(420px,100%)">
+            <div class="modal-head">
+                <h3>确认删除</h3>
+                <button class="modal-close" id="confirmClose" type="button">×</button>
+            </div>
+            <div class="modal-body" id="confirmMessage">确认删除？</div>
+            <div class="modal-foot">
+                <button class="btn light" id="confirmCancel" type="button">取消</button>
+                <button class="btn danger" id="confirmOk" type="button">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const menuData = [
+            { title: 'User Management', icon: '◎', children: ['User List', 'User Detail', 'Balance History', 'BlackList', 'S-E Review'] },
+            { title: 'Record Query', icon: '▦', children: ['Sports Tickets', 'Casino Tickets'] },
+            { title: 'Fund Management', icon: '▣', children: ['Withdrawals', 'Deposits', 'Balance History', 'Fund Adjustment'] },
+            { title: 'Casino Management', icon: '🎲', children: ['HomePage', 'Merchant', 'Lobby', 'Tags', 'GameList'] },
+            { title: 'Message Management', icon: '▱', children: ['Message'] },
+            { title: 'OP Management', icon: '▱', children: ['Push', 'Gift Code'] },
+            { title: 'Reporting', icon: '▤', children: ['Reporting Generator', 'Reporting Summary', 'Promo Report', 'Event Report', 'Promo Cost Report', 'Liability Report', 'Jackpot Report', 'VIP Report'] },
+            { title: 'Promotion', icon: '✾', children: ['Promo-Mgt'] },
+            { title: 'Leaderboard', icon: '♙', children: ['Casino Weekly', 'Casino Monthly', 'Sports Weekly', 'Sports Monthly'] },
+            { title: 'World Cup', icon: '◉', children: [] },
+            { title: 'System Management', icon: '☷', children: ['Login Record', 'Roles', 'Account', 'Validator and KYC Setting'] },
+            { title: 'Finance Management', icon: '☷', children: ['Merchant', 'PayCode'] },
+            { title: 'Daily Operations', icon: '▭', children: [{ title: 'BRA', children: ['Banner', 'Promotions', 'Match Pinned', 'Sports Events', 'Registration Image'] }] },
+            { title: 'Offering Management', icon: '▣', children: [] }
+        ];
+
+        const $ = selector => document.querySelector(selector);
+        const menu = $('#menu');
+        const content = $('#content');
+        const tabsEl = $('#tabs');
+        const sidebar = $('#sidebar');
+
+        const state = {
+            activeTab: 'Home',
+            tabs: [{ title: 'Home', closable: false }]
+        };
+
+        const STORE_MERCHANT = 'aibet_finance_merchant_v1';
+        const STORE_PAYCODE = 'aibet_finance_paycode_v1';
+        const STORE_KYC_DRAFT = 'aibet_validator_kyc_setting_draft_v1';
+        const STORE_KYC_PUBLISHED = 'aibet_validator_kyc_setting_published_v1';
+        const STORE_KYC_PUBLISHED_AT = 'aibet_validator_kyc_setting_published_at_v1';
+
+        const validatorKycDefaults = {
+            login: true,
+            loginGraphicOtp: false,
+            register: true,
+            bet: true,
+            deposit: true,
+            withdraw: true,
+            personalCenter: true,
+            inactive7Days: false,
+            multiRegionDeviceLogin: false
+        };
+
+
+        function loadState(key, fallback) {
+            try {
+                const raw = localStorage.getItem(key);
+                return raw ? JSON.parse(raw) : fallback;
+            } catch (error) {
+                return fallback;
+            }
+        }
+
+        function saveState(key, value) {
+            localStorage.setItem(key, JSON.stringify(value));
+        }
+
+        function nowText() {
+            const d = new Date();
+            const z = n => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}:${z(d.getSeconds())}`;
+        }
+
+        let merchantRows = loadState(STORE_MERCHANT, [
+            {
+                id: 1,
+                name: 'epay',
+                merchant: 'xpet',
+                merchantId: '2717',
+                apiKey: '0a8b14df0549e1896d678a0f29709ae7',
+                appId: '1901',
+                url: 'https://order.5kj.one/payApi/PayApi',
+                depositCallbackUrl: 'http://payment-api.helix.city/v1/epay/payin/notice',
+                withdrawCallbackUrl: 'http://payment-api.helix.city/v1/epay/payout/notice',
+                status: 'Enabled',
+                supportedCurrency: 'BRL',
+                notice: 'epay的商户配置',
+                createdBy: '-',
+                createdAt: '2025-12-06 10:31:21',
+                updatedBy: '-',
+                updatedAt: '2026-03-06 06:48:06'
+            },
+            {
+                id: 3,
+                name: 'test',
+                merchant: 'test',
+                merchantId: 'test',
+                apiKey: 'test',
+                appId: 'test',
+                url: 'http://localhost:3001/finance/merchant/list',
+                depositCallbackUrl: 'http://localhost:3001/finance/merchant/list',
+                withdrawCallbackUrl: 'http://localhost:3001/finance/merchant/list',
+                status: 'Disabled',
+                supportedCurrency: 'USD',
+                notice: '',
+                createdBy: '-',
+                createdAt: '2026-01-19 18:09:48',
+                updatedBy: '-',
+                updatedAt: '2026-03-04 15:48:45'
+            },
+            {
+                id: 4,
+                name: 'epayMexico',
+                merchant: 'ugobet',
+                merchantId: '2717',
+                apiKey: '0a8b14df0549e1896d678a0f29709ae7',
+                appId: '2151',
+                url: 'https://order.5kj.one/payApi/PayApi',
+                depositCallbackUrl: 'http://payment-api.helix.city/v1/epay/payin/notice',
+                withdrawCallbackUrl: 'http://payment-api.helix.city/v1/epay/payout/notice',
+                status: 'Enabled',
+                supportedCurrency: 'MXN',
+                notice: '',
+                createdBy: '-',
+                createdAt: '2026-02-06 20:09:19',
+                updatedBy: '-',
+                updatedAt: '2026-04-13 21:49:07'
+            },
+            {
+                id: 10,
+                name: 'BR PAY',
+                merchant: 'BR PAY',
+                merchantId: 'BR PAY',
+                apiKey: 'BR PAY',
+                appId: 'BR PAY',
+                url: 'http://ffsad.com:3001/finance/merchant/list',
+                depositCallbackUrl: 'http://ffsad.com:3001/finance/merchant/list',
+                withdrawCallbackUrl: 'http://ffsad.com:3001/finance/merchant/list',
+                status: 'Disabled',
+                supportedCurrency: 'MXN',
+                notice: '',
+                createdBy: '-',
+                createdAt: '2026-03-04 15:17:00',
+                updatedBy: '-',
+                updatedAt: '2026-03-04 15:17:30'
+            }
+        ]);
+
+        let editingMerchantId = null;
+
+        let payCodeRows = loadState(STORE_PAYCODE, [
+            {
+                id: 1,
+                payCodeName: 'PIX Deposit',
+                accountType: '-',
+                bankCode: '-',
+                payCode: 'PIX',
+                kycLimit: '5000.00',
+                merchant: 'ZPay',
+                currency: 'BRL',
+                type: 'deposit',
+                status: 'Enabled',
+                createdBy: 'Admin',
+                createdDate: '2026-09-01 09:10:00',
+                updatedBy: 'Admin',
+                updatedAt: '2026-09-01 09:10:00'
+            },
+            {
+                id: 2,
+                payCodeName: 'PIX Withdraw',
+                accountType: 'PIX',
+                bankCode: 'PIX',
+                payCode: 'PIX',
+                kycLimit: '10000.00',
+                merchant: 'ZPay',
+                currency: 'BRL',
+                type: 'withdraw',
+                status: 'Enabled',
+                createdBy: 'Admin',
+                createdDate: '2026-09-01 09:15:00',
+                updatedBy: 'Admin',
+                updatedAt: '2026-09-01 09:15:00'
+            },
+            {
+                id: 3,
+                payCodeName: 'CLABE Withdraw',
+                accountType: 'CLABE',
+                bankCode: 'STP',
+                payCode: 'CLABE',
+                kycLimit: '15000.00',
+                merchant: 'ZPay',
+                currency: 'MXN',
+                type: 'withdraw',
+                status: 'Enabled',
+                createdBy: 'Admin',
+                createdDate: '2026-09-01 09:20:00',
+                updatedBy: 'Admin',
+                updatedAt: '2026-09-01 09:20:00'
+            },
+            {
+                id: 4,
+                payCodeName: 'OXXO Deposit',
+                accountType: '-',
+                bankCode: '-',
+                payCode: 'OXXO',
+                kycLimit: '3000.00',
+                merchant: 'ZPay',
+                currency: 'MXN',
+                type: 'deposit',
+                status: 'Disabled',
+                createdBy: 'Admin',
+                createdDate: '2026-09-01 09:25:00',
+                updatedBy: 'Admin',
+                updatedAt: '2026-09-01 09:25:00'
+            }
+        ]);
+
+        let editingPayCodeId = null;
+        let confirmCallback = null;
+        let validatorKycDraft = loadState(STORE_KYC_DRAFT, { ...validatorKycDefaults });
+        let validatorKycPublished = loadState(STORE_KYC_PUBLISHED, { ...validatorKycDefaults });
+        let validatorKycPublishedAt = localStorage.getItem(STORE_KYC_PUBLISHED_AT) || '-';
+
+
+        function renderMenu() {
+            menu.innerHTML = menuData.map((item, index) => sectionHtml(item, index)).join('');
+        }
+
+        function sectionHtml(item, index) {
+            const hasChildren = item.children && item.children.length;
+            return `
+                <div class="menu-section ${item.title === 'Finance Management' ? 'open' : ''}" data-path="${index}">
+                    <div class="menu-item" data-page="${hasChildren ? '' : item.title}">
+                        <span class="menu-icon">${item.icon}</span>
+                        <span class="menu-label">${item.title}</span>
+                        ${hasChildren ? '<span class="chev">⌄</span>' : ''}
+                    </div>
+                    ${hasChildren ? `<div class="submenu">${childrenHtml(item.children, index)}</div>` : ''}
+                </div>
+            `;
+        }
+
+        function childrenHtml(children, parentPath) {
+            return children.map((child, index) => {
+                const path = `${parentPath}-${index}`;
+                if (typeof child === 'string') {
+                    return `
+                        <div class="sub" data-page="${child}" data-path="${path}">
+                            <span class="dot"></span>
+                            <span class="sub-label">${child}</span>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="sub parent" data-path="${path}">
+                        <span class="dot"></span>
+                        <span class="sub-label">${child.title}</span>
+                        <span class="chev">⌄</span>
+                    </div>
+                    <div class="nested">${childrenHtml(child.children || [], path)}</div>
+                `;
+            }).join('');
+        }
+
+        function renderTabs() {
+            tabsEl.innerHTML = state.tabs.map(tab => `
+                <div class="tab ${tab.title === state.activeTab ? 'active' : ''}" data-tab="${tab.title}">
+                    <span>${tab.title}</span>
+                    ${tab.closable ? `<span class="close" data-close="${tab.title}">×</span>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function addTab(title) {
+            if (!state.tabs.some(tab => tab.title === title)) {
+                state.tabs.push({ title, closable: title !== 'Home' });
+            }
+            activateTab(title);
+        }
+
+        function activateTab(title) {
+            state.activeTab = title;
+            renderTabs();
+            renderContent(title);
+            setActiveMenu(title);
+        }
+
+        function closeTab(title) {
+            if (title === 'Home') return;
+            const index = state.tabs.findIndex(tab => tab.title === title);
+            if (index < 0) return;
+
+            state.tabs.splice(index, 1);
+
+            if (state.activeTab === title) {
+                state.activeTab = state.tabs[Math.max(0, index - 1)]?.title || 'Home';
+            }
+
+            renderTabs();
+            renderContent(state.activeTab);
+            setActiveMenu(state.activeTab);
+        }
+
+        function setActiveMenu(title) {
+            document.querySelectorAll('.sub.active').forEach(el => el.classList.remove('active'));
+
+            let sub = null;
+
+            // Merchant 在 Casino Management 与 Finance Management 都存在。
+            // Finance Management 的 Merchant 页面需明确选中 Finance Management 下的菜单项，
+            // 避免因为找到前面的 Casino Merchant 而没有正确显示选中色。
+            if (title === 'Merchant') {
+                const financeSection = [...document.querySelectorAll('.menu-section')].find(section => {
+                    const label = section.querySelector(':scope > .menu-item .menu-label');
+                    return label && label.textContent.trim() === 'Finance Management';
+                });
+
+                sub = financeSection
+                    ? financeSection.querySelector('.sub[data-page="Merchant"]')
+                    : null;
+            }
+
+            if (!sub) {
+                sub = [...document.querySelectorAll('.sub[data-page]')].find(
+                    el => el.dataset.page === title
+                );
+            }
+
+            if (sub) {
+                sub.classList.add('active');
+
+                let parent = sub.parentElement;
+
+                while (parent) {
+                    if (parent.classList?.contains('submenu')) {
+                        parent.closest('.menu-section')?.classList.add('open');
+                    }
+
+                    if (parent.classList?.contains('nested')) {
+                        parent.classList.add('open');
+                        parent.previousElementSibling?.classList.add('open');
+                    }
+
+                    parent = parent.parentElement;
+                }
+            }
+        }
+
+        function homeHtml() {
+            return `
+                <div class="breadcrumb">Home</div>
+                <h1 class="page-title">Welcome to Ai.bet V1.0!</h1>
+                <div class="placeholder-card">
+                    <h2>Admin Framework</h2>
+                    <p>请从左侧进入 <b>Finance Management → PayCode</b>。</p>
+                </div>
+            `;
+        }
+
+        function merchantHtml(rows = merchantRows) {
+            return `
+                <div class="breadcrumb">Home / Finance Management / Merchant</div>
+                <h1 class="page-title">Merchant</h1>
+
+                <div class="filter-box">
+                    <div class="filter-grid">
+                        <div class="form-field">
+                            <label>Name</label>
+                            <input id="merchantNameFilter" placeholder="Please enter">
+                        </div>
+                        <div class="form-field">
+                            <label>Merchant</label>
+                            <input id="merchantMerchantFilter" placeholder="Please enter">
+                        </div>
+                        <div class="form-field">
+                            <label>URL</label>
+                            <input id="merchantUrlFilter" placeholder="Please enter">
+                        </div>
+                    </div>
+                    <div class="action-row">
+                        <button class="btn light" id="merchantResetBtn" type="button">Reset</button>
+                        <button class="btn" id="merchantQueryBtn" type="button">Query</button>
+                        <button class="btn" id="merchantAddBtn" type="button">+ Add Merchant</button>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <h2>Merchant List</h2>
+                        <span style="font-size:12px;color:#667085">Total: ${rows.length}</span>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="table" style="min-width:2050px">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Merchant</th>
+                                    <th>Merchant ID</th>
+                                    <th>API Key</th>
+                                    <th>App ID</th>
+                                    <th>URL</th>
+                                    <th>Deposit Callback URL</th>
+                                    <th>Withdraw Callback URL</th>
+                                    <th>Status</th>
+                                    <th>Supported Currency</th>
+                                    <th>Created By</th>
+                                    <th>Created At</th>
+                                    <th>Updated By</th>
+                                    <th>Updated At</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rows.length ? rows.map(row => merchantRowHtml(row)).join('') : `
+                                    <tr><td colspan="16" class="empty">No data available</td></tr>
+                                `}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function merchantRowHtml(row) {
+            return `
+                <tr data-merchant-id="${row.id}">
+                    <td>${row.id}</td>
+                    <td>${escapeHtml(row.name)}</td>
+                    <td>${escapeHtml(row.merchant)}</td>
+                    <td>${escapeHtml(row.merchantId)}</td>
+                    <td>${escapeHtml(row.apiKey)}</td>
+                    <td>${escapeHtml(row.appId || '-')}</td>
+                    <td>${escapeHtml(row.url)}</td>
+                    <td>${escapeHtml(row.depositCallbackUrl || '-')}</td>
+                    <td>${escapeHtml(row.withdrawCallbackUrl || '-')}</td>
+                    <td>
+                        <label class="status-switch">
+                            <input
+                                type="checkbox"
+                                data-merchant-status="${row.id}"
+                                ${row.status === 'Enabled' ? 'checked' : ''}
+                            >
+                            <span class="status-slider"></span>
+                            <span class="status-switch-text">
+                                ${row.status === 'Enabled' ? '启动' : '关闭'}
+                            </span>
+                        </label>
+                    </td>
+                    <td>${escapeHtml(row.supportedCurrency)}</td>
+                    <td>${escapeHtml(row.createdBy)}</td>
+                    <td>${escapeHtml(row.createdAt)}</td>
+                    <td>${escapeHtml(row.updatedBy)}</td>
+                    <td>${escapeHtml(row.updatedAt)}</td>
+                    <td>
+                        <button class="link-action" data-merchant-action="edit" type="button">Edit</button>
+                        <button class="link-action remove" data-merchant-action="remove" type="button">Remove</button>
+                    </td>
+                </tr>
+            `;
+        }
+
+        function getMerchantById(id) {
+            return merchantRows.find(row => String(row.id) === String(id));
+        }
+
+        function openMerchantModal(mode = 'add', row = null) {
+            editingMerchantId = row?.id || null;
+            const data = row || {
+                status: 'Enabled',
+                name: '',
+                merchant: '',
+                merchantId: '',
+                apiKey: '',
+                appId: '',
+                url: '',
+                supportedCurrency: '',
+                depositCallbackUrl: '',
+                withdrawCallbackUrl: '',
+                notice: ''
+            };
+
+            $('#merchantModalTitle').textContent = mode === 'edit' ? 'Edit Merchant' : 'Add Merchant';
+            $('#merchantModalBody').innerHTML = `
+                <div class="modal-grid">
+                    <div class="modal-field full">
+                        <label><span class="required">*</span> Status</label>
+                        <div style="display:flex;align-items:center;height:40px">
+                            <label class="status-switch">
+                                <input
+                                    id="merchantStatusInput"
+                                    type="checkbox"
+                                    ${data.status === 'Enabled' ? 'checked' : ''}
+                                >
+                                <span class="status-slider"></span>
+                                <span class="status-switch-text" id="merchantStatusText">
+                                    ${data.status === 'Enabled' ? 'Enabled' : 'Disabled'}
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                    ${merchantInputHtml('Name', 'merchantNameInput', data.name, true)}
+                    ${merchantInputHtml('Merchant', 'merchantMerchantInput', data.merchant, true)}
+                    ${merchantInputHtml('Merchant ID', 'merchantIdInput', data.merchantId, true)}
+                    ${merchantInputHtml('API Key', 'merchantApiKeyInput', data.apiKey, true)}
+                    ${merchantInputHtml('App ID', 'merchantAppIdInput', data.appId, false)}
+                    ${merchantInputHtml('URL', 'merchantUrlInput', data.url, true)}
+                    <div class="modal-field">
+                        <label><span class="required">*</span> Supported Currency</label>
+                        <select id="merchantCurrencyInput">
+                            <option value="">Please select</option>
+                            <option value="BRL" ${data.supportedCurrency === 'BRL' ? 'selected' : ''}>BRL</option>
+                            <option value="MXN" ${data.supportedCurrency === 'MXN' ? 'selected' : ''}>MXN</option>
+                            <option value="USD" ${data.supportedCurrency === 'USD' ? 'selected' : ''}>USD</option>
+                        </select>
+                    </div>
+                    ${merchantInputHtml('Deposit Callback URL', 'merchantDepositCallbackInput', data.depositCallbackUrl, false)}
+                    ${merchantInputHtml('Withdraw Callback URL', 'merchantWithdrawCallbackInput', data.withdrawCallbackUrl, false)}
+                    <div class="modal-field full">
+                        <label>Notice</label>
+                        <textarea id="merchantNoticeInput" style="min-height:90px;border:1px solid #d6deeb;border-radius:7px;padding:10px;resize:vertical">${escapeHtml(data.notice || '')}</textarea>
+                    </div>
+                </div>
+            `;
+            $('#merchantModalMask').classList.add('open');
+        }
+
+        function merchantInputHtml(label, id, value, required) {
+            return `
+                <div class="modal-field">
+                    <label>${required ? '<span class="required">*</span> ' : ''}${label}</label>
+                    <input id="${id}" value="${escapeHtml(value || '')}" placeholder="Please enter">
+                </div>
+            `;
+        }
+
+        function closeMerchantModal() {
+            $('#merchantModalMask').classList.remove('open');
+            editingMerchantId = null;
+        }
+
+        function saveMerchantModal() {
+            const status = $('#merchantStatusInput').checked ? 'Enabled' : 'Disabled';
+            const name = $('#merchantNameInput').value.trim();
+            const merchant = $('#merchantMerchantInput').value.trim();
+            const merchantId = $('#merchantIdInput').value.trim();
+            const apiKey = $('#merchantApiKeyInput').value.trim();
+            const appId = $('#merchantAppIdInput').value.trim();
+            const url = $('#merchantUrlInput').value.trim();
+            const supportedCurrency = $('#merchantCurrencyInput').value;
+            const depositCallbackUrl = $('#merchantDepositCallbackInput').value.trim();
+            const withdrawCallbackUrl = $('#merchantWithdrawCallbackInput').value.trim();
+            const notice = $('#merchantNoticeInput').value.trim();
+
+            if (!name || !merchant || !merchantId || !apiKey || !url || !supportedCurrency) {
+                toast('请填写所有必填栏位');
+                return;
+            }
+
+            const current = editingMerchantId ? getMerchantById(editingMerchantId) : null;
+            const timestamp = nowText();
+            const data = {
+                id: current ? current.id : Math.max(0, ...merchantRows.map(row => Number(row.id))) + 1,
+                status, name, merchant, merchantId, apiKey, appId, url,
+                supportedCurrency, depositCallbackUrl, withdrawCallbackUrl, notice,
+                createdBy: current?.createdBy || 'Admin',
+                createdAt: current?.createdAt || timestamp,
+                updatedBy: 'Admin',
+                updatedAt: timestamp
+            };
+
+            if (current) Object.assign(current, data);
+            else merchantRows.unshift(data);
+
+            saveState(STORE_MERCHANT, merchantRows);
+            closeMerchantModal();
+            renderContent('Merchant');
+            toast(current ? 'Merchant updated' : 'Merchant added');
+        }
+
+        function applyMerchantFilter() {
+            const name = ($('#merchantNameFilter')?.value || '').trim().toLowerCase();
+            const merchant = ($('#merchantMerchantFilter')?.value || '').trim().toLowerCase();
+            const url = ($('#merchantUrlFilter')?.value || '').trim().toLowerCase();
+
+            const rows = merchantRows.filter(row =>
+                (!name || row.name.toLowerCase().includes(name)) &&
+                (!merchant || row.merchant.toLowerCase().includes(merchant)) &&
+                (!url || row.url.toLowerCase().includes(url))
+            );
+
+            content.innerHTML = merchantHtml(rows);
+            $('#merchantNameFilter').value = name;
+            $('#merchantMerchantFilter').value = merchant;
+            $('#merchantUrlFilter').value = url;
+        }
+
+        function validatorKycSettingHtml() {
+            const hasDraftChange = JSON.stringify(validatorKycDraft) !== JSON.stringify(validatorKycPublished);
+
+            const items = [
+                { key: 'login', name: '登入', section: 'KYC Trigger', description: 'KYC 提示弹框，强制进入 KYC 流程' },
+                { key: 'loginGraphicOtp', name: '登入图型 OTP 验证', section: 'Validator', description: '启用后，登入流程需完成图型 OTP 验证。' },
+                { key: 'register', name: '注册', section: 'KYC Trigger', description: '收集用户资料' },
+                { key: 'bet', name: '投注', section: 'KYC Trigger', description: 'KYC 提示弹框，强制进入 KYC 流程' },
+                { key: 'deposit', name: '充值', section: 'KYC Trigger', description: 'KYC 提示弹框，强制进入 KYC 流程' },
+                { key: 'withdraw', name: '提现', section: 'KYC Trigger', description: 'KYC 提示弹框，强制进入 KYC 流程' },
+                { key: 'personalCenter', name: '个人中心功能', section: 'KYC Trigger', description: 'KYC 提示弹框，强制进入 KYC 流程' },
+                { key: 'inactive7Days', name: '七日未登入', section: 'Validator', description: '用户连续七日未登入后，再次登入时触发验证。' },
+                { key: 'multiRegionDeviceLogin', name: '多区域设备登入', section: 'Validator', description: '侦测到不同区域或不同设备登入时触发验证。' }
+            ];
+
+            const renderRows = section => items.filter(item => item.section === section).map(item => validatorKycRowHtml(item)).join('');
+
+            return `
+                <div class="setting-page">
+                    <div class="breadcrumb">Home / System Management / Validator and KYC Setting</div>
+                    <h1 class="page-title">Validator and KYC Setting</h1>
+
+                    <div class="setting-toolbar">
+                        <div>
+                            <div class="setting-toolbar-title">前台验证与 KYC 触发配置</div>
+                            <div class="setting-toolbar-note">Switch 调整只保存为后台草稿；必须点击 <b>Save & Publish</b> 后，才会更新前台正式配置。</div>
+                        </div>
+                        <div class="publish-meta">
+                            <span class="publish-badge ${hasDraftChange ? 'draft' : ''}">${hasDraftChange ? '● Unpublished Changes' : '● Published'}</span>
+                            <span style="font-size:12px;color:#667085">Last Published: ${escapeHtml(validatorKycPublishedAt)}</span>
+                        </div>
+                    </div>
+
+                    <div class="panel setting-section">
+                        <div class="setting-section-head">
+                            <h2>KYC Setting</h2>
+                            <p>控制指定用户行为是否在前台触发 KYC 流程。</p>
+                        </div>
+                        <div class="setting-list">${renderRows('KYC Trigger')}</div>
+                    </div>
+
+                    <div class="panel setting-section">
+                        <div class="setting-section-head">
+                            <h2>Validator</h2>
+                            <p>控制登入与风险场景的额外验证条件。</p>
+                        </div>
+                        <div class="setting-list">${renderRows('Validator')}</div>
+                    </div>
+
+                    <div class="publish-footer">
+                        <button class="btn light" id="kycResetDraftBtn" type="button">Reset Draft</button>
+                        <button class="btn" id="kycSavePublishBtn" type="button">Save & Publish</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function validatorKycRowHtml(item) {
+            const checked = !!validatorKycDraft[item.key];
+            const important = ['login', 'register', 'bet', 'deposit', 'withdraw', 'personalCenter'].includes(item.key);
+
+            return `
+                <div class="setting-row ${checked ? 'is-on' : ''}" data-kyc-row="${item.key}">
+                    <div><div class="setting-name">${escapeHtml(item.name)}</div></div>
+                    <div class="setting-desc ${important ? 'important' : ''}">${escapeHtml(item.description)}</div>
+                    <div class="setting-switch-wrap">
+                        <label class="status-switch">
+                            <input type="checkbox" data-kyc-setting="${item.key}" ${checked ? 'checked' : ''}>
+                            <span class="status-slider"></span>
+                            <span class="setting-switch-label">${checked ? 'Enabled' : 'Disabled'}</span>
+                        </label>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateKycDraftSetting(key, enabled) {
+            validatorKycDraft[key] = enabled;
+            saveState(STORE_KYC_DRAFT, validatorKycDraft);
+
+            const row = document.querySelector(`[data-kyc-row="${key}"]`);
+            if (row) {
+                row.classList.toggle('is-on', enabled);
+                const label = row.querySelector('.setting-switch-label');
+                if (label) label.textContent = enabled ? 'Enabled' : 'Disabled';
+            }
+
+            const badge = document.querySelector('.publish-badge');
+            if (badge) {
+                badge.classList.add('draft');
+                badge.textContent = '● Unpublished Changes';
+            }
+        }
+
+        function publishValidatorKycSetting() {
+            validatorKycPublished = { ...validatorKycDraft };
+            saveState(STORE_KYC_PUBLISHED, validatorKycPublished);
+            validatorKycPublishedAt = nowText();
+            localStorage.setItem(STORE_KYC_PUBLISHED_AT, validatorKycPublishedAt);
+            renderContent('Validator and KYC Setting');
+            toast('Validator and KYC Setting published');
+        }
+
+        function resetValidatorKycDraft() {
+            validatorKycDraft = { ...validatorKycPublished };
+            saveState(STORE_KYC_DRAFT, validatorKycDraft);
+            renderContent('Validator and KYC Setting');
+            toast('Draft reset to published settings');
+        }
+
+        function genericPageHtml(title) {
+            return `
+                <div class="breadcrumb">Home / ${title}</div>
+                <h1 class="page-title">${title}</h1>
+                <div class="placeholder-card">
+                    <h2>${title}</h2>
+                    <p>此页面沿用后台框架菜单结构，当前 Demo 重点为 Finance Management → PayCode。</p>
+                </div>
+            `;
+        }
+
+        function renderContent(title) {
+            if (title === 'Home') {
+                content.innerHTML = homeHtml();
+                return;
+            }
+
+            if (title === 'PayCode') {
+                content.innerHTML = payCodePageHtml();
+                return;
+            }
+
+            if (title === 'Merchant') {
+                content.innerHTML = merchantHtml();
+                return;
+            }
+
+            if (title === 'Validator and KYC Setting') {
+                content.innerHTML = validatorKycSettingHtml();
+                return;
+            }
+
+            content.innerHTML = genericPageHtml(title);
+        }
+
+        function payCodePageHtml(rows = payCodeRows) {
+            return `
+                <div class="breadcrumb">Home / Finance Management / PayCode</div>
+                <h1 class="page-title">Merchant PayCode</h1>
+
+                <div class="filter-box">
+                    <div class="filter-grid">
+                        <div class="form-field">
+                            <label>Merchant</label>
+                            <select id="payCodeMerchantFilter">
+                                <option value="">All</option>
+                                <option value="ZPay">ZPay</option>
+                            </select>
+                        </div>
+
+                        <div class="form-field">
+                            <label>Currency</label>
+                            <select id="payCodeCurrencyFilter">
+                                <option value="">All</option>
+                                <option value="BRL">BRL</option>
+                                <option value="MXN">MXN</option>
+                                <option value="USD">USD</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="action-row">
+                        <button class="btn" id="payCodeQueryBtn" type="button">查询</button>
+                        <button class="btn reset" id="payCodeResetBtn" type="button">重置</button>
+                        <button class="btn" id="payCodeAddBtn" type="button">+ 新增</button>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <h2>Merchant PayCode</h2>
+                        <span style="font-size:12px;color:#667085">Total: ${rows.length}</span>
+                    </div>
+
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>PayCodeName</th>
+                                    <th>AccountType</th>
+                                    <th>BankCode</th>
+                                    <th>PayCode</th>
+                                    <th>KYC Limit</th>
+                                    <th>Merchant</th>
+                                    <th>Currency</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Created By</th>
+                                    <th>Created Date</th>
+                                    <th>Updated By</th>
+                                    <th>Updated At</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rows.length ? rows.map(row => payCodeRowHtml(row)).join('') : `
+                                    <tr>
+                                        <td colspan="15" class="empty">No data available</td>
+                                    </tr>
+                                `}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function payCodeRowHtml(row) {
+            const enabled = row.status === 'Enabled';
+
+            return `
+                <tr data-paycode-id="${row.id}">
+                    <td>${row.id}</td>
+                    <td>${escapeHtml(row.payCodeName)}</td>
+                    <td>${escapeHtml(row.accountType || '-')}</td>
+                    <td>${escapeHtml(row.bankCode || '-')}</td>
+                    <td>${escapeHtml(row.payCode)}</td>
+                    <td>${formatKycLimit(row.kycLimit)}</td>
+                    <td>${escapeHtml(row.merchant)}</td>
+                    <td>${escapeHtml(row.currency)}</td>
+                    <td>${escapeHtml(row.type)}</td>
+                    <td>
+                        <label class="status-switch">
+                            <input type="checkbox" data-paycode-status="${row.id}" ${enabled ? 'checked' : ''}>
+                            <span class="status-slider"></span>
+                            <span class="status-switch-text">${enabled ? '启动' : '关闭'}</span>
+                        </label>
+                    </td>
+                    <td>${escapeHtml(row.createdBy)}</td>
+                    <td>${escapeHtml(row.createdDate)}</td>
+                    <td>${escapeHtml(row.updatedBy)}</td>
+                    <td>${escapeHtml(row.updatedAt)}</td>
+                    <td>
+                        <button class="link-action" data-paycode-action="edit" type="button">Edit</button>
+                        <button class="link-action remove" data-paycode-action="delete" type="button">Delete</button>
+                    </td>
+                </tr>
+            `;
+        }
+
+        function formatKycLimit(value) {
+            if (value === null || value === undefined || value === '') return '-';
+            const number = Number(value);
+            return Number.isFinite(number) ? number.toFixed(2) : '-';
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>'"]/g, char => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            }[char]));
+        }
+
+        function getPayCodeById(id) {
+            return payCodeRows.find(row => String(row.id) === String(id));
+        }
+
+        function openPayCodeModal(mode = 'add', row = null) {
+            editingPayCodeId = row?.id || null;
+
+            const data = row || {
+                payCodeName: '',
+                merchant: 'ZPay',
+                currency: 'BRL',
+                type: 'deposit',
+                accountType: '',
+                bankCode: '',
+                payCode: '',
+                kycLimit: '',
+                status: 'Enabled'
+            };
+
+            $('#payCodeModalTitle').textContent = mode === 'edit' ? '修改 PayCode' : '新增 PayCode';
+
+            $('#payCodeModalBody').innerHTML = `
+                <div class="modal-grid">
+                    <div class="modal-field">
+                        <label>PayCode名称 <span class="required">*</span></label>
+                        <input id="payCodeNameInput" value="${escapeHtml(data.payCodeName)}" placeholder="请输入 PayCode 名称">
+                    </div>
+
+                    <div class="modal-field">
+                        <label>Merchant ID <span class="required">*</span></label>
+                        <select id="payCodeMerchantInput">
+                            <option value="ZPay" selected>ZPay</option>
+                        </select>
+                        <div class="form-note">Merchant 暂时固定为 ZPay。</div>
+                    </div>
+
+                    <div class="modal-field">
+                        <label>Currency ID <span class="required">*</span></label>
+                        <select id="payCodeCurrencyInput">
+                            <option value="BRL" ${data.currency === 'BRL' ? 'selected' : ''}>BRL</option>
+                            <option value="MXN" ${data.currency === 'MXN' ? 'selected' : ''}>MXN</option>
+                            <option value="USD" ${data.currency === 'USD' ? 'selected' : ''}>USD</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-field">
+                        <label>Type <span class="required">*</span></label>
+                        <select id="payCodeTypeInput">
+                            <option value="deposit" ${data.type === 'deposit' ? 'selected' : ''}>deposit</option>
+                            <option value="withdraw" ${data.type === 'withdraw' ? 'selected' : ''}>withdraw</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-field" id="payCodeAccountTypeField">
+                        <label>AccountType <span class="required">*</span></label>
+                        <select id="payCodeAccountTypeInput">
+                            <option value="">Please select</option>
+                            <option value="CPF" ${data.accountType === 'CPF' ? 'selected' : ''}>CPF</option>
+                            <option value="PIX" ${data.accountType === 'PIX' ? 'selected' : ''}>PIX</option>
+                            <option value="CLABE" ${data.accountType === 'CLABE' ? 'selected' : ''}>CLABE</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-field" id="payCodeBankCodeField">
+                        <label>Bank Code <span class="required">*</span></label>
+                        <select id="payCodeBankCodeInput">
+                            <option value="">Please select</option>
+                            <option value="PIX" ${data.bankCode === 'PIX' ? 'selected' : ''}>PIX</option>
+                            <option value="STP" ${data.bankCode === 'STP' ? 'selected' : ''}>STP</option>
+                            <option value="OXXO" ${data.bankCode === 'OXXO' ? 'selected' : ''}>OXXO</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-field">
+                        <label>Pay Code <span class="required">*</span></label>
+                        <input id="payCodeValueInput" value="${escapeHtml(data.payCode)}" placeholder="例如 PIX / CLABE / OXXO">
+                    </div>
+
+                    <div class="modal-field">
+                        <label>KYC Limit <span class="required">*</span></label>
+                        <input
+                            id="payCodeKycLimitInput"
+                            type="text"
+                            inputmode="decimal"
+                            value="${escapeHtml(data.kycLimit ?? '')}"
+                            placeholder="例如 10000.00"
+                            autocomplete="off"
+                        >
+                        <div class="form-note">只能输入数字，最多 2 位小数。</div>
+                    </div>
+
+                    <div class="modal-field">
+                        <label>Status</label>
+                        <select id="payCodeStatusInput">
+                            <option value="Enabled" ${data.status === 'Enabled' ? 'selected' : ''}>Enabled</option>
+                            <option value="Disabled" ${data.status === 'Disabled' ? 'selected' : ''}>Disabled</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+
+            syncPayCodeTypeFields();
+            $('#payCodeModalMask').classList.add('open');
+        }
+
+        function closePayCodeModal() {
+            $('#payCodeModalMask').classList.remove('open');
+            editingPayCodeId = null;
+        }
+
+        function syncPayCodeTypeFields() {
+            const isWithdraw = $('#payCodeTypeInput')?.value === 'withdraw';
+            const accountField = $('#payCodeAccountTypeField');
+            const bankField = $('#payCodeBankCodeField');
+
+            if (accountField) accountField.style.display = isWithdraw ? '' : 'none';
+            if (bankField) bankField.style.display = isWithdraw ? '' : 'none';
+        }
+
+        function savePayCodeModal() {
+            const payCodeName = $('#payCodeNameInput').value.trim();
+            const merchant = $('#payCodeMerchantInput').value;
+            const currency = $('#payCodeCurrencyInput').value;
+            const type = $('#payCodeTypeInput').value;
+            const payCode = $('#payCodeValueInput').value.trim();
+            const kycLimitRaw = $('#payCodeKycLimitInput').value.trim();
+            const status = $('#payCodeStatusInput').value;
+
+            const accountType = type === 'withdraw' ? $('#payCodeAccountTypeInput').value : '-';
+            const bankCode = type === 'withdraw' ? $('#payCodeBankCodeInput').value : '-';
+
+            if (!payCodeName) {
+                toast('请输入 PayCode 名称');
+                return;
+            }
+
+            if (!payCode) {
+                toast('请输入 Pay Code');
+                return;
+            }
+
+            if (!kycLimitRaw) {
+                toast('请输入 KYC Limit');
+                return;
+            }
+
+            if (!/^\d+(?:\.\d{1,2})?$/.test(kycLimitRaw)) {
+                toast('KYC Limit 只能输入数字，最多 2 位小数');
+                return;
+            }
+
+            const kycLimit = Number(kycLimitRaw).toFixed(2);
+
+            if (type === 'withdraw' && !accountType) {
+                toast('Withdraw 请先选择 AccountType');
+                return;
+            }
+
+            if (type === 'withdraw' && !bankCode) {
+                toast('Withdraw 请先选择 Bank Code');
+                return;
+            }
+
+            const current = editingPayCodeId ? getPayCodeById(editingPayCodeId) : null;
+            const timestamp = nowText();
+
+            const data = {
+                id: current ? current.id : Math.max(0, ...payCodeRows.map(row => Number(row.id))) + 1,
+                payCodeName,
+                accountType,
+                bankCode,
+                payCode,
+                kycLimit,
+                merchant,
+                currency,
+                type,
+                status,
+                createdBy: current?.createdBy || 'Admin',
+                createdDate: current?.createdDate || timestamp,
+                updatedBy: 'Admin',
+                updatedAt: timestamp
+            };
+
+            if (current) {
+                Object.assign(current, data);
+            } else {
+                payCodeRows.unshift(data);
+            }
+
+            saveState(STORE_PAYCODE, payCodeRows);
+            closePayCodeModal();
+            renderContent('PayCode');
+            toast('PayCode saved');
+        }
+
+        function applyPayCodeFilter() {
+            const merchant = $('#payCodeMerchantFilter')?.value || '';
+            const currency = $('#payCodeCurrencyFilter')?.value || '';
+
+            const rows = payCodeRows.filter(row => {
+                return (!merchant || row.merchant === merchant) &&
+                    (!currency || row.currency === currency);
+            });
+
+            content.innerHTML = payCodePageHtml(rows);
+
+            if ($('#payCodeMerchantFilter')) $('#payCodeMerchantFilter').value = merchant;
+            if ($('#payCodeCurrencyFilter')) $('#payCodeCurrencyFilter').value = currency;
+        }
+
+        function confirmAction(message, callback) {
+            confirmCallback = callback;
+            $('#confirmMessage').textContent = message;
+            $('#confirmMask').classList.add('open');
+        }
+
+        function closeConfirm() {
+            $('#confirmMask').classList.remove('open');
+            confirmCallback = null;
+        }
+
+        function toast(message) {
+            const el = $('#toast');
+            el.textContent = message;
+            el.classList.add('show');
+            clearTimeout(el.timer);
+            el.timer = setTimeout(() => el.classList.remove('show'), 1600);
+        }
+
+        menu.addEventListener('click', event => {
+            const item = event.target.closest('.menu-item');
+            const sub = event.target.closest('.sub');
+
+            if (item) {
+                const section = item.closest('.menu-section');
+                const submenu = section.querySelector('.submenu');
+
+                if (submenu) {
+                    section.classList.toggle('open');
+                } else if (item.dataset.page) {
+                    addTab(item.dataset.page);
+                }
+
+                return;
+            }
+
+            if (sub) {
+                if (sub.classList.contains('parent')) {
+                    sub.classList.toggle('open');
+                    sub.nextElementSibling?.classList.toggle('open');
+                    return;
+                }
+
+                addTab(sub.dataset.page);
+            }
+        });
+
+        tabsEl.addEventListener('click', event => {
+            const close = event.target.closest('[data-close]');
+
+            if (close) {
+                event.stopPropagation();
+                closeTab(close.dataset.close);
+                return;
+            }
+
+            const tab = event.target.closest('[data-tab]');
+            if (tab) activateTab(tab.dataset.tab);
+        });
+
+        content.addEventListener('click', event => {
+            if (event.target.closest('#kycSavePublishBtn')) {
+                confirmAction(
+                    '确认发布 Validator and KYC Setting？发布后前台将使用目前配置。',
+                    publishValidatorKycSetting
+                );
+                return;
+            }
+
+            if (event.target.closest('#kycResetDraftBtn')) {
+                confirmAction(
+                    '确认放弃尚未发布的修改，并恢复为目前已发布配置？',
+                    resetValidatorKycDraft
+                );
+                return;
+            }
+
+            if (event.target.closest('#merchantAddBtn')) {
+                openMerchantModal('add');
+                return;
+            }
+
+            if (event.target.closest('#merchantResetBtn')) {
+                renderContent('Merchant');
+                return;
+            }
+
+            if (event.target.closest('#merchantQueryBtn')) {
+                applyMerchantFilter();
+                return;
+            }
+
+            const merchantAction = event.target.closest('[data-merchant-action]');
+            if (merchantAction) {
+                const row = getMerchantById(merchantAction.closest('tr').dataset.merchantId);
+                if (merchantAction.dataset.merchantAction === 'edit') {
+                    openMerchantModal('edit', row);
+                } else if (merchantAction.dataset.merchantAction === 'remove') {
+                    confirmAction(`确认移除 Merchant「${row.name}」？删除后将从列表中移除。`, () => {
+                        merchantRows = merchantRows.filter(
+                            item => String(item.id) !== String(row.id)
+                        );
+                        saveState(STORE_MERCHANT, merchantRows);
+                        renderContent('Merchant');
+                        toast('Merchant removed');
+                    });
+                }
+                return;
+            }
+
+            if (event.target.closest('#payCodeAddBtn')) {
+                openPayCodeModal('add');
+                return;
+            }
+
+            if (event.target.closest('#payCodeResetBtn')) {
+                renderContent('PayCode');
+                return;
+            }
+
+            if (event.target.closest('#payCodeQueryBtn')) {
+                applyPayCodeFilter();
+                return;
+            }
+
+            const action = event.target.closest('[data-paycode-action]');
+
+            if (action) {
+                const row = getPayCodeById(action.closest('tr').dataset.paycodeId);
+
+                if (action.dataset.paycodeAction === 'edit') {
+                    openPayCodeModal('edit', row);
+                }
+
+                if (action.dataset.paycodeAction === 'delete') {
+                    confirmAction(`确认删除 PayCode「${row.payCodeName}」？`, () => {
+                        payCodeRows = payCodeRows.filter(item => String(item.id) !== String(row.id));
+                        saveState(STORE_PAYCODE, payCodeRows);
+                        renderContent('PayCode');
+                        toast('PayCode deleted');
+                    });
+                }
+            }
+        });
+
+        content.addEventListener('change', event => {
+            const kycSetting = event.target.closest('[data-kyc-setting]');
+
+            if (kycSetting) {
+                updateKycDraftSetting(kycSetting.dataset.kycSetting, kycSetting.checked);
+                return;
+            }
+
+            const merchantStatus = event.target.closest('[data-merchant-status]');
+
+            if (merchantStatus) {
+                const row = getMerchantById(merchantStatus.dataset.merchantStatus);
+
+                if (row) {
+                    row.status = merchantStatus.checked ? 'Enabled' : 'Disabled';
+                    row.updatedBy = 'Admin';
+                    row.updatedAt = nowText();
+                    saveState(STORE_MERCHANT, merchantRows);
+
+                    const text = merchantStatus
+                        .closest('.status-switch')
+                        ?.querySelector('.status-switch-text');
+
+                    if (text) {
+                        text.textContent = merchantStatus.checked ? '启动' : '关闭';
+                    }
+
+                    toast(
+                        merchantStatus.checked
+                            ? 'Merchant status enabled'
+                            : 'Merchant status disabled'
+                    );
+                }
+
+                return;
+            }
+
+            const status = event.target.closest('[data-paycode-status]');
+
+            if (!status) return;
+
+            const row = getPayCodeById(status.dataset.paycodeStatus);
+
+            if (row) {
+                row.status = status.checked ? 'Enabled' : 'Disabled';
+                row.updatedBy = 'Admin';
+                row.updatedAt = nowText();
+                saveState(STORE_PAYCODE, payCodeRows);
+
+                const text = status.closest('.status-switch')?.querySelector('.status-switch-text');
+                if (text) text.textContent = status.checked ? '启动' : '关闭';
+
+                toast(status.checked ? 'Status enabled' : 'Status disabled');
+            }
+        });
+
+        $('#merchantModalClose').addEventListener('click', closeMerchantModal);
+        $('#merchantModalCancel').addEventListener('click', closeMerchantModal);
+        $('#merchantModalSave').addEventListener('click', saveMerchantModal);
+        $('#merchantModalMask').addEventListener('click', event => {
+            if (event.target === $('#merchantModalMask')) closeMerchantModal();
+        });
+
+        $('#merchantModalBody').addEventListener('change', event => {
+            if (event.target.id !== 'merchantStatusInput') return;
+
+            const text = $('#merchantStatusText');
+            if (text) {
+                text.textContent = event.target.checked ? 'Enabled' : 'Disabled';
+            }
+        });
+
+        $('#payCodeModalClose').addEventListener('click', closePayCodeModal);
+        $('#payCodeModalCancel').addEventListener('click', closePayCodeModal);
+        $('#payCodeModalSave').addEventListener('click', savePayCodeModal);
+        $('#payCodeModalMask').addEventListener('click', event => {
+            if (event.target === $('#payCodeModalMask')) closePayCodeModal();
+        });
+
+        $('#payCodeModalBody').addEventListener('change', event => {
+            if (event.target.id === 'payCodeTypeInput') {
+                syncPayCodeTypeFields();
+            }
+        });
+
+        $('#payCodeModalBody').addEventListener('input', event => {
+            if (event.target.id !== 'payCodeKycLimitInput') return;
+
+            let value = event.target.value.replace(/[^0-9.]/g, '');
+            const firstDot = value.indexOf('.');
+
+            if (firstDot >= 0) {
+                value =
+                    value.slice(0, firstDot + 1) +
+                    value.slice(firstDot + 1).replace(/\./g, '').slice(0, 2);
+            }
+
+            event.target.value = value;
+        });
+
+        $('#payCodeModalBody').addEventListener('blur', event => {
+            if (event.target.id !== 'payCodeKycLimitInput') return;
+
+            const value = event.target.value.trim();
+            if (/^\d+(?:\.\d{1,2})?$/.test(value)) {
+                event.target.value = Number(value).toFixed(2);
+            }
+        }, true);
+
+        $('#confirmClose').addEventListener('click', closeConfirm);
+        $('#confirmCancel').addEventListener('click', closeConfirm);
+        $('#confirmMask').addEventListener('click', event => {
+            if (event.target === $('#confirmMask')) closeConfirm();
+        });
+        $('#confirmOk').addEventListener('click', () => {
+            const callback = confirmCallback;
+            closeConfirm();
+            if (callback) callback();
+        });
+
+        $('#menuToggle').addEventListener('click', () => {
+            if (window.innerWidth <= 900) {
+                sidebar.classList.toggle('open');
+            } else {
+                document.body.classList.toggle('collapsed');
+            }
+        });
+
+        function tick() {
+            const d = new Date();
+            const z = n => String(n).padStart(2, '0');
+            $('#clock').textContent =
+                `Local ${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}:${z(d.getSeconds())} (+08:00)`;
+        }
+
+        renderMenu();
+        renderTabs();
+        renderContent('Home');
+        tick();
+        setInterval(tick, 1000);
+
+        // Directly open Finance Management > PayCode for convenience.
+        addTab('PayCode');
+    </script>
+</body>
+</html>
