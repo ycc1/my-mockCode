@@ -1930,12 +1930,16 @@
 
                     <div class="modal-field">
                         <label>Pay Code <span class="required">*</span></label>
-                        <input id="payCodeValueInput" value="${escapeHtml(data.payCode)}" placeholder="例如 PIX / CLABE / OXXO">
+                        <select id="payCodeValueInput"></select>
+                        <div class="form-note">
+                            Pay Code 会依 Currency 与 Type 自动提供可选项目。
+                        </div>
                     </div>
                     </div>
             `;
 
             syncPayCodeTypeFields();
+            syncPayCodeOptions(data.payCode);
             $('#payCodeModalMask').classList.add('open');
         }
 
@@ -1953,12 +1957,50 @@
             if (bankField) bankField.style.display = isWithdraw ? '' : 'none';
         }
 
+        function getPayCodeOptions(currency, type) {
+            const mapping = {
+                BRL: {
+                    deposit: ['PIX'],
+                    withdraw: ['PIX']
+                },
+                MXN: {
+                    deposit: ['OXXO', 'STP'],
+                    withdraw: ['STP']
+                },
+                USD: {
+                    deposit: ['GooglePay'],
+                    withdraw: ['GooglePay']
+                }
+            };
+
+            return mapping[currency]?.[type] || [];
+        }
+
+        function syncPayCodeOptions(preferredValue = '') {
+            const currency = $('#payCodeCurrencyInput')?.value || '';
+            const type = $('#payCodeTypeInput')?.value || '';
+            const select = $('#payCodeValueInput');
+
+            if (!select) return;
+
+            const options = getPayCodeOptions(currency, type);
+            const selectedValue = options.includes(preferredValue)
+                ? preferredValue
+                : (options[0] || '');
+
+            select.innerHTML = options.map(value => `
+                <option value="${escapeHtml(value)}" ${value === selectedValue ? 'selected' : ''}>
+                    ${escapeHtml(value)}
+                </option>
+            `).join('');
+        }
+
         function savePayCodeModal() {
             const payCodeName = $('#payCodeNameInput').value.trim();
             const merchant = $('#payCodeMerchantInput').value;
             const currency = $('#payCodeCurrencyInput').value;
             const type = $('#payCodeTypeInput').value;
-            const payCode = $('#payCodeValueInput').value.trim();
+            const payCode = $('#payCodeValueInput').value;
             const status = $('#payCodeStatusInput').value;
 
             const accountType = type === 'withdraw' ? $('#payCodeAccountTypeInput').value : '-';
@@ -2263,6 +2305,12 @@ if (type === 'withdraw' && !accountType) {
         $('#payCodeModalBody').addEventListener('change', event => {
             if (event.target.id === 'payCodeTypeInput') {
                 syncPayCodeTypeFields();
+                syncPayCodeOptions();
+                return;
+            }
+
+            if (event.target.id === 'payCodeCurrencyInput') {
+                syncPayCodeOptions();
             }
         });
 $('#confirmClose').addEventListener('click', closeConfirm);
