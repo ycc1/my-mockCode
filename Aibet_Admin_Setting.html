@@ -1789,7 +1789,6 @@
                                     <th>AccountType</th>
                                     <th>BankCode</th>
                                     <th>PayCode</th>
-                                    <th>KYC Limit</th>
                                     <th>Merchant</th>
                                     <th>Currency</th>
                                     <th>Type</th>
@@ -1804,7 +1803,7 @@
                             <tbody>
                                 ${rows.length ? rows.map(row => payCodeRowHtml(row)).join('') : `
                                     <tr>
-                                        <td colspan="15" class="empty">No data available</td>
+                                        <td colspan="14" class="empty">No data available</td>
                                     </tr>
                                 `}
                             </tbody>
@@ -1824,7 +1823,6 @@
                     <td>${escapeHtml(row.accountType || '-')}</td>
                     <td>${escapeHtml(row.bankCode || '-')}</td>
                     <td>${escapeHtml(row.payCode)}</td>
-                    <td>${formatKycLimit(row.kycLimit)}</td>
                     <td>${escapeHtml(row.merchant)}</td>
                     <td>${escapeHtml(row.currency)}</td>
                     <td>${escapeHtml(row.type)}</td>
@@ -1845,12 +1843,6 @@
                     </td>
                 </tr>
             `;
-        }
-
-        function formatKycLimit(value) {
-            if (value === null || value === undefined || value === '') return '-';
-            const number = Number(value);
-            return Number.isFinite(number) ? number.toFixed(2) : '-';
         }
 
         function escapeHtml(value) {
@@ -1940,28 +1932,7 @@
                         <label>Pay Code <span class="required">*</span></label>
                         <input id="payCodeValueInput" value="${escapeHtml(data.payCode)}" placeholder="例如 PIX / CLABE / OXXO">
                     </div>
-
-                    <div class="modal-field">
-                        <label>KYC Limit <span class="required">*</span></label>
-                        <input
-                            id="payCodeKycLimitInput"
-                            type="text"
-                            inputmode="decimal"
-                            value="${escapeHtml(data.kycLimit ?? '')}"
-                            placeholder="例如 10000.00"
-                            autocomplete="off"
-                        >
-                        <div class="form-note">只能输入数字，最多 2 位小数。</div>
                     </div>
-
-                    <div class="modal-field">
-                        <label>Status</label>
-                        <select id="payCodeStatusInput">
-                            <option value="Enabled" ${data.status === 'Enabled' ? 'selected' : ''}>Enabled</option>
-                            <option value="Disabled" ${data.status === 'Disabled' ? 'selected' : ''}>Disabled</option>
-                        </select>
-                    </div>
-                </div>
             `;
 
             syncPayCodeTypeFields();
@@ -1988,7 +1959,6 @@
             const currency = $('#payCodeCurrencyInput').value;
             const type = $('#payCodeTypeInput').value;
             const payCode = $('#payCodeValueInput').value.trim();
-            const kycLimitRaw = $('#payCodeKycLimitInput').value.trim();
             const status = $('#payCodeStatusInput').value;
 
             const accountType = type === 'withdraw' ? $('#payCodeAccountTypeInput').value : '-';
@@ -2003,20 +1973,7 @@
                 toast('请输入 Pay Code');
                 return;
             }
-
-            if (!kycLimitRaw) {
-                toast('请输入 KYC Limit');
-                return;
-            }
-
-            if (!/^\d+(?:\.\d{1,2})?$/.test(kycLimitRaw)) {
-                toast('KYC Limit 只能输入数字，最多 2 位小数');
-                return;
-            }
-
-            const kycLimit = Number(kycLimitRaw).toFixed(2);
-
-            if (type === 'withdraw' && !accountType) {
+if (type === 'withdraw' && !accountType) {
                 toast('Withdraw 请先选择 AccountType');
                 return;
             }
@@ -2035,7 +1992,6 @@
                 accountType,
                 bankCode,
                 payCode,
-                kycLimit,
                 merchant,
                 currency,
                 type,
@@ -2309,32 +2265,7 @@
                 syncPayCodeTypeFields();
             }
         });
-
-        $('#payCodeModalBody').addEventListener('input', event => {
-            if (event.target.id !== 'payCodeKycLimitInput') return;
-
-            let value = event.target.value.replace(/[^0-9.]/g, '');
-            const firstDot = value.indexOf('.');
-
-            if (firstDot >= 0) {
-                value =
-                    value.slice(0, firstDot + 1) +
-                    value.slice(firstDot + 1).replace(/\./g, '').slice(0, 2);
-            }
-
-            event.target.value = value;
-        });
-
-        $('#payCodeModalBody').addEventListener('blur', event => {
-            if (event.target.id !== 'payCodeKycLimitInput') return;
-
-            const value = event.target.value.trim();
-            if (/^\d+(?:\.\d{1,2})?$/.test(value)) {
-                event.target.value = Number(value).toFixed(2);
-            }
-        }, true);
-
-        $('#confirmClose').addEventListener('click', closeConfirm);
+$('#confirmClose').addEventListener('click', closeConfirm);
         $('#confirmCancel').addEventListener('click', closeConfirm);
         $('#confirmMask').addEventListener('click', event => {
             if (event.target === $('#confirmMask')) closeConfirm();
