@@ -780,6 +780,13 @@
             justify-content: flex-end;
         }
 
+        .setting-extra { display:flex; align-items:center; gap:8px; margin-top:10px; flex-wrap:wrap; }
+        .setting-extra[hidden] { display:none !important; }
+        .setting-extra-label { color:#475467; font-size:12px; font-weight:800; white-space:nowrap; }
+        .setting-number { width:120px; height:34px; border:1px solid #d6deeb; border-radius:6px; padding:0 10px; background:#fff; font-size:13px; }
+        .setting-number.small { width:82px; }
+        .setting-unit { color:#667085; font-size:12px; font-weight:700; }
+
         .setting-switch-label {
             min-width: 54px;
             font-size: 12px;
@@ -977,10 +984,16 @@
             register: true,
             bet: true,
             deposit: true,
+            depositLimit: '',
             withdraw: true,
-            personalCenter: true,
-            inactive7Days: false,
-            multiRegionDeviceLogin: false
+            withdrawLimit: '',
+            profileCenter: true,
+            longTimeLogin: false,
+            longTimeLoginHour: '',
+            longTimeLoginMinute: '',
+            longTimeLoginSecond: '',
+            multiAreaLogin: false,
+            multiAreaLoginCount: ''
         };
 
 
@@ -1532,15 +1545,15 @@
             const hasDraftChange = JSON.stringify(validatorKycDraft) !== JSON.stringify(validatorKycPublished);
 
             const items = [
-                { key: 'login', name: '登入', section: 'KYC Trigger', description: 'KYC 提示弹框，强制进入 KYC 流程' },
+                { key: 'login', name: 'login', section: 'KYC Trigger', description: 'KYC 提示弹框，强制进入 KYC 流程' },
                 { key: 'loginGraphicOtp', name: 'OTP 验证', section: 'Validator', description: '启用后，登入流程需完成图型 OTP 验证。' },
-                { key: 'register', name: '注册', section: 'KYC Trigger', description: '收集用户资料' },
-                { key: 'bet', name: '投注', section: 'KYC Trigger', description: 'KYC 提示弹框，强制进入 KYC 流程' },
-                { key: 'deposit', name: '充值', section: 'KYC Trigger', description: 'KYC 提示弹框，强制进入 KYC 流程' },
-                { key: 'withdraw', name: '提现', section: 'KYC Trigger', description: 'KYC 提示弹框，强制进入 KYC 流程' },
-                { key: 'personalCenter', name: '个人中心功能', section: 'KYC Trigger', description: 'KYC 提示弹框，强制进入 KYC 流程' },
-                { key: 'inactive7Days', name: '七日未登入', section: 'Validator', description: '用户连续七日未登入后，再次登入时触发验证。' },
-                { key: 'multiRegionDeviceLogin', name: '多区域设备登入', section: 'Validator', description: '侦测到不同区域或不同设备登入时触发验证。' }
+                { key: 'register', name: 'register', section: 'KYC Trigger', description: '收集用户资料' },
+                { key: 'bet', name: 'bet', section: 'KYC Trigger', description: 'KYC 提示弹框，强制进入 KYC 流程' },
+                { key: 'deposit', name: 'deposit', section: 'KYC Trigger', description: 'KYC 提示弹框，强制进入 KYC 流程' },
+                { key: 'withdraw', name: 'withdraw', section: 'KYC Trigger', description: 'KYC 提示弹框，强制进入 KYC 流程' },
+                { key: 'profileCenter', name: 'profile Center', section: 'KYC Trigger', description: 'KYC 提示弹框，强制进入 KYC 流程' },
+                { key: 'longTimeLogin', name: 'Long time login', section: 'Validator', description: '用户连续七日未登入后，再次登入时触发验证。' },
+                { key: 'multiAreaLogin', name: 'Multi area login', section: 'Validator', description: '侦测到不同区域或不同设备登入时触发验证。' }
             ];
 
             const renderRows = section => items.filter(item => item.section === section).map(item => validatorKycRowHtml(item)).join('');
@@ -1587,11 +1600,14 @@
 
         function validatorKycRowHtml(item) {
             const checked = !!validatorKycDraft[item.key];
-            const important = ['login', 'register', 'bet', 'deposit', 'withdraw', 'personalCenter'].includes(item.key);
+            const important = ['login', 'register', 'bet', 'deposit', 'withdraw', 'profileCenter'].includes(item.key);
 
             return `
                 <div class="setting-row ${checked ? 'is-on' : ''}" data-kyc-row="${item.key}">
-                    <div><div class="setting-name">${escapeHtml(item.name)}</div></div>
+                    <div>
+                        <div class="setting-name">${escapeHtml(item.name)}</div>
+                        ${validatorKycExtraHtml(item.key, checked)}
+                    </div>
                     <div class="setting-desc ${important ? 'important' : ''}">${escapeHtml(item.description)}</div>
                     <div class="setting-switch-wrap">
                         <label class="status-switch">
@@ -1604,6 +1620,40 @@
             `;
         }
 
+        function validatorKycExtraHtml(key, checked) {
+            if (key === 'deposit') {
+                return `
+                    <div class="setting-extra" data-kyc-extra="deposit" ${checked ? '' : 'hidden'}>
+                        <span class="setting-extra-label">&gt;= limit</span>
+                        <input class="setting-number" type="text" inputmode="numeric" data-kyc-number="depositLimit" value="${escapeHtml(validatorKycDraft.depositLimit ?? '')}" placeholder="0">
+                    </div>`;
+            }
+            if (key === 'withdraw') {
+                return `
+                    <div class="setting-extra" data-kyc-extra="withdraw" ${checked ? '' : 'hidden'}>
+                        <span class="setting-extra-label">&gt;= limit</span>
+                        <input class="setting-number" type="text" inputmode="numeric" data-kyc-number="withdrawLimit" value="${escapeHtml(validatorKycDraft.withdrawLimit ?? '')}" placeholder="0">
+                    </div>`;
+            }
+            if (key === 'longTimeLogin') {
+                return `
+                    <div class="setting-extra" data-kyc-extra="longTimeLogin" ${checked ? '' : 'hidden'}>
+                        <span class="setting-extra-label">&gt;= 超时未登入</span>
+                        <input class="setting-number small" type="text" inputmode="numeric" data-kyc-number="longTimeLoginHour" value="${escapeHtml(validatorKycDraft.longTimeLoginHour ?? '')}" placeholder="0"><span class="setting-unit">时</span>
+                        <input class="setting-number small" type="text" inputmode="numeric" data-kyc-number="longTimeLoginMinute" value="${escapeHtml(validatorKycDraft.longTimeLoginMinute ?? '')}" placeholder="0"><span class="setting-unit">分</span>
+                        <input class="setting-number small" type="text" inputmode="numeric" data-kyc-number="longTimeLoginSecond" value="${escapeHtml(validatorKycDraft.longTimeLoginSecond ?? '')}" placeholder="0"><span class="setting-unit">秒</span>
+                    </div>`;
+            }
+            if (key === 'multiAreaLogin') {
+                return `
+                    <div class="setting-extra" data-kyc-extra="multiAreaLogin" ${checked ? '' : 'hidden'}>
+                        <span class="setting-extra-label">&gt;= 超时未登入</span>
+                        <input class="setting-number" type="text" inputmode="numeric" data-kyc-number="multiAreaLoginCount" value="${escapeHtml(validatorKycDraft.multiAreaLoginCount ?? '')}" placeholder="0"><span class="setting-unit">个区域</span>
+                    </div>`;
+            }
+            return '';
+        }
+
         function updateKycDraftSetting(key, enabled) {
             validatorKycDraft[key] = enabled;
             saveState(STORE_KYC_DRAFT, validatorKycDraft);
@@ -1613,8 +1663,14 @@
                 row.classList.toggle('is-on', enabled);
                 const label = row.querySelector('.setting-switch-label');
                 if (label) label.textContent = enabled ? 'Enabled' : 'Disabled';
+                const extra = row.querySelector(`[data-kyc-extra="${key}"]`);
+                if (extra) extra.hidden = !enabled;
             }
 
+            markKycDraftChanged();
+        }
+
+        function markKycDraftChanged() {
             const badge = document.querySelector('.publish-badge');
             if (badge) {
                 badge.classList.add('draft');
@@ -1622,7 +1678,19 @@
             }
         }
 
+        function updateKycNumericSetting(key, value) {
+            const numericValue = String(value ?? '').replace(/\D/g, '');
+            validatorKycDraft[key] = numericValue;
+            saveState(STORE_KYC_DRAFT, validatorKycDraft);
+            markKycDraftChanged();
+            return numericValue;
+        }
+
         function publishValidatorKycSetting() {
+            if (validatorKycDraft.deposit && !validatorKycDraft.depositLimit) { toast('Deposit 开启时请输入 >= limit'); return; }
+            if (validatorKycDraft.withdraw && !validatorKycDraft.withdrawLimit) { toast('Withdraw 开启时请输入 >= limit'); return; }
+            if (validatorKycDraft.longTimeLogin && !validatorKycDraft.longTimeLoginHour && !validatorKycDraft.longTimeLoginMinute && !validatorKycDraft.longTimeLoginSecond) { toast('Long time login 开启时请输入时、分、秒'); return; }
+            if (validatorKycDraft.multiAreaLogin && !validatorKycDraft.multiAreaLoginCount) { toast('Multi area login 开启时请输入区域数量'); return; }
             validatorKycPublished = { ...validatorKycDraft };
             saveState(STORE_KYC_PUBLISHED, validatorKycPublished);
             validatorKycPublishedAt = nowText();
@@ -2204,6 +2272,13 @@
 
                 toast(status.checked ? 'Status enabled' : 'Status disabled');
             }
+        });
+
+        content.addEventListener('input', event => {
+            const numericInput = event.target.closest('[data-kyc-number]');
+            if (!numericInput) return;
+            const cleaned = updateKycNumericSetting(numericInput.dataset.kycNumber, numericInput.value);
+            if (numericInput.value !== cleaned) numericInput.value = cleaned;
         });
 
         $('#merchantModalClose').addEventListener('click', closeMerchantModal);
