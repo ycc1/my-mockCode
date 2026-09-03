@@ -984,8 +984,10 @@
             register: true,
             bet: true,
             deposit: true,
+            depositCumulativeTime: '',
             depositLimit: '',
             withdraw: true,
+            withdrawCumulativeTime: '',
             withdrawLimit: '',
             profileCenter: true,
             longTimeLogin: false,
@@ -1547,10 +1549,10 @@
             const items = [
                 { key: 'login', name: 'login', section: 'KYC Trigger', description: 'KYC 提示弹框，强制进入 KYC 流程' },
                 { key: 'loginGraphicOtp', name: 'OTP 验证', section: 'Validator', description: '启用后，登入流程需完成图型 OTP 验证。' },
-                { key: 'register', name: 'register', section: 'KYC Trigger', description: '收集用户资料' },
+                { key: 'register', name: 'register', section: 'KYC Trigger', description: '收集用户资料，未成年不得注册成功' },
                 { key: 'bet', name: 'bet', section: 'KYC Trigger', description: 'KYC 提示弹框，强制进入 KYC 流程' },
-                { key: 'deposit', name: 'deposit', section: 'KYC Trigger', description: 'KYC 提示弹框，强制进入 KYC 流程' },
-                { key: 'withdraw', name: 'withdraw', section: 'KYC Trigger', description: 'KYC 提示弹框，强制进入 KYC 流程' },
+                { key: 'deposit', name: 'deposit', section: 'KYC Trigger', description: '累计时间超额充值，KYC 提示弹框，强制进入 KYC 流程' },
+                { key: 'withdraw', name: 'withdraw', section: 'KYC Trigger', description: '累计时间超额提现，KYC 提示弹框，强制进入 KYC 流程' },
                 { key: 'profileCenter', name: 'profile Center', section: 'KYC Trigger', description: 'KYC 提示弹框，强制进入 KYC 流程' },
                 { key: 'longTimeLogin', name: 'Long time login', section: 'Validator', description: '用户连续七日未登入后，再次登入时触发验证。' },
                 { key: 'multiAreaLogin', name: 'Multi area login', section: 'Validator', description: '侦测到不同区域或不同设备登入时触发验证。' }
@@ -1623,15 +1625,23 @@
         function validatorKycExtraHtml(key, checked) {
             if (key === 'deposit') {
                 return `
+					<div class="setting-extra" data-kyc-extra="deposit" ${checked ? '' : 'hidden'}>
+                        <span class="setting-extra-label">Cumulative Time(Month)</span>
+                        <input class="setting-number" type="text" inputmode="numeric" data-kyc-number="depositCumulativeTime" value="${escapeHtml(validatorKycDraft.depositCumulativeTime ?? '')}" placeholder="0">
+					</div>
                     <div class="setting-extra" data-kyc-extra="deposit" ${checked ? '' : 'hidden'}>
-                        <span class="setting-extra-label">&gt;= limit</span>
+                        <span class="setting-extra-label">limit(&gt;= )</span>
                         <input class="setting-number" type="text" inputmode="numeric" data-kyc-number="depositLimit" value="${escapeHtml(validatorKycDraft.depositLimit ?? '')}" placeholder="0">
                     </div>`;
             }
             if (key === 'withdraw') {
                 return `
+					<div class="setting-extra" data-kyc-extra="withdraw" ${checked ? '' : 'hidden'}>
+                        <span class="setting-extra-label">Cumulative Time(Month)</span>
+                        <input class="setting-number" type="text" inputmode="numeric" data-kyc-number="withdrawCumulativeTime" value="${escapeHtml(validatorKycDraft.withdrawCumulativeTime ?? '')}" placeholder="0">
+					</div>
                     <div class="setting-extra" data-kyc-extra="withdraw" ${checked ? '' : 'hidden'}>
-                        <span class="setting-extra-label">&gt;= limit</span>
+                        <span class="setting-extra-label">limit(&gt;= )</span>
                         <input class="setting-number" type="text" inputmode="numeric" data-kyc-number="withdrawLimit" value="${escapeHtml(validatorKycDraft.withdrawLimit ?? '')}" placeholder="0">
                     </div>`;
             }
@@ -1687,10 +1697,30 @@
         }
 
         function publishValidatorKycSetting() {
-            if (validatorKycDraft.deposit && !validatorKycDraft.depositLimit) { toast('Deposit 开启时请输入 >= limit'); return; }
-            if (validatorKycDraft.withdraw && !validatorKycDraft.withdrawLimit) { toast('Withdraw 开启时请输入 >= limit'); return; }
-            if (validatorKycDraft.longTimeLogin && !validatorKycDraft.longTimeLoginHour && !validatorKycDraft.longTimeLoginMinute && !validatorKycDraft.longTimeLoginSecond) { toast('Long time login 开启时请输入时、分、秒'); return; }
-            if (validatorKycDraft.multiAreaLogin && !validatorKycDraft.multiAreaLoginCount) { toast('Multi area login 开启时请输入区域数量'); return; }
+            if (validatorKycDraft.deposit && !validatorKycDraft.depositCumulativeTime) {
+                toast('Deposit 开启时请输入 Cumulative Time');
+                return;
+            }
+            if (validatorKycDraft.deposit && !validatorKycDraft.depositLimit) {
+                toast('Deposit 开启时请输入 >= limit');
+                return;
+            }
+            if (validatorKycDraft.withdraw && !validatorKycDraft.withdrawCumulativeTime) {
+                toast('Withdraw 开启时请输入 Cumulative Time');
+                return;
+            }
+            if (validatorKycDraft.withdraw && !validatorKycDraft.withdrawLimit) {
+                toast('Withdraw 开启时请输入 >= limit');
+                return;
+            }
+            if (validatorKycDraft.longTimeLogin && !validatorKycDraft.longTimeLoginHour && !validatorKycDraft.longTimeLoginMinute && !validatorKycDraft.longTimeLoginSecond) {
+                toast('Long time login 开启时请输入时、分、秒');
+                return;
+            }
+            if (validatorKycDraft.multiAreaLogin && !validatorKycDraft.multiAreaLoginCount) {
+                toast('Multi area login 开启时请输入区域数量');
+                return;
+            }
             validatorKycPublished = { ...validatorKycDraft };
             saveState(STORE_KYC_PUBLISHED, validatorKycPublished);
             validatorKycPublishedAt = nowText();
