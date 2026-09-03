@@ -1628,8 +1628,7 @@
 					<div class="setting-extra" data-kyc-extra="deposit" ${checked ? '' : 'hidden'}>
                         <span class="setting-extra-label">Cumulative Time(Month)</span>
                         <input class="setting-number" type="text" inputmode="numeric" data-kyc-number="depositCumulativeTime" value="${escapeHtml(validatorKycDraft.depositCumulativeTime ?? '')}" placeholder="0">
-					</div>
-                    <div class="setting-extra" data-kyc-extra="deposit" ${checked ? '' : 'hidden'}>
+					
                         <span class="setting-extra-label">limit(&gt;= )</span>
                         <input class="setting-number" type="text" inputmode="numeric" data-kyc-number="depositLimit" value="${escapeHtml(validatorKycDraft.depositLimit ?? '')}" placeholder="0">
                     </div>`;
@@ -1639,8 +1638,7 @@
 					<div class="setting-extra" data-kyc-extra="withdraw" ${checked ? '' : 'hidden'}>
                         <span class="setting-extra-label">Cumulative Time(Month)</span>
                         <input class="setting-number" type="text" inputmode="numeric" data-kyc-number="withdrawCumulativeTime" value="${escapeHtml(validatorKycDraft.withdrawCumulativeTime ?? '')}" placeholder="0">
-					</div>
-                    <div class="setting-extra" data-kyc-extra="withdraw" ${checked ? '' : 'hidden'}>
+					
                         <span class="setting-extra-label">limit(&gt;= )</span>
                         <input class="setting-number" type="text" inputmode="numeric" data-kyc-number="withdrawLimit" value="${escapeHtml(validatorKycDraft.withdrawLimit ?? '')}" placeholder="0">
                     </div>`;
