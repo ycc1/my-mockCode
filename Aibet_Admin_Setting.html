@@ -631,6 +631,45 @@
             color: var(--muted);
         }
 
+        .paycode-logo-upload {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .paycode-logo-preview {
+            width: 72px;
+            height: 72px;
+            border: 1px solid #d6deeb;
+            border-radius: 8px;
+            background: #f8fafc;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            color: #98a2b3;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .paycode-logo-preview img,
+        .paycode-logo-thumb {
+            object-fit: contain;
+            background: #fff;
+        }
+
+        .paycode-logo-preview img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .paycode-logo-thumb {
+            width: 42px;
+            height: 42px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+        }
+
         .toast {
             position: fixed;
             right: 18px;
@@ -1103,6 +1142,8 @@
                 bankCode: '-',
                 payCode: 'PIX',
                 kycLimit: '5000.00',
+                logoBefore: '',
+                logoAfter: '',
                 merchant: 'ZPay',
                 currency: 'BRL',
                 type: 'deposit',
@@ -1119,6 +1160,8 @@
                 bankCode: 'PIX',
                 payCode: 'PIX',
                 kycLimit: '10000.00',
+                logoBefore: '',
+                logoAfter: '',
                 merchant: 'ZPay',
                 currency: 'BRL',
                 type: 'withdraw',
@@ -1135,6 +1178,8 @@
                 bankCode: 'STP',
                 payCode: 'CLABE',
                 kycLimit: '15000.00',
+                logoBefore: '',
+                logoAfter: '',
                 merchant: 'ZPay',
                 currency: 'MXN',
                 type: 'withdraw',
@@ -1151,6 +1196,8 @@
                 bankCode: '-',
                 payCode: 'OXXO',
                 kycLimit: '3000.00',
+                logoBefore: '',
+                logoAfter: '',
                 merchant: 'ZPay',
                 currency: 'MXN',
                 type: 'deposit',
@@ -1628,7 +1675,8 @@
 					<div class="setting-extra" data-kyc-extra="deposit" ${checked ? '' : 'hidden'}>
                         <span class="setting-extra-label">Cumulative Time(Month)</span>
                         <input class="setting-number" type="text" inputmode="numeric" data-kyc-number="depositCumulativeTime" value="${escapeHtml(validatorKycDraft.depositCumulativeTime ?? '')}" placeholder="0">
-					
+					</div>
+                    <div class="setting-extra" data-kyc-extra="deposit" ${checked ? '' : 'hidden'}>
                         <span class="setting-extra-label">limit(&gt;= )</span>
                         <input class="setting-number" type="text" inputmode="numeric" data-kyc-number="depositLimit" value="${escapeHtml(validatorKycDraft.depositLimit ?? '')}" placeholder="0">
                     </div>`;
@@ -1638,7 +1686,8 @@
 					<div class="setting-extra" data-kyc-extra="withdraw" ${checked ? '' : 'hidden'}>
                         <span class="setting-extra-label">Cumulative Time(Month)</span>
                         <input class="setting-number" type="text" inputmode="numeric" data-kyc-number="withdrawCumulativeTime" value="${escapeHtml(validatorKycDraft.withdrawCumulativeTime ?? '')}" placeholder="0">
-					
+					</div>
+                    <div class="setting-extra" data-kyc-extra="withdraw" ${checked ? '' : 'hidden'}>
                         <span class="setting-extra-label">limit(&gt;= )</span>
                         <input class="setting-number" type="text" inputmode="numeric" data-kyc-number="withdrawLimit" value="${escapeHtml(validatorKycDraft.withdrawLimit ?? '')}" placeholder="0">
                     </div>`;
@@ -1817,6 +1866,8 @@
                                     <th>AccountType</th>
                                     <th>BankCode</th>
                                     <th>PayCode</th>
+                                    <th>点击前 Logo</th>
+                                    <th>点击后 Logo</th>
                                     <th>Merchant</th>
                                     <th>Currency</th>
                                     <th>Type</th>
@@ -1831,7 +1882,7 @@
                             <tbody>
                                 ${rows.length ? rows.map(row => payCodeRowHtml(row)).join('') : `
                                     <tr>
-                                        <td colspan="14" class="empty">No data available</td>
+                                        <td colspan="16" class="empty">No data available</td>
                                     </tr>
                                 `}
                             </tbody>
@@ -1851,6 +1902,8 @@
                     <td>${escapeHtml(row.accountType || '-')}</td>
                     <td>${escapeHtml(row.bankCode || '-')}</td>
                     <td>${escapeHtml(row.payCode)}</td>
+                    <td>${payCodeLogoCellHtml(row.logoBefore)}</td>
+                    <td>${payCodeLogoCellHtml(row.logoAfter)}</td>
                     <td>${escapeHtml(row.merchant)}</td>
                     <td>${escapeHtml(row.currency)}</td>
                     <td>${escapeHtml(row.type)}</td>
@@ -1871,6 +1924,12 @@
                     </td>
                 </tr>
             `;
+        }
+
+        function payCodeLogoCellHtml(src) {
+            return src
+                ? `<img class="paycode-logo-thumb" src="${escapeHtml(src)}" alt="PayCode Logo">`
+                : '<span style="color:#98a2b3">-</span>';
         }
 
         function escapeHtml(value) {
@@ -1899,6 +1958,8 @@
                 bankCode: '',
                 payCode: '',
                 kycLimit: '',
+                logoBefore: '',
+                logoAfter: '',
                 status: 'Enabled'
             };
 
@@ -1956,6 +2017,18 @@
                         </select>
                     </div>
 
+                    <div class="modal-field full">
+                        <label>点击前 Logo <span class="required">*</span></label>
+                        ${payCodeLogoUploadHtml('payCodeLogoBeforeInput', 'payCodeLogoBeforePreview', data.logoBefore)}
+                        <div class="form-note">PayCode 尚未点击 / 选中时显示。</div>
+                    </div>
+
+                    <div class="modal-field full">
+                        <label>点击后 Logo <span class="required">*</span></label>
+                        ${payCodeLogoUploadHtml('payCodeLogoAfterInput', 'payCodeLogoAfterPreview', data.logoAfter)}
+                        <div class="form-note">PayCode 点击 / 选中后显示。</div>
+                    </div>
+
                     <div class="modal-field">
                         <label>Pay Code <span class="required">*</span></label>
                         <select id="payCodeValueInput"></select>
@@ -1969,6 +2042,40 @@
             syncPayCodeTypeFields();
             syncPayCodeOptions(data.payCode);
             $('#payCodeModalMask').classList.add('open');
+        }
+
+        function payCodeLogoUploadHtml(inputId, previewId, value = '') {
+            return `
+                <div class="paycode-logo-upload">
+                    <div class="paycode-logo-preview" id="${previewId}">
+                        ${value ? `<img src="${escapeHtml(value)}" alt="Logo Preview">` : 'No Image'}
+                    </div>
+                    <input id="${inputId}" type="file" accept="image/*">
+                    <input id="${inputId}Value" type="hidden" value="${escapeHtml(value || '')}">
+                </div>
+            `;
+        }
+
+        function handlePayCodeLogoUpload(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            const valueInput = document.getElementById(`${inputId}Value`);
+            const file = input?.files?.[0];
+
+            if (!file || !preview || !valueInput) return;
+            if (!file.type.startsWith('image/')) {
+                toast('请选择图片文件');
+                input.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = () => {
+                const dataUrl = String(reader.result || '');
+                valueInput.value = dataUrl;
+                preview.innerHTML = `<img src="${dataUrl}" alt="Logo Preview">`;
+            };
+            reader.readAsDataURL(file);
         }
 
         function closePayCodeModal() {
@@ -2029,7 +2136,10 @@
             const currency = $('#payCodeCurrencyInput').value;
             const type = $('#payCodeTypeInput').value;
             const payCode = $('#payCodeValueInput').value;
-            const status = $('#payCodeStatusInput').value;
+            const logoBefore = $('#payCodeLogoBeforeInputValue')?.value || '';
+            const logoAfter = $('#payCodeLogoAfterInputValue')?.value || '';
+            const currentRow = editingPayCodeId ? getPayCodeById(editingPayCodeId) : null;
+            const status = currentRow?.status || 'Enabled';
 
             const accountType = type === 'withdraw' ? $('#payCodeAccountTypeInput').value : '-';
             const bankCode = type === 'withdraw' ? $('#payCodeBankCodeInput').value : '-';
@@ -2043,7 +2153,18 @@
                 toast('请输入 Pay Code');
                 return;
             }
-if (type === 'withdraw' && !accountType) {
+
+            if (!logoBefore) {
+                toast('请上传点击前 Logo');
+                return;
+            }
+
+            if (!logoAfter) {
+                toast('请上传点击后 Logo');
+                return;
+            }
+
+            if (type === 'withdraw' && !accountType) {
                 toast('Withdraw 请先选择 AccountType');
                 return;
             }
@@ -2062,6 +2183,8 @@ if (type === 'withdraw' && !accountType) {
                 accountType,
                 bankCode,
                 payCode,
+                logoBefore,
+                logoAfter,
                 merchant,
                 currency,
                 type,
@@ -2331,6 +2454,16 @@ if (type === 'withdraw' && !accountType) {
         });
 
         $('#payCodeModalBody').addEventListener('change', event => {
+            if (event.target.id === 'payCodeLogoBeforeInput') {
+                handlePayCodeLogoUpload('payCodeLogoBeforeInput', 'payCodeLogoBeforePreview');
+                return;
+            }
+
+            if (event.target.id === 'payCodeLogoAfterInput') {
+                handlePayCodeLogoUpload('payCodeLogoAfterInput', 'payCodeLogoAfterPreview');
+                return;
+            }
+
             if (event.target.id === 'payCodeTypeInput') {
                 syncPayCodeTypeFields();
                 syncPayCodeOptions();
