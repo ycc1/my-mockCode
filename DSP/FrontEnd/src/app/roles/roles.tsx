@@ -13,12 +13,18 @@ const featureResources = [
   ["role", "角色管理"],
   ["feature", "功能权限管理"],
   ["report", "报表"],
+  ["report.upload_log", "报表 / 上报日志"],
+  ["report.settlement", "报表 / 结算报表"],
+  ["report.attribution", "报表 / 归因报表"],
   ["account", "帐号管理"],
 ] as const;
 const actions = ["create", "read", "update", "delete"] as const;
 const fallbackFeatures: Feature[] = featureResources.flatMap(
   ([resource, name]) =>
-    actions.map((action) => ({
+    (resource === "report" || resource.startsWith("report.")
+      ? ["read"]
+      : actions
+    ).map((action) => ({
       feature_id: "",
       code: `${resource}.${action}`,
       name: `${name} / ${action}`,
@@ -38,6 +44,9 @@ const resourceLabels: Record<string, string> = {
   role: "角色管理",
   feature: "功能权限管理",
   report: "报表",
+  "report.upload_log": "报表 / 上报日志",
+  "report.settlement": "报表 / 结算报表",
+  "report.attribution": "报表 / 归因报表",
   account: "帐号管理",
 };
 
@@ -50,7 +59,7 @@ export default function RolesPage() {
   const [roleName, setRoleName] = useState("");
   const [message, setMessage] = useState("");
   const featureGroups = features.reduce<FeatureGroup[]>((groups, feature) => {
-    const [resource] = feature.code.split(".");
+    const resource = feature.code.slice(0, feature.code.lastIndexOf("."));
     const group = groups.find((item) => item.resource === resource);
     if (group) group.actions.push(feature);
     else
@@ -74,13 +83,19 @@ export default function RolesPage() {
     if (featureResponse.ok) {
       const payload = await featureResponse.json();
       if (payload.data?.length) {
-        const received = payload.data as Feature[];
+        const received = (payload.data as Feature[]).filter(
+          (feature) =>
+            !feature.code.startsWith("report.") ||
+            feature.code.endsWith(".read"),
+        );
         setFeatures([
           ...fallbackFeatures.map(
-            (feature) => received.find((item) => item.code === feature.code) ?? feature,
+            (feature) =>
+              received.find((item) => item.code === feature.code) ?? feature,
           ),
           ...received.filter(
-            (feature) => !fallbackFeatures.some((item) => item.code === feature.code),
+            (feature) =>
+              !fallbackFeatures.some((item) => item.code === feature.code),
           ),
         ]);
       }
@@ -198,7 +213,9 @@ export default function RolesPage() {
           <div className="panel-toolbar">
             <div>
               <h2>{selectedRole?.name || "选择一个角色"}</h2>
-              <p>勾选此角色可使用的功能，权限包含各项功能 CRUD</p>
+              <p>
+                勾选此角色可使用的功能；报表及其子功能仅支持查询，其他功能支持新增、查询、修改、删除
+              </p>
             </div>
             {selectedRole && (
               <div className="permission-actions">
@@ -252,7 +269,9 @@ export default function RolesPage() {
                       <span>
                         <strong>{actionLabels[action]}</strong>
                         <small>{feature.code}</small>
-                        {!feature.feature_id && <small>后端尚未提供此权限，请更新并重启 API</small>}
+                        {!feature.feature_id && (
+                          <small>后端尚未提供此权限，请更新并重启 API</small>
+                        )}
                       </span>
                     </label>
                   );
