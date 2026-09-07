@@ -23,16 +23,28 @@ curl http://localhost:8080/healthz
 
 ## 接口
 
-| 方法   | 路径                             | 行为                                  |
-| ------ | -------------------------------- | ------------------------------------- |
-| POST   | `/api/v1/membership/login`       | 使用帐号密码登入并建立 session cookie |
-| POST   | `/api/v1/membership/logout`      | 注销当前 session 并清除 cookie        |
-| POST   | `/api/v1/advertiser/offers`      | 创建广告配置                          |
-| GET    | `/api/v1/advertiser/offers/{id}` | 查询广告配置                          |
-| PATCH  | `/api/v1/advertiser/offers/{id}` | 局部更新配置                          |
-| DELETE | `/api/v1/advertiser/offers/{id}` | 归档广告，不物理删除                  |
+| 方法                 | 路径                             | 行为                                  |
+| -------------------- | -------------------------------- | ------------------------------------- |
+| POST                 | `/api/v1/membership/login`       | 使用帐号密码登入并建立 session cookie |
+| POST                 | `/api/v1/membership/logout`      | 注销当前 session 并清除 cookie        |
+| POST                 | `/api/v1/advertiser/offers`      | 创建广告配置                          |
+| GET                  | `/api/v1/advertiser/offers/{id}` | 查询广告配置                          |
+| PATCH                | `/api/v1/advertiser/offers/{id}` | 局部更新配置                          |
+| DELETE               | `/api/v1/advertiser/offers/{id}` | 归档广告，不物理删除                  |
+| GET/POST             | `/api/v1/roles`                  | 查询或建立角色                        |
+| GET/PATCH/PUT/DELETE | `/api/v1/roles/{id}`             | 查询、修改、配置功能或删除角色        |
+| GET/POST             | `/api/v1/features`               | 查询或建立功能                        |
+| GET/PATCH/DELETE     | `/api/v1/features/{id}`          | 查询、修改或删除功能                  |
 
-广告 CRUD API 需要先登入；`/healthz`、membership 登入与登出 API 不需要登入。
+广告、角色与功能 API 都需要先登入，并且登入用户的角色必须拥有对应 feature；`/healthz`、membership 登入与登出 API 不需要登入。
+
+角色功能配置示例：
+
+```powershell
+curl -X PUT http://localhost:8080/api/v1/roles/ROLE_000001 `
+  -H "Content-Type: application/json" -b cookies.txt `
+  -d '{"feature_ids":["FEAT_000001","FEAT_000002"]}'
+```
 
 创建示例：
 

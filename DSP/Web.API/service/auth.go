@@ -21,12 +21,25 @@ func WithUsername(ctx context.Context, username string) context.Context {
 }
 
 type AuthService struct {
-	credentials repository.CredentialRepository
-	sessions    repository.SessionRepository
+	credentials   repository.CredentialRepository
+	sessions      repository.SessionRepository
+	authorization repository.AuthorizationRepository
 }
 
 func NewAuthService(credentials repository.CredentialRepository, sessions repository.SessionRepository) *AuthService {
 	return &AuthService{credentials: credentials, sessions: sessions}
+}
+
+func (s *AuthService) SetAuthorization(authorization repository.AuthorizationRepository) {
+	s.authorization = authorization
+}
+
+func (s *AuthService) HasFeature(username, featureCode string) bool {
+	if s.authorization == nil {
+		return false
+	}
+	allowed, err := s.authorization.HasFeature(username, featureCode)
+	return err == nil && allowed
 }
 
 func (s *AuthService) Login(username, password string) (string, bool, error) {

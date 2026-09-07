@@ -26,7 +26,7 @@ func Authentication(auth *service.AuthService) func(http.Handler) http.Handler {
 	}
 }
 
-func Attributes(required string) func(http.Handler) http.Handler {
+func Attributes(auth *service.AuthService, required string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if _, authenticated := service.UsernameFromContext(r.Context()); !authenticated {
@@ -37,11 +37,16 @@ func Attributes(required string) func(http.Handler) http.Handler {
 				model.ErrorResponse(w, http.StatusForbidden, "API attribute is required")
 				return
 			}
+			username, _ := service.UsernameFromContext(r.Context())
+			if !auth.HasFeature(username, required) {
+				model.ErrorResponse(w, http.StatusForbidden, "feature access denied")
+				return
+			}
 			next.ServeHTTP(w, r)
 		})
 	}
 }
 
 func Offer(auth *service.AuthService, next http.Handler) http.Handler {
-	return Authentication(auth)(Attributes("offer")(next))
+	return Authentication(auth)(Attributes(auth, "offer")(next))
 }

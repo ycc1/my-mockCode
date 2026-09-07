@@ -38,6 +38,7 @@ func buildRoutes() (http.Handler, error) {
 		password = "admin123"
 	}
 	var loginRepository repository.CredentialRepository = repository.NewMemoryCredentialRepository(username, password)
+	var authorizationRepository repository.AuthorizationRepository
 	if dsn := os.Getenv("MYSQL_DSN"); dsn != "" {
 		db, err := sql.Open("mysql", dsn)
 		if err != nil {
@@ -59,12 +60,21 @@ func buildRoutes() (http.Handler, error) {
 			_ = db.Close()
 			return nil, err
 		}
+		authorizationRepository = repository.NewMySQLAuthorizationRepository(db)
 	}
 
 	authService := service.NewAuthService(loginRepository, sessionRepository)
+	featureRepository := repository.NewMemoryFeatureRepository()
+	roleRepository := repository.NewMemoryRoleRepository(featureRepository)
+	if authorizationRepository == nil {
+		authorizationRepository = repository.NewMemoryAuthorizationRepository(roleRepository)
+	}
+	authService.SetAuthorization(authorizationRepository)
 	offerService := service.NewOfferService(offerRepository)
+	accessService := service.NewAccessService(roleRepository, featureRepository)
 	membershipController := controller.NewMembershipController(authService)
 	offerController := controller.NewOfferController(offerService)
+	accessController := controller.NewAccessController(accessService)
 	healthController := controller.NewHealthController()
 
 	mux := http.NewServeMux()
@@ -75,6 +85,16 @@ func buildRoutes() (http.Handler, error) {
 	offerByIDFilter := filter.Offer(authService, http.HandlerFunc(offerController.ByID))
 	mux.Handle("/api/v1/advertiser/offers", offerFilter)
 	mux.Handle("/api/v1/advertiser/offers/", offerByIDFilter)
+	roleFilter := func(next http.Handler) http.Handler {
+		return filter.Authentication(authService)(filter.Attributes(authService, "role.manage")(next))
+	}
+	featureFilter := func(next http.Handler) http.Handler {
+		return filter.Authentication(authService)(filter.Attributes(authService, "feature.manage")(next))
+	}
+	mux.Handle("/api/v1/roles", roleFilter(http.HandlerFunc(accessController.Roles)))
+	mux.Handle("/api/v1/roles/", roleFilter(http.HandlerFunc(accessController.RoleByID)))
+	mux.Handle("/api/v1/features", featureFilter(http.HandlerFunc(accessController.Features)))
+	mux.Handle("/api/v1/features/", featureFilter(http.HandlerFunc(accessController.FeatureByID)))
 	return logging(mux), nil
 }
 

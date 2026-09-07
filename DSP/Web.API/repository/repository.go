@@ -22,3 +22,25 @@ type SessionRepository interface {
 	Delete(token string)
 	Get(token string) (string, bool)
 }
+
+type RoleRepository interface {
+	Create(model.CreateRoleRequest) model.Role
+	List() []model.Role
+	Get(string) (model.Role, bool)
+	Update(string, model.UpdateRoleRequest) (model.Role, bool)
+	Delete(string) bool
+	AssignFeatures(string, []string) bool
+	Features(string) []model.Feature
+}
+
+type FeatureRepository interface {
+	Create(model.CreateFeatureRequest) model.Feature
+	List() []model.Feature
+	Get(string) (model.Feature, bool)
+	Update(string, model.UpdateFeatureRequest) (model.Feature, bool)
+	Delete(string) bool
+}
+
+type AuthorizationRepository interface {
+	HasFeature(username, featureCode string) (bool, error)
+}

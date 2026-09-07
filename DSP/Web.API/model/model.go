@@ -71,3 +71,46 @@ type APIResponse struct {
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
+
+type Role struct {
+	RoleID      string    `json:"role_id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description,omitempty"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+type Feature struct {
+	FeatureID   string    `json:"feature_id"`
+	Code        string    `json:"code"`
+	Name        string    `json:"name"`
+	Description string    `json:"description,omitempty"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+type CreateRoleRequest struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+type UpdateRoleRequest struct {
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
+}
+
+type CreateFeatureRequest struct {
+	Code        string `json:"code"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+type UpdateFeatureRequest struct {
+	Code        *string `json:"code"`
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
+}
+
+type AssignFeaturesRequest struct {
+	FeatureIDs []string `json:"feature_ids"`
+}
