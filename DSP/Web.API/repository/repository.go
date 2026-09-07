@@ -44,3 +44,11 @@ type FeatureRepository interface {
 type AuthorizationRepository interface {
 	HasFeature(username, featureCode string) (bool, error)
 }
+
+type ChannelPartnerRepository interface {
+	Create(model.CreateChannelPartnerRequest, string) model.ChannelPartner
+	List() []model.ChannelPartner
+	Get(string) (model.ChannelPartner, bool)
+	Update(string, model.UpdateChannelPartnerRequest, string) (model.ChannelPartner, bool)
+	Delete(string) bool
+}

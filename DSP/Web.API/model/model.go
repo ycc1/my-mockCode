@@ -114,3 +114,76 @@ type UpdateFeatureRequest struct {
 type AssignFeaturesRequest struct {
 	FeatureIDs []string `json:"feature_ids"`
 }
+
+type ChannelPartner struct {
+	ChannelPartnerID string    `json:"channel_partner_id"`
+	Name             string    `json:"name"`
+	PartnerType      string    `json:"partner_type"`
+	PartnerTypeOther string    `json:"partner_type_other,omitempty"`
+	ServiceCategory  string    `json:"service_category"`
+	ServiceCategoryOther string `json:"service_category_other,omitempty"`
+	TrafficModel     string    `json:"traffic_model"`
+	TrafficModelOther string   `json:"traffic_model_other,omitempty"`
+	BillingModel     string    `json:"billing_model"`
+	BillingModelOther string   `json:"billing_model_other,omitempty"`
+	PrimaryChannel   string    `json:"primary_channel"`
+	PrimaryChannelOther string `json:"primary_channel_other,omitempty"`
+	SecondaryChannel string    `json:"secondary_channel"`
+	SecondaryChannelOther string `json:"secondary_channel_other,omitempty"`
+	MarketContract   string    `json:"market_contract"`
+	MarketContractOther string `json:"market_contract_other,omitempty"`
+	DeliveryPackage  string    `json:"delivery_package"`
+	DeliveryPackageOther string `json:"delivery_package_other,omitempty"`
+	DataSystem       string    `json:"data_system"`
+	DataSystemOther  string    `json:"data_system_other,omitempty"`
+	Status           bool      `json:"status"`
+	CreatedAt        time.Time `json:"created_at"`
+	UpdatedAt        time.Time `json:"updated_at"`
+	ModifiedBy       string    `json:"modified_by"`
+}
+
+type CreateChannelPartnerRequest struct {
+	Name             string `json:"name"`
+	PartnerType      string `json:"partner_type"`
+	PartnerTypeOther string `json:"partner_type_other"`
+	ServiceCategory  string `json:"service_category"`
+	ServiceCategoryOther string `json:"service_category_other"`
+	TrafficModel     string `json:"traffic_model"`
+	TrafficModelOther string `json:"traffic_model_other"`
+	BillingModel     string `json:"billing_model"`
+	BillingModelOther string `json:"billing_model_other"`
+	PrimaryChannel   string `json:"primary_channel"`
+	PrimaryChannelOther string `json:"primary_channel_other"`
+	SecondaryChannel string `json:"secondary_channel"`
+	SecondaryChannelOther string `json:"secondary_channel_other"`
+	MarketContract   string `json:"market_contract"`
+	MarketContractOther string `json:"market_contract_other"`
+	DeliveryPackage  string `json:"delivery_package"`
+	DeliveryPackageOther string `json:"delivery_package_other"`
+	DataSystem       string `json:"data_system"`
+	DataSystemOther  string `json:"data_system_other"`
+	Status           bool   `json:"status"`
+}
+
+type UpdateChannelPartnerRequest struct {
+	Name             *string `json:"name"`
+	PartnerType      *string `json:"partner_type"`
+	PartnerTypeOther *string `json:"partner_type_other"`
+	ServiceCategory  *string `json:"service_category"`
+	ServiceCategoryOther *string `json:"service_category_other"`
+	TrafficModel     *string `json:"traffic_model"`
+	TrafficModelOther *string `json:"traffic_model_other"`
+	BillingModel     *string `json:"billing_model"`
+	BillingModelOther *string `json:"billing_model_other"`
+	PrimaryChannel   *string `json:"primary_channel"`
+	PrimaryChannelOther *string `json:"primary_channel_other"`
+	SecondaryChannel *string `json:"secondary_channel"`
+	SecondaryChannelOther *string `json:"secondary_channel_other"`
+	MarketContract   *string `json:"market_contract"`
+	MarketContractOther *string `json:"market_contract_other"`
+	DeliveryPackage  *string `json:"delivery_package"`
+	DeliveryPackageOther *string `json:"delivery_package_other"`
+	DataSystem       *string `json:"data_system"`
+	DataSystemOther  *string `json:"data_system_other"`
+	Status           *bool   `json:"status"`
+}

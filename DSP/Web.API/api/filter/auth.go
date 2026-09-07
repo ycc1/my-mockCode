@@ -48,5 +48,26 @@ func Attributes(auth *service.AuthService, required string) func(http.Handler) h
 }
 
 func Offer(auth *service.AuthService, next http.Handler) http.Handler {
-	return Authentication(auth)(Attributes(auth, "offer")(next))
+	return CRUD(auth, "offer", next)
+}
+
+func CRUD(auth *service.AuthService, resource string, next http.Handler) http.Handler {
+	return Authentication(auth)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		action := map[string]string{
+			http.MethodGet:    "read",
+			http.MethodPost:   "create",
+			http.MethodPut:    "update",
+			http.MethodPatch:  "update",
+			http.MethodDelete: "delete",
+		}[r.Method]
+		if action == "" {
+			model.ErrorResponse(w, http.StatusMethodNotAllowed, "method not allowed")
+			return
+		}
+		if !auth.HasFeature(service.UsernameFromContextValue(r.Context()), resource+"."+action) {
+			model.ErrorResponse(w, http.StatusForbidden, "feature access denied")
+			return
+		}
+		next.ServeHTTP(w, r)
+	}))
 }

@@ -16,6 +16,11 @@ func UsernameFromContext(ctx context.Context) (string, bool) {
 	return username, ok && username != ""
 }
 
+func UsernameFromContextValue(ctx context.Context) string {
+	username, _ := UsernameFromContext(ctx)
+	return username
+}
+
 func WithUsername(ctx context.Context, username string) context.Context {
 	return context.WithValue(ctx, usernameContextKey{}, username)
 }

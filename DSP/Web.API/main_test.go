@@ -115,3 +115,117 @@ func TestLoginRejectsInvalidCredentials(t *testing.T) {
 		t.Fatalf("status = %d, want %d", response.Code, http.StatusUnauthorized)
 	}
 }
+
+func TestRoleCRUDAndFeatureAssignment(t *testing.T) {
+	handler := routes()
+	cookie := login(t, handler)
+
+	featureResponse := httptest.NewRecorder()
+	featureRequest := httptest.NewRequest(http.MethodPost, "/api/v1/features", bytes.NewReader([]byte(`{"code":"offer.read","name":"Read offers"}`)))
+	featureRequest.AddCookie(cookie)
+	handler.ServeHTTP(featureResponse, featureRequest)
+	if featureResponse.Code != http.StatusCreated {
+		t.Fatalf("create feature status = %d, want %d", featureResponse.Code, http.StatusCreated)
+	}
+	var createdFeature struct {
+		Data struct {
+			FeatureID string `json:"feature_id"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(featureResponse.Body).Decode(&createdFeature); err != nil {
+		t.Fatal(err)
+	}
+
+	roleResponse := httptest.NewRecorder()
+	roleRequest := httptest.NewRequest(http.MethodPost, "/api/v1/roles", bytes.NewReader([]byte(`{"name":"Advertiser","description":"Advertiser access"}`)))
+	roleRequest.AddCookie(cookie)
+	handler.ServeHTTP(roleResponse, roleRequest)
+	if roleResponse.Code != http.StatusCreated {
+		t.Fatalf("create role status = %d, want %d", roleResponse.Code, http.StatusCreated)
+	}
+	var createdRole struct {
+		Data struct {
+			RoleID string `json:"role_id"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(roleResponse.Body).Decode(&createdRole); err != nil {
+		t.Fatal(err)
+	}
+	if createdRole.Data.RoleID == "" || createdFeature.Data.FeatureID == "" {
+		t.Fatal("role or feature response did not include an ID")
+	}
+
+	assignResponse := httptest.NewRecorder()
+	assignRequest := httptest.NewRequest(http.MethodPut, "/api/v1/roles/"+createdRole.Data.RoleID, bytes.NewReader([]byte(`{"feature_ids":["`+createdFeature.Data.FeatureID+`"]}`)))
+	assignRequest.AddCookie(cookie)
+	handler.ServeHTTP(assignResponse, assignRequest)
+	if assignResponse.Code != http.StatusOK {
+		t.Fatalf("assign features status = %d, want %d", assignResponse.Code, http.StatusOK)
+	}
+
+	updateResponse := httptest.NewRecorder()
+	updateRequest := httptest.NewRequest(http.MethodPatch, "/api/v1/roles/"+createdRole.Data.RoleID, bytes.NewReader([]byte(`{"description":"Updated access"}`)))
+	updateRequest.AddCookie(cookie)
+	handler.ServeHTTP(updateResponse, updateRequest)
+	if updateResponse.Code != http.StatusOK {
+		t.Fatalf("update role status = %d, want %d", updateResponse.Code, http.StatusOK)
+	}
+
+	getResponse := httptest.NewRecorder()
+	getRequest := httptest.NewRequest(http.MethodGet, "/api/v1/roles/"+createdRole.Data.RoleID, nil)
+	getRequest.AddCookie(cookie)
+	handler.ServeHTTP(getResponse, getRequest)
+	if getResponse.Code != http.StatusOK {
+		t.Fatalf("get role status = %d, want %d", getResponse.Code, http.StatusOK)
+	}
+
+	deleteResponse := httptest.NewRecorder()
+	deleteRequest := httptest.NewRequest(http.MethodDelete, "/api/v1/roles/"+createdRole.Data.RoleID, nil)
+	deleteRequest.AddCookie(cookie)
+	handler.ServeHTTP(deleteResponse, deleteRequest)
+	if deleteResponse.Code != http.StatusOK {
+		t.Fatalf("delete role status = %d, want %d", deleteResponse.Code, http.StatusOK)
+	}
+}
+
+func TestChannelPartnerCRUD(t *testing.T) {
+	handler := routes()
+	cookie := login(t, handler)
+	payload := []byte(`{"name":"Partner A","partner_type":"其他","partner_type_other":"合作伙伴","service_category":"DSP","traffic_model":"cpc","billing_model":"cpm","primary_channel":"Google","secondary_channel":"其他","secondary_channel_other":"私域","market_contract":"是","delivery_package":"H5","data_system":"GA4","status":true}`)
+
+	createRequest := httptest.NewRequest(http.MethodPost, "/api/v1/channel-partners", bytes.NewReader(payload))
+	createRequest.AddCookie(cookie)
+	create := httptest.NewRecorder()
+	handler.ServeHTTP(create, createRequest)
+	if create.Code != http.StatusCreated { t.Fatalf("create channel partner status = %d, want %d", create.Code, http.StatusCreated) }
+	var created struct { Data struct { ID string `json:"channel_partner_id"`; Status bool `json:"status"`; ModifiedBy string `json:"modified_by"` } `json:"data"` }
+	if err := json.NewDecoder(create.Body).Decode(&created); err != nil { t.Fatal(err) }
+	if created.Data.ID == "" || !created.Data.Status || created.Data.ModifiedBy != "admin" { t.Fatalf("unexpected created partner: %+v", created.Data) }
+
+	updateRequest := httptest.NewRequest(http.MethodPatch, "/api/v1/channel-partners/"+created.Data.ID, bytes.NewReader([]byte(`{"status":false}`)))
+	updateRequest.AddCookie(cookie)
+	update := httptest.NewRecorder()
+	handler.ServeHTTP(update, updateRequest)
+	if update.Code != http.StatusOK { t.Fatalf("update channel partner status = %d, want %d", update.Code, http.StatusOK) }
+
+	getRequest := httptest.NewRequest(http.MethodGet, "/api/v1/channel-partners/"+created.Data.ID, nil)
+	getRequest.AddCookie(cookie)
+	get := httptest.NewRecorder()
+	handler.ServeHTTP(get, getRequest)
+	if get.Code != http.StatusOK { t.Fatalf("get channel partner status = %d, want %d", get.Code, http.StatusOK) }
+	var current struct { Data struct { Status bool `json:"status"`; SecondaryOther string `json:"secondary_channel_other"` } `json:"data"` }
+	if err := json.NewDecoder(get.Body).Decode(&current); err != nil { t.Fatal(err) }
+	if current.Data.Status || current.Data.SecondaryOther != "私域" { t.Fatalf("unexpected partner after update: %+v", current.Data) }
+
+	deleteRequest := httptest.NewRequest(http.MethodDelete, "/api/v1/channel-partners/"+created.Data.ID, nil)
+	deleteRequest.AddCookie(cookie)
+	deleted := httptest.NewRecorder()
+	handler.ServeHTTP(deleted, deleteRequest)
+	if deleted.Code != http.StatusOK { t.Fatalf("delete channel partner status = %d, want %d", deleted.Code, http.StatusOK) }
+}
+
+func TestChannelPartnerRequiresLogin(t *testing.T) {
+	response := httptest.NewRecorder()
+	routes().ServeHTTP(response, httptest.NewRequest(http.MethodGet, "/api/v1/channel-partners", nil))
+	if response.Code != http.StatusUnauthorized { t.Fatalf("status = %d, want %d", response.Code, http.StatusUnauthorized) }
+}

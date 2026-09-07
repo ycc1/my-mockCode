@@ -8,10 +8,12 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"advertiser-api/api/controller"
 	"advertiser-api/api/filter"
+	"advertiser-api/model"
 	"advertiser-api/repository"
 	"advertiser-api/service"
 
@@ -65,6 +67,26 @@ func buildRoutes() (http.Handler, error) {
 
 	authService := service.NewAuthService(loginRepository, sessionRepository)
 	featureRepository := repository.NewMemoryFeatureRepository()
+	for _, feature := range []struct{ code, name string }{
+		{code: "offer", name: "广告内容与投放配置"},
+		{code: "channel_partner", name: "渠道商配置"},
+		{code: "channel_number", name: "渠道号配置"},
+		{code: "channel_link", name: "渠道链接配置"},
+		{code: "role", name: "角色管理"},
+		{code: "feature", name: "功能权限管理"},
+		{code: "report", name: "报表"},
+		{code: "report.upload_log", name: "报表 / 上报日志"},
+		{code: "report.settlement", name: "报表 / 结算报表"},
+		{code: "report.attribution", name: "报表 / 归因报表"},
+		{code: "account", name: "帐号管理"},
+	} {
+		for _, action := range []string{"create", "read", "update", "delete"} {
+			if (feature.code == "report" || strings.HasPrefix(feature.code, "report.")) && action != "read" {
+				continue
+			}
+			featureRepository.Create(model.CreateFeatureRequest{Code: feature.code + "." + action, Name: feature.name + " / " + action})
+		}
+	}
 	roleRepository := repository.NewMemoryRoleRepository(featureRepository)
 	if authorizationRepository == nil {
 		authorizationRepository = repository.NewMemoryAuthorizationRepository(roleRepository)
@@ -72,9 +94,11 @@ func buildRoutes() (http.Handler, error) {
 	authService.SetAuthorization(authorizationRepository)
 	offerService := service.NewOfferService(offerRepository)
 	accessService := service.NewAccessService(roleRepository, featureRepository)
+	channelPartnerService := service.NewChannelPartnerService(repository.NewMemoryChannelPartnerRepository())
 	membershipController := controller.NewMembershipController(authService)
 	offerController := controller.NewOfferController(offerService)
 	accessController := controller.NewAccessController(accessService)
+	channelPartnerController := controller.NewChannelPartnerController(channelPartnerService)
 	healthController := controller.NewHealthController()
 
 	mux := http.NewServeMux()
@@ -85,16 +109,15 @@ func buildRoutes() (http.Handler, error) {
 	offerByIDFilter := filter.Offer(authService, http.HandlerFunc(offerController.ByID))
 	mux.Handle("/api/v1/advertiser/offers", offerFilter)
 	mux.Handle("/api/v1/advertiser/offers/", offerByIDFilter)
-	roleFilter := func(next http.Handler) http.Handler {
-		return filter.Authentication(authService)(filter.Attributes(authService, "role.manage")(next))
-	}
-	featureFilter := func(next http.Handler) http.Handler {
-		return filter.Authentication(authService)(filter.Attributes(authService, "feature.manage")(next))
-	}
+	roleFilter := func(next http.Handler) http.Handler { return filter.CRUD(authService, "role", next) }
+	featureFilter := func(next http.Handler) http.Handler { return filter.CRUD(authService, "feature", next) }
+	channelPartnerFilter := func(next http.Handler) http.Handler { return filter.CRUD(authService, "channel_partner", next) }
 	mux.Handle("/api/v1/roles", roleFilter(http.HandlerFunc(accessController.Roles)))
 	mux.Handle("/api/v1/roles/", roleFilter(http.HandlerFunc(accessController.RoleByID)))
 	mux.Handle("/api/v1/features", featureFilter(http.HandlerFunc(accessController.Features)))
 	mux.Handle("/api/v1/features/", featureFilter(http.HandlerFunc(accessController.FeatureByID)))
+	mux.Handle("/api/v1/channel-partners", channelPartnerFilter(http.HandlerFunc(channelPartnerController.Collection)))
+	mux.Handle("/api/v1/channel-partners/", channelPartnerFilter(http.HandlerFunc(channelPartnerController.ByID)))
 	return logging(mux), nil
 }
 

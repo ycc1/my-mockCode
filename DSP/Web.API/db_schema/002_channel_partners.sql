@@ -1,0 +1,32 @@
+-- Channel partner configuration.
+
+CREATE TABLE IF NOT EXISTS channel_partners (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    channel_partner_id VARCHAR(64) NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    partner_type VARCHAR(50) NOT NULL,
+    partner_type_other VARCHAR(150) NULL,
+    service_category VARCHAR(100) NOT NULL,
+    service_category_other VARCHAR(150) NULL,
+    traffic_model VARCHAR(50) NOT NULL,
+    traffic_model_other VARCHAR(150) NULL,
+    billing_model VARCHAR(50) NOT NULL,
+    billing_model_other VARCHAR(150) NULL,
+    primary_channel VARCHAR(100) NOT NULL,
+    primary_channel_other VARCHAR(150) NULL,
+    secondary_channel VARCHAR(100) NOT NULL,
+    secondary_channel_other VARCHAR(150) NULL,
+    market_contract VARCHAR(50) NOT NULL,
+    market_contract_other VARCHAR(150) NULL,
+    delivery_package VARCHAR(100) NOT NULL,
+    delivery_package_other VARCHAR(150) NULL,
+    data_system VARCHAR(100) NOT NULL,
+    data_system_other VARCHAR(150) NULL,
+    status BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    modified_by VARCHAR(100) NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_channel_partners_id (channel_partner_id),
+    KEY idx_channel_partners_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
