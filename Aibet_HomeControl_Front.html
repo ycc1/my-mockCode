@@ -1146,6 +1146,50 @@
         0%, 100% { box-shadow: none; }
         35% { box-shadow: 0 0 0 2px var(--pink), 0 0 22px rgba(255, 40, 95, .24); }
       }
+
+      /* Content Function sticky under the top navigation bar */
+      .content-function-block {
+        position: sticky;
+        top: var(--header);
+        z-index: 42;
+        background: var(--bg);
+        padding: 8px 0 6px;
+        margin-top: -8px;
+        margin-bottom: 10px;
+      }
+
+      .content-function-block::before {
+        content: "";
+        position: absolute;
+        left: -18px;
+        right: -18px;
+        top: 0;
+        bottom: 0;
+        background: var(--bg);
+        border-bottom: 1px solid var(--line);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.18);
+        opacity: 0;
+        pointer-events: none;
+        z-index: -1;
+        transition: opacity .15s ease;
+      }
+
+      .content-function-block.is-sticky::before {
+        opacity: 1;
+      }
+
+      @media (max-width: 720px) {
+        .content-function-block {
+          padding-top: 6px;
+          padding-bottom: 5px;
+        }
+
+        .content-function-block::before {
+          left: -10px;
+          right: -10px;
+        }
+      }
+
 </style>
   </head>
   <body>
@@ -2892,6 +2936,24 @@
           el.textContent = msgs.join("   ◆   ");
         }
 
+        function updateContentFunctionStickyState() {
+          const topOffset =
+            parseFloat(
+              getComputedStyle(document.documentElement)
+                .getPropertyValue("--header"),
+            ) || 58;
+
+          document
+            .querySelectorAll(".content-function-block")
+            .forEach((block) => {
+              const rect = block.getBoundingClientRect();
+              block.classList.toggle(
+                "is-sticky",
+                rect.top <= topOffset + 1,
+              );
+            });
+        }
+
         function render() {
           renderTopNav();
           renderMainMenu();
@@ -2958,8 +3020,14 @@
                 x.classList.add("active");
               }),
           );
+
+          requestAnimationFrame(updateContentFunctionStickyState);
         }
         render();
+        window.addEventListener("scroll", updateContentFunctionStickyState, {
+          passive: true,
+        });
+        window.addEventListener("resize", updateContentFunctionStickyState);
         window.addEventListener("storage", (e) => {
           if ([KEY, TAG_KEY, GAME_KEY, LOBBY_KEY].includes(e.key))
             location.reload();
