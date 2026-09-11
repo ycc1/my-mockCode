@@ -1,0 +1,2970 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Ai.bet Casino Front — Dynamic Layout</title>
+    <style>
+      :root {
+        --pink: #ff285f;
+        --pink2: #ff587d;
+        --bg: #0b0b0d;
+        --panel: #171719;
+        --panel2: #222225;
+        --card: #343437;
+        --line: #2d2d31;
+        --text: #f7f7f7;
+        --muted: #aaaeb6;
+        --gold: #ffc94a;
+        --sidebar: 224px;
+        --header: 58px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: Inter, Arial, "Microsoft JhengHei", sans-serif;
+      }
+      button,
+      input {
+        font: inherit;
+      }
+      .topbar {
+        height: var(--header);
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: #111114;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        padding: 0 18px;
+        gap: 24px;
+      }
+      .logo {
+        font-size: 26px;
+        font-weight: 950;
+        font-style: italic;
+      }
+      .logo b {
+        color: var(--pink);
+      }
+      .topnav {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        min-width: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+        font-size: 13px;
+        font-weight: 800;
+      }
+      .topnav::-webkit-scrollbar {
+        display: none;
+      }
+      .topnav a {
+        flex: 0 0 auto;
+        cursor: pointer;
+      }
+      .topnav a.lobby-nav {
+        position: relative;
+      }
+      .topnav a.lobby-nav.active::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -9px;
+        height: 2px;
+        border-radius: 999px;
+        background: var(--pink);
+      }
+      .topnav a {
+        color: #ddd;
+        text-decoration: none;
+      }
+      .topnav a.active {
+        color: var(--pink);
+      }
+      .top-actions {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .deposit {
+        border: 0;
+        background: var(--pink);
+        color: #fff;
+        padding: 9px 16px;
+        border-radius: 7px;
+        font-weight: 900;
+      }
+      .balance {
+        font-size: 12px;
+      }
+      .app {
+        display: grid;
+        grid-template-columns: var(--sidebar) minmax(0, 1fr);
+        min-height: calc(100vh - var(--header));
+      }
+      .sidebar {
+        background: #18181a;
+        border-right: 1px solid var(--line);
+        position: sticky;
+        top: var(--header);
+        height: calc(100vh - var(--header));
+        overflow: auto;
+        padding: 14px 9px;
+      }
+      .side-group-title {
+        padding: 13px 10px 7px;
+        font-size: 17px;
+        font-weight: 950;
+        border-top: 1px solid var(--line);
+        margin-top: 8px;
+      }
+      .side-item {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding: 10px 11px;
+        border-radius: 7px;
+        color: #d5d5d8;
+        font-weight: 760;
+        font-size: 14px;
+        cursor: pointer;
+      }
+      .side-item:hover,
+      .side-item.active {
+        background: #242428;
+        color: #fff;
+      }
+      .side-icon {
+        width: 22px;
+        text-align: center;
+        color: var(--pink);
+        font-size: 18px;
+      }
+      .side-item.vip {
+        color: #efc172;
+      }
+      .side-item.promo {
+        color: #ff4e91;
+      }
+      main {
+        min-width: 0;
+        padding: 16px 18px 40px;
+        max-width: 1600px;
+        width: 100%;
+        margin: auto;
+      }
+      .module {
+        margin-bottom: 18px;
+      }
+      .module.hidden {
+        display: none;
+      }
+      .hero {
+        height: 190px;
+        background: linear-gradient(135deg, #3b3b3f, #252529);
+        border-radius: 15px;
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .hero-slide {
+        position: absolute;
+        inset: 0;
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: flex-end;
+        padding: 22px;
+      }
+      .hero-copy {
+        background: rgba(0, 0, 0, 0.52);
+        backdrop-filter: blur(8px);
+        padding: 12px 16px;
+        border-radius: 10px;
+      }
+      .hero-copy b {
+        display: block;
+        font-size: 22px;
+      }
+      .hero-copy span {
+        color: #ddd;
+        font-size: 12px;
+      }
+      .marquee {
+        height: 42px;
+        background: #20131a;
+        border: 1px solid #4a2030;
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+      }
+      .marquee-icon {
+        padding: 0 14px;
+        color: var(--pink);
+      }
+      .marquee-track {
+        white-space: nowrap;
+        animation: marquee 22s linear infinite;
+        color: #f5d8e2;
+        font-size: 13px;
+      }
+      @keyframes marquee {
+        from {
+          transform: translateX(100%);
+        }
+        to {
+          transform: translateX(-100%);
+        }
+      }
+      .broadcast {
+        display: flex;
+        gap: 8px;
+        overflow: auto;
+        padding-bottom: 3px;
+      }
+      .broadcast-chip {
+        flex: 0 0 auto;
+        background: #2a1a21;
+        border: 1px solid #512637;
+        color: #ffd7e2;
+        padding: 8px 13px;
+        border-radius: 18px;
+        font-size: 12px;
+      }
+      .category-tabs {
+        display: flex;
+        gap: 9px;
+        overflow: auto;
+        padding: 3px 0 6px;
+        scrollbar-width: none;
+      }
+      .content-function-block {
+        width: 100%;
+        overflow: hidden;
+      }
+      .content-function-block .category-tabs {
+        margin: 0;
+      }
+      .category-tabs::-webkit-scrollbar {
+        display: none;
+      }
+      .category-tab {
+        white-space: nowrap;
+        background: #1c1c1f;
+        border: 1px solid #2c2c30;
+        padding: 8px 13px;
+        border-radius: 18px;
+        color: #c4c4c9;
+        font-size: 12px;
+      }
+      .category-tab.active {
+        background: var(--pink);
+        color: white;
+        border-color: var(--pink);
+      }
+      .search {
+        height: 40px;
+        border-radius: 22px;
+        background: #222225;
+        border: 1px solid #333338;
+        color: #aaa;
+        display: flex;
+        align-items: center;
+        padding: 0 15px;
+      }
+      .search input {
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: #fff;
+        width: 100%;
+        margin-left: 8px;
+      }
+      .section-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 0 0 10px;
+      }
+      .section-title {
+        font-size: 20px;
+        font-weight: 950;
+      }
+      .view-all {
+        font-size: 12px;
+        color: #bbb;
+        text-decoration: none;
+      }
+      .game-card {
+        position: relative;
+        background: #343437;
+        border-radius: 9px;
+        overflow: hidden;
+        min-height: 120px;
+        background-size: cover;
+        background-position: center;
+        isolation: isolate;
+      }
+      .game-card:before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          180deg,
+          transparent 45%,
+          rgba(0, 0, 0, 0.72)
+        );
+        z-index: -1;
+      }
+      .game-name {
+        position: absolute;
+        left: 10px;
+        right: 48px;
+        bottom: 9px;
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .favorite {
+        position: absolute;
+        right: 9px;
+        top: 8px;
+        font-size: 20px;
+        color: #ddd;
+      }
+      .players {
+        position: absolute;
+        right: 8px;
+        bottom: 7px;
+        background: rgba(15, 15, 16, 0.75);
+        padding: 4px 7px;
+        border-radius: 12px;
+        font-size: 10px;
+      }
+      .rank-number {
+        position: absolute;
+        left: 8px;
+        top: 3px;
+        font-size: 54px;
+        font-weight: 1000;
+        font-style: italic;
+        color: #d41020;
+        text-shadow: 2px 2px 0 #fff;
+      }
+      .row-scroll {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(170px, 1fr);
+        gap: 10px;
+        overflow-x: auto;
+        padding-bottom: 5px;
+        scroll-snap-type: x proximity;
+      }
+      .row-scroll > * {
+        scroll-snap-align: start;
+      }
+      .top10 .game-card {
+        height: 190px;
+      }
+      .small-one {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(150px, 1fr));
+        gap: 10px;
+      }
+      .small-one .game-card {
+        height: 170px;
+      }
+      .one-big {
+        display: grid;
+        grid-template-columns: minmax(310px, 1.55fr) repeat(
+            2,
+            minmax(160px, 0.7fr)
+          );
+        grid-template-rows: repeat(2, 145px);
+        gap: 10px;
+      }
+      .one-big .game-card:first-child {
+        grid-row: 1/3;
+        height: auto;
+      }
+      .one-big .game-card:not(:first-child) {
+        height: auto;
+      }
+      .small-two {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(150px, 1fr));
+        gap: 10px;
+      }
+      .small-two .game-card {
+        height: 170px;
+      }
+      .rank-box {
+        background: #141416;
+        border-radius: 14px;
+        padding: 14px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+      }
+      .rank-list {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .rank-row {
+        display: grid;
+        grid-template-columns: 44px minmax(120px, 1fr) 110px 150px;
+        align-items: center;
+        padding: 10px 12px;
+        background: #2b1719;
+        border-radius: 6px;
+      }
+      .rank-row:nth-child(1) {
+        background: linear-gradient(90deg, #7c6118, #2c2814);
+      }
+      .rank-row:nth-child(2) {
+        background: linear-gradient(90deg, #4b607c, #222832);
+      }
+      .rank-row:nth-child(3) {
+        background: linear-gradient(90deg, #884519, #352218);
+      }
+      .medal {
+        font-size: 25px;
+      }
+      .rank-meta small {
+        display: block;
+        color: #bfbfc4;
+      }
+      .rtp {
+        color: #ffc787;
+        font-weight: 850;
+      }
+      .amount {
+        font-variant-numeric: tabular-nums;
+      }
+      .hotcold {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .trend {
+        border-radius: 18px;
+        padding: 20px;
+        overflow: hidden;
+      }
+      .trend.hot {
+        background: linear-gradient(145deg, #941e16, #3a090b);
+      }
+      .trend.cold {
+        background: linear-gradient(145deg, #194e89, #08183b);
+      }
+      .trend-title {
+        font-size: 36px;
+        font-weight: 1000;
+        font-style: italic;
+      }
+      .trend-sub {
+        margin: 4px 0 14px;
+      }
+      .trend-item {
+        display: grid;
+        grid-template-columns: 100px 1fr;
+        gap: 15px;
+        align-items: center;
+        background: rgba(8, 8, 12, 0.45);
+        border-radius: 15px;
+        padding: 12px;
+        margin-top: 8px;
+      }
+      .trend-thumb {
+        height: 86px;
+        border-radius: 10px;
+        background: #687083;
+        background-size: cover;
+        background-position: center;
+      }
+      .trend-game b {
+        display: block;
+        font-size: 18px;
+        margin: 7px 0;
+      }
+      .trend-rate {
+        font-size: 18px;
+        font-weight: 900;
+      }
+      .jackpot {
+        background: linear-gradient(105deg, #8b5314, #512100);
+        border-radius: 18px;
+        padding: 22px;
+        display: grid;
+        grid-template-columns: 360px minmax(0, 1fr);
+        gap: 24px;
+        align-items: center;
+        overflow: hidden;
+      }
+      .jackpot-title {
+        font-size: 38px;
+        font-weight: 1000;
+        font-style: italic;
+      }
+      .jackpot-visual {
+        font-size: 88px;
+        text-align: center;
+        margin: -25px 0 -8px;
+      }
+      .jackpot-total {
+        background: #241307;
+        border: 1px solid #c27a05;
+        border-radius: 12px;
+        color: #ffe52e;
+        font-size: 32px;
+        font-weight: 1000;
+        padding: 13px;
+        text-align: center;
+      }
+      .jackpot-games {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(180px, 1fr);
+        gap: 18px;
+        overflow-x: auto;
+      }
+      .jackpot-game {
+        text-align: center;
+        font-weight: 800;
+      }
+      .jackpot-game .game-card {
+        height: 170px;
+        margin-bottom: 9px;
+      }
+
+      .recent-win {
+        border: 4px solid #ff4e57;
+        border-radius: 12px;
+        padding: 12px 14px 14px;
+        background: #050505;
+        overflow: hidden;
+      }
+      .recent-win-head {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 22px;
+        font-weight: 950;
+        margin-bottom: 14px;
+      }
+      .recent-win-dot {
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        background: #08b76a;
+        box-shadow: 0 0 0 5px rgba(8, 183, 106, 0.17);
+      }
+      .recent-win-list {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: 96px;
+        gap: 10px;
+        overflow-x: auto;
+        padding-bottom: 3px;
+        scrollbar-width: none;
+      }
+      .recent-win-list::-webkit-scrollbar {
+        display: none;
+      }
+      .recent-win-game {
+        height: 116px;
+        border-radius: 8px;
+        background: #28282c center/cover no-repeat;
+      }
+      .recent-win-user {
+        margin-top: 7px;
+        color: #a5a5aa;
+        font-size: 11px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .recent-win-amount {
+        margin-top: 4px;
+        color: #08b76a;
+        font-size: 14px;
+        font-weight: 900;
+      }
+
+      .content-broadcast-wrap {
+        position: relative;
+        z-index: 25;
+        width: 100%;
+        height: 0;
+        margin: 0;
+        padding: 0;
+        overflow: visible;
+        pointer-events: none;
+      }
+      .content-broadcast {
+        position: absolute;
+        left: 50%;
+        top: 0;
+        transform: translate(-50%, -50%);
+        min-width: 360px;
+        max-width: min(760px, 92%);
+        min-height: 58px;
+        padding: 0 30px;
+        border-radius: 999px;
+        border: 1px solid #9c2450;
+        background: linear-gradient(
+          100deg,
+          #621319 0%,
+          #3f1025 52%,
+          #29112f 100%
+        );
+        box-shadow:
+          0 8px 24px rgba(0, 0, 0, 0.42),
+          inset 0 0 18px rgba(255, 72, 109, 0.08);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 17px;
+        color: #fff;
+        font-size: 23px;
+        font-weight: 760;
+        white-space: nowrap;
+        overflow: hidden;
+        opacity: 1;
+        visibility: visible;
+        transition:
+          opacity 0.28s ease,
+          transform 0.28s ease,
+          visibility 0.28s ease;
+      }
+      .content-broadcast.is-hidden {
+        opacity: 0;
+        visibility: hidden;
+        transform: translate(-50%, -35%);
+      }
+      .content-broadcast-icon {
+        font-size: 28px;
+        flex: none;
+      }
+      .content-broadcast-text {
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .content-broadcast-text strong {
+        color: #ffd329;
+        font-weight: 950;
+      }
+      @media (max-width: 720px) {
+        .content-broadcast {
+          min-width: 0;
+          width: 96%;
+          min-height: 50px;
+          padding: 0 18px;
+          gap: 11px;
+          font-size: 16px;
+        }
+        .content-broadcast-icon {
+          font-size: 22px;
+        }
+      }
+
+      .content-broadcast.is-changing .content-broadcast-text,
+      .content-broadcast.is-changing .content-broadcast-icon {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      .content-broadcast-text,
+      .content-broadcast-icon {
+        transition:
+          opacity 0.28s ease,
+          transform 0.28s ease;
+      }
+
+      .providers {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(110px, 1fr));
+        gap: 9px;
+      }
+      .provider {
+        height: 66px;
+        background: #fff;
+        color: #222;
+        border-radius: 7px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 950;
+        text-align: center;
+        padding: 6px;
+      }
+      .provider img {
+        max-width: 100%;
+        max-height: 44px;
+      }
+      .bottom-web {
+        background: #161619;
+        border-top: 1px solid var(--line);
+        margin: 28px -18px -40px;
+        padding: 32px 28px 38px;
+        display: grid;
+        grid-template-columns: 190px minmax(0, 1fr);
+        gap: 54px;
+        align-items: start;
+      }
+      .footer-logo {
+        align-self: start;
+      }
+      .footer-menu-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 34px 54px;
+      }
+      .footer-col b {
+        display: block;
+        margin-bottom: 12px;
+        font-size: 15px;
+        color: #fff;
+      }
+      .footer-col a {
+        display: block;
+        color: #a7a7ad;
+        text-decoration: none;
+        font-size: 12px;
+        margin: 8px 0;
+        transition: color 0.15s ease;
+      }
+      .footer-col a:hover {
+        color: #fff;
+      }
+      .footer-col .footer-parent-link {
+        color: #fff;
+        font-weight: 800;
+        font-size: 15px;
+        margin: 0 0 12px;
+      }
+      .footer-empty {
+        color: #777;
+        font-size: 12px;
+      }
+      .h5-bottom {
+        display: none;
+      }
+      .empty-layout {
+        border: 1px dashed #444;
+        border-radius: 10px;
+        padding: 25px;
+        text-align: center;
+        color: #888;
+      }
+      .debug-badge {
+        position: fixed;
+        right: 12px;
+        bottom: 12px;
+        z-index: 70;
+        background: #17171a;
+        border: 1px solid #39393e;
+        padding: 7px 10px;
+        border-radius: 8px;
+        color: #aaa;
+        font-size: 10px;
+      }
+      @media (max-width: 1050px) {
+        :root {
+          --sidebar: 190px;
+        }
+        .small-one {
+          grid-template-columns: repeat(4, 1fr);
+        }
+        .small-two {
+          grid-template-columns: repeat(4, 1fr);
+        }
+        .providers {
+          grid-template-columns: repeat(4, 1fr);
+        }
+        .rank-box,
+        .hotcold {
+          grid-template-columns: 1fr;
+        }
+        .jackpot {
+          grid-template-columns: 1fr;
+        }
+        .bottom-web {
+          grid-template-columns: 150px minmax(0, 1fr);
+          gap: 30px;
+        }
+        .footer-menu-grid {
+          grid-template-columns: repeat(2, minmax(140px, 1fr));
+        }
+      }
+      @media (max-width: 720px) {
+        :root {
+          --header: 54px;
+        }
+        .topnav,
+        .balance {
+          display: none;
+        }
+        .app {
+          display: block;
+        }
+        .sidebar {
+          display: none;
+        }
+        main {
+          padding: 10px 10px 76px;
+        }
+        .hero {
+          height: 130px;
+        }
+        .section-title {
+          font-size: 17px;
+        }
+        .one-big {
+          grid-template-columns: repeat(2, 1fr);
+          grid-template-rows: 190px repeat(2, 125px);
+        }
+        .one-big .game-card:first-child {
+          grid-column: 1/3;
+          grid-row: auto;
+        }
+        .small-one,
+        .small-two {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .small-one .game-card,
+        .small-two .game-card {
+          height: 125px;
+        }
+        .rank-row {
+          grid-template-columns: 34px 1fr 78px;
+        }
+        .rank-row .amount {
+          display: none;
+        }
+        .trend-item {
+          grid-template-columns: 82px 1fr;
+        }
+        .trend-thumb {
+          height: 74px;
+        }
+        .jackpot {
+          padding: 16px;
+        }
+        .jackpot-games {
+          grid-auto-columns: 145px;
+        }
+        .providers {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        .bottom-web {
+          display: none;
+        }
+        .h5-bottom {
+          position: fixed;
+          display: flex;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          height: 62px;
+          background: #17171a;
+          border-top: 1px solid #34343a;
+          z-index: 60;
+          align-items: center;
+          justify-content: space-around;
+        }
+        .h5-item {
+          font-size: 11px;
+          text-align: center;
+          color: #bbb;
+          text-decoration: none;
+        }
+        .h5-item span {
+          display: block;
+          font-size: 20px;
+          margin-bottom: 3px;
+        }
+        .debug-badge {
+          bottom: 70px;
+        }
+      }
+    
+      .view-all {
+        font-size: 12px;
+        color: #bbb;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .view-all-page {
+        min-height: calc(100vh - var(--header) - 32px);
+      }
+      .view-all-hero {
+        min-height: 84px;
+        border-radius: 10px;
+        padding: 20px 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        background:
+          linear-gradient(90deg, #101a3a 0%, #111a35 58%, #271335 100%);
+        border: 1px solid #202b50;
+        overflow: hidden;
+      }
+      .view-all-title {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 950;
+      }
+      .view-all-back {
+        border: 1px solid #3a3a40;
+        background: #202024;
+        color: #fff;
+        min-height: 36px;
+        padding: 0 14px;
+        border-radius: 7px;
+        font-weight: 850;
+        cursor: pointer;
+      }
+      .view-all-breadcrumb {
+        margin: 14px 0 16px;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border-radius: 7px;
+        background: #242426;
+        color: #c4c4c9;
+        padding: 8px 11px;
+        font-size: 12px;
+      }
+      .view-all-filter-bar {
+        display: grid;
+        grid-template-columns: minmax(260px, 1fr) 185px 185px;
+        gap: 14px;
+        margin: 0 0 16px;
+        align-items: start;
+      }
+      .view-all-search-box {
+        height: 48px;
+        border-radius: 22px;
+        background: #202021;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 0 14px;
+        color: #8e9097;
+      }
+      .view-all-search-box input {
+        width: 100%;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: #fff;
+      }
+      .view-all-multi {
+        position: relative;
+      }
+      .view-all-multi-btn {
+        width: 100%;
+        height: 48px;
+        padding: 0 15px;
+        border: 1px solid #ff244f;
+        background: #111113;
+        color: #fff;
+        font-weight: 900;
+        text-align: left;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .view-all-multi-btn::after {
+        content: "▽";
+        color: #ff244f;
+        font-size: 22px;
+      }
+      .view-all-multi.open .view-all-multi-btn::after {
+        content: "△";
+      }
+      .view-all-multi-menu {
+        display: none;
+        position: absolute;
+        top: 52px;
+        left: 0;
+        right: 0;
+        z-index: 40;
+        max-height: 260px;
+        overflow: auto;
+        padding: 7px;
+        background: #19191c;
+        border: 1px solid #39393e;
+        box-shadow: 0 10px 28px rgba(0,0,0,.45);
+      }
+      .view-all-multi.open .view-all-multi-menu {
+        display: block;
+      }
+      .view-all-option {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 9px 8px;
+        border-radius: 5px;
+        color: #ddd;
+        font-size: 12px;
+        cursor: pointer;
+      }
+      .view-all-option:hover {
+        background: #29292d;
+      }
+      .view-all-option input {
+        accent-color: var(--pink);
+      }
+      .view-all-filter-count {
+        margin: -5px 0 13px;
+        color: #8f929a;
+        font-size: 11px;
+      }
+      @media (max-width: 720px) {
+        .view-all-filter-bar {
+          grid-template-columns: 1fr;
+          gap: 8px;
+        }
+      }
+
+      .view-all-grid {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(130px, 1fr));
+        gap: 12px;
+      }
+      .view-all-grid .game-card {
+        height: 190px;
+      }
+      .view-all-footer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding: 28px 0 8px;
+      }
+      .view-all-progress {
+        min-width: 180px;
+        text-align: center;
+        color: #b9bbc2;
+        font-size: 12px;
+      }
+      .view-all-progress-line {
+        width: 100%;
+        height: 2px;
+        background: #34343a;
+        margin-bottom: 8px;
+        overflow: hidden;
+      }
+      .view-all-progress-bar {
+        height: 100%;
+        background: var(--pink);
+        transition: width .2s ease;
+      }
+      .load-more-btn {
+        min-width: 150px;
+        height: 42px;
+        border: 1px solid #39393d;
+        border-radius: 7px;
+        background: #262629;
+        color: #fff;
+        font-weight: 900;
+        cursor: pointer;
+      }
+      .load-more-btn:hover {
+        background: #313135;
+      }
+      .view-all-empty {
+        padding: 50px 20px;
+        text-align: center;
+        color: #8d9098;
+        border: 1px dashed #34343a;
+        border-radius: 10px;
+      }
+      @media (max-width: 1280px) {
+        .view-all-grid {
+          grid-template-columns: repeat(5, minmax(125px, 1fr));
+        }
+      }
+      @media (max-width: 1050px) {
+        .view-all-grid {
+          grid-template-columns: repeat(4, minmax(125px, 1fr));
+        }
+      }
+      @media (max-width: 720px) {
+        .view-all-hero {
+          min-height: 68px;
+          padding: 14px;
+        }
+        .view-all-title {
+          font-size: 19px;
+        }
+        .view-all-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 9px;
+        }
+        .view-all-grid .game-card {
+          height: 150px;
+        }
+      }
+
+      .content-function-block .category-tab[data-tag-id] {
+        cursor: pointer;
+        user-select: none;
+      }
+      .content-function-block .category-tab[data-tag-id]:hover {
+        border-color: var(--pink);
+        color: #fff;
+      }
+      [data-content-tag-id] {
+        scroll-margin-top: calc(var(--header) + 14px);
+      }
+      .content-function-target-flash {
+        animation: contentTagFlash 1.1s ease;
+      }
+      @keyframes contentTagFlash {
+        0%, 100% { box-shadow: none; }
+        35% { box-shadow: 0 0 0 2px var(--pink), 0 0 22px rgba(255, 40, 95, .24); }
+      }
+</style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="logo"><b>Ai.</b>bet</div>
+      <nav class="topnav" id="topnav"></nav>
+      <div class="top-actions">
+        <button class="deposit">Deposit</button
+        ><span class="balance">R$ 2,256.00</span>
+      </div>
+    </header>
+    <div class="app">
+      <aside class="sidebar" id="sidebarMenu"></aside>
+      <main id="homepage"></main>
+    </div>
+    <div class="h5-bottom" id="h5Bottom"></div>
+    <div class="debug-badge" id="dataSourceBadge"></div>
+
+    <script>
+      (() => {
+        const KEY = "aibet_casino_homepage_popular_game_submenu_v9";
+        const TAG_KEY = "aibet_tags_rows_v1";
+        const GAME_KEY = "aibet_gamelist_rows_v1";
+        const LOBBY_KEY = "aibet_lobby_rows_v1";
+
+        const fallback = {
+          modules: [
+            { id: 101, module: "banner", title: "Banner", sort: 1, on: true },
+            {
+              id: 108,
+              module: "recentWin",
+              title: "Recent Wins",
+              sort: 2,
+              on: true,
+            },
+            { id: 102, module: "marquee", title: "Marquee", sort: 2, on: true },
+            {
+              id: 103,
+              module: "broadcastReceiver",
+              title: "BroadcastReceiver",
+              sort: 3,
+              on: true,
+            },
+            {
+              id: 104,
+              module: "searchBar",
+              title: "Search Bar",
+              sort: 4,
+              on: true,
+            },
+            { id: 105, module: "content", title: "Content", sort: 5, on: true },
+            {
+              id: 106,
+              module: "providerLogo",
+              title: "Provider Logo",
+              sort: 6,
+              on: true,
+            },
+            { id: 107, module: "bottom", title: "Bottom", sort: 7, on: true },
+          ],
+          data: {
+            mainMenu: [
+              "All Games",
+              "Popular",
+              "Favourites",
+              "Recent",
+              "VIP CLUB",
+              "Promotions",
+              "Casino Leaderboard",
+              "Slots",
+              "Live Casino",
+              "Baccarat",
+              "New Releases",
+              "Bingo",
+              "Roulette",
+              "Megaways",
+              "Crash Games",
+              "Tables",
+            ].map((name, i) => ({
+              id: i + 1,
+              name,
+              sort: i + 1,
+              position: i < 7 ? "Up" : "Down",
+              status: "Enabled",
+              link: "#",
+            })),
+            banner: [
+              {
+                id: 1,
+                name: "Welcome Bonus",
+                status: "Enabled",
+                sort: 1,
+                image: "",
+              },
+            ],
+            marquee: [
+              {
+                id: 1,
+                name: "Winner Announcement",
+                content: "Congratulations! A player just won a major prize.",
+                status: "Enabled",
+                sort: 1,
+              },
+            ],
+            broadcastReceiver: [
+              {
+                id: 1,
+                icon: "",
+                gameType: "SLOT",
+                messageTemplate: "{Icon} {Game Name} {Amount} {Account}",
+                interval: 5,
+                sort: 1,
+                status: "Enabled",
+                updateAt: "-",
+                updateBy: "Admin",
+              },
+              {
+                id: 2,
+                icon: "",
+                gameType: "Live Casino",
+                messageTemplate:
+                  "{Icon} {Account} just won {Amount} at {Game Name}",
+                interval: 5,
+                sort: 2,
+                status: "Enabled",
+                updateAt: "-",
+                updateBy: "Admin",
+              },
+            ],
+            searchBar: [
+              {
+                id: 1,
+                placeholder: "Search games...",
+                status: "Enabled",
+                sort: 1,
+              },
+            ],
+            content: [
+              {
+                id: 100,
+                name: "ped***35 just won R$ 2.493",
+                style: "Broadcast",
+                tags: "",
+                gameCount: 1,
+                status: "Enabled",
+                sort: 0,
+              },
+              {
+                id: 1,
+                name: "Top 10",
+                style: "Top 10 Row",
+                tags: "Popular",
+                gameCount: 10,
+                status: "Enabled",
+                sort: 1,
+              },
+              {
+                id: 2,
+                name: "Slots",
+                style: "1 Big + 4 Small",
+                tags: "Slots",
+                gameCount: 5,
+                status: "Enabled",
+                sort: 2,
+              },
+              {
+                id: 3,
+                name: "Promo",
+                style: "4 Small 1 Row",
+                tags: "Promo",
+                gameCount: 6,
+                status: "Enabled",
+                sort: 3,
+              },
+              {
+                id: 4,
+                name: "Casual Games",
+                style: "4 Small 2 Rows",
+                tags: "Casual Games",
+                gameCount: 10,
+                status: "Enabled",
+                sort: 4,
+              },
+              {
+                id: 5,
+                name: "Game Ranks",
+                style: "Rank Game",
+                tags: "Popular",
+                gameCount: 10,
+                status: "Enabled",
+                sort: 5,
+              },
+              {
+                id: 6,
+                name: "Hot / Cold",
+                style: "Hot / Cold Rank",
+                tags: "Hot",
+                gameCount: 6,
+                status: "Enabled",
+                sort: 6,
+              },
+              {
+                id: 7,
+                name: "Jackpot",
+                style: "Jackpot",
+                tags: "Jackpot",
+                gameCount: 6,
+                status: "Enabled",
+                sort: 7,
+              },
+            ],
+            contentFunction: [],
+            providerLogo: [
+              {
+                id: 1,
+                name: "Pragmatic Play",
+                vendor: "Pragmatic Play",
+                status: "Enabled",
+                sort: 1,
+                image: "",
+              },
+              {
+                id: 2,
+                name: "PG Soft",
+                vendor: "PG Soft",
+                status: "Enabled",
+                sort: 2,
+                image: "",
+              },
+            ],
+            bottom: [
+              {
+                id: 1,
+                name: "Sports",
+                parentMenu: "-",
+                route: "/sports",
+                device: "PC",
+                status: "Enabled",
+                sort: 1,
+              },
+              {
+                id: 2,
+                name: "Promotions",
+                parentMenu: "Sports",
+                route: "/promotions",
+                device: "PC",
+                status: "Enabled",
+                sort: 2,
+              },
+              {
+                id: 3,
+                name: "Sports",
+                parentMenu: "Sports",
+                route: "/sports",
+                device: "PC",
+                status: "Enabled",
+                sort: 3,
+              },
+              {
+                id: 4,
+                name: "In-Play",
+                parentMenu: "Sports",
+                route: "/sports/in-play",
+                device: "PC",
+                status: "Enabled",
+                sort: 4,
+              },
+              {
+                id: 5,
+                name: "Top Events",
+                parentMenu: "Sports",
+                route: "/sports/top-events",
+                device: "PC",
+                status: "Enabled",
+                sort: 5,
+              },
+              {
+                id: 6,
+                name: "Upcoming",
+                parentMenu: "Sports",
+                route: "/sports/upcoming",
+                device: "PC",
+                status: "Enabled",
+                sort: 6,
+              },
+              {
+                id: 7,
+                name: "Casino",
+                parentMenu: "-",
+                route: "/casino",
+                device: "PC",
+                status: "Enabled",
+                sort: 7,
+              },
+              {
+                id: 8,
+                name: "Popular",
+                parentMenu: "Casino",
+                route: "/casino/popular",
+                device: "PC",
+                status: "Enabled",
+                sort: 8,
+              },
+              {
+                id: 9,
+                name: "New",
+                parentMenu: "Casino",
+                route: "/casino/new",
+                device: "PC",
+                status: "Enabled",
+                sort: 9,
+              },
+              {
+                id: 10,
+                name: "Slots",
+                parentMenu: "Casino",
+                route: "/casino/slots",
+                device: "PC",
+                status: "Enabled",
+                sort: 10,
+              },
+              {
+                id: 11,
+                name: "Live Casino",
+                parentMenu: "Casino",
+                route: "/casino/live",
+                device: "PC",
+                status: "Enabled",
+                sort: 11,
+              },
+              {
+                id: 12,
+                name: "Support",
+                parentMenu: "-",
+                route: "/support",
+                device: "PC",
+                status: "Enabled",
+                sort: 12,
+              },
+              {
+                id: 13,
+                name: "Deposits",
+                parentMenu: "Support",
+                route: "/deposit",
+                device: "PC",
+                status: "Enabled",
+                sort: 13,
+              },
+              {
+                id: 14,
+                name: "Withdrawals",
+                parentMenu: "Support",
+                route: "/withdraw",
+                device: "PC",
+                status: "Enabled",
+                sort: 14,
+              },
+              {
+                id: 15,
+                name: "Help",
+                parentMenu: "Support",
+                route: "/help",
+                device: "PC",
+                status: "Enabled",
+                sort: 15,
+              },
+              {
+                id: 16,
+                name: "Betting Rules",
+                parentMenu: "Support",
+                route: "/betting-rules",
+                device: "PC",
+                status: "Enabled",
+                sort: 16,
+              },
+              {
+                id: 17,
+                name: "Casino Rules",
+                parentMenu: "Support",
+                route: "/casino-rules",
+                device: "PC",
+                status: "Enabled",
+                sort: 17,
+              },
+              {
+                id: 18,
+                name: "Contact Us",
+                parentMenu: "Support",
+                route: "/contact-us",
+                device: "PC",
+                status: "Enabled",
+                sort: 18,
+              },
+              {
+                id: 19,
+                name: "About",
+                parentMenu: "-",
+                route: "/about",
+                device: "PC",
+                status: "Enabled",
+                sort: 19,
+              },
+              {
+                id: 20,
+                name: "Responsible Gaming",
+                parentMenu: "About",
+                route: "/responsible-gaming",
+                device: "PC",
+                status: "Enabled",
+                sort: 20,
+              },
+              {
+                id: 21,
+                name: "Privacy Policy",
+                parentMenu: "About",
+                route: "/privacy-policy",
+                device: "PC",
+                status: "Enabled",
+                sort: 21,
+              },
+              {
+                id: 22,
+                name: "Terms and Conditions",
+                parentMenu: "About",
+                route: "/terms-and-conditions",
+                device: "PC",
+                status: "Enabled",
+                sort: 22,
+              },
+              {
+                id: 23,
+                name: "AML",
+                parentMenu: "About",
+                route: "/aml",
+                device: "PC",
+                status: "Enabled",
+                sort: 23,
+              },
+              {
+                id: 24,
+                name: "Home",
+                parentMenu: "-",
+                route: "/",
+                device: "H5",
+                status: "Enabled",
+                sort: 24,
+              },
+              {
+                id: 24,
+                name: "Casino",
+                parentMenu: "-",
+                route: "/casino",
+                device: "H5",
+                status: "Enabled",
+                sort: 24,
+              },
+              {
+                id: 24,
+                name: "Deposit",
+                parentMenu: "-",
+                route: "/deposit",
+                device: "H5",
+                status: "Enabled",
+                sort: 24,
+              },
+            ],
+          },
+          popularGameRows: [],
+        };
+
+        const read = (key, fb) => {
+          try {
+            const x = JSON.parse(localStorage.getItem(key) || "null");
+            return x ?? fb;
+          } catch {
+            return fb;
+          }
+        };
+        let state = read(KEY, null);
+        const usingBackend = !!state;
+        if (!state) state = structuredClone(fallback);
+        if (!state.data) state.data = {};
+        if (!Array.isArray(state.modules))
+          state.modules = structuredClone(fallback.modules);
+
+        const tags = read(TAG_KEY, []);
+        const masterGames = read(GAME_KEY, []);
+
+        const fallbackLobbies = [
+          { id: 1001, name: "Aibet Main Lobby", status: "Active", sort: 1 },
+          { id: 1002, name: "Brazil Casino", status: "Active", sort: 2 },
+          { id: 1003, name: "Brazil Slots", status: "Disabled", sort: 3 },
+          { id: 1004, name: "Mexico Casino", status: "Active", sort: 4 },
+        ];
+
+        const normalizeLobbyStatus = (value) =>
+          String(value || "Active").trim().toLowerCase();
+
+        const lobbyEnabled = (row) =>
+          row &&
+          !["deleted", "disabled", "inactive", "off", "false", "0"].includes(
+            normalizeLobbyStatus(row.status),
+          );
+
+        const allLobbies = (() => {
+          const stored = read(LOBBY_KEY, []);
+          const source =
+            Array.isArray(stored) && stored.length ? stored : fallbackLobbies;
+          return source
+            .filter((row) => row && normalizeLobbyStatus(row.status) !== "deleted")
+            .slice()
+            .sort((a, b) => (+a.sort || 0) - (+b.sort || 0));
+        })();
+
+        const visibleLobbies = allLobbies.filter(lobbyEnabled);
+
+        let selectedLobbyId =
+          state.selectedHomepageLobbyId &&
+          visibleLobbies.some(
+            (row) => String(row.id) === String(state.selectedHomepageLobbyId),
+          )
+            ? state.selectedHomepageLobbyId
+            : visibleLobbies[0]?.id || allLobbies[0]?.id || null;
+
+        function cloneData(value) {
+          return JSON.parse(JSON.stringify(value));
+        }
+
+        function lobbyConfigOf(lobbyId) {
+          const key = String(lobbyId ?? "");
+          const scoped = state.lobbyHomepageConfigs?.[key];
+          if (scoped) {
+            return {
+              modules: cloneData(scoped.modules || fallback.modules),
+              moduleConfigs: cloneData(scoped.moduleConfigs || {}),
+            };
+          }
+
+          // Backward compatibility for old data without Lobby scope:
+          // only the selected/default Lobby falls back to the original module data.
+          return {
+            modules: cloneData(state.modules || fallback.modules),
+            moduleConfigs: cloneData(state.moduleConfigs || {}),
+          };
+        }
+
+        const VIEW_ALL_PAGE_SIZE = 20;
+        let viewAllState = {
+          active: false,
+          row: null,
+          title: "",
+          games: [],
+          visibleCount: VIEW_ALL_PAGE_SIZE,
+          search: "",
+          providers: [],
+          gameTypes: [],
+        };
+
+        function resetViewAllState() {
+          viewAllState = {
+            active: false,
+            row: null,
+            title: "",
+            games: [],
+            visibleCount: VIEW_ALL_PAGE_SIZE,
+            search: "",
+            providers: [],
+            gameTypes: [],
+          };
+        }
+
+        function applyLobby(lobbyId) {
+          if (lobbyId == null) return;
+          const config = lobbyConfigOf(lobbyId);
+          selectedLobbyId = lobbyId;
+          state.selectedHomepageLobbyId = lobbyId;
+          state.modules = config.modules;
+          state.moduleConfigs = config.moduleConfigs;
+          resetViewAllState();
+        }
+
+        applyLobby(selectedLobbyId);
+        const esc = (s = "") =>
+          String(s).replace(
+            /[&<>"']/g,
+            (c) =>
+              ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;",
+              })[c],
+          );
+        const enabled = (r) =>
+          r &&
+          r.status !== "Disabled" &&
+          r.status !== "Deleted" &&
+          r.on !== false;
+        const sortRows = (rows) =>
+          (Array.isArray(rows) ? rows : [])
+            .filter(enabled)
+            .slice()
+            .sort((a, b) => (+a.sort || 0) - (+b.sort || 0));
+        const moduleRows = (m) => {
+          const key = String(m.id);
+          if (state.moduleConfigs && Array.isArray(state.moduleConfigs[key]))
+            return sortRows(state.moduleConfigs[key]);
+          return sortRows(state.data?.[m.module] || []);
+        };
+        const gamePool = () => {
+          let list = [];
+          if (Array.isArray(state.popularGameRows))
+            list.push(...state.popularGameRows);
+          if (Array.isArray(state.data?.popularGame))
+            list.push(...state.data.popularGame);
+          if (Array.isArray(masterGames)) list.push(...masterGames);
+          if (!list.length) {
+            list = Array.from({ length: 30 }, (_, i) => ({
+              id: i + 1,
+              name: `Casino Game ${String(i + 1).padStart(2, "0")}`,
+              vendor: i % 2 ? "PG Soft" : "Pragmatic Play",
+              provider: "TLT",
+              rtp: `${(96.1 + (i % 8) / 10).toFixed(1)}%`,
+              status: "Enabled",
+            }));
+          }
+          const seen = new Set();
+          return list.filter(enabled).filter((g) => {
+            const k = String(g.code || g.gameCode || g.id || g.name);
+            if (seen.has(k)) return false;
+            seen.add(k);
+            return true;
+          });
+        };
+        const allGames = gamePool();
+
+        // ===== Mock Marquee / Broadcast Data =====
+        const MOCK_BROADCAST_LIST = Array.from({ length: 30 }, () => {
+          const gameTypes = [
+            "Slot",
+            "Live Casino",
+            "Baccarat",
+            "Roulette",
+            "Blackjack",
+            "Crash",
+            "Poker",
+            "Bingo",
+          ];
+          const prefixes = [
+            "my",
+            "vip",
+            "win",
+            "luck",
+            "pro",
+            "gold",
+            "bet",
+            "king",
+            "ace",
+            "hot",
+            "neo",
+            "max",
+            "fox",
+            "play",
+          ];
+          const account =
+            prefixes[Math.floor(Math.random() * prefixes.length)] +
+            Math.floor(10000 + Math.random() * 90000);
+          const amount = (Math.random() * 4900 + 100).toFixed(2);
+          return {
+            account,
+            isWin: Math.random() > 0.15,
+            gameType: gameTypes[Math.floor(Math.random() * gameTypes.length)],
+            amount,
+          };
+        });
+
+        function tagByRow(row) {
+          const tagName = String(row.tags || row.tagName || row.name || "")
+            .trim()
+            .toLowerCase();
+          const tagId = String(row.tagId || row.tagsId || "");
+          const lobbyId = String(selectedLobbyId ?? "");
+
+          const scopedTags = tags.filter(
+            (t) =>
+              !lobbyId ||
+              !t?.lobbyId ||
+              String(t.lobbyId) === lobbyId,
+          );
+
+          return scopedTags.find(
+            (t) =>
+              (tagId && String(t.id) === tagId) ||
+              String(t.name || "")
+                .trim()
+                .toLowerCase() === tagName,
+          );
+        }
+        function contentTagId(row) {
+          const tag = tagByRow(row);
+          return String(tag?.id ?? row?.tagId ?? row?.tagsId ?? "");
+        }
+
+        function gamesFor(row) {
+          const tag = tagByRow(row);
+          const src = tag && (tag.games || tag.gameList || tag.gameIds);
+          if (Array.isArray(src) && src.length) {
+            return src
+              .map((x) => {
+                if (typeof x === "object") return x;
+                return allGames.find(
+                  (g) =>
+                    String(g.id || g.gameId) === String(x) ||
+                    String(g.code || g.gameCode) === String(x),
+                );
+              })
+              .filter(Boolean)
+              .filter(enabled);
+          }
+          const needle = String(row.tags || row.name || "").toLowerCase();
+          const matches = allGames.filter((g) =>
+            String(g.tags || "")
+              .toLowerCase()
+              .includes(needle),
+          );
+          return (matches.length ? matches : allGames).slice(
+            0,
+            Math.max(1, +row.gameCount || 10),
+          );
+        }
+        function contentDisplaySort(row) {
+          const tag = tagByRow(row);
+          return Number(tag?.sort ?? row?.sort ?? 0);
+        }
+
+        function styleOf(row) {
+          const tag = tagByRow(row);
+
+          // Casino Management / Tags is the authoritative source
+          // for frontend layout when a Content row is bound to a Tag.
+          return String(
+            tag?.layoutStyle ||
+              tag?.layout ||
+              row.layoutStyle ||
+              row.layout ||
+              row.style ||
+              "4 Small 1 Row",
+          );
+        }
+
+        function normalizeLayoutStyle(value) {
+          return String(value || "")
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g, " ")
+            .replace(/top\s*10/g, "top10")
+            .replace(/top10\s*一排/g, "top10 row")
+            .replace(/top10\s*1排/g, "top10 row")
+            .replace(/4\s*小\s*2\s*排/g, "4 small 2 rows")
+            .replace(/4小2排/g, "4 small 2 rows")
+            .replace(/小\s*2\s*排/g, "4 small 2 rows")
+            .replace(/4\s*小\s*1\s*排/g, "4 small 1 row")
+            .replace(/4小1排/g, "4 small 1 row")
+            .replace(/小\s*1\s*排/g, "4 small 1 row")
+            .replace(/1\s*大\s*n\s*小/g, "1 big + 4 small")
+            .replace(/1大n小/g, "1 big + 4 small")
+            .replace(/1\s*大\s*4\s*小/g, "1 big + 4 small")
+            .replace(/冷热榜/g, "hot / cold rank")
+            .replace(/排行榜/g, "rank game")
+            .replace(/累积奖池/g, "jackpot");
+        }
+        function imageOf(g) {
+          return g.image || g.logo || g.logoUrl || g.gameLogo || "";
+        }
+        function gameCard(g, rank) {
+          const bg = imageOf(g)
+            ? `style="background-image:url('${esc(imageOf(g))}')"`
+            : "";
+          return `<article class="game-card" ${bg}>${rank ? `<span class="rank-number">${rank}</span>` : ""}<span class="favorite">☆</span><span class="game-name">${esc(g.name || g.gameName || "Game Name")}</span><span class="players">♟ ${esc(g.players || 120)}</span></article>`;
+        }
+        function viewAllRowKey(row) {
+          return String(row?.tagId ?? row?.tagsId ?? row?.id ?? row?.name ?? "");
+        }
+
+        function head(title, row = null) {
+          const key = row ? viewAllRowKey(row) : "";
+          return `<div class="section-head"><div class="section-title">${esc(title)}</div><a class="view-all" data-view-all-key="${esc(key)}">View All ❯</a></div>`;
+        }
+
+        function renderContentBroadcast(row) {
+          return `<section class="module content-layout content-broadcast-wrap" data-broadcast-host="1">
+  <div class="content-broadcast">
+   <span class="content-broadcast-icon">📣</span>
+   <span class="content-broadcast-text">Loading broadcast...</span>
+  </div>
+ </section>`;
+        }
+
+        function renderTop10(row, games) {
+          return `<section class="module content-layout top10" data-content-tag-id="${esc(contentTagId(row))}">${head(row.name || "Top 10", row)}<div class="row-scroll">${games
+            .slice(0, 10)
+            .map((g, i) => gameCard(g, i + 1))
+            .join("")}</div></section>`;
+        }
+        function renderOneBig(row, games) {
+          return `<section class="module content-layout" data-content-tag-id="${esc(contentTagId(row))}">${head(row.name || "Slots", row)}<div class="one-big">${games
+            .slice(0, 5)
+            .map((g) => gameCard(g))
+            .join("")}</div></section>`;
+        }
+        function renderSmallOne(row, games) {
+          // 4小1排：固定最多展示 4 款，并使用 4 栏 Grid。
+          const visibleGames = games.slice(0, 4);
+          return `<section class="module content-layout" data-content-tag-id="${esc(contentTagId(row))}">${head(row.name || "Games", row)}<div class="small-one">${visibleGames.map((g) => gameCard(g)).join("")}</div></section>`;
+        }
+        function renderSmallTwo(row, games) {
+          // 4小2排：固定最多展示 8 款（4 x 2）。
+          const visibleGames = games.slice(0, 8);
+          return `<section class="module content-layout content-section" data-content-tag-id="${esc(contentTagId(row))}">${head(row.name || "Games", row)}<div class="small-two">${visibleGames.map(gameCard).join("")}</div></section>`;
+        }
+        function renderRank(row, games) {
+          const list = games.slice(0, 10);
+          const half = Math.ceil(list.length / 2);
+          const build = (arr) =>
+            `<div class="rank-list">${arr
+              .map((g, i) => {
+                const rank = list.indexOf(g) + 1;
+                return `<div class="rank-row"><span class="medal">${rank <= 3 ? ["🥇", "🥈", "🥉"][rank - 1] : "🏅"}</span><span class="rank-meta"><b>${esc(g.name || g.gameName || "Game")}</b><small>${esc(g.vendor || g.provider || "Provider")}</small></span><span class="rtp">${esc(g.rtp || "96.8%")} RTP</span><span class="amount">🟡 ${esc(g.amount || "5,456,456.78")}</span></div>`;
+              })
+              .join("")}</div>`;
+          return `<section class="module content-layout" data-content-tag-id="${esc(contentTagId(row))}">${head(row.name || "Game Ranks", row)}<div class="rank-box">${build(list.slice(0, half))}${build(list.slice(half))}</div></section>`;
+        }
+        function renderHotCold(row, games) {
+          const hot = games.slice(0, 3),
+            cold = games.slice(3, 6).length
+              ? games.slice(3, 6)
+              : games.slice(0, 3);
+          const box = (type, arr) =>
+            `<div class="trend ${type}"><div class="trend-title">${type === "hot" ? "HOT !" : "COLD !"}</div><div class="trend-sub">${type === "hot" ? "Impressive winning streak in the last 30 minutes." : "More bets than wins in the last 30 minutes."}</div>${arr.map((g) => `<div class="trend-item"><div class="trend-thumb" ${imageOf(g) ? `style="background-image:url('${esc(imageOf(g))}')"` : ""}></div><div class="trend-game">${esc(g.vendor || g.provider || "BGaming")}<b>${esc(g.name || g.gameName || "AZTEC CLUSTERS")}</b><span class="trend-rate">${type === "hot" ? "🔥" : "❄"} ${esc(g.rate || "595.92%")}</span></div></div>`).join("")}</div>`;
+          return `<section class="module content-layout" data-content-tag-id="${esc(contentTagId(row))}">${head(row.name || "Hot / Cold", row)}<div class="hotcold">${box("hot", hot)}${box("cold", cold)}</div></section>`;
+        }
+        function renderJackpot(row, games) {
+          return `<section class="module content-layout jackpot" data-content-tag-id="${esc(contentTagId(row))}"><div><div class="jackpot-title">${esc(row.name || "JACKPOT")}</div><div class="jackpot-visual">🧰</div><div>Total do jackpot</div><div class="jackpot-total">${esc(row.amount || "62.408,56")} <small>R$</small></div></div><div class="jackpot-games">${games
+            .slice(0, +row.gameCount || 5)
+            .map(
+              (g) =>
+                `<div class="jackpot-game">${gameCard(g)}${esc(g.name || g.gameName || "Game Name")}</div>`,
+            )
+            .join("")}</div></section>`;
+        }
+        function renderLayout(row) {
+          const games = gamesFor(row);
+          const rawStyle = styleOf(row);
+          const style = normalizeLayoutStyle(rawStyle);
+
+          if (style.includes("broadcast")) {
+            return renderContentBroadcast(row);
+          }
+
+          if (
+            style.includes("top10") ||
+            style.includes("top 10")
+          ) {
+            return renderTop10(row, games);
+          }
+
+          if (
+            style.includes("1 big") ||
+            style.includes("big +")
+          ) {
+            return renderOneBig(row, games);
+          }
+
+          if (
+            style.includes("rank game") ||
+            style === "rank"
+          ) {
+            return renderRank(row, games);
+          }
+
+          if (
+            (style.includes("hot") && style.includes("cold")) ||
+            style.includes("hot / cold")
+          ) {
+            return renderHotCold(row, games);
+          }
+
+          if (style.includes("jackpot")) {
+            return renderJackpot(row, games);
+          }
+
+          // 4小2排 / 4 Small 2 Rows
+          if (
+            style.includes("4 small 2 rows") ||
+            style.includes("4 small 2 row") ||
+            style.includes("2 rows") ||
+            style.includes("2 row")
+          ) {
+            return renderSmallTwo(row, games);
+          }
+
+          // 4小1排 / 4 Small 1 Row
+          return renderSmallOne(row, games);
+        }
+
+        function allContentRows() {
+          const rows = [];
+          (state.modules || [])
+            .filter((m) => enabled(m) && m.module === "content")
+            .forEach((m) => rows.push(...moduleRows(m)));
+          return rows.filter((row) => {
+            const s = normalizeLayoutStyle(styleOf(row));
+            return !s.includes("broadcast");
+          });
+        }
+
+        function findViewAllRow(key) {
+          return allContentRows().find(
+            (row) => viewAllRowKey(row) === String(key)
+          );
+        }
+
+        function gamesForViewAll(row) {
+          const tag = tagByRow(row);
+          const src = tag && (tag.games || tag.gameList || tag.gameIds);
+
+          if (Array.isArray(src) && src.length) {
+            return src
+              .map((x) => {
+                if (typeof x === "object") return x;
+                return allGames.find(
+                  (g) =>
+                    String(g.id || g.gameId) === String(x) ||
+                    String(g.code || g.gameCode) === String(x)
+                );
+              })
+              .filter(Boolean)
+              .filter(enabled);
+          }
+
+          const needle = String(row.tags || row.name || "")
+            .trim()
+            .toLowerCase();
+
+          const matches = allGames.filter((g) => {
+            const values = [
+              g.tags,
+              g.tagName,
+              g.name,
+              g.gameName,
+              g.vendor,
+              g.provider,
+              g.gameType,
+              g.type,
+              g.category,
+            ]
+              .filter(Boolean)
+              .join(" ")
+              .toLowerCase();
+
+            return needle && values.includes(needle);
+          });
+
+          return matches.length ? matches : allGames.slice();
+        }
+
+        function openViewAll(row) {
+          if (!row) return;
+          const games = gamesForViewAll(row);
+          viewAllState = {
+            active: true,
+            row,
+            title: row.name || row.tags || "All Games",
+            games,
+            visibleCount: Math.min(VIEW_ALL_PAGE_SIZE, games.length),
+            search: "",
+            providers: [],
+            gameTypes: [],
+          };
+          renderViewAllPage();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        function viewAllGameName(game) {
+          return String(game?.name || game?.gameName || "").trim();
+        }
+
+        function viewAllProvider(game) {
+          // Requirement: Provider filter options use the Vendor values in current List.
+          return String(game?.vendor || "").trim();
+        }
+
+        function viewAllGameType(game) {
+          return String(
+            game?.gameType || game?.type || game?.category || ""
+          ).trim();
+        }
+
+        function uniqueViewAllValues(games, getter) {
+          return [...new Set(
+            (games || []).map(getter).filter(Boolean)
+          )].sort((a, b) => a.localeCompare(b));
+        }
+
+        function filteredViewAllGames() {
+          const search = String(viewAllState.search || "").trim().toLowerCase();
+          const providers = new Set(viewAllState.providers || []);
+          const gameTypes = new Set(viewAllState.gameTypes || []);
+
+          return (viewAllState.games || []).filter((game) => {
+            const nameOk =
+              !search || viewAllGameName(game).toLowerCase().includes(search);
+            const providerOk =
+              !providers.size || providers.has(viewAllProvider(game));
+            const gameTypeOk =
+              !gameTypes.size || gameTypes.has(viewAllGameType(game));
+            return nameOk && providerOk && gameTypeOk;
+          });
+        }
+
+        function viewAllMultiFilter(id, label, values, selected) {
+          const selectedSet = new Set(selected || []);
+          const buttonLabel = selectedSet.size
+            ? `${label} (${selectedSet.size})`
+            : label;
+
+          return `<div class="view-all-multi" data-view-all-multi="${esc(id)}">
+            <button class="view-all-multi-btn" type="button" data-view-all-multi-toggle="${esc(id)}">${esc(buttonLabel)}</button>
+            <div class="view-all-multi-menu">
+              ${
+                values.length
+                  ? values.map((value) => `
+                    <label class="view-all-option">
+                      <input
+                        type="checkbox"
+                        data-view-all-filter="${esc(id)}"
+                        value="${esc(value)}"
+                        ${selectedSet.has(value) ? "checked" : ""}
+                      >
+                      <span>${esc(value)}</span>
+                    </label>
+                  `).join("")
+                  : `<div class="view-all-option">No options</div>`
+              }
+            </div>
+          </div>`;
+        }
+
+        function renderViewAllPage() {
+          const homepage = document.getElementById("homepage");
+          if (!homepage || !viewAllState.active) return;
+
+          const sourceGames = viewAllState.games || [];
+          const providerOptions = uniqueViewAllValues(
+            sourceGames,
+            viewAllProvider
+          );
+          const gameTypeOptions = uniqueViewAllValues(
+            sourceGames,
+            viewAllGameType
+          );
+          const games = filteredViewAllGames();
+          const visible = games.slice(0, viewAllState.visibleCount);
+          const total = games.length;
+          const sourceTotal = sourceGames.length;
+          const shown = visible.length;
+          const percent = total ? Math.min(100, (shown / total) * 100) : 0;
+
+          const lobbyName =
+            allLobbies.find(
+              (lobby) => String(lobby.id) === String(selectedLobbyId)
+            )?.name || "Casino";
+
+          homepage.innerHTML = `<section class="view-all-page">
+            <div class="view-all-hero">
+              <h1 class="view-all-title">${esc(viewAllState.title || "All Games")}</h1>
+              <button class="view-all-back" id="viewAllBackBtn" type="button">← Back</button>
+            </div>
+
+            <div class="view-all-breadcrumb">
+              <span>${esc(lobbyName)}</span>
+              <span>›</span>
+              <span>${esc(viewAllState.title || "All Games")}</span>
+            </div>
+
+            <div class="view-all-filter-bar">
+              <label class="view-all-search-box">
+                <span>⌕</span>
+                <input
+                  id="viewAllGameSearch"
+                  type="search"
+                  autocomplete="off"
+                  placeholder="Search games"
+                  value="${esc(viewAllState.search || "")}"
+                >
+              </label>
+              ${viewAllMultiFilter(
+                "provider",
+                "Provider",
+                providerOptions,
+                viewAllState.providers
+              )}
+              ${viewAllMultiFilter(
+                "gameType",
+                "Game Type",
+                gameTypeOptions,
+                viewAllState.gameTypes
+              )}
+            </div>
+            <div class="view-all-filter-count">
+              ${total === sourceTotal ? `${sourceTotal} games` : `${total} of ${sourceTotal} games matched`}
+            </div>
+
+            ${
+              visible.length
+                ? `<div class="view-all-grid">${visible.map((g) => gameCard(g)).join("")}</div>`
+                : `<div class="view-all-empty">No games available.</div>`
+            }
+
+            ${
+              total
+                ? `<div class="view-all-footer">
+                    <div class="view-all-progress">
+                      <div class="view-all-progress-line">
+                        <div class="view-all-progress-bar" style="width:${percent}%"></div>
+                      </div>
+                      <div>Displaying ${shown} of ${total} games</div>
+                    </div>
+                    ${
+                      shown < total
+                        ? `<button class="load-more-btn" id="viewAllLoadMoreBtn" type="button">Load More</button>`
+                        : ""
+                    }
+                  </div>`
+                : ""
+            }
+          </section>`;
+        }
+
+        document.addEventListener("click", (event) => {
+          const contentFunctionTab = event.target.closest(
+            ".content-function-block .category-tab[data-tag-id]",
+          );
+          if (contentFunctionTab) {
+            event.preventDefault();
+
+            const tagId = String(contentFunctionTab.dataset.tagId || "");
+            if (!tagId) return;
+
+            const block = contentFunctionTab.closest(".content-function-block");
+            block?.querySelectorAll(".category-tab").forEach((tab) => {
+              tab.classList.toggle("active", tab === contentFunctionTab);
+            });
+
+            const target = [...document.querySelectorAll("[data-content-tag-id]")]
+              .find(
+                (section) =>
+                  String(section.dataset.contentTagId || "") === tagId,
+              );
+
+            if (target) {
+              target.classList.remove("content-function-target-flash");
+              void target.offsetWidth;
+              target.classList.add("content-function-target-flash");
+              target.scrollIntoView({ behavior: "smooth", block: "start" });
+              setTimeout(
+                () => target.classList.remove("content-function-target-flash"),
+                1200,
+              );
+            }
+            return;
+          }
+
+          const viewAll = event.target.closest("[data-view-all-key]");
+          if (viewAll) {
+            event.preventDefault();
+            const row = findViewAllRow(viewAll.dataset.viewAllKey);
+            openViewAll(row);
+            return;
+          }
+
+          const multiToggle = event.target.closest(
+            "[data-view-all-multi-toggle]"
+          );
+          if (multiToggle) {
+            event.preventDefault();
+            const id = multiToggle.dataset.viewAllMultiToggle;
+            document
+              .querySelectorAll(".view-all-multi")
+              .forEach((box) => {
+                if (box.dataset.viewAllMulti === id) {
+                  box.classList.toggle("open");
+                } else {
+                  box.classList.remove("open");
+                }
+              });
+            return;
+          }
+
+          if (
+            viewAllState.active &&
+            !event.target.closest(".view-all-multi")
+          ) {
+            document
+              .querySelectorAll(".view-all-multi.open")
+              .forEach((box) => box.classList.remove("open"));
+          }
+
+          if (event.target.closest("#viewAllBackBtn")) {
+            resetViewAllState();
+            render();
+            return;
+          }
+
+          if (event.target.closest("#viewAllLoadMoreBtn")) {
+            viewAllState.visibleCount = Math.min(
+              viewAllState.visibleCount + VIEW_ALL_PAGE_SIZE,
+              filteredViewAllGames().length
+            );
+            renderViewAllPage();
+          }
+        });
+
+        document.addEventListener("input", (event) => {
+          if (!viewAllState.active) return;
+          if (event.target.id !== "viewAllGameSearch") return;
+
+          viewAllState.search = event.target.value || "";
+          viewAllState.visibleCount = VIEW_ALL_PAGE_SIZE;
+          renderViewAllPage();
+
+          const searchInput = document.getElementById("viewAllGameSearch");
+          if (searchInput) {
+            searchInput.focus();
+            const len = searchInput.value.length;
+            searchInput.setSelectionRange(len, len);
+          }
+        });
+
+        document.addEventListener("change", (event) => {
+          if (!viewAllState.active) return;
+          const checkbox = event.target.closest("[data-view-all-filter]");
+          if (!checkbox) return;
+
+          const key =
+            checkbox.dataset.viewAllFilter === "provider"
+              ? "providers"
+              : "gameTypes";
+
+          const selected = [...document.querySelectorAll(
+            `[data-view-all-filter="${checkbox.dataset.viewAllFilter}"]:checked`
+          )].map((input) => input.value);
+
+          viewAllState[key] = selected;
+          viewAllState.visibleCount = VIEW_ALL_PAGE_SIZE;
+          renderViewAllPage();
+
+          const menu = document.querySelector(
+            `[data-view-all-multi="${checkbox.dataset.viewAllFilter}"]`
+          );
+          menu?.classList.add("open");
+        });
+
+        function renderTopNav() {
+          const nav = document.getElementById("topnav");
+          if (!nav) return;
+
+          const staticItems = [
+            { name: "SPORTS", href: "#sports" },
+            { name: "IN-PLAY", href: "#in-play" },
+          ];
+
+          const lobbyItems = visibleLobbies.length
+            ? visibleLobbies
+            : allLobbies.filter((row) => normalizeLobbyStatus(row.status) !== "deleted");
+
+          nav.innerHTML =
+            staticItems
+              .map(
+                (item) =>
+                  `<a href="${esc(item.href)}" data-static-nav="1">${esc(item.name)}</a>`,
+              )
+              .join("") +
+            lobbyItems
+              .map(
+                (lobby) =>
+                  `<a class="lobby-nav ${String(lobby.id) === String(selectedLobbyId) ? "active" : ""}" data-lobby-id="${esc(lobby.id)}" title="${esc(lobby.name || "Lobby")}">${esc(lobby.name || "Lobby")}</a>`,
+              )
+              .join("");
+
+          nav.querySelectorAll(".lobby-nav").forEach((item) => {
+            item.addEventListener("click", (event) => {
+              event.preventDefault();
+              const lobbyId = item.dataset.lobbyId;
+              if (String(lobbyId) === String(selectedLobbyId)) return;
+
+              applyLobby(lobbyId);
+              render();
+
+              try {
+                localStorage.setItem(
+                  KEY,
+                  JSON.stringify({
+                    ...read(KEY, {}),
+                    selectedHomepageLobbyId: lobbyId,
+                  }),
+                );
+              } catch (_) {}
+            });
+          });
+        }
+
+        function renderMainMenu() {
+          const rows = sortRows(state.data?.mainMenu || fallback.data.mainMenu);
+          const icon = (n) => {
+            const map = {
+              "All Games": "✣",
+              Popular: "🔥",
+              Favourites: "★",
+              Recent: "◷",
+              "VIP CLUB": "♛",
+              Promotions: "✹",
+              "Casino Leaderboard": "♜",
+              Slots: "🍒",
+              "Live Casino": "▣",
+              Baccarat: "♜",
+              "New Releases": "✦",
+              Bingo: "✪",
+              Roulette: "◉",
+              Megaways: "Ⓜ",
+              "Crash Games": "🚀",
+              Tables: "♥",
+            };
+            return map[n] || "●";
+          };
+          const up = rows.filter((x) => (x.position || "Up") === "Up"),
+            down = rows.filter((x) => (x.position || "Up") === "Down");
+          const item = (r, i) =>
+            `<div class="side-item ${i === 0 ? "active" : ""} ${r.name === "VIP CLUB" ? "vip" : ""} ${r.name === "Promotions" ? "promo" : ""}" data-link="${esc(r.link || "#")}"><span class="side-icon">${r.icon ? `<img src="${esc(r.icon)}" style="width:20px;height:20px;object-fit:contain">` : icon(r.name)}</span>${esc(r.name)}</div>`;
+          document.getElementById("sidebarMenu").innerHTML =
+            up.map(item).join("") +
+            `<div class="side-group-title">${esc(
+              allLobbies.find(
+                (lobby) => String(lobby.id) === String(selectedLobbyId),
+              )?.name || "Casino",
+            )}</div>` +
+            down.map(item).join("");
+        }
+        function renderBanner(m) {
+          const rows = moduleRows(m);
+          if (!rows.length) return "";
+          const r = rows[0];
+          return `<section class="module hero"><div class="hero-slide" ${r.image ? `style="background-image:url('${esc(r.image)}')"` : ""}><div class="hero-copy"><b>${esc(r.name || m.title || "Casino Banner")}</b><span>${esc(r.remark || "Welcome to Ai.bet Casino")}</span></div></div></section>`;
+        }
+
+        function renderRecentWin(m) {
+          const rows = (
+            Array.isArray(state.recentWinRows) && state.recentWinRows.length
+              ? state.recentWinRows
+              : allGames.slice(0, 16).map((g, i) => ({
+                  ...g,
+                  user: [
+                    "Nandigo",
+                    "Jennifer",
+                    "Sebasti",
+                    "Ricardo",
+                    "Sênio C.",
+                    "Diogo C.",
+                    "Luis Edu...",
+                    "jinglin",
+                    "colin5288",
+                    "Antonio",
+                    "User131",
+                  ][i % 11],
+                  amount: [
+                    "R$ 160,00",
+                    "R$ 2,40",
+                    "R$ 1,43",
+                    "R$ 5,55",
+                    "R$ 100,00",
+                    "R$ 0,21",
+                    "R$ 2,40",
+                    "R$ 1,92",
+                    "R$ 3,20",
+                    "R$ 5,24",
+                    "R$ 4,00",
+                    "R$ 12,00",
+                    "R$ 10,00",
+                    "R$ 9,20",
+                    "R$ 5,30",
+                  ][i % 15],
+                }))
+          )
+            .filter(enabled)
+            .slice(0, 16);
+          return `<section class="module recent-win"><div class="recent-win-head"><span class="recent-win-dot"></span>${esc(m.title || m.name || "Recent Wins")}</div><div class="recent-win-list">${rows.map((g, i) => `<div class="recent-win-item"><div class="recent-win-game" ${imageOf(g) ? `style="background-image:url('${esc(imageOf(g))}')"` : ""}></div><div class="recent-win-user">🎭 ${esc(g.user || g.account || `User${i + 1}`)}</div><div class="recent-win-amount">${esc(g.amount || g.winAmount || "R$ 2,40")}</div></div>`).join("")}</div></section>`;
+        }
+
+        function renderMarquee(m) {
+          return `<section class="module marquee"><span class="marquee-icon">📣</span><div class="marquee-track" id="mockMarqueeTrack"></div></section>`;
+        }
+        function renderBroadcast(m) {
+          const rows = moduleRows(m);
+          if (!rows.length) return "";
+          return `<section class="module content-broadcast-wrap" data-broadcast-host="1">
+  <div class="content-broadcast">
+   <span class="content-broadcast-icon">📣</span>
+   <span class="content-broadcast-text">Loading broadcast...</span>
+  </div>
+ </section>`;
+        }
+        function renderSearch(m) {
+          const r = moduleRows(m)[0];
+          if (!r) return "";
+          return `<section class="module search">⌕ <input placeholder="${esc(r.placeholder || "Search games...")}"></section>`;
+        }
+        function renderContent(m) {
+          const hasBroadcastReceiver = (state.modules || []).some(
+            (x) => enabled(x) && x.module === "broadcastReceiver",
+          );
+
+          const rows = moduleRows(m)
+            .filter(
+              (row) =>
+                !(
+                  hasBroadcastReceiver &&
+                  styleOf(row).toLowerCase().includes("broadcast")
+                ),
+            )
+            .slice()
+            .sort((a, b) => {
+              const tagA = tagByRow(a);
+              const tagB = tagByRow(b);
+
+              // Casino Management / Tags.Sort is the authoritative
+              // frontend display order for Tag-bound Content.
+              const sortA = contentDisplaySort(a);
+              const sortB = contentDisplaySort(b);
+
+              if (sortA !== sortB) return sortA - sortB;
+
+              // Stable fallback when Sort is the same.
+              return String(
+                tagA?.name || a.tags || a.name || "",
+              ).localeCompare(
+                String(tagB?.name || b.tags || b.name || ""),
+              );
+            });
+
+          return rows.map(renderLayout).join("");
+        }
+        function renderProviders(m) {
+          const rows = moduleRows(m);
+          if (!rows.length) return "";
+          return `<section class="module">${head(m.title || "Our Providers")}<div class="providers">${rows.map((r) => `<div class="provider">${r.image ? `<img src="${esc(r.image)}">` : esc(r.name || r.vendor || "Provider")}</div>`).join("")}</div></section>`;
+        }
+        function renderBottom(m) {
+          const rows = moduleRows(m);
+          if (!rows.length) {
+            document.getElementById("h5Bottom").innerHTML = "";
+            return "";
+          }
+
+          // Backward compatibility: old data may use platform instead of device.
+          const deviceOf = (r) =>
+            String(r.device || r.platform || "")
+              .replace(/\s+/g, "")
+              .toUpperCase();
+          const pcRows = rows.filter((r) => deviceOf(r) === "PC");
+          const h5Rows = rows.filter((r) => deviceOf(r) === "H5");
+
+          // H5 is always a flat bottom navigation. Parent Menu is intentionally ignored.
+          document.getElementById("h5Bottom").innerHTML = h5Rows
+            .slice(0, 5)
+            .map(
+              (r) =>
+                `<a class="h5-item" href="${esc(r.route || r.link || "#")}"><span>${r.icon ? `<img src="${esc(r.icon)}" style="width:20px;height:20px;object-fit:contain">` : "●"}</span>${esc(r.name)}</a>`,
+            )
+            .join("");
+
+          if (!pcRows.length) return "";
+
+          // PC footer hierarchy: Parent Menu = '-' creates a top-level column.
+          // Rows whose Parent Menu matches the parent name are rendered as its children.
+          const parents = pcRows.filter(
+            (r) => !r.parentMenu || r.parentMenu === "-",
+          );
+          const childrenOf = (parent) =>
+            pcRows.filter(
+              (r) => String(r.parentMenu || "-") === String(parent.name),
+            );
+          const parentNames = new Set(parents.map((r) => String(r.name)));
+          const orphans = pcRows.filter(
+            (r) =>
+              r.parentMenu &&
+              r.parentMenu !== "-" &&
+              !parentNames.has(String(r.parentMenu)),
+          );
+
+          const columns = parents
+            .map((parent) => {
+              const children = childrenOf(parent);
+              const parentRoute = parent.route || parent.link || "#";
+              return `<div class="footer-col">
+   <a class="footer-parent-link" href="${esc(parentRoute)}">${esc(parent.name)}</a>
+   ${children.map((child) => `<a href="${esc(child.route || child.link || "#")}">${esc(child.name)}</a>`).join("")}
+  </div>`;
+            })
+            .join("");
+
+          const orphanColumn = orphans.length
+            ? `<div class="footer-col"><b>More</b>${orphans.map((r) => `<a href="${esc(r.route || r.link || "#")}">${esc(r.name)}</a>`).join("")}</div>`
+            : "";
+
+          return `<footer class="bottom-web">
+  <div class="logo footer-logo"><b>Ai.</b>bet</div>
+  <div class="footer-menu-grid">${columns}${orphanColumn}</div>
+ </footer>`;
+        }
+        function renderContentFunction(m) {
+          // Each Content Function module is an independent frontend block.
+          // Module position follows Homepage Modules Sort.
+          // Tags inside the block follow this module's own Configuration Sort.
+          const rows = moduleRows(m)
+            .slice()
+            .sort((a, b) => (+a.sort || 0) - (+b.sort || 0));
+
+          const lobbyName =
+            allLobbies.find(
+              (lobby) => String(lobby.id) === String(selectedLobbyId),
+            )?.name || "Lobby";
+
+          const tagItems = rows
+            .map((row) => {
+              const name = String(
+                row.tags || row.tagName || row.name || "",
+              ).trim();
+              const configuredId = String(row.tagId || row.tagsId || "");
+              const matchedTag =
+                (configuredId &&
+                  tags.find((tag) => String(tag?.id) === configuredId)) ||
+                tags.find(
+                  (tag) =>
+                    String(tag?.name || "").trim().toLowerCase() ===
+                    name.toLowerCase(),
+                );
+
+              return {
+                id: matchedTag?.id || configuredId || "",
+                name: matchedTag?.name || name,
+                sort: Number(row.sort) || 0,
+              };
+            })
+            .filter((item) => item.name)
+            .filter(
+              (item, index, list) =>
+                list.findIndex(
+                  (other) =>
+                    String(other.id || other.name) ===
+                    String(item.id || item.name),
+                ) === index,
+            );
+
+          if (!tagItems.length) return "";
+
+          return `<section
+            class="module content-function-block"
+            data-content-function-id="${esc(m.id)}"
+            data-content-function-sort="${esc(m.sort || 0)}"
+          >
+            <div class="category-tabs">
+              <span class="category-tab active">🎰 ${esc(lobbyName)}</span>
+              ${tagItems
+                .map(
+                  (item) =>
+                    `<span
+                      class="category-tab"
+                      data-tag-id="${esc(item.id)}"
+                      data-tag-sort="${esc(item.sort)}"
+                    >${esc(item.name)}</span>`,
+                )
+                .join("")}
+            </div>
+          </section>`;
+        }
+
+        let broadcastTimer = null;
+        let broadcastConfigIndex = 0;
+
+        function broadcastConfigurations() {
+          const modules = (state.modules || [])
+            .filter((m) => enabled(m) && m.module === "broadcastReceiver")
+            .sort((a, b) => (+a.sort || 0) - (+b.sort || 0));
+          let configs = [];
+          modules.forEach((m) => configs.push(...moduleRows(m)));
+          if (!configs.length && Array.isArray(state.data?.broadcastReceiver)) {
+            configs = sortRows(state.data.broadcastReceiver);
+          }
+          return configs
+            .filter(enabled)
+            .map((row, index) => ({
+              ...row,
+              sort: Number(row.sort) || index + 1,
+              interval: Math.max(1, Number(row.interval) || 5),
+              gameType: row.gameType || "All",
+              messageTemplate:
+                row.messageTemplate || "{Icon} {Game Name} {Amount} {Account}",
+            }))
+            .sort((a, b) => a.sort - b.sort);
+        }
+        function randomAccount() {
+          return MOCK_BROADCAST_LIST[
+            Math.floor(Math.random() * MOCK_BROADCAST_LIST.length)
+          ].account;
+        }
+        function randomAmount() {
+          const x =
+            MOCK_BROADCAST_LIST[
+              Math.floor(Math.random() * MOCK_BROADCAST_LIST.length)
+            ];
+          return `R$ ${Number(x.amount).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
+        function gameTypeOf(g) {
+          return String(g.gameType || g.type || g.category || "SLOT").trim();
+        }
+        function gameForBroadcast(config) {
+          const type = String(config.gameType || "All").toLowerCase();
+          const mock = MOCK_BROADCAST_LIST.filter(
+            (x) => type === "all" || x.gameType.toLowerCase() === type,
+          );
+          const pick = (mock.length ? mock : MOCK_BROADCAST_LIST)[
+            Math.floor(
+              Math.random() * (mock.length ? mock : MOCK_BROADCAST_LIST).length,
+            )
+          ];
+          return {
+            name: pick.gameType,
+            gameType: pick.gameType,
+            account: pick.account,
+            amount: pick.amount,
+          };
+        }
+        function templateToHtml(config, game) {
+          const icon = config.icon
+            ? `<img src="${esc(config.icon)}" alt="" style="width:30px;height:30px;object-fit:contain;vertical-align:middle">`
+            : "📣";
+          const values = {
+            "{Icon}": icon,
+            "{Game Name}": esc(game.name || game.gameName || "Casino Game"),
+            "{Amount}": `<strong>R$ ${esc(game.amount || "0.00")}</strong>`,
+            "{Account}": esc(game.account || randomAccount()),
+          };
+          let message = String(
+            config.messageTemplate || "{Icon} {Game Name} {Amount} {Account}",
+          );
+          Object.entries(values).forEach(
+            ([token, value]) => (message = message.split(token).join(value)),
+          );
+          return { icon, message };
+        }
+        function startBroadcastRotation() {
+          if (broadcastTimer) {
+            clearTimeout(broadcastTimer);
+            broadcastTimer = null;
+          }
+          const hosts = [
+            ...document.querySelectorAll(
+              '[data-broadcast-host="1"] .content-broadcast',
+            ),
+          ];
+          if (!hosts.length) return;
+
+          const configs = broadcastConfigurations();
+          if (!configs.length) {
+            hosts.forEach((host) => {
+              const textEl = host.querySelector(".content-broadcast-text");
+              if (textEl) textEl.innerHTML = "No Broadcast Configuration";
+            });
+            return;
+          }
+
+          // Each render starts from Sort 1 and plays every configuration once.
+          broadcastConfigIndex = 0;
+
+          const hideHosts = () => {
+            hosts.forEach((host) => {
+              host.classList.remove("is-changing");
+              host.classList.add("is-hidden");
+            });
+          };
+
+          const showConfig = (config) => {
+            const game = gameForBroadcast(config);
+            const output = templateToHtml(config, game);
+
+            hosts.forEach((host) => {
+              const iconEl = host.querySelector(".content-broadcast-icon");
+              const textEl = host.querySelector(".content-broadcast-text");
+              host.classList.add("is-changing");
+              host.classList.remove("is-hidden");
+
+              setTimeout(() => {
+                if (iconEl) iconEl.innerHTML = config.icon ? output.icon : "📣";
+                if (textEl)
+                  textEl.innerHTML = output.message
+                    .replace(output.icon, "")
+                    .trim();
+                host.classList.remove("is-changing");
+              }, 280);
+            });
+          };
+
+          const playNext = () => {
+            // Finished all configured messages: hide and stop, no replay.
+            if (broadcastConfigIndex >= configs.length) {
+              hideHosts();
+              broadcastTimer = null;
+              return;
+            }
+
+            const config = configs[broadcastConfigIndex++];
+            showConfig(config);
+
+            // Display for configured Interval, then disappear for 1 second.
+            broadcastTimer = setTimeout(() => {
+              hideHosts();
+              broadcastTimer = setTimeout(playNext, 1000);
+            }, config.interval * 1000);
+          };
+
+          playNext();
+        }
+
+        let marqueeIndex = 0;
+        function updateMockMarquee() {
+          const el = document.getElementById("mockMarqueeTrack");
+          if (!el) return;
+          const msgs = MOCK_BROADCAST_LIST.map((x) =>
+            x.isWin
+              ? `🎉 ${x.account} won R$ ${x.amount} on ${x.gameType}`
+              : `🎮 ${x.account} is playing ${x.gameType}`,
+          );
+          el.textContent = msgs.join("   ◆   ");
+        }
+
+        function render() {
+          renderTopNav();
+          renderMainMenu();
+
+          if (viewAllState.active) {
+            renderViewAllPage();
+            return;
+          }
+          const modules = (state.modules || [])
+            .filter(enabled)
+            .slice()
+            .sort((a, b) => (+a.sort || 0) - (+b.sort || 0));
+          let html = "";
+          modules.forEach((m) => {
+            switch (m.module) {
+              case "banner":
+                html += renderBanner(m);
+                break;
+              case "recentWin":
+                html += renderRecentWin(m);
+                break;
+              case "marquee":
+                html += renderMarquee(m);
+                break;
+              case "broadcastReceiver":
+                html += renderBroadcast(m);
+                break;
+              case "searchBar":
+                html += renderSearch(m);
+                break;
+              case "content":
+                html += renderContent(m);
+                break;
+              case "contentFunction":
+                html += renderContentFunction(m);
+                break;
+              case "providerLogo":
+                html += renderProviders(m);
+                break;
+              case "bottom":
+                html += renderBottom(m);
+                break;
+            }
+          });
+          if (!html)
+            html =
+              '<div class="empty-layout">No enabled homepage modules found.</div>';
+          document.getElementById("homepage").innerHTML = html;
+          updateMockMarquee();
+          startBroadcastRotation();
+          const activeLobbyName =
+            allLobbies.find(
+              (lobby) => String(lobby.id) === String(selectedLobbyId),
+            )?.name || "Lobby";
+          document.getElementById("dataSourceBadge").textContent = usingBackend
+            ? `Source: ${activeLobbyName}`
+            : `Source: built-in fallback / ${activeLobbyName}`;
+          document.querySelectorAll(".side-item").forEach(
+            (x) =>
+              (x.onclick = () => {
+                document
+                  .querySelectorAll(".side-item")
+                  .forEach((y) => y.classList.remove("active"));
+                x.classList.add("active");
+              }),
+          );
+        }
+        render();
+        window.addEventListener("storage", (e) => {
+          if ([KEY, TAG_KEY, GAME_KEY, LOBBY_KEY].includes(e.key))
+            location.reload();
+        });
+      })();
+    </script>
+  </body>
+</html>
