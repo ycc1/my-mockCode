@@ -3969,8 +3969,131 @@
         }
       }
 
+
+      /* Broadcast Receiver Configuration is moved from Homepage Configuration to an independent Casino HomePage submenu page. */
+      #casinoModuleConfiguration.broadcast-standalone-mode > .module-summary-card {
+        display: none !important;
+      }
+      #casinoModuleConfiguration.broadcast-standalone-mode > .heading {
+        display: flex !important;
+      }
+      #casinoModuleConfiguration.broadcast-standalone-mode #moduleConfigPageTitle {
+        display: block;
+      }
+      #casinoModuleConfiguration.broadcast-standalone-mode > .card:not(.module-summary-card) {
+        margin-top: 0;
+      }
 </style>
-  </head>
+  
+    <style id="dual-tone-upload-adjustments">
+      /* Dual-tone image upload fields */
+      #modalMask .field:has(input[data-key="imageDark"]),
+      #modalMask .field:has(input[data-key="imageLight"]),
+      #modalMask .field:has(input[data-key="iconDark"]),
+      #modalMask .field:has(input[data-key="iconLight"]) {
+        min-width: 0;
+      }
+      #modalMask.bottom-form-mode #formGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      }
+      #modalMask.bottom-form-mode #formGrid .field {
+        grid-column: auto !important;
+      }
+      #modalMask.bottom-form-mode #formGrid .field:nth-child(5) {
+        grid-column: 1 / -1 !important;
+      }
+      @media (max-width: 700px) {
+        #modalMask.bottom-form-mode #formGrid { grid-template-columns: 1fr !important; }
+        #modalMask.bottom-form-mode #formGrid .field { grid-column: 1 !important; }
+      }
+    
+    /* Broadcast Receiver / Broadcast Configuration */
+    #modalMask.show .broadcast-config-grid { grid-template-columns: 1fr 1fr; gap: 14px 12px; }
+    #modalMask.show .broadcast-config-grid .broadcast-icon-upload { grid-column: 1 / -1; }
+    #modalMask.show .broadcast-config-grid .broadcast-icon-upload > input[type="file"] { display:none; }
+    #modalMask.show .broadcast-upload-box { min-height:102px; border:1px dashed #b7c7dc; border-radius:0; background:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; cursor:pointer; color:#64748b; overflow:hidden; }
+    #modalMask.show .broadcast-upload-box img { width:54px; height:54px; object-fit:contain; }
+    #modalMask.show .broadcast-upload-title { font-size:14px; color:#5f6f86; }
+    #modalMask.show .broadcast-upload-box small { font-size:11px; color:#94a3b8; }
+    #modalMask.show .broadcast-upload-change { font-size:11px; color:#64748b; }
+    #modalMask.show .broadcast-message-field { grid-column:1 / -1; }
+    #modalMask.show .broadcast-template-tokens { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+    #modalMask.show .broadcast-template-tokens button { border:1px solid #111827; background:#fff; border-radius:3px; padding:6px 9px; cursor:pointer; font-size:12px; }
+    #modalMask.show .broadcast-template-tokens button:hover { background:#f3f4f6; }
+</style>
+
+<style id="global-status-switch-fix">
+/* Unified Status switch: Configuration list + Create/Edit modal, including Broadcast Configuration */
+#modalMask .bottom-toggle-field {
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+}
+#modalMask .bottom-toggle {
+  width: 36px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: #aeb4bc;
+  position: relative;
+  cursor: pointer;
+  transition: background .18s ease;
+  flex: 0 0 36px;
+}
+#modalMask .bottom-toggle > span {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  top: 1px;
+  left: 1px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.22);
+  transition: left .18s ease;
+}
+#modalMask .bottom-toggle.on { background: #2f80ed; }
+#modalMask .bottom-toggle.on > span { left: 17px; }
+
+/* Generic configuration table Status is also a switch instead of dot + text. */
+#casinoModuleConfiguration .status {
+  width: 36px;
+  height: 20px;
+  display: inline-block;
+  padding: 0;
+  border-radius: 999px;
+  background: #aeb4bc;
+  position: relative;
+  cursor: pointer;
+  font-size: 0;
+  line-height: 0;
+  vertical-align: middle;
+}
+#casinoModuleConfiguration .status .status-dot {
+  display: block !important;
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  top: 1px;
+  left: 1px;
+  border-radius: 50%;
+  background: #fff !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,.22);
+  transition: left .18s ease;
+}
+#casinoModuleConfiguration .status.on { background: #2f80ed; }
+#casinoModuleConfiguration .status.on .status-dot { left: 17px; }
+
+/* Broadcast Configuration explicitly uses the same switch presentation. */
+#casinoModuleConfiguration.broadcast-standalone-mode .status {
+  width: 36px;
+  height: 20px;
+}
+#modalMask.show .broadcast-config-grid [data-toggle-key="status"] {
+  min-height: 32px;
+}
+</style>
+</head>
   <body>
     <header class="admin-topbar" id="adminTopbar">
       <div class="admin-brand">
@@ -4068,8 +4191,7 @@
             <div>
               <h1>Casino Homepage Content Center</h1>
               <p>
-                统一配置 Banner、Recent Win、Marquee、BroadcastReceiver、Search
-                Bar、Content、Content Function、Provider Logo 与 Bottom；Home
+                统一配置 Banner、Recent Win、Marquee、Search Bar、Content、Content Function、Provider Logo 与 Bottom；Broadcast Receiver 改由左侧独立子功能管理；Home
                 Popular Game 由独立子项功能管理。
               </p>
             </div>
@@ -4432,6 +4554,20 @@
                 this value will be displayed. Default: 100.
               </div>
             </div>
+            <div class="field full" id="broadcastReceiverSwitchFields" style="display: none">
+              <label> BroadcastReceiver Setting </label>
+              <div style="display:flex;gap:28px;flex-wrap:wrap;padding:12px 14px;border:1px solid #e6eaf0;border-radius:8px;background:#fafbfc">
+                <div class="switch-field">
+                  <span class="switch" id="homepageModuleGameJumpLink"></span>
+                  <span>游戏跳转 Link</span>
+                </div>
+                <div class="switch-field">
+                  <span class="switch" id="homepageModuleChatroomPush"></span>
+                  <span>聊天室推送</span>
+                </div>
+              </div>
+              <div class="aws-tip">仅当 Modules Type 选择 BroadcastReceiver 时展示并保存此配置。</div>
+            </div>
             <div class="field">
               <label> Sort </label>
               <input id="homepageModuleSort" min="1" type="number" value="1" />
@@ -4766,7 +4902,8 @@
           "Actions",
         ],
         fields: [
-          ["icon", "Icon Upload", "file"],
+          ["iconDark", "Logo Upload - Dark Version", "file"],
+          ["iconLight", "Logo Upload - Light Version", "file"],
           ["name", "Menu Name", "text"],
           [
             "linkType",
@@ -4799,7 +4936,7 @@
           ["start", "Date Start", "datetime-local"],
           ["end", "Date End", "datetime-local"],
           ["link", "Link / Route", "text"],
-          ["status", "Status", "select", ["Enabled", "Disabled"]],
+          ["status", "Status", "toggle"],
           ["remark", "Remark", "textarea"],
         ],
       },
@@ -4825,26 +4962,28 @@
           ["device", "Device", "select", ["PC / H5", "PC", "H5"]],
           ["start", "Date Start", "datetime-local"],
           ["end", "Date End", "datetime-local"],
-          ["status", "Status", "select", ["Enabled", "Disabled"]],
+          ["status", "Status", "toggle"],
         ],
       },
       broadcastReceiver: {
         title: "Broadcast Configuration",
         columns: [
           "Icon",
-          "GameType",
+          "Game Type",
           "Message Template",
-          "Interval",
+          "Interval (seconds)",
+          "Minimum Win Amount",
           "Sort",
+          "Status",
           "UpdateAt",
-          "UpdateBy",
           "Actions",
         ],
         fields: [
-          ["icon", "Icon", "file"],
+          ["iconDark", "Icon Upload - Dark Version (Optional)", "file"],
+          ["iconLight", "Icon Upload - Light Version (Optional)", "file"],
           [
             "gameType",
-            "GameType",
+            "Game Type",
             "select",
             [
               "All",
@@ -4858,8 +4997,10 @@
             ],
           ],
           ["messageTemplate", "Message Template", "text"],
-          ["interval", "Interval (Seconds)", "number"],
+          ["interval", "Interval (seconds)", "number"],
+          ["minimumWinAmount", "Minimum Win Amount", "number"],
           ["sort", "Sort", "number"],
+          ["status", "Status", "toggle"],
         ],
       },
       searchBar: {
@@ -4889,7 +5030,7 @@
             "select",
             ["All", "zh-TW", "en-US", "pt-BR", "es-MX"],
           ],
-          ["status", "Status", "select", ["Enabled", "Disabled"]],
+          ["status", "Status", "toggle"],
         ],
       },
       content: {
@@ -4936,7 +5077,7 @@
             "select",
             ["All", "Brazil", "Mexico", "Taiwan"],
           ],
-          ["status", "Status", "select", ["Enabled", "Disabled"]],
+          ["status", "Status", "toggle"],
           ["remark", "Remark", "textarea"],
         ],
       },
@@ -4984,7 +5125,7 @@
             "select",
             ["All", "Brazil", "Mexico", "Taiwan"],
           ],
-          ["status", "Status", "select", ["Enabled", "Disabled"]],
+          ["status", "Status", "toggle"],
           ["remark", "Remark", "textarea"],
         ],
       },
@@ -5000,7 +5141,8 @@
           "Actions",
         ],
         fields: [
-          ["image", "Logo Upload", "file"],
+          ["imageDark", "Logo Upload - Dark Version", "file"],
+          ["imageLight", "Logo Upload - Light Version", "file"],
           [
             "vendor",
             "Vendor",
@@ -5016,7 +5158,7 @@
           ],
           ["name", "Display Name", "text"],
           ["device", "Device", "select", ["PC / H5", "PC", "H5"]],
-          ["status", "Status", "select", ["Enabled", "Disabled"]],
+          ["status", "Status", "toggle"],
         ],
       },
       popularGame: {
@@ -5060,7 +5202,7 @@
           ["tags", "Tags", "text"],
           ["rtp", "RTP", "text"],
           ["device", "Device", "select", ["PC / H5", "PC", "H5"]],
-          ["status", "Status", "select", ["Enabled", "Disabled"]],
+          ["status", "Status", "toggle"],
         ],
       },
       bottom: {
@@ -5078,8 +5220,10 @@
           "Actions",
         ],
         fields: [
-          ["iconBefore", "Icon Upload - Before Click (Optional)", "file"],
-          ["iconAfter", "Icon Upload - After Click (Optional)", "file"],
+          ["iconBeforeDark", "Icon Upload - Before Click / Dark Version (Optional)", "file"],
+          ["iconBeforeLight", "Icon Upload - Before Click / Light Version (Optional)", "file"],
+          ["iconAfterDark", "Icon Upload - After Click / Dark Version (Optional)", "file"],
+          ["iconAfterLight", "Icon Upload - After Click / Light Version (Optional)", "file"],
           ["name", "Menu Name", "text"],
           ["parentMenu", "Parent Menu", "parent-select"],
           ["device", "Device", "select", ["PC", "H5"]],
@@ -5425,9 +5569,12 @@
         {
           id: 1,
           icon: "",
+          iconDark: "",
+          iconLight: "",
           gameType: "SLOT",
           messageTemplate: "{Icon} {Game Name} {Amount} {Account}",
           interval: 5,
+          minimumWinAmount: 200,
           sort: 1,
           status: "Enabled",
           updateAt: "2026/07/31 10:25:00",
@@ -5436,9 +5583,12 @@
         {
           id: 2,
           icon: "",
+          iconDark: "",
+          iconLight: "",
           gameType: "Live Casino",
           messageTemplate: "{Icon} {Account} just won {Amount} at {Game Name}",
           interval: 5,
+          minimumWinAmount: 200,
           sort: 2,
           status: "Enabled",
           updateAt: "2026/07/31 10:25:00",
@@ -6331,7 +6481,8 @@
     let active = "banner",
       editingId = null,
       searchText = "",
-      statusFilter = "All";
+      statusFilter = "All",
+      broadcastStandaloneMode = false;
     function persist() {
       syncActiveLobbyHomepageConfig();
       localStorage.setItem(KEY, JSON.stringify(state));
@@ -6361,6 +6512,14 @@
       homepageModuleIconValue = "",
       selectedHomepageModuleId = state.modules[0]?.id || null;
     function getActiveConfigurationRows() {
+      // Broadcast Receiver is managed by its independent Casino HomePage submenu.
+      // It no longer depends on opening Edit Configuration from Homepage Configuration.
+      if (active === "broadcastReceiver" && broadcastStandaloneMode) {
+        if (!Array.isArray(state.data.broadcastReceiver)) {
+          state.data.broadcastReceiver = clone(defaults.broadcastReceiver || []);
+        }
+        return state.data.broadcastReceiver;
+      }
       const selected = getSelectedHomepageModule();
       if (!selected) return [];
       const key = String(selected.id);
@@ -6510,7 +6669,7 @@
           tr.draggable = true;
           tr.dataset.i = idx;
           tr.className = row.id === selectedHomepageModuleId ? "selected" : "";
-          tr.innerHTML = `<td class="grip">⠿</td><td><b>${esc(row.name)}</b></td><td><span class="module-type-badge">${esc(moduleLabelMap[row.module] || row.module)}</span></td><td><span class="module-title-text">${esc(row.title || "-")}</span></td><td>${row.icon ? `<img class="icon-thumb" src="${row.icon}" alt="Module icon"><span class="module-icon-url" title="${esc(row.icon)}">${esc(row.icon)}</span>` : '<div class="icon-thumb"></div><span class="module-icon-url">No icon</span>'}</td><td><input class="sort-input" type="number" min="1" value="${row.sort}"></td><td><div class="homepage-status-cell"><span class="homepage-status-switch ${row.on ? "on" : ""}"></span><span class="homepage-status-text ${row.on ? "on" : ""}">${row.on ? "Enabled" : "Disabled"}</span></div></td><td><span class="module-audit">${esc(row.createAt)}</span></td><td>${esc(row.createBy)}</td><td><span class="module-audit">${esc(row.updateAt)}</span></td><td>${esc(row.updateBy)}</td><td>${!["searchBar", "recentWin"].includes(row.module) ? '<span class="link edit-config">Edit Configuration</span>　' : ""}<span class="link module-edit">Edit</span>　<span class="link module-delete" style="color:var(--danger)">Del</span></td>`;
+          tr.innerHTML = `<td class="grip">⠿</td><td><b>${esc(row.name)}</b></td><td><span class="module-type-badge">${esc(moduleLabelMap[row.module] || row.module)}</span></td><td><span class="module-title-text">${esc(row.title || "-")}</span></td><td>${row.icon ? `<img class="icon-thumb" src="${row.icon}" alt="Module icon"><span class="module-icon-url" title="${esc(row.icon)}">${esc(row.icon)}</span>` : '<div class="icon-thumb"></div><span class="module-icon-url">No icon</span>'}</td><td><input class="sort-input" type="number" min="1" value="${row.sort}"></td><td><div class="homepage-status-cell"><span class="homepage-status-switch ${row.on ? "on" : ""}"></span><span class="homepage-status-text ${row.on ? "on" : ""}">${row.on ? "Enabled" : "Disabled"}</span></div></td><td><span class="module-audit">${esc(row.createAt)}</span></td><td>${esc(row.createBy)}</td><td><span class="module-audit">${esc(row.updateAt)}</span></td><td>${esc(row.updateBy)}</td><td>${!["searchBar", "recentWin", "broadcastReceiver"].includes(row.module) ? '<span class="link edit-config">Edit Configuration</span>　' : ""}<span class="link module-edit">Edit</span>　<span class="link module-delete" style="color:var(--danger)">Del</span></td>`;
           tr.addEventListener("click", (e) => {
             if (
               e.target.closest(
@@ -6619,6 +6778,11 @@
         recentWinMoneyField.style.display =
           (row?.module || "banner") === "recentWin" ? "flex" : "none";
       if (winMoneyInput) winMoneyInput.value = row?.winMoney ?? 100;
+      const selectedModuleType = row?.module || "banner";
+      const broadcastFields = document.getElementById("broadcastReceiverSwitchFields");
+      if (broadcastFields) broadcastFields.style.display = selectedModuleType === "broadcastReceiver" ? "flex" : "none";
+      document.getElementById("homepageModuleGameJumpLink")?.classList.toggle("on", row?.gameJumpLink === "Yes");
+      document.getElementById("homepageModuleChatroomPush")?.classList.toggle("on", row?.chatroomPush === "Yes");
       document.getElementById("homepageModuleSort").value =
         row?.sort || state.modules.length + 1;
       const sw = document.getElementById("homepageModuleStatus");
@@ -6697,7 +6861,8 @@
         : "Icon";
     }
     function openModuleConfigurationPage(moduleRow) {
-      if (["searchBar", "recentWin"].includes(moduleRow?.module)) {
+      broadcastStandaloneMode = false;
+      if (["searchBar", "recentWin", "broadcastReceiver"].includes(moduleRow?.module)) {
         toast("This module does not require Edit Configuration");
         return;
       }
@@ -6713,6 +6878,56 @@
       renderAll();
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
+    window.openBroadcastReceiverConfigurationPage = function () {
+      const broadcastModule = state.modules.find((row) => row.module === "broadcastReceiver");
+
+      // Migrate legacy Broadcast Configuration that was previously stored under
+      // Homepage Module / Edit Configuration into the independent submenu data.
+      if (broadcastModule && state.moduleConfigs?.[String(broadcastModule.id)]?.length) {
+        const legacyRows = state.moduleConfigs[String(broadcastModule.id)];
+        const currentRows = Array.isArray(state.data.broadcastReceiver)
+          ? state.data.broadcastReceiver
+          : [];
+        if (!currentRows.length || JSON.stringify(currentRows) === JSON.stringify(defaults.broadcastReceiver || [])) {
+          state.data.broadcastReceiver = clone(legacyRows);
+        }
+      }
+
+      broadcastStandaloneMode = true;
+      selectedHomepageModuleId = broadcastModule?.id || selectedHomepageModuleId;
+      active = "broadcastReceiver";
+      searchText = "";
+      statusFilter = "All";
+
+      const page = document.getElementById("casinoModuleConfiguration");
+      if (!page) return null;
+      // Important: Broadcast Receiver submenu reuses ONLY the original
+      // Broadcast Receiver Configuration CRUD/table. It must never enter
+      // Bottom Configuration mode or render Bottom rows/schema.
+      page.classList.remove("bottom-config-mode");
+      page.classList.add("broadcast-standalone-mode");
+
+      const pageTitle = document.getElementById("moduleConfigPageTitle");
+      if (pageTitle) pageTitle.textContent = "Broadcast Receiver Configuration";
+      const pageDesc = document.getElementById("moduleConfigPageDescription");
+      if (pageDesc) pageDesc.textContent = "Manage Broadcast Receiver rules independently from Homepage Configuration.";
+      const sectionTitle = document.getElementById("moduleConfigSectionTitle");
+      if (sectionTitle) sectionTitle.textContent = "Broadcast Configuration";
+      const desc = document.getElementById("moduleConfigListDescription");
+      if (desc) desc.textContent = "Broadcast Receiver 独立配置；支持新增、修改、状态、排序及 Icon 深色／浅色版本上传。";
+      const add = document.getElementById("addBtn");
+      if (add) add.textContent = "＋ Create";
+
+      renderAll();
+      page.classList.remove("bottom-config-mode");
+      page.classList.add("broadcast-standalone-mode");
+      if (pageTitle) pageTitle.textContent = "Broadcast Receiver Configuration";
+      if (pageDesc) pageDesc.textContent = "Manage Broadcast Receiver rules independently from Homepage Configuration.";
+      if (sectionTitle) sectionTitle.textContent = "Broadcast Configuration";
+      if (desc) desc.textContent = "Broadcast Receiver 独立配置；使用原 Homepage Configuration 的 Broadcast Receiver Configuration 栏位与 CRUD，不读取 Bottom Configuration List。";
+      return page;
+    };
+
     function backToCasinoHomepage() {
       document
         .getElementById("casinoModuleConfiguration")
@@ -6762,8 +6977,11 @@
         "Display Count": "displayCount",
         "Refresh Interval": "refreshInterval",
         GameType: "gameType",
+        "Game Type": "gameType",
         "Message Template": "messageTemplate",
         Interval: "interval",
+        "Interval (seconds)": "interval",
+        "Minimum Win Amount": "minimumWinAmount",
         UpdateAt: "updateAt",
         UpdateBy: "updateBy",
         "Section Name": "name",
@@ -6952,6 +7170,24 @@
         active === "mainMenu" ? "Save" : active === "bottom" ? "Confirm" : "Save";
       const grid = document.getElementById("formGrid");
       grid.innerHTML = "";
+
+      // Dual-tone image compatibility: existing single-tone images are used as
+      // the initial Dark/Light preview until the operator uploads replacements.
+      if (active === "providerLogo") {
+        row.imageDark = row.imageDark || row.image || "";
+        row.imageLight = row.imageLight || row.image || "";
+      }
+      if (active === "floatMenu" || active === "broadcastReceiver") {
+        row.iconDark = row.iconDark || row.icon || "";
+        row.iconLight = row.iconLight || row.icon || "";
+      }
+      if (active === "bottom") {
+        row.iconBeforeDark = row.iconBeforeDark || row.iconBefore || row.icon || "";
+        row.iconBeforeLight = row.iconBeforeLight || row.iconBefore || row.icon || "";
+        row.iconAfterDark = row.iconAfterDark || row.iconAfter || row.icon || "";
+        row.iconAfterLight = row.iconAfterLight || row.iconAfter || row.icon || "";
+      }
+
       s.fields.forEach(([key, label, type, opts]) => {
         const w = document.createElement("div");
         w.className = "field" + (type === "textarea" ? " full" : "");
@@ -7026,8 +7262,12 @@
             const rd = new FileReader();
             rd.onload = () => {
               e.target.dataset.value = rd.result;
-              w.querySelector(".preview").innerHTML =
-                `<img src="${rd.result}">`;
+              const preview = w.querySelector(".preview");
+              if (active === "broadcastReceiver" && ["iconDark", "iconLight"].includes(key)) {
+                preview.innerHTML = `<img src="${rd.result}"><span class="broadcast-upload-change">Click to replace</span>`;
+              } else {
+                preview.innerHTML = `<img src="${rd.result}">`;
+              }
             };
             rd.readAsDataURL(f);
           };
@@ -7187,8 +7427,12 @@
       }
 
       if (active === "bottom") {
-        grid.querySelector('[data-key="iconBefore"]')?.closest(".field")?.classList.add("bottom-icon-upload", "before-click");
-        grid.querySelector('[data-key="iconAfter"]')?.closest(".field")?.classList.add("bottom-icon-upload", "after-click");
+        ["iconBeforeDark", "iconBeforeLight"].forEach((key) =>
+          grid.querySelector(`[data-key="${key}"]`)?.closest(".field")?.classList.add("bottom-icon-upload", "before-click")
+        );
+        ["iconAfterDark", "iconAfterLight"].forEach((key) =>
+          grid.querySelector(`[data-key="${key}"]`)?.closest(".field")?.classList.add("bottom-icon-upload", "after-click")
+        );
       }
 
       // Bottom Configuration UI behavior.
@@ -7299,10 +7543,44 @@
       }
 
       if (active === "broadcastReceiver") {
-        const tip = document.createElement("div");
-        tip.className = "field full";
-        tip.innerHTML = `<label>Template Variables</label><div class="preview">Supported: <b>{Icon}</b>、<b>{Game Name}</b>、<b>{Amount}</b>、<b>{Account}</b><br>Example: {Icon} {Game Name} {Amount} {Account}</div>`;
-        grid.appendChild(tip);
+        grid.classList.add("broadcast-config-grid");
+        ["iconDark", "iconLight"].forEach((key) => {
+          const input = grid.querySelector(`[data-key="${key}"]`);
+          const field = input?.closest(".field");
+          if (!input || !field) return;
+          field.classList.add("broadcast-icon-upload", "full");
+          const preview = field.querySelector(".preview");
+          if (preview) {
+            preview.classList.add("broadcast-upload-box");
+            const currentImage = row[key] || "";
+            preview.innerHTML = currentImage
+              ? `<img src="${currentImage}"><span class="broadcast-upload-change">Click to replace</span>`
+              : `<span class="broadcast-upload-title">Click to Upload</span><small>GIF, JPG, JPEG, PNG or SVG; 1:1; max 500 KB</small>`;
+            preview.onclick = () => input.click();
+          }
+        });
+
+        const messageInput = grid.querySelector('[data-key="messageTemplate"]');
+        const messageField = messageInput?.closest(".field");
+        if (messageField && messageInput) {
+          messageField.classList.add("full", "broadcast-message-field");
+          const tokens = document.createElement("div");
+          tokens.className = "broadcast-template-tokens";
+          tokens.innerHTML = ["{Icon}", "{Game Name}", "{Amount}", "{Account}"]
+            .map((token) => `<button type="button" data-token="${token}">${token}</button>`)
+            .join("");
+          messageField.appendChild(tokens);
+          tokens.addEventListener("click", (event) => {
+            const button = event.target.closest("[data-token]");
+            if (!button) return;
+            const token = button.dataset.token;
+            const start = messageInput.selectionStart ?? messageInput.value.length;
+            const end = messageInput.selectionEnd ?? start;
+            messageInput.value = messageInput.value.slice(0, start) + token + messageInput.value.slice(end);
+            messageInput.focus();
+            messageInput.setSelectionRange(start + token.length, start + token.length);
+          });
+        }
       }
       document.getElementById("modalMask").classList.add("show");
     }
@@ -7327,6 +7605,16 @@
         if (el.type === "file") obj[key] = el.dataset.value || obj[key] || "";
         else obj[key] = el.value;
       });
+      // Keep legacy preview fields populated while persisting both tone versions.
+      if (active === "providerLogo") obj.image = obj.imageDark || obj.imageLight || obj.image || "";
+      if (active === "floatMenu" || active === "broadcastReceiver")
+        obj.icon = obj.iconDark || obj.iconLight || obj.icon || "";
+      if (active === "bottom") {
+        obj.iconBefore = obj.iconBeforeDark || obj.iconBeforeLight || obj.iconBefore || "";
+        obj.iconAfter = obj.iconAfterDark || obj.iconAfterLight || obj.iconAfter || "";
+        obj.icon = obj.iconBefore;
+      }
+
       if (["mainMenu", "floatMenu"].includes(active)) {
         obj.linkType = obj.linkType || "Internal Page";
         obj.linkValue = obj.linkValue || "";
@@ -7407,9 +7695,13 @@
       if (active === "broadcastReceiver") {
         obj.messageTemplate =
           obj.messageTemplate || "{Icon} {Game Name} {Amount} {Account}";
-        obj.interval = Math.max(1, Number(obj.interval) || 5);
+        obj.interval = Math.max(1, Number(obj.interval) || 10);
+        obj.minimumWinAmount = Math.max(0, Number(obj.minimumWinAmount) || 0);
         obj.sort = Math.max(1, Number(obj.sort) || rows.length + 1);
-        obj.status = "Enabled";
+        obj.status = obj.status || "Enabled";
+        obj.iconDark = obj.iconDark || obj.icon || "";
+        obj.iconLight = obj.iconLight || obj.icon || "";
+        obj.icon = obj.iconDark || obj.iconLight || "";
         obj.updateAt = new Date().toLocaleString("zh-TW", { hour12: false });
         obj.updateBy = "Admin";
         const supportedTokens = [
@@ -8678,7 +8970,16 @@
         if (field)
           field.style.display =
             e.target.value === "recentWin" ? "flex" : "none";
+        const broadcastFields = document.getElementById("broadcastReceiverSwitchFields");
+        if (broadcastFields)
+          broadcastFields.style.display =
+            e.target.value === "broadcastReceiver" ? "flex" : "none";
       });
+    ["homepageModuleGameJumpLink", "homepageModuleChatroomPush"].forEach((id) => {
+      document.getElementById(id)?.addEventListener("click", (e) => {
+        e.currentTarget.classList.toggle("on");
+      });
+    });
     document
       .getElementById("homepageModuleStatus")
       ?.addEventListener("click", (e) => {
@@ -8741,6 +9042,13 @@
         row.title = title;
         row.icon = homepageModuleIconValue;
         row.on = enabled;
+        if (moduleType === "broadcastReceiver") {
+          row.gameJumpLink = document.getElementById("homepageModuleGameJumpLink")?.classList.contains("on") ? "Yes" : "No";
+          row.chatroomPush = document.getElementById("homepageModuleChatroomPush")?.classList.contains("on") ? "Yes" : "No";
+        } else {
+          delete row.gameJumpLink;
+          delete row.chatroomPush;
+        }
         if (moduleType === "recentWin") {
           const winMoney = Number(
             document.getElementById("homepageModuleWinMoney")?.value,
@@ -11543,6 +11851,8 @@
               title: "Casino HomePage",
               page: "casino",
               children: [
+                { title: "Homepage Configuration", page: "casino" },
+                { title: "Broadcast Receiver", page: "broadcastReceiverPage" },
                 { title: "Casino Main Menu", page: "casinoMainMenu" },
                 { title: "Float Menu", page: "floatMenu" },
               ],
@@ -11638,6 +11948,7 @@
       const pageMap = {
         sport: "Sport HomePage",
         casino: "Casino HomePage",
+        broadcastReceiverPage: "Broadcast Receiver",
         casinoMainMenu: "Casino Main Menu",
         floatMenu: "Float Menu",
         casinoPopularGame: "HomePage Popular Game",
@@ -11691,6 +12002,7 @@
           .join("");
       }
       function hideAll() {
+        document.getElementById("casinoModuleConfiguration")?.classList.remove("broadcast-standalone-mode");
         content
           .querySelectorAll(":scope > .page")
           .forEach((p) => p.classList.remove("active"));
@@ -11720,6 +12032,11 @@
             content.appendChild(el);
           }
           el.innerHTML = window.tagsPageHtml ? window.tagsPageHtml() : "";
+        }
+        if (page === "broadcastReceiverPage") {
+          el = typeof window.openBroadcastReceiverConfigurationPage === "function"
+            ? window.openBroadcastReceiverConfigurationPage()
+            : document.getElementById("casinoModuleConfiguration");
         }
         if (el) {
           el.classList.add("active");
