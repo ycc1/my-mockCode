@@ -3983,6 +3983,21 @@
       #casinoModuleConfiguration.broadcast-standalone-mode > .card:not(.module-summary-card) {
         margin-top: 0;
       }
+
+    /* Broadcast Receiver list switches */
+    .broadcast-list-toggle {
+      width: 40px; height: 22px; border: 0; padding: 0; border-radius: 999px;
+      background: #cfd5dd; position: relative; cursor: pointer; vertical-align: middle;
+      transition: background .2s ease;
+    }
+    .broadcast-list-toggle > span {
+      position: absolute; top: 3px; left: 3px; width: 16px; height: 16px;
+      border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25);
+      transition: left .2s ease;
+    }
+    .broadcast-list-toggle.on { background: #2f80ed; }
+    .broadcast-list-toggle.on > span { left: 21px; }
+
 </style>
   
     <style id="dual-tone-upload-adjustments">
@@ -4092,6 +4107,10 @@
 #modalMask.show .broadcast-config-grid [data-toggle-key="status"] {
   min-height: 32px;
 }
+
+/* Broadcast Receiver standalone configuration switches */
+#modalMask.show .broadcast-config-grid .broadcast-extra-switch { min-height:58px; }
+#modalMask.show .broadcast-config-grid .broadcast-extra-switch .bottom-toggle-field { min-height:32px; display:flex; align-items:center; }
 </style>
 </head>
   <body>
@@ -4973,6 +4992,8 @@
           "Message Template",
           "Interval (seconds)",
           "Minimum Win Amount",
+          "游戏跳转 Link",
+          "聊天室推送",
           "Sort",
           "Status",
           "UpdateAt",
@@ -4999,6 +5020,8 @@
           ["messageTemplate", "Message Template", "text"],
           ["interval", "Interval (seconds)", "number"],
           ["minimumWinAmount", "Minimum Win Amount", "number"],
+          ["gameJumpLink", "游戏跳转 Link", "toggle"],
+          ["chatroomPush", "聊天室推送", "toggle"],
           ["sort", "Sort", "number"],
           ["status", "Status", "toggle"],
         ],
@@ -5575,6 +5598,8 @@
           messageTemplate: "{Icon} {Game Name} {Amount} {Account}",
           interval: 5,
           minimumWinAmount: 200,
+          gameJumpLink: "No",
+          chatroomPush: "No",
           sort: 1,
           status: "Enabled",
           updateAt: "2026/07/31 10:25:00",
@@ -5589,6 +5614,8 @@
           messageTemplate: "{Icon} {Account} just won {Amount} at {Game Name}",
           interval: 5,
           minimumWinAmount: 200,
+          gameJumpLink: "No",
+          chatroomPush: "No",
           sort: 2,
           status: "Enabled",
           updateAt: "2026/07/31 10:25:00",
@@ -5600,6 +5627,9 @@
           gameType: "Bingo",
           messageTemplate: "{Icon} {Game Name} paid {Amount} to {Account}",
           interval: 5,
+          minimumWinAmount: 0,
+          gameJumpLink: "No",
+          chatroomPush: "No",
           sort: 3,
           status: "Enabled",
           updateAt: "2026/07/31 10:25:00",
@@ -6982,6 +7012,8 @@
         Interval: "interval",
         "Interval (seconds)": "interval",
         "Minimum Win Amount": "minimumWinAmount",
+        "游戏跳转 Link": "gameJumpLink",
+        "聊天室推送": "chatroomPush",
         UpdateAt: "updateAt",
         UpdateBy: "updateBy",
         "Section Name": "name",
@@ -7043,6 +7075,10 @@
               active === "broadcastReceiver"
                 ? `<td><span class="link edit">Edit</span>　<span class="link delete" style="color:var(--danger)">Del</span></td>`
                 : `<td><span class="link edit">Edit</span>　<span class="link duplicate">Duplicate</span>　<span class="link delete">${active === "bottom" ? "Del" : "Delete"}</span></td>`;
+          } else if (["游戏跳转 Link", "聊天室推送"].includes(c)) {
+            const key = c === "游戏跳转 Link" ? "gameJumpLink" : "chatroomPush";
+            const isOn = String(r[key] || "No") === "Yes";
+            html += `<td><button type="button" class="bottom-toggle broadcast-list-toggle ${isOn ? "on" : ""}" data-broadcast-key="${key}" aria-pressed="${isOn ? "true" : "false"}"><span></span></button></td>`;
           } else if (c === "Status") {
             html += `<td><span class="status ${r.status === "Enabled" ? "on" : ""}"><span class="status-dot"></span>${esc(r.status || "Disabled")}</span></td>`;
           } else if (c === "Sort") {
@@ -7063,6 +7099,15 @@
           } else html += `<td>${esc(cellVal(r, c))}</td>`;
         });
         tr.innerHTML = html;
+        tr.querySelectorAll(".broadcast-list-toggle").forEach((button) => {
+          button.addEventListener("click", () => {
+            const key = button.dataset.broadcastKey;
+            if (!key) return;
+            r[key] = String(r[key] || "No") === "Yes" ? "No" : "Yes";
+            persist();
+            tableRender();
+          });
+        });
         tr.querySelector(".status")?.addEventListener("click", () => {
           r.status = r.status === "Enabled" ? "Disabled" : "Enabled";
           persist();
@@ -7560,6 +7605,9 @@
           }
         });
 
+        // Broadcast Receiver switches are part of the schema so the shared toggle renderer
+        // binds click behavior and saves Yes / No correctly.
+
         const messageInput = grid.querySelector('[data-key="messageTemplate"]');
         const messageField = messageInput?.closest(".field");
         if (messageField && messageInput) {
@@ -7697,6 +7745,8 @@
           obj.messageTemplate || "{Icon} {Game Name} {Amount} {Account}";
         obj.interval = Math.max(1, Number(obj.interval) || 10);
         obj.minimumWinAmount = Math.max(0, Number(obj.minimumWinAmount) || 0);
+        obj.gameJumpLink = obj.gameJumpLink || "No";
+        obj.chatroomPush = obj.chatroomPush || "No";
         obj.sort = Math.max(1, Number(obj.sort) || rows.length + 1);
         obj.status = obj.status || "Enabled";
         obj.iconDark = obj.iconDark || obj.icon || "";
