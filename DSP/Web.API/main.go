@@ -117,6 +117,7 @@ func buildRoutes() (http.Handler, error) {
 	mux.Handle("/api/v1/features", featureFilter(http.HandlerFunc(accessController.Features)))
 	mux.Handle("/api/v1/features/", featureFilter(http.HandlerFunc(accessController.FeatureByID)))
 	mux.Handle("/api/v1/channel-partners", channelPartnerFilter(http.HandlerFunc(channelPartnerController.Collection)))
+	mux.Handle("/api/v1/channel-partners/options", channelPartnerFilter(http.HandlerFunc(channelPartnerController.Options)))
 	mux.Handle("/api/v1/channel-partners/", channelPartnerFilter(http.HandlerFunc(channelPartnerController.ByID)))
 	return logging(mux), nil
 }

@@ -11,6 +11,11 @@ import (
 
 type ChannelPartnerController struct{ partners *service.ChannelPartnerService }
 
+func (c *ChannelPartnerController) Options(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet { apimodel.MethodNotAllowed(w); return }
+	apimodel.WriteJSON(w, http.StatusOK, model.APIResponse{Code: 0, Message: "success", Data: model.ChannelPartnerOptions()})
+}
+
 func NewChannelPartnerController(partners *service.ChannelPartnerService) *ChannelPartnerController { return &ChannelPartnerController{partners: partners} }
 
 func (c *ChannelPartnerController) Collection(w http.ResponseWriter, r *http.Request) {

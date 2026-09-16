@@ -1706,7 +1706,7 @@
                     <div class="setting-extra" data-kyc-extra="multiAreaLogin" ${checked ? '' : 'hidden'}>
                         <span class="setting-extra-label">&gt;= </span>
                         <input class="setting-number" type="text" inputmode="numeric" data-kyc-number="multiAreaLoginCount" value="${escapeHtml(validatorKycDraft.multiAreaLoginCount ?? '')}" placeholder="0"><span class="setting-unit">个区域</span>
-						or 
+						<br />
 						<span class="setting-extra-label">&gt;= </span>
                         <input class="setting-number" type="text" inputmode="numeric" data-kyc-number="multiAreaLoginCount" value="${escapeHtml(validatorKycDraft.multiAreaLoginCount ?? '')}" placeholder="0"><span class="setting-unit">个IP</span>
                     </div>`;

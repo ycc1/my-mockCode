@@ -191,7 +191,7 @@ func TestRoleCRUDAndFeatureAssignment(t *testing.T) {
 func TestChannelPartnerCRUD(t *testing.T) {
 	handler := routes()
 	cookie := login(t, handler)
-	payload := []byte(`{"name":"Partner A","partner_type":"其他","partner_type_other":"合作伙伴","service_category":"DSP","traffic_model":"cpc","billing_model":"cpm","primary_channel":"Google","secondary_channel":"其他","secondary_channel_other":"私域","market_contract":"是","delivery_package":"H5","data_system":"GA4","status":true}`)
+	payload := []byte(`{"name":"Partner A","code":"123","partner_type":"其他","partner_type_other":"合作伙伴","service_category":"DSP","traffic_model":"cpc","billing_model":"cpm","primary_channel":"Google","secondary_channel":"其他","secondary_channel_other":"私域","market_contract":"是","delivery_package":["苹果","安卓"],"data_system":["GA4","adjust"],"status":true}`)
 
 	createRequest := httptest.NewRequest(http.MethodPost, "/api/v1/channel-partners", bytes.NewReader(payload))
 	createRequest.AddCookie(cookie)

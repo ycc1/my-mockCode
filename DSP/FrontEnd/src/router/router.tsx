@@ -14,6 +14,7 @@ import {
   Settings2,
 } from "lucide-react";
 import AccountPage from "../app/account/account";
+import ChannelPartnersPage from "../app/channelPartners/channelPartners";
 import RolesPage from "../app/roles/roles";
 import SettingDataPage from "../app/settingData/settingData";
 import NormalizedResponsePage from "../app/normalizedResponse/normalizedResponse";
@@ -51,7 +52,7 @@ const partners = [
 
 export default function Router({ onLogout }: { onLogout: () => void }) {
   const [active, setActive] = useState("渠道商配置");
-  const [expanded, setExpanded] = useState("广告商务配置");
+  const [expanded, setExpanded] = useState("渠道管理");
   const [search, setSearch] = useState("");
   const visible = partners.filter((name) =>
     name.toLowerCase().includes(search.toLowerCase()),
@@ -134,7 +135,9 @@ export default function Router({ onLogout }: { onLogout: () => void }) {
           </div>
         </header>
         <div className="content-wrap">
-          {active === "帐号管理" ? (
+          {active === "渠道商配置" ? (
+            <ChannelPartnersPage />
+          ) : active === "帐号管理" ? (
             <AccountPage />
           ) : active === "角色管理" ? (
             <RolesPage />
