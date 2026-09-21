@@ -7,6 +7,7 @@ type Feature = { feature_id: string; code: string; name: string };
 type FeatureGroup = { resource: string; name: string; actions: Feature[] };
 const featureResources = [
   ["offer", "广告内容与投放配置"],
+  ["ads_partner", "广告商配置"],
   ["channel_partner", "渠道商配置"],
   ["channel_number", "渠道号配置"],
   ["channel_link", "渠道链接配置"],
@@ -38,6 +39,7 @@ const actionLabels: Record<string, string> = {
 };
 const resourceLabels: Record<string, string> = {
   offer: "广告内容与投放配置",
+  ads_partner: "广告商配置",
   channel_partner: "渠道商配置",
   channel_number: "渠道号配置",
   channel_link: "渠道链接配置",

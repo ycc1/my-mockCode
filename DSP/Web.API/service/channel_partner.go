@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"unicode/utf8"
 
 	"advertiser-api/model"
 	"advertiser-api/repository"
@@ -125,7 +126,10 @@ func validChoices(field string, values []string, other string) bool {
 }
 
 func validChannelPartner(request model.CreateChannelPartnerRequest) bool {
-	return strings.TrimSpace(request.Name) != "" && validChoice("partner_type", request.PartnerType, request.PartnerTypeOther) && validChoice("service_category", request.ServiceCategory, request.ServiceCategoryOther) && validChoice("traffic_model", request.TrafficModel, request.TrafficModelOther) && validChoice("billing_model", request.BillingModel, request.BillingModelOther) && validChoice("primary_channel", request.PrimaryChannel, request.PrimaryChannelOther) && validChoice("secondary_channel", request.SecondaryChannel, request.SecondaryChannelOther) && validChoice("market_contract", request.MarketContract, request.MarketContractOther) && validChoices("delivery_package", request.DeliveryPackage, request.DeliveryPackageOther) && validChoices("data_system", request.DataSystem, request.DataSystemOther)
+	keyLengths := map[string]int{"MD5": 32, "SHA312": 78, "AES": 32, "DES": 8}
+	expected, securityOK := keyLengths[request.SecurityType]
+	merchantID := strings.TrimSpace(request.MerchantID)
+	return strings.TrimSpace(request.Name) != "" && merchantID != "" && utf8.RuneCountInString(merchantID) <= 20 && securityOK && len(request.APIKey) == expected && validChoice("partner_type", request.PartnerType, request.PartnerTypeOther) && validChoice("service_category", request.ServiceCategory, request.ServiceCategoryOther) && validChoice("traffic_model", request.TrafficModel, request.TrafficModelOther) && validChoice("billing_model", request.BillingModel, request.BillingModelOther) && validChoice("primary_channel", request.PrimaryChannel, request.PrimaryChannelOther) && validChoice("secondary_channel", request.SecondaryChannel, request.SecondaryChannelOther) && validChoice("market_contract", request.MarketContract, request.MarketContractOther) && validChoices("delivery_package", request.DeliveryPackage, request.DeliveryPackageOther) && validChoices("data_system", request.DataSystem, request.DataSystemOther)
 }
 
 func validChannelPartnerUpdate(request model.UpdateChannelPartnerRequest) bool {

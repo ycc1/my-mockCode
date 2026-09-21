@@ -52,3 +52,11 @@ type ChannelPartnerRepository interface {
 	Update(string, model.UpdateChannelPartnerRequest, string) (model.ChannelPartner, bool)
 	Delete(string) bool
 }
+
+type AdsPartnerRepository interface {
+	Create(model.CreateAdsPartnerRequest, string) model.AdsPartner
+	List() []model.AdsPartner
+	Get(string) (model.AdsPartner, bool)
+	Update(string, model.UpdateAdsPartnerRequest, string) (model.AdsPartner, bool)
+	Delete(string) bool
+}

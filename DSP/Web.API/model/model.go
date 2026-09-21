@@ -119,6 +119,9 @@ type ChannelPartner struct {
 	Code                  string    `json:"code"`
 	ChannelPartnerID      string    `json:"channel_partner_id"`
 	Name                  string    `json:"name"`
+	MerchantID            string    `json:"merchant_id"`
+	APIKey                string    `json:"api_key"`
+	SecurityType          string    `json:"security_type"`
 	PartnerType           string    `json:"partner_type"`
 	PartnerTypeOther      string    `json:"partner_type_other,omitempty"`
 	ServiceCategory       string    `json:"service_category"`
@@ -146,6 +149,9 @@ type ChannelPartner struct {
 type CreateChannelPartnerRequest struct {
 	Code                  string   `json:"code"`
 	Name                  string   `json:"name"`
+	MerchantID            string   `json:"merchant_id"`
+	APIKey                string   `json:"api_key"`
+	SecurityType          string   `json:"security_type"`
 	PartnerType           string   `json:"partner_type"`
 	PartnerTypeOther      string   `json:"partner_type_other"`
 	ServiceCategory       string   `json:"service_category"`
@@ -170,6 +176,9 @@ type CreateChannelPartnerRequest struct {
 type UpdateChannelPartnerRequest struct {
 	Code                  *string   `json:"code"`
 	Name                  *string   `json:"name"`
+	MerchantID            *string   `json:"merchant_id"`
+	APIKey                *string   `json:"api_key"`
+	SecurityType          *string   `json:"security_type"`
 	PartnerType           *string   `json:"partner_type"`
 	PartnerTypeOther      *string   `json:"partner_type_other"`
 	ServiceCategory       *string   `json:"service_category"`
@@ -189,4 +198,30 @@ type UpdateChannelPartnerRequest struct {
 	DataSystem            *[]string `json:"data_system"`
 	DataSystemOther       *string   `json:"data_system_other"`
 	Status                *bool     `json:"status"`
+}
+
+type AdsPartner struct {
+	ID            string    `json:"id"`
+	Name          string    `json:"name"`
+	AdsMerchantID string    `json:"ads_merchant_id"`
+	APIKey        string    `json:"api_key"`
+	SecurityType  string    `json:"security_type"`
+	CreateTime    time.Time `json:"create_time"`
+	UpdateTime    time.Time `json:"update_time"`
+	CreateBy      string    `json:"create_by"`
+	UpdateBy      string    `json:"update_by"`
+}
+
+type CreateAdsPartnerRequest struct {
+	Name          string `json:"name"`
+	AdsMerchantID string `json:"ads_merchant_id"`
+	APIKey        string `json:"api_key"`
+	SecurityType  string `json:"security_type"`
+}
+
+type UpdateAdsPartnerRequest struct {
+	Name          *string `json:"name"`
+	AdsMerchantID *string `json:"ads_merchant_id"`
+	APIKey        *string `json:"api_key"`
+	SecurityType  *string `json:"security_type"`
 }

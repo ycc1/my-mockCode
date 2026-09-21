@@ -24,6 +24,7 @@ func (r *MemoryChannelPartnerRepository) Create(request model.CreateChannelPartn
 	partner := model.ChannelPartner{
 		Code:             request.Code,
 		ChannelPartnerID: fmt.Sprintf("CP_%06d", atomic.AddUint64(&r.seq, 1)), Name: request.Name,
+		MerchantID: request.MerchantID, APIKey: request.APIKey, SecurityType: request.SecurityType,
 		PartnerType: request.PartnerType, PartnerTypeOther: request.PartnerTypeOther,
 		ServiceCategory: request.ServiceCategory, ServiceCategoryOther: request.ServiceCategoryOther,
 		TrafficModel: request.TrafficModel, TrafficModelOther: request.TrafficModelOther,
@@ -70,6 +71,15 @@ func (r *MemoryChannelPartnerRepository) Update(id string, request model.UpdateC
 	}
 	if request.Name != nil {
 		partner.Name = *request.Name
+	}
+	if request.MerchantID != nil {
+		partner.MerchantID = *request.MerchantID
+	}
+	if request.APIKey != nil {
+		partner.APIKey = *request.APIKey
+	}
+	if request.SecurityType != nil {
+		partner.SecurityType = *request.SecurityType
 	}
 	if request.PartnerType != nil {
 		partner.PartnerType = *request.PartnerType

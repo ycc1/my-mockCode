@@ -18,6 +18,7 @@ import ChannelPartnersPage from "../app/channelPartners/channelPartners";
 import RolesPage from "../app/roles/roles";
 import SettingDataPage from "../app/settingData/settingData";
 import NormalizedResponsePage from "../app/normalizedResponse/normalizedResponse";
+import AdsPartnersPage from "../app/adsPartners/adsPartners";
 
 type Group = { label: string; icon: typeof Megaphone; items: string[] };
 const groups: Group[] = [
@@ -137,6 +138,8 @@ export default function Router({ onLogout }: { onLogout: () => void }) {
         <div className="content-wrap">
           {active === "渠道商配置" ? (
             <ChannelPartnersPage />
+          ) : active === "广告商配置" ? (
+            <AdsPartnersPage />
           ) : active === "帐号管理" ? (
             <AccountPage />
           ) : active === "角色管理" ? (

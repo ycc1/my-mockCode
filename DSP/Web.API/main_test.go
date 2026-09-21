@@ -191,41 +191,70 @@ func TestRoleCRUDAndFeatureAssignment(t *testing.T) {
 func TestChannelPartnerCRUD(t *testing.T) {
 	handler := routes()
 	cookie := login(t, handler)
-	payload := []byte(`{"name":"Partner A","code":"123","partner_type":"其他","partner_type_other":"合作伙伴","service_category":"DSP","traffic_model":"cpc","billing_model":"cpm","primary_channel":"Google","secondary_channel":"其他","secondary_channel_other":"私域","market_contract":"是","delivery_package":["苹果","安卓"],"data_system":["GA4","adjust"],"status":true}`)
+	payload := []byte(`{"name":"Partner A","code":"123","merchant_id":"merchant-001","api_key":"12345678901234567890123456789012","security_type":"MD5","partner_type":"其他","partner_type_other":"合作伙伴","service_category":"DSP","traffic_model":"cpc","billing_model":"cpm","primary_channel":"Google","secondary_channel":"其他","secondary_channel_other":"私域","market_contract":"是","delivery_package":["苹果","安卓"],"data_system":["GA4","adjust"],"status":true}`)
 
 	createRequest := httptest.NewRequest(http.MethodPost, "/api/v1/channel-partners", bytes.NewReader(payload))
 	createRequest.AddCookie(cookie)
 	create := httptest.NewRecorder()
 	handler.ServeHTTP(create, createRequest)
-	if create.Code != http.StatusCreated { t.Fatalf("create channel partner status = %d, want %d", create.Code, http.StatusCreated) }
-	var created struct { Data struct { ID string `json:"channel_partner_id"`; Status bool `json:"status"`; ModifiedBy string `json:"modified_by"` } `json:"data"` }
-	if err := json.NewDecoder(create.Body).Decode(&created); err != nil { t.Fatal(err) }
-	if created.Data.ID == "" || !created.Data.Status || created.Data.ModifiedBy != "admin" { t.Fatalf("unexpected created partner: %+v", created.Data) }
+	if create.Code != http.StatusCreated {
+		t.Fatalf("create channel partner status = %d, want %d", create.Code, http.StatusCreated)
+	}
+	var created struct {
+		Data struct {
+			ID         string `json:"channel_partner_id"`
+			Status     bool   `json:"status"`
+			ModifiedBy string `json:"modified_by"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(create.Body).Decode(&created); err != nil {
+		t.Fatal(err)
+	}
+	if created.Data.ID == "" || !created.Data.Status || created.Data.ModifiedBy != "admin" {
+		t.Fatalf("unexpected created partner: %+v", created.Data)
+	}
 
 	updateRequest := httptest.NewRequest(http.MethodPatch, "/api/v1/channel-partners/"+created.Data.ID, bytes.NewReader([]byte(`{"status":false}`)))
 	updateRequest.AddCookie(cookie)
 	update := httptest.NewRecorder()
 	handler.ServeHTTP(update, updateRequest)
-	if update.Code != http.StatusOK { t.Fatalf("update channel partner status = %d, want %d", update.Code, http.StatusOK) }
+	if update.Code != http.StatusOK {
+		t.Fatalf("update channel partner status = %d, want %d", update.Code, http.StatusOK)
+	}
 
 	getRequest := httptest.NewRequest(http.MethodGet, "/api/v1/channel-partners/"+created.Data.ID, nil)
 	getRequest.AddCookie(cookie)
 	get := httptest.NewRecorder()
 	handler.ServeHTTP(get, getRequest)
-	if get.Code != http.StatusOK { t.Fatalf("get channel partner status = %d, want %d", get.Code, http.StatusOK) }
-	var current struct { Data struct { Status bool `json:"status"`; SecondaryOther string `json:"secondary_channel_other"` } `json:"data"` }
-	if err := json.NewDecoder(get.Body).Decode(&current); err != nil { t.Fatal(err) }
-	if current.Data.Status || current.Data.SecondaryOther != "私域" { t.Fatalf("unexpected partner after update: %+v", current.Data) }
+	if get.Code != http.StatusOK {
+		t.Fatalf("get channel partner status = %d, want %d", get.Code, http.StatusOK)
+	}
+	var current struct {
+		Data struct {
+			Status         bool   `json:"status"`
+			SecondaryOther string `json:"secondary_channel_other"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(get.Body).Decode(&current); err != nil {
+		t.Fatal(err)
+	}
+	if current.Data.Status || current.Data.SecondaryOther != "私域" {
+		t.Fatalf("unexpected partner after update: %+v", current.Data)
+	}
 
 	deleteRequest := httptest.NewRequest(http.MethodDelete, "/api/v1/channel-partners/"+created.Data.ID, nil)
 	deleteRequest.AddCookie(cookie)
 	deleted := httptest.NewRecorder()
 	handler.ServeHTTP(deleted, deleteRequest)
-	if deleted.Code != http.StatusOK { t.Fatalf("delete channel partner status = %d, want %d", deleted.Code, http.StatusOK) }
+	if deleted.Code != http.StatusOK {
+		t.Fatalf("delete channel partner status = %d, want %d", deleted.Code, http.StatusOK)
+	}
 }
 
 func TestChannelPartnerRequiresLogin(t *testing.T) {
 	response := httptest.NewRecorder()
 	routes().ServeHTTP(response, httptest.NewRequest(http.MethodGet, "/api/v1/channel-partners", nil))
-	if response.Code != http.StatusUnauthorized { t.Fatalf("status = %d, want %d", response.Code, http.StatusUnauthorized) }
+	if response.Code != http.StatusUnauthorized {
+		t.Fatalf("status = %d, want %d", response.Code, http.StatusUnauthorized)
+	}
 }

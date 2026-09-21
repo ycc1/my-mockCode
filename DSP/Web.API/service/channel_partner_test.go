@@ -36,7 +36,12 @@ func TestMultiSelectChoices(t *testing.T) {
 
 func TestChannelPartnerValidationAndUpdates(t *testing.T) {
 	s := NewChannelPartnerService(repository.NewMemoryChannelPartnerRepository())
-	request := model.CreateChannelPartnerRequest{Code: "001", Name: "Test", PartnerType: "外部", ServiceCategory: "DSP", TrafficModel: "cpc", BillingModel: "cpm", PrimaryChannel: "Google", SecondaryChannel: "TikTok", MarketContract: "是", DeliveryPackage: []string{"苹果", "安卓"}, DataSystem: []string{"GA4", "adjust"}, Status: true}
+	request := model.CreateChannelPartnerRequest{Code: "001", Name: "Test", MerchantID: "merchant-001", APIKey: "12345678901234567890123456789012", SecurityType: "MD5", PartnerType: "外部", ServiceCategory: "DSP", TrafficModel: "cpc", BillingModel: "cpm", PrimaryChannel: "Google", SecondaryChannel: "TikTok", MarketContract: "是", DeliveryPackage: []string{"苹果", "安卓"}, DataSystem: []string{"GA4", "adjust"}, Status: true}
+	tooLongMerchantID := request
+	tooLongMerchantID.MerchantID = "123456789012345678901"
+	if _, err := s.Create(tooLongMerchantID, "admin"); err == nil {
+		t.Fatal("accepted merchant ID longer than 20 characters")
+	}
 	for _, code := range []string{"", "12", "abcd", "１２３"} {
 		invalid := request
 		invalid.Code = code

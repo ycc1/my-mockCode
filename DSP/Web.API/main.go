@@ -69,6 +69,7 @@ func buildRoutes() (http.Handler, error) {
 	featureRepository := repository.NewMemoryFeatureRepository()
 	for _, feature := range []struct{ code, name string }{
 		{code: "offer", name: "广告内容与投放配置"},
+		{code: "ads_partner", name: "广告商配置"},
 		{code: "channel_partner", name: "渠道商配置"},
 		{code: "channel_number", name: "渠道号配置"},
 		{code: "channel_link", name: "渠道链接配置"},
@@ -95,10 +96,12 @@ func buildRoutes() (http.Handler, error) {
 	offerService := service.NewOfferService(offerRepository)
 	accessService := service.NewAccessService(roleRepository, featureRepository)
 	channelPartnerService := service.NewChannelPartnerService(repository.NewMemoryChannelPartnerRepository())
+	adsPartnerService := service.NewAdsPartnerService(repository.NewMemoryAdsPartnerRepository())
 	membershipController := controller.NewMembershipController(authService)
 	offerController := controller.NewOfferController(offerService)
 	accessController := controller.NewAccessController(accessService)
 	channelPartnerController := controller.NewChannelPartnerController(channelPartnerService)
+	adsPartnerController := controller.NewAdsPartnerController(adsPartnerService)
 	healthController := controller.NewHealthController()
 
 	mux := http.NewServeMux()
@@ -112,6 +115,7 @@ func buildRoutes() (http.Handler, error) {
 	roleFilter := func(next http.Handler) http.Handler { return filter.CRUD(authService, "role", next) }
 	featureFilter := func(next http.Handler) http.Handler { return filter.CRUD(authService, "feature", next) }
 	channelPartnerFilter := func(next http.Handler) http.Handler { return filter.CRUD(authService, "channel_partner", next) }
+	adsPartnerFilter := func(next http.Handler) http.Handler { return filter.CRUD(authService, "ads_partner", next) }
 	mux.Handle("/api/v1/roles", roleFilter(http.HandlerFunc(accessController.Roles)))
 	mux.Handle("/api/v1/roles/", roleFilter(http.HandlerFunc(accessController.RoleByID)))
 	mux.Handle("/api/v1/features", featureFilter(http.HandlerFunc(accessController.Features)))
@@ -119,6 +123,8 @@ func buildRoutes() (http.Handler, error) {
 	mux.Handle("/api/v1/channel-partners", channelPartnerFilter(http.HandlerFunc(channelPartnerController.Collection)))
 	mux.Handle("/api/v1/channel-partners/options", channelPartnerFilter(http.HandlerFunc(channelPartnerController.Options)))
 	mux.Handle("/api/v1/channel-partners/", channelPartnerFilter(http.HandlerFunc(channelPartnerController.ByID)))
+	mux.Handle("/api/v1/ads-partners", adsPartnerFilter(http.HandlerFunc(adsPartnerController.Collection)))
+	mux.Handle("/api/v1/ads-partners/", adsPartnerFilter(http.HandlerFunc(adsPartnerController.ByID)))
 	return logging(mux), nil
 }
 
