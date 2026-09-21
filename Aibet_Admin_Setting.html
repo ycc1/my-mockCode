@@ -1018,25 +1018,14 @@
         const STORE_KYC_PUBLISHED_AT = 'aibet_validator_kyc_setting_published_at_v1';
 
         const validatorKycDefaults = {
-            login: true,
-            loginGraphicOtp: false,
-            register: true,
-            bet: true,
-            deposit: true,
-            depositCumulativeTime: '',
-            depositLimit: '',
-            withdraw: true,
-            withdrawCumulativeTime: '',
-            withdrawLimit: '',
-            profileCenter: true,
-            longTimeLogin: false,
-            longTimeLoginHour: '',
-            longTimeLoginMinute: '',
-            longTimeLoginSecond: '',
-            multiAreaLogin: false,
-            multiAreaLoginIpCount: '',
-            multiAreaLoginDeviceCount: '',
-            userAuthNode: false
+            curpRegister: true, curpBet: true, curpDeposit: true,
+            curpDepositCumulativeTime: '', curpDepositLimit: '', curpWithdraw: true,
+            curpWithdrawCumulativeTime: '', curpWithdrawLimit: '', curpProfileCenter: true, curpPromotion: false,
+            kycLogin: true, kycRegister: true, kycBet: true, kycDeposit: true,
+            kycDepositCumulativeTime: '', kycDepositLimit: '', kycWithdraw: true,
+            kycWithdrawCumulativeTime: '', kycWithdrawLimit: '', kycProfileCenter: true, kycPromotion: false,
+            loginGraphicOtp: false, longTimeLogin: false, longTimeLoginHour: '', longTimeLoginMinute: '',
+            longTimeLoginSecond: '', multiAreaLogin: false, multiAreaLoginIpCount: '', multiAreaLoginDeviceCount: ''
         };
 
 
@@ -1217,12 +1206,29 @@
         let validatorKycPublished = loadState(STORE_KYC_PUBLISHED, { ...validatorKycDefaults });
         let validatorKycPublishedAt = localStorage.getItem(STORE_KYC_PUBLISHED_AT) || '-';
 
-        // KYC setting migration for newly added fields.
+        // CURP / KYC independent-setting migration. Legacy shared values are copied to both groups once.
         [validatorKycDraft, validatorKycPublished].forEach(setting => {
-            if (typeof setting.userAuthNode !== 'boolean') setting.userAuthNode = false;
-            if (setting.multiAreaLoginIpCount == null) setting.multiAreaLoginIpCount = '';
-            if (setting.multiAreaLoginDeviceCount == null) setting.multiAreaLoginDeviceCount = '';
+            const legacy = key => setting[key];
+            const ensure = (key, fallback) => { if (setting[key] == null) setting[key] = fallback; };
+            ['Bet','Deposit','Withdraw','ProfileCenter'].forEach(name => {
+                const legacyKey = name.charAt(0).toLowerCase() + name.slice(1);
+                ensure('curp' + name, typeof legacy(legacyKey) === 'boolean' ? legacy(legacyKey) : validatorKycDefaults['curp' + name]);
+                ensure('kyc' + name, typeof legacy(legacyKey) === 'boolean' ? legacy(legacyKey) : validatorKycDefaults['kyc' + name]);
+            });
+            ['DepositCumulativeTime','DepositLimit','WithdrawCumulativeTime','WithdrawLimit'].forEach(name => {
+                const legacyKey = name.charAt(0).toLowerCase() + name.slice(1);
+                ensure('curp' + name, legacy(legacyKey) ?? '');
+                ensure('kyc' + name, legacy(legacyKey) ?? '');
+            });
+            ensure('curpRegister', typeof setting.register === 'boolean' ? setting.register : true);
+            ensure('kycRegister', typeof setting.register === 'boolean' ? setting.register : true);
+            ensure('curpPromotion', false);
+            ensure('kycPromotion', false);
+            ensure('multiAreaLoginIpCount', '');
+            ensure('multiAreaLoginDeviceCount', '');
         });
+        saveState(STORE_KYC_DRAFT, validatorKycDraft);
+        saveState(STORE_KYC_PUBLISHED, validatorKycPublished);
 
 
         function renderMenu() {
@@ -1601,125 +1607,67 @@
 
         function validatorKycSettingHtml() {
             const hasDraftChange = JSON.stringify(validatorKycDraft) !== JSON.stringify(validatorKycPublished);
-
             const items = [
-                { key: 'userAuthNode', name: 'User Authentication Node', section: 'KYC Trigger', description: '打开必需透过 Jumio 流程，活体检查，关闭使用 CURP 代替 KYC 检查' },
-                { key: 'login', name: 'login', section: 'KYC Trigger', description: 'KYC 提示弹框，强制进入 KYC 流程' },
-                { key: 'loginGraphicOtp', name: 'OTP 验证', section: 'Validator', description: '启用后，登入流程需完成图型 OTP 验证。' },
-                { key: 'register', name: 'register', section: 'KYC Trigger', description: '收集用户资料，未成年不得注册成功' },
-                { key: 'bet', name: 'bet', section: 'KYC Trigger', description: 'KYC 提示弹框，强制进入 KYC 流程' },
-                { key: 'deposit', name: 'deposit', section: 'KYC Trigger', description: '累计时间超额充值，KYC 提示弹框，强制进入 KYC 流程' },
-                { key: 'withdraw', name: 'withdraw', section: 'KYC Trigger', description: '累计时间超额提现，KYC 提示弹框，强制进入 KYC 流程' },
-                { key: 'profileCenter', name: 'profile Center', section: 'KYC Trigger', description: 'KYC 提示弹框，强制进入 KYC 流程' },
-                { key: 'longTimeLogin', name: 'Long time login', section: 'Validator', description: '用户连续七日未登入后，再次登入时触发验证。' },
-                { key: 'multiAreaLogin', name: 'Multi area login', section: 'Validator', description: '侦测登入 IP 数量或设备数量达到配置条件时触发验证。' }
+                { key:'curpRegister', name:'register', section:'CURP Trigger', description:'收集用户资料，未成年不得注册成功' },
+                { key:'curpBet', name:'bet', section:'CURP Trigger', description:'CURP 提示弹框，强制进入 CURP 流程' },
+                { key:'curpDeposit', name:'deposit', section:'CURP Trigger', description:'累计时间超额充值，触发 CURP 检查' },
+                { key:'curpWithdraw', name:'withdraw', section:'CURP Trigger', description:'累计时间超额提现，触发 CURP 检查' },
+                { key:'curpProfileCenter', name:'profile Center', section:'CURP Trigger', description:'CURP 提示弹框，强制进入 CURP 流程' },
+                { key:'curpPromotion', name:'Promotion', section:'CURP Trigger', description:'Promotion 有设定准入条件，CURP 检查取代 KYC 弹框，完成 CURP 填写后可参加' },
+                { key:'kycLogin', name:'login', section:'KYC Trigger', description:'KYC 提示弹框，强制进入 KYC 流程' },
+                { key:'kycRegister', name:'register', section:'KYC Trigger', description:'收集用户资料，未成年不得注册成功' },
+                { key:'kycBet', name:'bet', section:'KYC Trigger', description:'KYC 提示弹框，强制进入 KYC 流程' },
+                { key:'kycDeposit', name:'deposit', section:'KYC Trigger', description:'累计时间超额充值，KYC 提示弹框，强制进入 KYC 流程' },
+                { key:'kycWithdraw', name:'withdraw', section:'KYC Trigger', description:'累计时间超额提现，KYC 提示弹框，强制进入 KYC 流程' },
+                { key:'kycProfileCenter', name:'profile Center', section:'KYC Trigger', description:'KYC 提示弹框，强制进入 KYC 流程' },
+                { key:'kycPromotion', name:'Promotion', section:'KYC Trigger', description:'Promotion 有设定准入条件，KYC 提示弹框，完成后可参加' },
+                { key:'loginGraphicOtp', name:'OTP 验证', section:'Validator', description:'启用后，登入流程需完成图型 OTP 验证。' },
+                { key:'longTimeLogin', name:'Long time login', section:'Validator', description:'用户连续七日未登入后，再次登入时触发验证。' },
+                { key:'multiAreaLogin', name:'Multi area login', section:'Validator', description:'侦测登入 IP 数量或设备数量达到配置条件时触发验证。' }
             ];
-
             const renderRows = section => items.filter(item => item.section === section).map(item => validatorKycRowHtml(item)).join('');
-
             return `
                 <div class="setting-page">
                     <div class="breadcrumb">Home / System Management / Validator and KYC Setting</div>
                     <h1 class="page-title">Validator and KYC Setting</h1>
-
-                    <div class="setting-toolbar">
-                        <div>
+                    <div class="setting-toolbar" style="align-items:flex-start">
+                        <div style="flex:1;min-width:360px">
                             <div class="setting-toolbar-title">前台验证与 KYC 触发配置</div>
-                            <div class="setting-toolbar-note">Switch 调整只保存为后台草稿；必须点击 <b>Save & Publish</b> 后，才会更新前台正式配置。</div>
+                            <div class="setting-toolbar-title" style="margin-top:6px">CURP 与 KYC 开关同时打开下，条件为「或」的关系，因此只要有其中一个状态是通过的，即为通过状态</div>
+                            <div class="setting-toolbar-note" style="margin-top:8px">Switch 调整只保存为后台草稿；必须点击 <b>Save & Publish</b> 后，才会更新前台正式配置。</div>
                         </div>
                         <div class="publish-meta">
                             <span class="publish-badge ${hasDraftChange ? 'draft' : ''}">${hasDraftChange ? '● Unpublished Changes' : '● Published'}</span>
                             <span style="font-size:12px;color:#667085">Last Published: ${escapeHtml(validatorKycPublishedAt)}</span>
                         </div>
                     </div>
-
-                    <div class="panel setting-section">
-                        <div class="setting-section-head">
-                            <h2>KYC Setting</h2>
-                            <p>控制指定用户行为是否在前台触发 KYC 流程。</p>
-                        </div>
-                        <div class="setting-list">${renderRows('KYC Trigger')}</div>
-                    </div>
-
-                    <div class="panel setting-section">
-                        <div class="setting-section-head">
-                            <h2>Validator</h2>
-                            <p>控制登入与风险场景的额外验证条件。</p>
-                        </div>
-                        <div class="setting-list">${renderRows('Validator')}</div>
-                    </div>
-
-                    <div class="publish-footer">
-                        <button class="btn light" id="kycResetDraftBtn" type="button">Reset Draft</button>
-                        <button class="btn" id="kycSavePublishBtn" type="button">Save & Publish</button>
-                    </div>
-                </div>
-            `;
+                    <div class="panel setting-section"><div class="setting-section-head"><h2>CURP Setting</h2><p>控制指定用户行为是否在前台触发 CURP 流程。</p></div><div class="setting-list">${renderRows('CURP Trigger')}</div></div>
+                    <div class="panel setting-section"><div class="setting-section-head"><h2>KYC Setting</h2><p>控制指定用户行为是否在前台触发 KYC 流程。</p></div><div class="setting-list">${renderRows('KYC Trigger')}</div></div>
+                    <div class="panel setting-section"><div class="setting-section-head"><h2>Validator</h2><p>控制登入与风险场景的额外验证条件。</p></div><div class="setting-list">${renderRows('Validator')}</div></div>
+                    <div class="publish-footer"><button class="btn light" id="kycResetDraftBtn" type="button">Reset Draft</button><button class="btn" id="kycSavePublishBtn" type="button">Save & Publish</button></div>
+                </div>`;
         }
 
         function validatorKycRowHtml(item) {
             const checked = !!validatorKycDraft[item.key];
-            const important = ['userAuthNode', 'login', 'register', 'bet', 'deposit', 'withdraw', 'profileCenter'].includes(item.key);
-
-            return `
-                <div class="setting-row ${checked ? 'is-on' : ''}" data-kyc-row="${item.key}">
-                    <div>
-                        <div class="setting-name">${escapeHtml(item.name)}</div>
-                        ${validatorKycExtraHtml(item.key, checked)}
-                    </div>
-                    <div class="setting-desc ${important ? 'important' : ''}">${escapeHtml(item.description)}</div>
-                    <div class="setting-switch-wrap">
-                        <label class="status-switch">
-                            <input type="checkbox" data-kyc-setting="${item.key}" ${checked ? 'checked' : ''}>
-                            <span class="status-slider"></span>
-                            <span class="setting-switch-label">${checked ? 'Enabled' : 'Disabled'}</span>
-                        </label>
-                    </div>
-                </div>
-            `;
+            const important = item.section !== 'Validator';
+            return `<div class="setting-row ${checked ? 'is-on' : ''}" data-kyc-row="${item.key}"><div><div class="setting-name">${escapeHtml(item.name)}</div>${validatorKycExtraHtml(item.key, checked)}</div><div class="setting-desc ${important ? 'important' : ''}">${escapeHtml(item.description)}</div><div class="setting-switch-wrap"><label class="status-switch"><input type="checkbox" data-kyc-setting="${item.key}" ${checked ? 'checked' : ''}><span class="status-slider"></span><span class="setting-switch-label">${checked ? 'Enabled' : 'Disabled'}</span></label></div></div>`;
         }
 
         function validatorKycExtraHtml(key, checked) {
-            if (key === 'deposit') {
-                return `
-					<div class="setting-extra" data-kyc-extra="deposit" ${checked ? '' : 'hidden'}>
-                        <span class="setting-extra-label">Cumulative Time(Month)</span>
-                        <input class="setting-number" type="text" inputmode="numeric" data-kyc-number="depositCumulativeTime" value="${escapeHtml(validatorKycDraft.depositCumulativeTime ?? '')}" placeholder="0">
-					</div>
-                    <div class="setting-extra" data-kyc-extra="deposit" ${checked ? '' : 'hidden'}>
-                        <span class="setting-extra-label">limit(&gt;= )</span>
-                        <input class="setting-number" type="text" inputmode="numeric" data-kyc-number="depositLimit" value="${escapeHtml(validatorKycDraft.depositLimit ?? '')}" placeholder="0">
-                    </div>`;
+            const isCurp = key.startsWith('curp');
+            const isKyc = key.startsWith('kyc');
+            const prefix = isCurp ? 'curp' : (isKyc ? 'kyc' : '');
+            const base = prefix ? key.slice(prefix.length) : key;
+            const lowerBase = base.charAt(0).toLowerCase() + base.slice(1);
+            if (lowerBase === 'deposit' || lowerBase === 'withdraw') {
+                const cap = lowerBase.charAt(0).toUpperCase() + lowerBase.slice(1);
+                const timeKey = prefix + cap + 'CumulativeTime';
+                const limitKey = prefix + cap + 'Limit';
+                return `<div class="setting-extra" data-kyc-extra="${key}" ${checked ? '' : 'hidden'}><span class="setting-extra-label">Cumulative Time(Month)</span><input class="setting-number" type="text" inputmode="numeric" data-kyc-number="${timeKey}" value="${escapeHtml(validatorKycDraft[timeKey] ?? '')}" placeholder="0"></div><div class="setting-extra" data-kyc-extra="${key}" ${checked ? '' : 'hidden'}><span class="setting-extra-label">limit(&gt;= )</span><input class="setting-number" type="text" inputmode="numeric" data-kyc-number="${limitKey}" value="${escapeHtml(validatorKycDraft[limitKey] ?? '')}" placeholder="0"></div>`;
             }
-            if (key === 'withdraw') {
-                return `
-					<div class="setting-extra" data-kyc-extra="withdraw" ${checked ? '' : 'hidden'}>
-                        <span class="setting-extra-label">Cumulative Time(Month)</span>
-                        <input class="setting-number" type="text" inputmode="numeric" data-kyc-number="withdrawCumulativeTime" value="${escapeHtml(validatorKycDraft.withdrawCumulativeTime ?? '')}" placeholder="0">
-					</div>
-                    <div class="setting-extra" data-kyc-extra="withdraw" ${checked ? '' : 'hidden'}>
-                        <span class="setting-extra-label">limit(&gt;= )</span>
-                        <input class="setting-number" type="text" inputmode="numeric" data-kyc-number="withdrawLimit" value="${escapeHtml(validatorKycDraft.withdrawLimit ?? '')}" placeholder="0">
-                    </div>`;
-            }
-            if (key === 'longTimeLogin') {
-                return `
-                    <div class="setting-extra" data-kyc-extra="longTimeLogin" ${checked ? '' : 'hidden'}>
-                        <span class="setting-extra-label">&gt;= 超时未登入</span>
-                        <input class="setting-number small" type="text" inputmode="numeric" data-kyc-number="longTimeLoginHour" value="${escapeHtml(validatorKycDraft.longTimeLoginHour ?? '')}" placeholder="0"><span class="setting-unit">时</span>
-                        <input class="setting-number small" type="text" inputmode="numeric" data-kyc-number="longTimeLoginMinute" value="${escapeHtml(validatorKycDraft.longTimeLoginMinute ?? '')}" placeholder="0"><span class="setting-unit">分</span>
-                        <input class="setting-number small" type="text" inputmode="numeric" data-kyc-number="longTimeLoginSecond" value="${escapeHtml(validatorKycDraft.longTimeLoginSecond ?? '')}" placeholder="0"><span class="setting-unit">秒</span>
-                    </div>`;
-            }
-            if (key === 'multiAreaLogin') {
-                return `
-                    <div class="setting-extra" data-kyc-extra="multiAreaLogin" ${checked ? '' : 'hidden'}>
-                        <span class="setting-extra-label">IP 数量 &gt;=</span>
-                        <input class="setting-number" type="text" inputmode="numeric" data-kyc-number="multiAreaLoginIpCount" value="${escapeHtml(validatorKycDraft.multiAreaLoginIpCount ?? '')}" placeholder="0"><span class="setting-unit">个 IP</span>
-                        <span class="setting-extra-label" style="margin-left:10px">设备数量 &gt;=</span>
-                        <input class="setting-number" type="text" inputmode="numeric" data-kyc-number="multiAreaLoginDeviceCount" value="${escapeHtml(validatorKycDraft.multiAreaLoginDeviceCount ?? '')}" placeholder="0"><span class="setting-unit">个设备</span>
-                    </div>`;
-            }
+            if (key === 'longTimeLogin') return `<div class="setting-extra" data-kyc-extra="longTimeLogin" ${checked ? '' : 'hidden'}><span class="setting-extra-label">&gt;= 超时未登入</span><input class="setting-number small" type="text" inputmode="numeric" data-kyc-number="longTimeLoginHour" value="${escapeHtml(validatorKycDraft.longTimeLoginHour ?? '')}" placeholder="0"><span class="setting-unit">时</span><input class="setting-number small" type="text" inputmode="numeric" data-kyc-number="longTimeLoginMinute" value="${escapeHtml(validatorKycDraft.longTimeLoginMinute ?? '')}" placeholder="0"><span class="setting-unit">分</span><input class="setting-number small" type="text" inputmode="numeric" data-kyc-number="longTimeLoginSecond" value="${escapeHtml(validatorKycDraft.longTimeLoginSecond ?? '')}" placeholder="0"><span class="setting-unit">秒</span></div>`;
+            if (key === 'multiAreaLogin') return `<div class="setting-extra" data-kyc-extra="multiAreaLogin" ${checked ? '' : 'hidden'}><span class="setting-extra-label">IP 数量 &gt;=</span><input class="setting-number" type="text" inputmode="numeric" data-kyc-number="multiAreaLoginIpCount" value="${escapeHtml(validatorKycDraft.multiAreaLoginIpCount ?? '')}" placeholder="0"><span class="setting-unit">个 IP</span><span class="setting-extra-label" style="margin-left:10px">设备数量 &gt;=</span><input class="setting-number" type="text" inputmode="numeric" data-kyc-number="multiAreaLoginDeviceCount" value="${escapeHtml(validatorKycDraft.multiAreaLoginDeviceCount ?? '')}" placeholder="0"><span class="setting-unit">个设备</span></div>`;
             return '';
         }
 
@@ -1732,8 +1680,7 @@
                 row.classList.toggle('is-on', enabled);
                 const label = row.querySelector('.setting-switch-label');
                 if (label) label.textContent = enabled ? 'Enabled' : 'Disabled';
-                const extra = row.querySelector(`[data-kyc-extra="${key}"]`);
-                if (extra) extra.hidden = !enabled;
+                row.querySelectorAll(`[data-kyc-extra="${key}"]`).forEach(extra => { extra.hidden = !enabled; });
             }
 
             markKycDraftChanged();
@@ -1756,21 +1703,15 @@
         }
 
         function publishValidatorKycSetting() {
-            if (validatorKycDraft.deposit && !validatorKycDraft.depositCumulativeTime) {
-                toast('Deposit 开启时请输入 Cumulative Time');
-                return;
-            }
-            if (validatorKycDraft.deposit && !validatorKycDraft.depositLimit) {
-                toast('Deposit 开启时请输入 >= limit');
-                return;
-            }
-            if (validatorKycDraft.withdraw && !validatorKycDraft.withdrawCumulativeTime) {
-                toast('Withdraw 开启时请输入 Cumulative Time');
-                return;
-            }
-            if (validatorKycDraft.withdraw && !validatorKycDraft.withdrawLimit) {
-                toast('Withdraw 开启时请输入 >= limit');
-                return;
+            const groups = [
+                ['CURP', 'curpDeposit', 'curpDepositCumulativeTime', 'curpDepositLimit', 'curpWithdraw', 'curpWithdrawCumulativeTime', 'curpWithdrawLimit'],
+                ['KYC', 'kycDeposit', 'kycDepositCumulativeTime', 'kycDepositLimit', 'kycWithdraw', 'kycWithdrawCumulativeTime', 'kycWithdrawLimit']
+            ];
+            for (const [label, depositKey, depositTime, depositLimit, withdrawKey, withdrawTime, withdrawLimit] of groups) {
+                if (validatorKycDraft[depositKey] && !validatorKycDraft[depositTime]) { toast(`${label} Deposit 开启时请输入 Cumulative Time`); return; }
+                if (validatorKycDraft[depositKey] && !validatorKycDraft[depositLimit]) { toast(`${label} Deposit 开启时请输入 >= limit`); return; }
+                if (validatorKycDraft[withdrawKey] && !validatorKycDraft[withdrawTime]) { toast(`${label} Withdraw 开启时请输入 Cumulative Time`); return; }
+                if (validatorKycDraft[withdrawKey] && !validatorKycDraft[withdrawLimit]) { toast(`${label} Withdraw 开启时请输入 >= limit`); return; }
             }
             if (validatorKycDraft.longTimeLogin && !validatorKycDraft.longTimeLoginHour && !validatorKycDraft.longTimeLoginMinute && !validatorKycDraft.longTimeLoginSecond) {
                 toast('Long time login 开启时请输入时、分、秒');
