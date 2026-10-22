@@ -1018,7 +1018,7 @@
         const STORE_KYC_PUBLISHED_AT = 'aibet_validator_kyc_setting_published_at_v1';
 
         const validatorKycDefaults = {
-            curpRegister: true, curpBet: true, curpDeposit: true,
+            curpBet: true, curpDeposit: true,
             curpDepositCumulativeTime: '', curpDepositLimit: '', curpWithdraw: true,
             curpWithdrawCumulativeTime: '', curpWithdrawLimit: '', curpProfileCenter: true, curpPromotion: false,
             kycLogin: true, kycRegister: true, kycBet: true, kycDeposit: true,
@@ -1220,7 +1220,6 @@
                 ensure('curp' + name, legacy(legacyKey) ?? '');
                 ensure('kyc' + name, legacy(legacyKey) ?? '');
             });
-            ensure('curpRegister', typeof setting.register === 'boolean' ? setting.register : true);
             ensure('kycRegister', typeof setting.register === 'boolean' ? setting.register : true);
             ensure('curpPromotion', false);
             ensure('kycPromotion', false);
@@ -1608,7 +1607,6 @@
         function validatorKycSettingHtml() {
             const hasDraftChange = JSON.stringify(validatorKycDraft) !== JSON.stringify(validatorKycPublished);
             const items = [
-                { key:'curpRegister', name:'register', section:'CURP Trigger', description:'收集用户资料，未成年不得注册成功' },
                 { key:'curpBet', name:'bet', section:'CURP Trigger', description:'CURP 提示弹框，强制进入 CURP 流程' },
                 { key:'curpDeposit', name:'deposit', section:'CURP Trigger', description:'累计时间超额充值，触发 CURP 检查' },
                 { key:'curpWithdraw', name:'withdraw', section:'CURP Trigger', description:'累计时间超额提现，触发 CURP 检查' },

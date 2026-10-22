@@ -4521,13 +4521,18 @@
               <select id="homepageModuleType">
                 <option value="banner">Banner</option>
                 <option value="recentWin">Recent Win</option>
-                <option value="marquee">Marquee</option>
-                <option value="broadcastReceiver">BroadcastReceiver</option>
                 <option value="searchBar">Search Bar</option>
                 <option value="content">Content</option>
                 <option value="contentFunction">Content Function</option>
                 <option value="providerLogo">Provider Logo</option>
                 <option value="bottom">Bottom</option>
+              </select>
+            </div>
+            <div class="field full" id="homepageProviderLayoutField" style="display: none">
+              <label for="homepageProviderLayout">Layout</label>
+              <select id="homepageProviderLayout">
+                <option value="Signal Way">Signal Way</option>
+                <option value="Tow Way">Tow Way</option>
               </select>
             </div>
             <div class="field full">
@@ -6800,6 +6805,10 @@
       document.getElementById("homepageModuleType").value =
         row?.module || "banner";
       document.getElementById("homepageModuleTitle").value = row?.title || "";
+      document.getElementById("homepageProviderLayout").value =
+        ["Signal Way", "Tow Way"].includes(row?.layout) ? row.layout : "Signal Way";
+      document.getElementById("homepageProviderLayoutField").style.display =
+        (row?.module || "banner") === "providerLogo" ? "flex" : "none";
       const recentWinMoneyField = document.getElementById(
         "recentWinMoneyField",
       );
@@ -9016,6 +9025,8 @@
     document
       .getElementById("homepageModuleType")
       ?.addEventListener("change", (e) => {
+        document.getElementById("homepageProviderLayoutField").style.display =
+          e.target.value === "providerLogo" ? "flex" : "none";
         const field = document.getElementById("recentWinMoneyField");
         if (field)
           field.style.display =
@@ -9090,6 +9101,11 @@
         }
         row.name = name;
         row.title = title;
+        if (moduleType === "providerLogo") {
+          row.layout = document.getElementById("homepageProviderLayout").value;
+        } else {
+          delete row.layout;
+        }
         row.icon = homepageModuleIconValue;
         row.on = enabled;
         if (moduleType === "broadcastReceiver") {
