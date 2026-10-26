@@ -914,6 +914,23 @@
                 margin-left: auto;
             }
         }
+
+        /* KYC Management and Block */
+        .km-summary{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:12px;margin-bottom:14px}
+        .km-stat{background:#fff;border:1px solid var(--border);border-radius:9px;padding:15px;box-shadow:var(--shadow)}
+        .km-stat strong{display:block;font-size:24px;margin-top:7px;color:#1d4e89}
+        .km-pill{display:inline-block;border-radius:99px;padding:4px 10px;font-size:12px;font-weight:700;background:#edf2f7;color:#475569}
+        .km-pill.approved,.km-pill.active{background:#dcfce7;color:#166534}
+        .km-pill.rejected,.km-pill.frozen{background:#fee2e2;color:#991b1b}
+        .km-pill.pending{background:#fef3c7;color:#92400e}
+        .km-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+        .km-tools button{white-space:nowrap}
+        .km-table{min-width:1150px}
+        .km-modal{width:min(900px,100%)}
+        .km-modal textarea{width:100%;border:1px solid #d6deeb;border-radius:7px;padding:10px;min-height:80px;font:inherit}
+        .km-modal .table{min-width:690px}
+        .km-tip{font-size:12px;color:#667085;line-height:1.6;margin:12px 0}
+        @media(max-width:760px){.km-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.km-stat strong{font-size:19px}}
     </style>
 </head>
 <body>
@@ -983,6 +1000,8 @@
     </div>
 
     <div class="modal-mask" id="kycModalMask"><div class="modal" style="width:min(820px,100%)"><div class="modal-head"><h3 id="kycModalTitle">Add KYC Merchant</h3><button class="modal-close" id="kycModalClose" type="button">×</button></div><div class="modal-body" id="kycModalBody"></div><div class="modal-foot"><button class="btn light" id="kycModalCancel" type="button">Cancel</button><button class="btn" id="kycModalSave" type="button">Save</button></div></div></div>
+
+    <div class="modal-mask" id="kmModalMask"><div class="modal km-modal"><div class="modal-head"><h3 id="kmModalTitle"></h3><button class="modal-close" id="kmModalClose" type="button">×</button></div><div class="modal-body" id="kmModalBody"></div><div class="modal-foot"><button class="btn light" id="kmModalCancel">Cancel</button><button class="btn" id="kmModalSave">Save</button></div></div></div>
     <div class="toast" id="toast"></div>
 
     <script>
@@ -997,7 +1016,7 @@
             { title: 'Promotion', icon: '✾', children: ['Promo-Mgt'] },
             { title: 'Leaderboard', icon: '♙', children: ['Casino Weekly', 'Casino Monthly', 'Sports Weekly', 'Sports Monthly'] },
             { title: 'World Cup', icon: '◉', children: [] },
-            { title: 'System Management', icon: '☷', children: ['Login Record', 'Roles', 'Account', 'Validator and KYC Setting', 'KYC Setting'] },
+            { title: 'System Management', icon: '☷', children: ['Login Record', 'Roles', 'Account', 'Validator and KYC Setting', { title: 'KYC', children: ['KYC Merchant', 'KYC Management', 'KYC Block'] }] },
             { title: 'Finance Management', icon: '☷', children: ['Merchant', 'PayCode'] },
             { title: 'Daily Operations', icon: '▭', children: [{ title: 'BRA', children: ['Banner', 'Promotions', 'Match Pinned', 'Sports Events', 'Registration Image'] }] },
             { title: 'Offering Management', icon: '▣', children: [] }
@@ -1751,8 +1770,8 @@
             const rows=kycMerchants.filter(r=> (!kycFilter.name||r.name.toLowerCase().includes(kycFilter.name.toLowerCase())) && (!kycFilter.apiKey||r.apiKey.toLowerCase().includes(kycFilter.apiKey.toLowerCase())) && (!kycFilter.from||r.createdAt.slice(0,10)>=kycFilter.from) && (!kycFilter.to||r.createdAt.slice(0,10)<=kycFilter.to));
             const pages=Math.max(1,Math.ceil(rows.length/kycPageSize));kycPage=Math.min(kycPage,pages);
             const paged=rows.slice((kycPage-1)*kycPageSize,kycPage*kycPageSize);
-            return `<div class="breadcrumb">Home / System Management / KYC Setting</div>
-              <h1 class="page-title">KYC Setting</h1>
+            return `<div class="breadcrumb">Home / System Management / KYC / KYC Merchant</div>
+              <h1 class="page-title">KYC Merchant</h1>
               <div class="filter-box"><div class="filter-grid">
                 <div class="form-field"><label>Date From</label><input type="date" id="kycDateFrom" value="${kycEsc(kycFilter.from)}"></div>
                 <div class="form-field"><label>Date To</label><input type="date" id="kycDateTo" value="${kycEsc(kycFilter.to)}"></div>
@@ -1792,8 +1811,52 @@
             if($('#kNotice').checked&&(!$('#kDepositText').value.trim()||!$('#kWithdrawText').value.trim())){toast('请填写充值及提现提示信息');return;}
             const time=nowText();const record={id:current?.id??Math.max(0,...kycMerchants.map(r=>r.id))+1,name,url,iss:iss||current?.iss,apiKey:apiKey||current?.apiKey,description:$('#kDescription').value.trim(),enabled:$('#kEnabled').checked,basic:$('#kBasic').checked,third:$('#kThird').checked,noticeEnabled:$('#kNotice').checked,depositText:$('#kDepositText').value.trim(),withdrawText:$('#kWithdrawText').value.trim(),createdAt:current?.createdAt||time,updatedAt:time};
             if(current)Object.assign(current,record);else kycMerchants.unshift(record);
-            saveState(STORE_KYC_MERCHANT,kycMerchants);closeKycModal();renderContent('KYC Setting');toast(current?'KYC Merchant updated':'KYC Merchant added');
+            saveState(STORE_KYC_MERCHANT,kycMerchants);closeKycModal();renderContent('KYC Merchant');toast(current?'KYC Merchant updated':'KYC Merchant added');
         }
+
+
+        /* KYC Management / KYC Block - browser-local prototype, not real account operations */
+        const KM_USERS_KEY='megwin_kyc_management_v2';
+        const KM_BLOCKS_KEY='megwin_kyc_block_v2';
+        const KM_LOG_KEY='megwin_kyc_audit_v2';
+        let kmUsers=loadState(KM_USERS_KEY,[
+          {id:10001,account:'mx_player_001',name:'MARIA GARCIA LOPEZ',curp:'',dob:'1992-04-18',merchant:'Unico MX',status:'Approved',createdAt:'2026-07-01 11:32:00',appliedAt:'2026-10-18 10:10:00',updatedAt:'2026-10-18 10:13:00',frozen:false},
+          {id:10002,account:'mx_player_002',name:'JOSE HERNANDEZ',curp:'',dob:'1997-09-20',merchant:'Unico MX',status:'Pending',createdAt:'2026-08-14 14:20:00',appliedAt:'2026-10-20 16:45:00',updatedAt:'2026-10-20 16:45:00',frozen:false},
+          {id:10003,account:'mx_player_003',name:'ANA MARTINEZ',curp:'',dob:'1990-02-08',merchant:'Unico MX',status:'Rejected',createdAt:'2026-09-12 08:10:00',appliedAt:'2026-10-21 09:15:00',updatedAt:'2026-10-21 09:20:00',frozen:false},
+          {id:10004,account:'mx_player_004',name:'LUIS RAMIREZ',curp:'',dob:'1989-06-11',merchant:'Unico MX',status:'Manual Review',createdAt:'2026-09-25 12:30:00',appliedAt:'2026-10-22 14:10:00',updatedAt:'2026-10-22 14:10:00',frozen:false}
+        ]);
+        let kmBlocks=loadState(KM_BLOCKS_KEY,[]);
+        let kmLogs=loadState(KM_LOG_KEY,[]);
+        let kmFilters={management:{},block:{}};
+        let kmModalMode='',kmModalId=null;
+        const kmE=escapeHtml;
+        function kmSave(){saveState(KM_USERS_KEY,kmUsers);saveState(KM_BLOCKS_KEY,kmBlocks);saveState(KM_LOG_KEY,kmLogs)}
+        function kmLog(action,account,reason,oldValue,newValue){kmLogs.unshift({at:nowText(),operator:'Admin (Demo)',action,account,reason,oldValue,newValue});kmLogs=kmLogs.slice(0,500);kmSave()}
+        function kmStatus(v){const c=({'Approved':'approved','Rejected':'rejected','Pending':'pending','Active':'active','Frozen':'frozen'})[v]||'';return `<span class="km-pill ${c}">${kmE(v)}</span>`}
+        function kmFields(filter,fields){return fields.map(([key,label,options])=>`<div class="form-field"><label>${label}</label>${options?`<select data-km-filter="${key}"><option value="">All</option>${options.map(x=>`<option ${filter[key]===x?'selected':''}>${kmE(x)}</option>`).join('')}</select>`:`<input data-km-filter="${key}" value="${kmE(filter[key]||'')}" placeholder="Please enter">`}</div>`).join('')}
+        function kmFiltered(type){const f=kmFilters[type];const items=type==='management'?kmUsers:kmBlocks;return items.filter(r=>Object.entries(f).every(([k,v])=>!v||String(r[k]??'').toLowerCase().includes(v.toLowerCase())))}
+        function kmToolbar(type,fields){return `<div class="filter-box"><div class="filter-grid">${kmFields(kmFilters[type],fields)}</div><div class="action-row"><button class="btn" data-km-action="search" data-km-type="${type}">Search</button><button class="btn reset" data-km-action="reset" data-km-type="${type}">Reset</button>${type==='block'?'<button class="btn" style="margin-left:auto" data-km-action="addblock">+ Add CURP Block</button>':''}</div></div>`}
+        function kycManagementHtml(){const rows=kmFiltered('management');const counts=k=>kmUsers.filter(x=>x.status===k).length;return `<div class="breadcrumb">Home / System Management / KYC / KYC Management</div><h1 class="page-title">KYC Management</h1><div class="km-summary">${[['KYC Records',kmUsers.length],['Approved',counts('Approved')],['Pending',counts('Pending')],['Rejected',counts('Rejected')]].map(([a,b])=>`<div class="km-stat">${a}<strong>${b}</strong></div>`).join('')}</div>${kmToolbar('management',[['account','Account'],['id','User ID'],['curp','CURP'],['name','Full Name'],['merchant','KYC Merchant'],['status','KYC Status',['Not Verified','Pending','Approved','Rejected','Manual Review']]])}<div class="panel"><div class="panel-head"><h2>KYC Records</h2><span>Total: ${rows.length}</span></div><div class="table-wrap"><table class="table km-table"><thead><tr><th>User ID</th><th>Account</th><th>Full Name</th><th>CURP</th><th>Date of Birth</th><th>KYC Merchant</th><th>KYC Status</th><th>Application Time</th><th>Updated Time</th><th>Action</th></tr></thead><tbody>${rows.length?rows.map(r=>`<tr><td>${r.id}</td><td>${kmE(r.account)}</td><td>${kmE(r.name)}</td><td>${kmE(r.curp||'Not provided')}</td><td>${kmE(r.dob)}</td><td>${kmE(r.merchant)}</td><td>${kmStatus(r.status)}</td><td>${kmE(r.appliedAt)}</td><td>${kmE(r.updatedAt)}</td><td><div class="km-tools"><button class="link-action" data-km-action="detail" data-km-id="${r.id}">Detail</button><button class="link-action" data-km-action="edit" data-km-id="${r.id}">Edit</button></div></td></tr>`).join(''):'<tr><td class="empty" colspan="10">No matching KYC records</td></tr>'}</tbody></table></div></div><p class="km-tip">Demo data only. CURP is intentionally blank in example records. Editing identity information requires an audit reason and re-verification when identity changes.</p>`}
+        function kmRelated(curp){return kmUsers.filter(u=>u.curp&&u.curp===curp)}
+        function kycBlockHtml(){const rows=kmFiltered('block');return `<div class="breadcrumb">Home / System Management / KYC / KYC Block</div><h1 class="page-title">KYC Block</h1>${kmToolbar('block',[['curp','CURP'],['lastAccount','Last Account'],['status','Status',['Active','Released']]])}<div class="panel"><div class="panel-head"><h2>CURP Blacklist</h2><span>Total: ${rows.length}</span></div><div class="table-wrap"><table class="table km-table"><thead><tr><th>CURP</th><th>Account</th><th>Release Time</th><th>Last Account</th><th>Block Time</th><th>Status</th><th>Action</th></tr></thead><tbody>${rows.length?rows.map(r=>`<tr><td><b>${kmE(r.curp)}</b></td><td>${kmRelated(r.curp).length}</td><td>${kmE(r.releaseTime||'Permanent')}</td><td>${kmE(r.lastAccount||'-')}</td><td>${kmE(r.blockTime)}</td><td>${kmStatus(r.status)}</td><td><button class="link-action" data-km-action="blockdetail" data-km-id="${r.id}">Detail / Freeze</button><button class="link-action" data-km-action="release" data-km-id="${r.id}">${r.status==='Active'?'Release':'Re-activate'}</button></td></tr>`).join(''):'<tr><td class="empty" colspan="7">No CURP block records. Use Add CURP Block to create a demo record.</td></tr>'}</tbody></table></div></div><p class="km-tip">Blacklisting a CURP and freezing linked accounts are separate operations. Releasing a CURP does not automatically unfreeze accounts.</p>`}
+        function kmOpen(title,body,mode,id,button='Save'){kmModalMode=mode;kmModalId=id;$('#kmModalTitle').textContent=title;$('#kmModalBody').innerHTML=body;$('#kmModalSave').textContent=button;$('#kmModalSave').style.display=mode==='detail'?'none':'';$('#kmModalMask').classList.add('open')}
+        function kmClose(){$('#kmModalMask').classList.remove('open');kmModalMode='';kmModalId=null}
+        function kmEdit(id){const r=kmUsers.find(x=>x.id===id);if(!r)return;kmOpen('Edit KYC · '+r.account,`<div class="modal-grid"><div class="modal-field"><label>Account</label><input disabled value="${kmE(r.account)}"></div><div class="modal-field"><label>KYC Status *</label><select id="kmStatus">${['Not Verified','Pending','Approved','Rejected','Manual Review'].map(v=>`<option ${r.status===v?'selected':''}>${v}</option>`).join('')}</select></div><div class="modal-field"><label>CURP (18 characters)</label><input id="kmCurp" maxlength="18" value="${kmE(r.curp)}" style="text-transform:uppercase"></div><div class="modal-field"><label>Date of Birth *</label><input type="date" id="kmDob" value="${kmE(r.dob)}"></div><div class="modal-field full"><label>Full Name *</label><input id="kmName" value="${kmE(r.name)}"></div><div class="modal-field full"><label>Reason *</label><textarea id="kmReason" placeholder="Enter reason for the modification"></textarea></div></div><p class="km-tip">Changes to CURP, DOB, or name reset the KYC status to Manual Review. The original third-party result remains unchanged in a production implementation.</p>`, 'edit',id)}
+        function kmDetail(id){const r=kmUsers.find(x=>x.id===id);if(!r)return;const logs=kmLogs.filter(l=>l.account===r.account).slice(0,10);kmOpen('KYC Detail · '+r.account,`<div class="modal-grid">${[['User ID',r.id],['Account',r.account],['Full Name',r.name],['CURP',r.curp||'-'],['Date of Birth',r.dob],['Merchant',r.merchant],['KYC Status',r.status],['Application Time',r.appliedAt]].map(([k,v])=>`<div class="modal-field"><label>${k}</label><div>${kmE(v)}</div></div>`).join('')}</div><h3>Audit Log</h3><div class="table-wrap"><table class="table" style="min-width:600px"><thead><tr><th>Time</th><th>Action</th><th>Reason</th></tr></thead><tbody>${logs.map(l=>`<tr><td>${kmE(l.at)}</td><td>${kmE(l.action)}</td><td>${kmE(l.reason)}</td></tr>`).join('')||'<tr><td colspan="3">No changes</td></tr>'}</tbody></table></div>`,'detail',id)}
+        function kmAddBlock(){kmOpen('Add CURP Block',`<div class="modal-grid"><div class="modal-field"><label>CURP *</label><input id="kmNewCurp" maxlength="18" style="text-transform:uppercase" placeholder="18-character CURP"></div><div class="modal-field"><label>Release Time (optional)</label><input type="datetime-local" id="kmReleaseTime"></div><div class="modal-field full"><label>Reason *</label><textarea id="kmReason" placeholder="Reason for adding this CURP to the blacklist"></textarea></div></div><p class="km-tip">Adding a CURP blacklist entry does not automatically freeze any accounts. Select linked accounts in Detail / Freeze.</p>`,'addblock',null,'Add Block')}
+        function kmBlockDetail(id){const r=kmBlocks.find(x=>x.id===id);if(!r)return;const related=kmRelated(r.curp);kmOpen('CURP Block · '+r.curp,`<p class="km-tip">Blacklist added: ${kmE(r.blockTime)} · Release: ${kmE(r.releaseTime||'Permanent')} · Status: ${kmE(r.status)}</p><div class="table-wrap"><table class="table" style="min-width:730px"><thead><tr><th><input type="checkbox" id="kmSelectAll" aria-label="Select all"></th><th>Account</th><th>Account Created</th><th>Blacklist Time</th><th>Account Status</th></tr></thead><tbody>${related.length?related.map(u=>`<tr><td><input type="checkbox" class="kmAccountCheck" value="${u.id}"></td><td>${kmE(u.account)}</td><td>${kmE(u.createdAt)}</td><td>${kmE(r.blockTime)}</td><td>${kmStatus(u.frozen?'Frozen':'Active')}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">No accounts linked to this CURP in the demo. Assign the CURP to KYC users in KYC Management first.</td></tr>'}</tbody></table></div><div class="modal-grid" style="margin-top:14px"><div class="modal-field"><label>Action *</label><select id="kmFreezeAction"><option value="freeze">Freeze selected accounts</option><option value="unfreeze">Unfreeze selected accounts</option></select></div><div class="modal-field full"><label>Reason *</label><textarea id="kmReason" placeholder="Reason required for freezing or unfreezing"></textarea></div></div><p class="km-tip">This prototype updates browser-local data only. Production must enforce permissions, backend restrictions, transaction handling, and immutable audit logs.</p>`,'blockdetail',id,'Apply to Selected')}
+        function kmValidateCurp(value){const curp=value.toUpperCase();if(!/^[A-Z][AEIOUX][A-Z]{2}\d{6}[HM](?:AS|BC|BS|CC|CL|CM|CS|CH|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS|NE)[B-DF-HJ-NP-TV-Z]{3}[A-Z0-9][0-9]$/.test(curp))return false;const dict='0123456789ABCDEFGHIJKLMNÑOPQRSTUVWXYZ',weights=Array.from({length:17},(_,i)=>18-i);let sum=0;for(let i=0;i<17;i++){const n=dict.indexOf(curp[i]);if(n<0)return false;sum+=n*weights[i]}return (10-sum%10)%10===Number(curp[17])}
+        function kmCurpDob(curp){const year=Number(curp.slice(4,6)),yy=/\d/.test(curp[16])?1900+year:2000+year,mm=curp.slice(6,8),dd=curp.slice(8,10),d=`${yy}-${mm}-${dd}`;return new Date(d+'T00:00:00').toISOString().slice(0,10)===d?d:null}
+        function kmSaveModal(){const reason=$('#kmReason')?.value.trim();if(!reason){toast('Reason 为必填');return}if(kmModalMode==='edit'){const r=kmUsers.find(x=>x.id===kmModalId);const curp=$('#kmCurp').value.trim().toUpperCase(),dob=$('#kmDob').value,name=$('#kmName').value.trim(),status=$('#kmStatus').value;if(!name||!dob){toast('请填写姓名和生日');return}if(curp&&(!kmValidateCurp(curp)||kmCurpDob(curp)!==dob)){toast('CURP 校验失败或生日不一致');return}const changed=r.curp!==curp||r.dob!==dob||r.name!==name;const before=JSON.stringify({curp:r.curp,dob:r.dob,name:r.name,status:r.status});Object.assign(r,{curp,dob,name,status:changed?'Manual Review':status,updatedAt:nowText()});kmLog('KYC Update',r.account,reason,before,JSON.stringify({curp,dob,name,status:r.status}));kmClose();renderContent('KYC Management');toast('KYC record updated');return}if(kmModalMode==='addblock'){const curp=$('#kmNewCurp').value.trim().toUpperCase();if(!kmValidateCurp(curp)){toast('请输入格式及校验位正确的 CURP');return}if(kmBlocks.some(r=>r.curp===curp&&r.status==='Active')){toast('该 CURP 已在有效黑名单');return}const related=kmRelated(curp);const release=$('#kmReleaseTime').value;const row={id:Math.max(0,...kmBlocks.map(x=>x.id))+1,curp,releaseTime:release?release.replace('T',' '):'',lastAccount:related.at(-1)?.account||'-',blockTime:nowText(),status:'Active'};kmBlocks.unshift(row);kmLog('CURP Block',curp,reason,'','Active');kmClose();renderContent('KYC Block');toast('CURP block created');return}if(kmModalMode==='blockdetail'){const selected=[...document.querySelectorAll('.kmAccountCheck:checked')].map(x=>Number(x.value));if(!selected.length){toast('请至少选择一个帐号');return}const action=$('#kmFreezeAction').value;const changed=[];selected.forEach(id=>{const r=kmUsers.find(x=>x.id===id);if(r&&r.frozen!==(action==='freeze')){const old=r.frozen?'Frozen':'Active';r.frozen=action==='freeze';r.updatedAt=nowText();changed.push(r.account);kmLog(action==='freeze'?'Account Freeze':'Account Unfreeze',r.account,reason,old,r.frozen?'Frozen':'Active')}});kmClose();renderContent('KYC Block');toast(`已更新 ${changed.length} 个帐号（仅 Demo）`)}}
+        function handleNewKycClick(event){const b=event.target.closest('[data-km-action]');if(!b)return false;const action=b.dataset.kmAction,id=Number(b.dataset.kmId),type=b.dataset.kmType;if(action==='search'){kmFilters[type]={};document.querySelectorAll('[data-km-filter]').forEach(x=>{if(x.value.trim())kmFilters[type][x.dataset.kmFilter]=x.value.trim()});renderContent(type==='block'?'KYC Block':'KYC Management')}else if(action==='reset'){kmFilters[type]={};renderContent(type==='block'?'KYC Block':'KYC Management')}else if(action==='edit')kmEdit(id);else if(action==='detail')kmDetail(id);else if(action==='addblock')kmAddBlock();else if(action==='blockdetail')kmBlockDetail(id);else if(action==='release'){const r=kmBlocks.find(x=>x.id===id);const next=r.status==='Active'?'Released':'Active';confirmAction(`Confirm changing CURP ${r.curp} to ${next}? A reason will be required.`,()=>{kmOpen('Change CURP Block Status',`<p>CURP: <b>${kmE(r.curp)}</b></p><p>New status: <b>${next}</b></p><div class="modal-field"><label>Reason *</label><textarea id="kmReason"></textarea></div>`,'release',id,'Confirm')})}return true}
+        function handleNewKycChange(event){return false}
+        const _kmSaveModalBase=kmSaveModal;
+        kmSaveModal=function(){if(kmModalMode==='release'){const reason=$('#kmReason')?.value.trim();if(!reason){toast('Reason 为必填');return}const r=kmBlocks.find(x=>x.id===kmModalId),old=r.status;r.status=old==='Active'?'Released':'Active';kmLog('CURP Block Status',r.curp,reason,old,r.status);kmClose();renderContent('KYC Block');toast('Blacklist status updated');return}_kmSaveModalBase()};
+        $('#kmModalClose').addEventListener('click',kmClose);
+        $('#kmModalCancel').addEventListener('click',kmClose);
+        $('#kmModalSave').addEventListener('click',()=>kmSaveModal());
+        $('#kmModalMask').addEventListener('click',e=>{if(e.target.id==='kmModalMask')kmClose()});
+        $('#kmModalBody').addEventListener('change',e=>{if(e.target.id==='kmSelectAll')document.querySelectorAll('.kmAccountCheck').forEach(x=>x.checked=e.target.checked)});
 
         function genericPageHtml(title) {
             return `
@@ -1812,7 +1875,9 @@
                 return;
             }
 
-            if (title === 'KYC Setting') {content.innerHTML = kycMerchantHtml();return;}
+            if (title === 'KYC Merchant') {content.innerHTML = kycMerchantHtml();return;}
+            if (title === 'KYC Management') {content.innerHTML = kycManagementHtml();return;}
+            if (title === 'KYC Block') {content.innerHTML = kycBlockHtml();return;}
             if (title === 'PayCode') {
                 content.innerHTML = payCodePageHtml();
                 return;
@@ -2296,11 +2361,12 @@
         });
 
         content.addEventListener('click', event => {
-            if(event.target.closest('#kycAddBtn')){openKycModal();return;}
-            if(event.target.closest('#kycSearchBtn')){kycFilter={from:$('#kycDateFrom').value,to:$('#kycDateTo').value,apiKey:$('#kycApiFilter').value.trim(),name:$('#kycNameFilter').value.trim()};if(kycFilter.from&&kycFilter.to&&kycFilter.from>kycFilter.to){toast('开始日期不能晚于结束日期');return;}kycPage=1;renderContent('KYC Setting');return;}
-            if(event.target.closest('#kycResetBtn')){kycFilter={from:'',to:'',apiKey:'',name:''};kycPage=1;renderContent('KYC Setting');return;}
+            if(handleNewKycClick(event))return;
+             if(event.target.closest('#kycAddBtn')){openKycModal();return;}
+            if(event.target.closest('#kycSearchBtn')){kycFilter={from:$('#kycDateFrom').value,to:$('#kycDateTo').value,apiKey:$('#kycApiFilter').value.trim(),name:$('#kycNameFilter').value.trim()};if(kycFilter.from&&kycFilter.to&&kycFilter.from>kycFilter.to){toast('开始日期不能晚于结束日期');return;}kycPage=1;renderContent('KYC Merchant');return;}
+            if(event.target.closest('#kycResetBtn')){kycFilter={from:'',to:'',apiKey:'',name:''};kycPage=1;renderContent('KYC Merchant');return;}
             const edit=event.target.closest('[data-kyc-edit]');if(edit){openKycModal(kycMerchants.find(r=>r.id===Number(edit.dataset.kycEdit)));return;}
-            const page=event.target.closest('[data-kyc-page]');if(page){kycPage=Number(page.dataset.kycPage);renderContent('KYC Setting');return;}
+            const page=event.target.closest('[data-kyc-page]');if(page){kycPage=Number(page.dataset.kycPage);renderContent('KYC Merchant');return;}
 
             if (event.target.closest('#kycSavePublishBtn')) {
                 confirmAction(
@@ -2387,7 +2453,8 @@
         });
 
         content.addEventListener('change', event => {
-            const kStatus=event.target.closest('[data-kyc-status]');if(kStatus){const r=kycMerchants.find(x=>x.id===Number(kStatus.dataset.kycStatus));if(r){r.enabled=kStatus.checked;r.updatedAt=nowText();saveState(STORE_KYC_MERCHANT,kycMerchants);renderContent('KYC Setting');toast('KYC status updated');}return;}
+            if(handleNewKycChange(event))return;
+             const kStatus=event.target.closest('[data-kyc-status]');if(kStatus){const r=kycMerchants.find(x=>x.id===Number(kStatus.dataset.kycStatus));if(r){r.enabled=kStatus.checked;r.updatedAt=nowText();saveState(STORE_KYC_MERCHANT,kycMerchants);renderContent('KYC Merchant');toast('KYC status updated');}return;}
 
             const kycSetting = event.target.closest('[data-kyc-setting]');
 
@@ -2535,7 +2602,7 @@ $('#confirmClose').addEventListener('click', closeConfirm);
         setInterval(tick, 1000);
 
         // Open System Management > KYC Setting by default.
-        addTab('KYC Setting');
+        addTab('KYC Merchant');
     </script>
 </body>
 </html>
