@@ -715,7 +715,19 @@
           max-width: 100%;
         }
       }
-    </style>
+    
+      .unico-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:18px 0 24px}
+      .unico-step{border:1px solid #39393d;border-radius:10px;background:#222225;padding:13px 10px;min-width:0}
+      .unico-step.current{border-color:var(--teal);background:#1e302e}.unico-step.done{border-color:#35645e}
+      .unico-step .step-head{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:750}
+      .unico-step .number{display:grid;place-items:center;width:24px;height:24px;flex-shrink:0;border-radius:50%;background:#36363b;color:#ddd}
+      .unico-step.current .number,.unico-step.done .number{background:var(--teal);color:#102522}
+      .unico-step p{font-size:11px;color:#a3a3aa;line-height:1.45;margin:8px 0 0}
+      .step-panel{max-width:700px;margin:auto}.step-panel h2{font-size:22px;margin:0 0 10px}.step-panel>p{color:#aaa;line-height:1.65}
+      .step-panel .preview{margin:20px 0;min-height:210px}.step-panel .row{justify-content:space-between}
+      .mode-note{font-size:12px;color:#a7a7ad;margin-top:15px}
+      @media(max-width:760px){.unico-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.unico-step{padding:10px}.step-panel h2{font-size:19px}}
+      </style>
   </head>
   <body>
     <div class="topline">
@@ -765,426 +777,50 @@
       </main>
     </div>
     <script>
-      "use strict";
-      // Standalone preview: local demonstration never verifies an identity or calls Unico.
-      // Production mode: host this page on Megwin with authenticated /api/kyc endpoints.
-      const qs = new URLSearchParams(location.search);
-      const live = qs.get("mode") === "live";
-      const s = {
-        fullName: "",
-        dob: "",
-        curp: "",
-        curpError: "",
-        page: "intro",
-        documentType: "INE",
-        idFile: null,
-        addressFile: null,
-        consent: false,
-        applicationId: null,
-        redirectUrl: null,
-        status: "NOT_STARTED",
-        busy: false,
-      };
-      const $ = (id) => document.getElementById(id);
-      const screen = $("screen");
-      const badge = $("stateBadge");
-      const escapeHTML = (t) =>
-        String(t ?? "").replace(
-          /[&<>"']/g,
-          (c) =>
-            ({
-              "&": "&amp;",
-              "<": "&lt;",
-              ">": "&gt;",
-              '"': "&quot;",
-              "'": "&#39;",
-            })[c],
-        );
-      const btn = (label, action, cls = "btn-main", disabled = false) =>
-        `<button type="button" class="btn ${cls}" data-action="${action}" ${disabled ? "disabled" : ""}>${label}</button>`;
-      function progress(n) {
-        return `<div class="progress">${[1, 2, 3, 4].map((i) => `<div class="${i <= n ? "on" : ""}"></div>`).join("")}</div>`;
+    "use strict";
+    // Preview only. Real identity verification requires a secured MEGWIN backend and an enabled Unico recipe.
+    const live = new URLSearchParams(location.search).get('mode') === 'live';
+    const steps = [
+      {title:'Prueba de vida',desc:'Unico utiliza la cámara para comprobar que eres una persona real.',icon:'◉',detail:'Coloca tu rostro dentro del marco y sigue las indicaciones de la cámara.',note:'La captura biométrica real se realiza dentro de la sesión segura de Unico.'},
+      {title:'Verificación de identidad',desc:'Comprobación de identidad y, si está habilitado, consulta de datos CURP / RENAPO.',icon:'▣',detail:'Unico verifica los datos de identidad vinculados a la sesión.',note:'La validación RENAPO depende de las capacidades habilitadas para tu cuenta.'},
+      {title:'Evaluación de riesgo de fraude',desc:'Clasificación de señales de riesgo e inconsistencias detectadas.',icon:'⬡',detail:'El sistema analiza los indicadores de fraude disponibles.',note:'La decisión final de KYC corresponde al servidor de MEGWIN.'},
+      {title:'Captura y reutilización de documentos',desc:'Captura de identificación y reutilización, según el flujo habilitado.',icon:'▤',detail:'Prepara tu documento oficial y sigue las instrucciones de Unico.',note:'Los documentos admitidos y el orden real de captura dependen del recipe contratado.'}
+    ];
+    const state={page:0,applicationId:null,busy:false,error:''};
+    const screen=document.getElementById('screen'), badge=document.getElementById('stateBadge');
+    const button=(label,action,kind='btn-main')=>`<button type="button" class="btn ${kind}" data-action="${action}">${label}</button>`;
+    const esc=(s)=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    function progress(){return `<div class="unico-steps" aria-label="Etapas de verificación">${steps.map((s,i)=>`<div class="unico-step ${typeof state.page==='number'?(i<state.page?'done':i===state.page?'current':''):''}"><div class="step-head"><span class="number">${i+1}</span><span>${s.title}</span></div><p>${s.desc}</p></div>`).join('')}</div>`}
+    function render(){
+      const n=state.page;
+      badge.textContent=typeof n==='number'?'In progress':n==='approved'?'Verified':n==='rejected'?'Failed':n==='processing'?'Under review':'Attention';
+      badge.className='badge'+(n==='approved'?' good':n==='rejected'||n==='error'?' bad':'');
+      if(typeof n==='number'){
+        const s=steps[n];
+        screen.innerHTML=`${progress()}<div class="step-panel"><div class="split"><h2>Step ${n+1} — ${s.title}</h2><span class="badge">${n+1} / 4</span></div><p>${s.desc}</p><div class="preview"><span class="illustration">${s.icon}</span><strong>${s.detail}</strong><span>${live?'La captura real se completará en Unico.':'Vista previa interactiva · No se utiliza la cámara ni se verifica la identidad.'}</span></div><div class="tip">${s.note}</div><div class="row">${n>0?button('← Volver','back','btn-soft'):'<span></span>'}${button(n===3?(live?'Abrir verificación Unico':'Finalizar demostración'):'Continuar →',n===3?'submit':'next')}</div><div class="mode-note">${live?'Integración pendiente de un backend MEGWIN autenticado.':'Modo demostración · Los pasos no representan resultados reales de Unico.'}</div></div>`;
+      }else if(n==='processing'){
+        screen.innerHTML=`${progress()}<div class="result pending"><div class="spinner"></div><h2>Verificación en proceso</h2><p>El resultado debe confirmarse desde el servidor de MEGWIN. Completar las pantallas no significa que la identidad haya sido aprobada.</p>${button('Consultar estado','refresh','btn-soft')}${!live?`<div class="demo-controls"><span class="demo-label">Simular resultado</span>${button('Aprobado','approve','btn-outline')}${button('Rechazado','reject','btn-outline')}</div>`:''}</div>`;
+      }else if(n==='approved'||n==='rejected'){
+        screen.innerHTML=`<div class="result ${n==='approved'?'good':'bad'}"><div class="symbol">${n==='approved'?'✓':'!'}</div><h2>${n==='approved'?'Verificación completada':'No fue posible completar la verificación'}</h2><p>${live?'Estado recibido del servidor de MEGWIN.':'Resultado simulado; no se realizó una verificación real.'}</p>${!live?button('Reiniciar demostración','reset','btn-soft'):''}</div>`;
+      }else{
+        screen.innerHTML=`<div class="result bad"><div class="symbol">!</div><h2>No se pudo iniciar la verificación</h2><p>${esc(state.error)}</p>${button('Volver','reset','btn-soft')}</div>`;
       }
-      function render() {
-        const names = {
-          intro: "Not verified",
-          document: "In progress",
-          capture: "In progress",
-          selfie: "In progress",
-          processing: "Under review",
-          approved: "Verified",
-          rejected: "Failed",
-          error: "Attention",
-        };
-        badge.textContent = names[s.page] || "Not verified";
-        badge.className =
-          "badge" +
-          (s.page === "approved"
-            ? " good"
-            : s.page === "rejected" || s.page === "error"
-              ? " bad"
-              : "");
-        let html = "";
-        if (s.page === "intro")
-          html = `
-			<div class="section-title">Datos personales y CURP</div>
-			<p class="muted">Ingresa tus datos tal como aparecen en tus documentos oficiales para comenzar la verificación de identidad.</p>
-			<div class="curp-form">
-				<div class="form-heading">Información personal</div>
-				<div class="personal-grid">
-                    <div class="full">
-                        <label class="field" for="curpInput">CURP <span class="required">*</span></label>
-                        <input id="curpInput" class="input curp-input" type="text" maxlength="18" spellcheck="false" autocapitalize="characters" autocomplete="off" placeholder="18 caracteres de tu CURP" value="${escapeHTML(s.curp)}" aria-describedby="curpHelp curpError">
-                        <div id="curpHelp" class="helper">La CURP tiene 18 caracteres. La fecha de nacimiento debe coincidir con la CURP y debes tener al menos 18 años.</div>
-                    </div>
-                    <div class="full">
-                        <label class="field" for="dobInput">Fecha de nacimiento <span class="required">*</span></label>
-                        <input class="input" id="dobInput" type="date" autocomplete="bday" value="${escapeHTML(s.dob)}">
-                    </div>
-                    <div class="full">
-                        <label class="field" for="fullName">Nombre completo <span class="required">*</span></label>
-                        <input class="input" id="fullName" type="text" maxlength="200" autocomplete="name" placeholder="Nombre(s) y apellidos" value="${escapeHTML(s.fullName)}">
-                    </div>
-                </div>
-				<div id="curpError" class="error" role="alert">${escapeHTML(s.curpError)}</div><p class="personal-note">Verificaremos la consistencia de los datos ingresados. La validación local no confirma que tu identidad esté registrada en RENAPO.</p></div><div class="divider"></div><div class="steps-guide"><h3>¿Cómo funciona la verificación?</h3><p class="muted small">Completa estos pasos para verificar tu identidad de forma segura.</p><div class="guide-row"><span class="guide-number">1</span><div><strong>Ingresa tus datos personales y CURP</strong><p>Proporciona tu CURP, fecha de nacimiento y nombre completo. Revisaremos el formato y que la fecha coincida.</p></div></div><div class="guide-row"><span class="guide-number">2</span><div><strong>Selecciona tu documento</strong><p>Prepara tu INE/IFE o pasaporte vigente, según los documentos admitidos por el flujo contratado.</p></div></div><div class="guide-row"><span class="guide-number">3</span><div><strong>Captura tu identificación</strong><p>Fotografía el documento con buena iluminación y los bordes visibles.</p></div></div><div class="guide-row"><span class="guide-number">4</span><div><strong>Selfie y prueba de vida</strong><p>Sigue las instrucciones de Unico para completar la verificación biométrica.</p></div></div><div class="guide-row"><span class="guide-number">5</span><div><strong>Consulta el resultado</strong><p>MEGWIN confirmará el resultado y mostrará el estado de tu cuenta.</p></div></div></div><label class="checkboxline"><input type="checkbox" id="consent" ${s.consent ? "checked" : ""}><span>He leído el <a href="/privacy-policy" style="color:var(--teal)">Aviso de Privacidad</a> y acepto el tratamiento de mis datos para verificar mi identidad.</span></label>${btn("Continuar", "start", "btn-main btn-wide", !canContinue())}<div class="api-info">${live ? "La verificación real requiere el servidor de MEGWIN y el flujo de Unico." : "Demostración interactiva · Utiliza únicamente datos ficticios. No se consulta RENAPO."}</div>`;
-        if (s.page === "document")
-          html = `${progress(1)}<div class="flow"><h2>Identity document</h2><p>Select the document you will use for verification.</p><label class="choice"><input type="radio" name="document" value="INE" ${s.documentType === "INE" ? "checked" : ""}> ▣ INE / IFE</label><label class="choice"><input type="radio" name="document" value="PASSPORT" ${s.documentType === "PASSPORT" ? "checked" : ""}> ▤ Passport</label><div class="tip">${live ? "Unico will request the document capture after you continue." : "This is a UI simulation. Do not upload your real identity document."}</div><div class="row">${btn("← Back", "intro", "btn-soft")}${btn("Continue", "nextDocument")}</div></div>`;
-        if (s.page === "capture")
-          html = `${progress(2)}<div class="flow"><h2>Capture your document</h2><p>Make sure the document is clear, complete and free from reflections.</p><div class="preview"><span class="illustration">▣</span><strong>${s.documentType === "INE" ? "INE / IFE" : "Passport"}</strong><span>${live ? "Document capture is completed in Unico." : "Illustrative capture preview — no camera or file upload"}</span></div><div class="tip">${live ? "Continue to the secure Unico session to complete document and selfie capture." : "Demo only: click Continue to preview the selfie step."}</div><div class="row">${btn("← Back", "document", "btn-soft")}${btn(live ? "Continue to Unico" : "Continue", "nextCapture")}</div></div>`;
-        if (s.page === "selfie")
-          html = `${progress(3)}<div class="flow"><h2>Selfie & liveness check</h2><p>Look straight ahead and follow the instructions shown during verification.</p><div class="preview"><div class="camera-circle">◉</div><strong>Position your face within the frame</strong><span>${live ? "Unico handles the real camera and biometric validation." : "Visual demonstration only · No photo is captured"}</span></div><div class="tip">A real biometric result can only come from the configured Unico flow and Megwin backend.</div><div class="row">${btn("← Back", "capture", "btn-soft")}${btn(live ? "Open Unico verification" : "Simulate submission", "submit")}</div></div>`;
-        if (s.page === "processing")
-          html = `<div class="result pending"><div class="spinner"></div><h2>Verification in progress</h2><p>Your identity verification is being processed. You can check its status here. A return from Unico does not automatically mean approval.</p>${btn("Check verification status", "refresh", "btn-soft")}${!live ? '<div class="demo-controls"><span class="demo-label">Preview result</span>' + btn("Approved", "approve", "btn-outline") + btn("Rejected", "reject", "btn-outline") + "</div>" : ""}</div>`;
-        if (s.page === "approved")
-          html = `<div class="result good"><div class="symbol">▣<span style="font-size:28px;vertical-align:bottom">✔</span></div><h2>Your account is verified for Know Your Customer</h2><p>${live ? "Your KYC status has been confirmed by the Megwin server." : "Demo result only. No identity verification has actually occurred."} We may request further information if required.</p>${!live ? btn("Restart demonstration", "reset", "btn-soft") : ""}</div>`;
-        if (s.page === "rejected")
-          html = `<div class="result bad"><div class="symbol">▣<span style="font-size:28px;vertical-align:bottom">!</span></div><h2>KYC verification of your account failed</h2><p>We could not complete the verification. Please check that your document is valid and the information is clear, then try again.</p>${btn("Re-verification", "retry", "btn-soft")}${!live ? '<div class="api-info">Demo result only — no real verification took place.</div>' : ""}</div>`;
-        if (s.page === "error")
-          html = `<div class="result bad"><div class="symbol">!</div><h2>Unable to complete verification</h2><p id="errorMessage">${escapeHTML(s.error || "Please try again later.")}</p>${btn("Try again", "retry", "btn-soft")}</div>`;
-        screen.innerHTML = html;
-        if ($("consent"))
-          $("consent").addEventListener("change", (e) => {
-            s.consent = e.target.checked;
-            syncContinue();
-          });
-        for (const [id, key] of [
-          ["fullName", "fullName"],
-          ["dobInput", "dob"],
-        ]) {
-          const el = $(id);
-          if (el)
-            el.addEventListener("input", (e) => {
-              s[key] = e.target.value;
-              s.curpError = "";
-              $("curpError").textContent = "";
-              syncContinue();
-            });
-        }
-        if ($("curpInput"))
-          $("curpInput").addEventListener("input", (e) => {
-            s.curp = e.target.value
-              .toUpperCase()
-              .replace(/[^A-Z0-9]/g, "")
-              .slice(0, 18);
-            e.target.value = s.curp;
-            s.curpError = "";
-            $("curpError").textContent = "";
-            syncContinue();
-          });
-        document.querySelectorAll('input[name="document"]').forEach((el) =>
-          el.addEventListener("change", (e) => {
-            s.documentType = e.target.value;
-            render();
-          }),
-        );
-      }
-      function canContinue() {
-        return !!(
-          s.fullName.trim() &&
-          s.dob &&
-          s.curp.length === 18 &&
-          s.consent
-        );
-      }
-      function syncContinue() {
-        const b = screen.querySelector('[data-action="start"]');
-        if (b) b.disabled = !canContinue();
-      }
-      function validName(v) {
-        return /^[\p{L}\p{M}][\p{L}\p{M} .'-]*$/u.test(v.trim());
-      }
-      function validatePersonal() {
-        if (!validName(s.fullName))
-          return {
-            ok: false,
-            message:
-              "Ingresa tu nombre completo tal como aparece en tus documentos.",
-          };
-        const check = validateCurp(s.curp);
-        if (!check.ok) return check;
-        const y = Number(s.dob.slice(0, 4)),
-          m = Number(s.dob.slice(5, 7)),
-          d = Number(s.dob.slice(8, 10));
-        if (
-          !/^\d{4}-\d{2}-\d{2}$/.test(s.dob) ||
-          !y ||
-          new Date(Date.UTC(y, m - 1, d)).toISOString().slice(0, 10) !== s.dob
-        )
-          return {
-            ok: false,
-            message: "Ingresa una fecha de nacimiento válida.",
-          };
-        const century = /\d/.test(s.curp[16]) ? 1900 : 2000;
-        const encoded = `${century + Number(s.curp.slice(4, 6))}-${s.curp.slice(6, 8)}-${s.curp.slice(8, 10)}`;
-        if (s.dob !== encoded)
-          return {
-            ok: false,
-            message: "La fecha de nacimiento no coincide con la CURP.",
-          };
-        return { ok: true };
-      }
-      function validateCurp(value) {
-        const c = String(value || "").toUpperCase();
-        if (
-          !/^[A-Z][AEIOUX][A-Z]{2}\d{6}[HM](?:AS|BC|BS|CC|CL|CM|CS|CH|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS|NE)[B-DF-HJ-NP-TV-Z]{3}[A-Z0-9]\d$/.test(
-            c,
-          )
-        )
-          return { ok: false, message: "El formato de la CURP no es válido." };
-        const year = Number(c.slice(4, 6)),
-          month = Number(c.slice(6, 8)),
-          day = Number(c.slice(8, 10));
-        const century = /\d/.test(c[16]) ? 1900 : 2000;
-        const date = new Date(Date.UTC(century + year, month - 1, day));
-        if (
-          date.getUTCFullYear() !== century + year ||
-          date.getUTCMonth() !== month - 1 ||
-          date.getUTCDate() !== day
-        )
-          return {
-            ok: false,
-            message: "La fecha de nacimiento indicada en la CURP no es válida.",
-          };
-        const today = new Date(),
-          todayY = today.getFullYear(),
-          todayM = today.getMonth() + 1,
-          todayD = today.getDate();
-        const age =
-          todayY -
-          (century + year) -
-          (todayM < month || (todayM === month && todayD < day) ? 1 : 0);
-        if (age < 18)
-          return {
-            ok: false,
-            message:
-              "Debes ser mayor de 18 años para realizar la verificación.",
-          };
-        const alphabet = "0123456789ABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
-        let sum = 0;
-        for (let i = 0; i < 17; i++) {
-          const pos = alphabet.indexOf(c[i]);
-          if (pos < 0)
-            return {
-              ok: false,
-              message: "La CURP contiene caracteres no válidos.",
-            };
-          sum += pos * (18 - i);
-        }
-        const digit = (10 - (sum % 10)) % 10;
-        if (digit !== Number(c[17]))
-          return {
-            ok: false,
-            message: "El dígito verificador de la CURP no coincide.",
-          };
-        return { ok: true };
-      }
-      async function request(path, options = {}) {
-        const response = await fetch(path, {
-          credentials: "include",
-          headers: {
-            Accept: "application/json",
-            ...(options.body ? { "Content-Type": "application/json" } : {}),
-          },
-          ...options,
-        });
-        if (!response.ok)
-          throw new Error(
-            "Server error (" + response.status + "). Please try again.",
-          );
-        return response.json();
-      }
-      async function startLive() {
-        try {
-          s.page = "processing";
-          render();
-          const data = await request("/api/kyc/applications", {
-            method: "POST",
-            body: JSON.stringify({
-              provider: "UNICO",
-              locale: "es-MX",
-              fullName: s.fullName.trim(),
-              dateOfBirth: s.dob,
-              curp: s.curp,
-              documentType: s.documentType,
-            }),
-          });
-          s.applicationId = data.applicationId || data.id;
-          if (!s.applicationId) throw new Error("Missing application ID.");
-          const session = await request(
-            "/api/kyc/applications/" +
-              encodeURIComponent(s.applicationId) +
-              "/sessions",
-            {
-              method: "POST",
-              body: JSON.stringify({ device: innerWidth < 768 ? "H5" : "PC" }),
-            },
-          );
-          const url = session.userRedirectUrl || session.redirectUrl;
-          if (!url || new URL(url).protocol !== "https:")
-            throw new Error("Invalid verification redirect URL.");
-          location.assign(url);
-        } catch (err) {
-          s.error = err.message;
-          s.page = "error";
-          render();
-        }
-      }
-      async function refreshLive() {
-        try {
-          if (!s.applicationId) {
-            const status = await request("/api/kyc/status");
-            s.applicationId = status.applicationId || status.id || null;
-            applyStatus(status);
-            return;
-          }
-          const data = await request(
-            "/api/kyc/applications/" + encodeURIComponent(s.applicationId),
-          );
-          applyStatus(data);
-        } catch (err) {
-          s.error = err.message;
-          s.page = "error";
-          render();
-        }
-      }
-      function applyStatus(data) {
-        const status = String(
-          data.status || data.kycStatus || "PENDING",
-        ).toUpperCase();
-        s.page = ["APPROVED", "VERIFIED", "PASSED"].includes(status)
-          ? "approved"
-          : ["REJECTED", "FAILED", "NOT_APPROVED"].includes(status)
-            ? "rejected"
-            : ["NOT_STARTED", "NONE"].includes(status)
-              ? "intro"
-              : "processing";
-        render();
-      }
-      async function retryLive() {
-        try {
-          const data = await request(
-            "/api/kyc/applications/" +
-              encodeURIComponent(s.applicationId) +
-              "/retry",
-            { method: "POST", body: JSON.stringify({}) },
-          );
-          if (data.applicationId) s.applicationId = data.applicationId;
-          s.page = "intro";
-          s.consent = false;
-          s.curp = "";
-          s.fullName = "";
-          s.dob = "";
-          s.curpError = "";
-          render();
-        } catch (err) {
-          s.error = err.message;
-          s.page = "error";
-          render();
-        }
-      }
-      screen.addEventListener("click", async (e) => {
-        const b = e.target.closest("[data-action]");
-        if (!b || b.disabled || s.busy) return;
-        const action = b.dataset.action;
-        s.busy = true;
-        try {
-          switch (action) {
-            case "start": {
-              const check = validatePersonal();
-              if (!check.ok) {
-                s.curpError = check.message;
-                s.page = "intro";
-                break;
-              }
-              if (!s.consent) {
-                s.curpError = "Debes aceptar el aviso de privacidad.";
-                break;
-              }
-              s.curpError = "";
-              s.page = "document";
-              break;
-            }
-            case "intro":
-              s.page = "intro";
-              break;
-            case "document":
-              s.page = "document";
-              break;
-            case "capture":
-              s.page = "capture";
-              break;
-            case "nextDocument":
-              s.page = "capture";
-              break;
-            case "nextCapture":
-              s.page = "selfie";
-              break;
-            case "submit":
-              if (live) {
-                await startLive();
-                return;
-              }
-              s.page = "processing";
-              break;
-            case "approve":
-              if (!live) s.page = "approved";
-              break;
-            case "reject":
-              if (!live) s.page = "rejected";
-              break;
-            case "refresh":
-              if (live) {
-                await refreshLive();
-                return;
-              }
-              break;
-            case "retry":
-              if (live) {
-                await retryLive();
-                return;
-              }
-              s.page = "intro";
-              s.consent = false;
-              s.curp = "";
-              s.fullName = "";
-              s.dob = "";
-              s.curpError = "";
-              break;
-            case "reset":
-              if (!live) {
-                s.page = "intro";
-                s.consent = false;
-              }
-              break;
-          }
-        } finally {
-          s.busy = false;
-          render();
-        }
-      });
-      if (live) {
-        refreshLive();
-      } else render();
+    }
+    async function api(path,options={}){const r=await fetch(path,{credentials:'include',headers:{'Accept':'application/json',...(options.body?{'Content-Type':'application/json'}:{})},...options});if(!r.ok)throw Error('Error del servidor ('+r.status+')');return r.json()}
+    async function startLive(){
+      // No CURP or private keys are collected or exposed in this browser page.
+      // The backend must create an authorized Unico session with the enabled recipe.
+      const application=await api('/api/kyc/applications',{method:'POST',body:JSON.stringify({provider:'UNICO',locale:'es-MX',flow:'LIVENESS_IDENTITY_FRAUD_DOCUMENT'})});
+      state.applicationId=application.applicationId||application.id;
+      if(!state.applicationId)throw Error('Falta el ID de solicitud KYC.');
+      const session=await api('/api/kyc/applications/'+encodeURIComponent(state.applicationId)+'/sessions',{method:'POST',body:JSON.stringify({device:innerWidth<768?'H5':'PC'})});
+      const target=session.userRedirectUrl||session.redirectUrl;
+      if(!target||new URL(target).protocol!=='https:')throw Error('URL de Unico no válida.');
+      location.assign(target);
+    }
+    async function refresh(){const data=await api(state.applicationId?'/api/kyc/applications/'+encodeURIComponent(state.applicationId):'/api/kyc/status');const status=String(data.status||data.kycStatus||'PENDING').toUpperCase();state.page=['APPROVED','VERIFIED','PASSED'].includes(status)?'approved':['REJECTED','FAILED','NOT_APPROVED'].includes(status)?'rejected':'processing';render()}
+    screen.addEventListener('click',async e=>{const b=e.target.closest('[data-action]');if(!b||state.busy)return;state.busy=true;try{switch(b.dataset.action){case 'next':state.page=Math.min(3,state.page+1);break;case 'back':state.page=Math.max(0,state.page-1);break;case 'submit':if(live){await startLive();return}state.page='processing';break;case 'refresh':if(live){await refresh();return}break;case 'approve':if(!live)state.page='approved';break;case 'reject':if(!live)state.page='rejected';break;case 'reset':state.page=0;break}}catch(err){state.error=err.message;state.page='error'}finally{state.busy=false;render()}});
+    if(live)refresh().catch(()=>{state.page=0;render()});else render();
     </script>
   </body>
 </html>
