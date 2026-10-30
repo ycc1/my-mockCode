@@ -736,6 +736,7 @@
       .verification-final .btn{width:min(460px,100%);margin-top:17px}
       .verification-final .review-spinner{width:55px;height:55px;border:4px solid #3a3a3e;border-left-color:var(--teal);border-radius:50%;animation:spin 1s linear infinite;margin:10px auto 22px}
       .verification-final .demo-controls{justify-content:center;margin-top:22px}
+      .validator-box{border:1px solid #3a4a49;background:#1b2928;border-radius:10px;padding:15px;margin:14px 0}.validator-actions{margin-top:12px}.validator-actions .btn{min-width:155px}
       .unico-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:18px 0 24px}
       .unico-step{border:1px solid #39393d;border-radius:10px;background:#222225;padding:13px 10px;min-width:0}
       .unico-step.current{border-color:var(--teal);background:#1e302e}.unico-step.done{border-color:#35645e}
@@ -806,7 +807,7 @@
       {title:'Evaluación de riesgo de fraude',desc:'Clasificación de señales de riesgo e inconsistencias detectadas.',icon:'⬡',detail:'El sistema analiza los indicadores de fraude disponibles.',note:'La decisión final de KYC corresponde al servidor de MEGWIN.'},
       {title:'Captura y reutilización de documentos',desc:'Captura de identificación y reutilización, según el flujo habilitado.',icon:'▤',detail:'Prepara tu documento oficial y sigue las instrucciones de Unico.',note:'Los documentos admitidos y el orden real de captura dependen del recipe contratado.'}
     ];
-    const state={page:0,applicationId:null,busy:false,error:'',identity:{curp:'',dob:'',fullName:''},documentResult:{status:'NOT_RECEIVED',capture:'NOT_RECEIVED',reuse:'NOT_RECEIVED',documentType:'',reference:''}};
+    const state={page:0,applicationId:null,busy:false,error:'',identity:{curp:'',dob:'',fullName:''},validators:['idle','idle','idle'],validatorMessages:['','',''],documentResult:{status:'NOT_RECEIVED',capture:'NOT_RECEIVED',reuse:'NOT_RECEIVED',documentType:'',reference:''}};
     const screen=document.getElementById('screen'), badge=document.getElementById('stateBadge');
     const button=(label,action,kind='btn-main')=>`<button type="button" class="btn ${kind}" data-action="${action}">${label}</button>`;
     const esc=(s)=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -826,13 +827,33 @@
       if(!v.fullName.trim()||v.fullName.trim().split(/\s+/).length<2)return 'Ingresa nombre y apellidos.';
       return '';
     }
+    function validatorPanel(n){
+      const status=state.validators[n], msg=state.validatorMessages[n];
+      const label=status==='passed'?'Validated':status==='failed'?'Validation failed':status==='checking'?'Validating…':status==='pending'?'Pending':'Not validated';
+      return `<div class="row" style="gap:9px;justify-content:flex-start">${button(status==='checking'?'Validating…':'Validator','validate','btn-outline')}<span class="badge ${status==='passed'?'good':status==='failed'?'bad':''}">${label}</span></div>${msg?`<div class="helper" role="status">${esc(msg)}</div>`:''}`;
+    }
+    async function validateStep(n){
+      state.validators[n]='checking';state.validatorMessages[n]='';render();
+      try{
+        if(live){
+          // Backend contract to be implemented by MEGWIN; browser never holds provider credentials.
+          const result=await api('/api/kyc/validators/'+(n+1),{method:'POST',body:JSON.stringify({applicationId:state.applicationId,step:n+1,provider:'UNICO'})});
+          const status=String(result.status||'').toUpperCase();
+          state.validators[n]=['PASSED','APPROVED','VERIFIED','SUCCESS'].includes(status)?'passed':status==='PENDING'||status==='PROCESSING'?'pending':'failed';
+          state.validatorMessages[n]=result.message|| (state.validators[n]==='passed'?'Validación completada.':'Verificación no completada; revisa el resultado del proveedor.');
+        }else{
+          // Preview simulation only; no third-party call is performed.
+          state.validators[n]='passed';state.validatorMessages[n]='Demo: validación simulada. No se llamó a Unico.';
+        }
+      }catch(err){state.validators[n]='failed';state.validatorMessages[n]=err.message||'Error de validación.';}
+    }
     function render(){
       const n=state.page;
       badge.textContent=typeof n==='number'?'In progress':n==='approved'?'Verified':n==='rejected'?'Failed':n==='processing'?'Under review':'Attention';
       badge.className='badge'+(n==='approved'?' good':n==='rejected'||n==='error'?' bad':'');
       if(typeof n==='number'){
         const s=steps[n];
-        screen.innerHTML=`${progress()}<div class="step-panel"><div class="split"><h2>Step ${n+1} — ${s.title}</h2><span class="badge">${n+1} / 4</span></div><p>${s.desc}</p>${n===3?documentPanel():`<div class="preview"><span class="illustration">${s.icon}</span><strong>${s.detail}</strong><span>${live?'La captura real se completará en Unico.':'Vista previa interactiva · No se utiliza la cámara ni se verifica la identidad.'}</span></div>`}<div class="tip">${s.note}</div><div class="row">${n>0?button('← Volver','back','btn-soft'):'<span></span>'}${button(n===3?(live?'Abrir verificación Unico':'Finalizar demostración'):'Continuar →',n===3?'submit':'next')}</div><div class="mode-note">${live?'Integración pendiente de un backend MEGWIN autenticado.':'Modo demostración · Los pasos no representan resultados reales de Unico.'}</div></div>`;
+        screen.innerHTML=`${progress()}<div class="step-panel"><div class="split"><h2>Step ${n+1} — ${s.title}</h2><span class="badge">${n+1} / 4</span></div><p>${s.desc}</p>${n===3?documentPanel():`<div class="preview"><span class="illustration">${s.icon}</span><strong>${s.detail}</strong><span>${live?'La captura real se completará en Unico.':'Vista previa interactiva · No se utiliza la cámara ni se verifica la identidad.'}</span></div>`}<div class="tip">${s.note}</div><div class="row" style="justify-content:space-between;align-items:center"><div class="row">${n>0?button('← Volver','back','btn-soft'):''}${n<3?validatorPanel(n):''}</div>${n<3&&state.validators[n]!=='passed'?'<button type="button" class="btn btn-main" disabled>Continuar →</button>':button(n===3?(live?'Abrir verificación Unico':'Finalizar demostración'):'Continuar →',n===3?'submit':'next')}</div><div class="mode-note">${live?'Integración pendiente de un backend MEGWIN autenticado.':'Modo demostración · Los pasos no representan resultados reales de Unico.'}</div></div>`;
       }else if(n==='processing'){
         screen.innerHTML=`<div class="verification-final" aria-live="polite"><div class="review-spinner" aria-hidden="true"></div><h2>Verification in progress</h2><p>Your identity verification is being processed. You can check its status here. A return from Unico does not automatically mean approval.</p>${button('Check verification status','refresh','btn-soft')}${!live?`<div class="demo-controls"><span class="demo-label">Demo · Simular resultado</span>${button('Approved','approve','btn-outline')}${button('Rejected','reject','btn-outline')}</div>`:''}</div>`;
       }else if(n==='approved'||n==='rejected'){
@@ -856,7 +877,7 @@
     }
     async function refresh(){const data=await api(state.applicationId?'/api/kyc/applications/'+encodeURIComponent(state.applicationId):'/api/kyc/status');const status=String(data.status||data.kycStatus||'PENDING').toUpperCase();state.page=['APPROVED','VERIFIED','PASSED'].includes(status)?'approved':['REJECTED','FAILED','NOT_APPROVED'].includes(status)?'rejected':'processing';render()}
     screen.addEventListener('input',e=>{const key=e.target.dataset.identity;if(!key)return;state.identity[key]=key==='curp'?e.target.value.toUpperCase():e.target.value;if(key==='curp'&&e.target.value!==state.identity[key])e.target.value=state.identity[key];const err=document.getElementById('identityError');if(err){err.textContent='';err.classList.add('hide')}});
-    screen.addEventListener('click',async e=>{const b=e.target.closest('[data-action]');if(!b||state.busy)return;state.busy=true;try{switch(b.dataset.action){case 'next':state.page=Math.min(3,state.page+1);break;case 'back':state.page=Math.max(0,state.page-1);break;case 'submit':{const problem=validateIdentity();if(problem){state.error=problem;break}state.error='';if(live){await startLive();return}state.page='processing';break;}case 'refresh':if(live){await refresh();return}break;case 'approve':if(!live)state.page='approved';break;case 'reject':if(!live)state.page='rejected';break;case 'retry':state.page=0;state.error='';break;case 'reset':state.page=0;state.error='';break}}catch(err){state.error=err.message;state.page='error'}finally{state.busy=false;render()}});
+    screen.addEventListener('click',async e=>{const b=e.target.closest('[data-action]');if(!b||state.busy)return;state.busy=true;try{switch(b.dataset.action){case 'validate':if(typeof state.page==='number'&&state.page<3)await validateStep(state.page);break;case 'next':if(state.page<3&&state.validators[state.page]!=='passed')break;state.page=Math.min(3,state.page+1);break;case 'back':state.page=Math.max(0,state.page-1);break;case 'submit':{const problem=validateIdentity();if(problem){state.error=problem;break}state.error='';if(live){await startLive();return}state.page='processing';break;}case 'refresh':if(live){await refresh();return}break;case 'approve':if(!live)state.page='approved';break;case 'reject':if(!live)state.page='rejected';break;case 'retry':state.page=0;state.error='';break;case 'reset':state.page=0;state.error='';break}}catch(err){state.error=err.message;state.page='error'}finally{state.busy=false;render()}});
     if(live)refresh().catch(()=>{state.page=0;render()});else render();
     </script>
   </body>
