@@ -716,6 +716,15 @@
         }
       }
     
+      .doc-section{border:1px solid #3a3a3e;border-radius:12px;padding:18px;margin:17px 0;background:#202023}
+      .doc-section h3{margin:0 0 7px;font-size:15px;color:#f0f0f2}
+      .doc-result-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+      .doc-result-item{background:#171719;border:1px solid #353539;border-radius:9px;padding:12px;min-width:0}
+      .doc-result-item span{display:block;font-size:11px;color:#9999a1;margin-bottom:7px}
+      .doc-result-item strong{font-size:12px;color:#e5e5e8;overflow-wrap:anywhere}
+      .doc-section .personal-grid{margin-top:15px}
+      .doc-section .helper{margin-top:11px}
+      @media(max-width:760px){.doc-result-grid{grid-template-columns:1fr}.doc-section{padding:14px}}
       .unico-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:18px 0 24px}
       .unico-step{border:1px solid #39393d;border-radius:10px;background:#222225;padding:13px 10px;min-width:0}
       .unico-step.current{border-color:var(--teal);background:#1e302e}.unico-step.done{border-color:#35645e}
@@ -786,18 +795,33 @@
       {title:'Evaluación de riesgo de fraude',desc:'Clasificación de señales de riesgo e inconsistencias detectadas.',icon:'⬡',detail:'El sistema analiza los indicadores de fraude disponibles.',note:'La decisión final de KYC corresponde al servidor de MEGWIN.'},
       {title:'Captura y reutilización de documentos',desc:'Captura de identificación y reutilización, según el flujo habilitado.',icon:'▤',detail:'Prepara tu documento oficial y sigue las instrucciones de Unico.',note:'Los documentos admitidos y el orden real de captura dependen del recipe contratado.'}
     ];
-    const state={page:0,applicationId:null,busy:false,error:''};
+    const state={page:0,applicationId:null,busy:false,error:'',identity:{curp:'',dob:'',fullName:''},documentResult:{status:'NOT_RECEIVED',capture:'NOT_RECEIVED',reuse:'NOT_RECEIVED',documentType:'',reference:''}};
     const screen=document.getElementById('screen'), badge=document.getElementById('stateBadge');
     const button=(label,action,kind='btn-main')=>`<button type="button" class="btn ${kind}" data-action="${action}">${label}</button>`;
     const esc=(s)=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     function progress(){return `<div class="unico-steps" aria-label="Etapas de verificación">${steps.map((s,i)=>`<div class="unico-step ${typeof state.page==='number'?(i<state.page?'done':i===state.page?'current':''):''}"><div class="step-head"><span class="number">${i+1}</span><span>${s.title}</span></div><p>${s.desc}</p></div>`).join('')}</div>`}
+    function documentPanel(){
+      const v=state.identity;
+      return `<section class="doc-section"><h3>Datos personales · Confirmar o corregir</h3><p class="muted small">Revisa tus datos antes de continuar. Puedes corregirlos; los cambios no alteran el resultado original de Unico.</p><div class="personal-grid"><div class="full"><label class="field" for="docCurp">CURP <span class="required">*</span></label><input class="input curp-input" id="docCurp" data-identity="curp" maxlength="18" autocomplete="off" value="${esc(v.curp)}" placeholder="18 caracteres" /></div><div><label class="field" for="docDob">Fecha de nacimiento <span class="required">*</span></label><input class="input" type="date" id="docDob" data-identity="dob" value="${esc(v.dob)}" /></div><div><label class="field" for="docFullName">Nombre completo <span class="required">*</span></label><input class="input" id="docFullName" data-identity="fullName" maxlength="120" value="${esc(v.fullName)}" placeholder="Nombre y apellidos" /></div></div><p class="helper">Estos campos son editables y se guardan por separado de la evidencia del proveedor. La validación definitiva debe realizarse en el servidor.</p></section>
+<div class="error hide" id="identityError" role="alert"></div>`;
+    }
+    function validateIdentity(){
+      const v=state.identity, curp=v.curp.trim().toUpperCase();
+      if(!/^[A-ZÑ][AEIOUX][A-ZÑ]{2}\d{6}[HM](?:AS|BC|BS|CC|CL|CM|CS|CH|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS|NE)[B-DF-HJ-NP-TV-Z]{3}[A-Z0-9]\d$/.test(curp))return 'Ingresa un CURP con formato válido (18 caracteres).';
+      if(!v.dob)return 'Selecciona tu fecha de nacimiento.';
+      const yy=v.dob.slice(2,4),mm=v.dob.slice(5,7),dd=v.dob.slice(8,10);
+      if(curp.slice(4,10)!==yy+mm+dd)return 'La fecha de nacimiento no coincide con el CURP.';
+      const date=new Date(v.dob+'T12:00:00');if(!Number.isFinite(date.getTime())||date.toISOString().slice(0,10)!==v.dob)return 'La fecha de nacimiento no es válida.';
+      if(!v.fullName.trim()||v.fullName.trim().split(/\s+/).length<2)return 'Ingresa nombre y apellidos.';
+      return '';
+    }
     function render(){
       const n=state.page;
       badge.textContent=typeof n==='number'?'In progress':n==='approved'?'Verified':n==='rejected'?'Failed':n==='processing'?'Under review':'Attention';
       badge.className='badge'+(n==='approved'?' good':n==='rejected'||n==='error'?' bad':'');
       if(typeof n==='number'){
         const s=steps[n];
-        screen.innerHTML=`${progress()}<div class="step-panel"><div class="split"><h2>Step ${n+1} — ${s.title}</h2><span class="badge">${n+1} / 4</span></div><p>${s.desc}</p><div class="preview"><span class="illustration">${s.icon}</span><strong>${s.detail}</strong><span>${live?'La captura real se completará en Unico.':'Vista previa interactiva · No se utiliza la cámara ni se verifica la identidad.'}</span></div><div class="tip">${s.note}</div><div class="row">${n>0?button('← Volver','back','btn-soft'):'<span></span>'}${button(n===3?(live?'Abrir verificación Unico':'Finalizar demostración'):'Continuar →',n===3?'submit':'next')}</div><div class="mode-note">${live?'Integración pendiente de un backend MEGWIN autenticado.':'Modo demostración · Los pasos no representan resultados reales de Unico.'}</div></div>`;
+        screen.innerHTML=`${progress()}<div class="step-panel"><div class="split"><h2>Step ${n+1} — ${s.title}</h2><span class="badge">${n+1} / 4</span></div><p>${s.desc}</p>${n===3?documentPanel():`<div class="preview"><span class="illustration">${s.icon}</span><strong>${s.detail}</strong><span>${live?'La captura real se completará en Unico.':'Vista previa interactiva · No se utiliza la cámara ni se verifica la identidad.'}</span></div>`}<div class="tip">${s.note}</div><div class="row">${n>0?button('← Volver','back','btn-soft'):'<span></span>'}${button(n===3?(live?'Abrir verificación Unico':'Finalizar demostración'):'Continuar →',n===3?'submit':'next')}</div><div class="mode-note">${live?'Integración pendiente de un backend MEGWIN autenticado.':'Modo demostración · Los pasos no representan resultados reales de Unico.'}</div></div>`;
       }else if(n==='processing'){
         screen.innerHTML=`${progress()}<div class="result pending"><div class="spinner"></div><h2>Verificación en proceso</h2><p>El resultado debe confirmarse desde el servidor de MEGWIN. Completar las pantallas no significa que la identidad haya sido aprobada.</p>${button('Consultar estado','refresh','btn-soft')}${!live?`<div class="demo-controls"><span class="demo-label">Simular resultado</span>${button('Aprobado','approve','btn-outline')}${button('Rechazado','reject','btn-outline')}</div>`:''}</div>`;
       }else if(n==='approved'||n==='rejected'){
@@ -819,7 +843,8 @@
       location.assign(target);
     }
     async function refresh(){const data=await api(state.applicationId?'/api/kyc/applications/'+encodeURIComponent(state.applicationId):'/api/kyc/status');const status=String(data.status||data.kycStatus||'PENDING').toUpperCase();state.page=['APPROVED','VERIFIED','PASSED'].includes(status)?'approved':['REJECTED','FAILED','NOT_APPROVED'].includes(status)?'rejected':'processing';render()}
-    screen.addEventListener('click',async e=>{const b=e.target.closest('[data-action]');if(!b||state.busy)return;state.busy=true;try{switch(b.dataset.action){case 'next':state.page=Math.min(3,state.page+1);break;case 'back':state.page=Math.max(0,state.page-1);break;case 'submit':if(live){await startLive();return}state.page='processing';break;case 'refresh':if(live){await refresh();return}break;case 'approve':if(!live)state.page='approved';break;case 'reject':if(!live)state.page='rejected';break;case 'reset':state.page=0;break}}catch(err){state.error=err.message;state.page='error'}finally{state.busy=false;render()}});
+    screen.addEventListener('input',e=>{const key=e.target.dataset.identity;if(!key)return;state.identity[key]=key==='curp'?e.target.value.toUpperCase():e.target.value;if(key==='curp'&&e.target.value!==state.identity[key])e.target.value=state.identity[key];const err=document.getElementById('identityError');if(err){err.textContent='';err.classList.add('hide')}});
+    screen.addEventListener('click',async e=>{const b=e.target.closest('[data-action]');if(!b||state.busy)return;state.busy=true;try{switch(b.dataset.action){case 'next':state.page=Math.min(3,state.page+1);break;case 'back':state.page=Math.max(0,state.page-1);break;case 'submit':{const problem=validateIdentity();if(problem){const el=document.getElementById('identityError');if(el){el.textContent=problem;el.classList.remove('hide')}return}if(live){await startLive();return}state.page='processing';break;}case 'refresh':if(live){await refresh();return}break;case 'approve':if(!live)state.page='approved';break;case 'reject':if(!live)state.page='rejected';break;case 'reset':state.page=0;break}}catch(err){state.error=err.message;state.page='error'}finally{state.busy=false;render()}});
     if(live)refresh().catch(()=>{state.page=0;render()});else render();
     </script>
   </body>
