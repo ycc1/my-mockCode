@@ -21,7 +21,7 @@ go test ./...
 
 ## Flow and records
 
-- `POST /api/kyc/process` accepts an explicit consent confirmation and creates an `idtrustdocs_r2-idgov` process through `POST /client/v1/process`. No CURP or identity document is requested from the user before the Unico-hosted journey.
+- `POST /api/kyc/process` accepts an explicit consent confirmation and creates a `multiaccounts_idgov` process through `POST /client/v1/process`. No CURP or identity document is requested from the user before the Unico-hosted journey.
 - The Go backend signs a short-lived RS256 JWT assertion and exchanges it at the UAT OAuth token endpoint. No private key or access token is sent to the browser.
 - After the hosted journey, `GET /api/kyc/process/{recordId}` retrieves the result and extracted identity fields from Unico. `PATCH /api/kyc/process/{recordId}` validates and saves the user's edited CURP, birth date, and full name.
 - `GET /api/kyc/records` lists local audit records. `GET /healthz` is the server health check.
@@ -42,10 +42,10 @@ The local record file is created with restrictive permissions where supported an
 | `UNICO_PRIVATE_KEY_FILE` | `./secrets/unico-uat.pem` | UAT RSA private key path |
 | `UNICO_API_BASE` | `https://api.idcloud.uat.unico.app` | Unico IDCloud UAT API |
 | `UNICO_TOKEN_URL` | `https://identityhomolog.acesso.io/oauth2/token` | UAT OAuth token endpoint |
-| `UNICO_FLOW` | `idtrustdocs_r2-idgov` | Mexico flow with liveness, identity, fraud-risk, document capture, and RENAPO when enabled |
+| `UNICO_FLOW` | `multiaccounts_idgov` | Mexico onboarding flow with liveness, identity, fraud-risk classification, document capture, face matching, RENAPO, and multi-account detection |
 | `UNICO_CALLBACK_URI` | `http://localhost:8080/` | Return URL for the hosted journey |
 
-Unico documents `idtrustdocs_r2-idgov` for Mexico with liveness, identity verification, fraud-risk classification, document capture, and RENAPO verification. The flow must be enabled for this UAT service account. Step 4 extracts and presents the identity fields available in the Unico process response; field availability depends on the configured Unico recipe and the captured document. The local callback is intended only for local browser testing.
+Unico support confirmed that `multiaccounts_idgov` is the UAT onboarding flow enabled for the `megwin_uat` account. It includes liveness, identity verification, fraud-risk classification, document capture and face matching, RENAPO verification, and multi-account detection. Step 4 extracts and presents the identity fields available in the Unico process response; field availability depends on the configured recipe and captured document. The local callback is intended only for local browser testing.
 
 ## API documentation
 

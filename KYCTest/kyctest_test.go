@@ -136,7 +136,7 @@ func TestUnicoCreateAndGetProcess(t *testing.T) {
 		_ = json.Unmarshal(payload["purpose"], &purpose)
 		_ = json.Unmarshal(payload["clientReference"], &clientReference)
 		_ = json.Unmarshal(payload["callbackUri"], &callbackURI)
-		if flow != "idtrustdocs_r2-idgov" || purpose != "biometryonboarding" ||
+		if flow != "multiaccounts_idgov" || purpose != "biometryonboarding" ||
 			clientReference != "record-1" || callbackURI != "http://localhost:8080/" {
 			t.Errorf("unexpected KYC process payload: %#v", payload)
 		}
@@ -162,7 +162,7 @@ func TestUnicoCreateAndGetProcess(t *testing.T) {
 		PrivateKey:  privateKeyPEM,
 		APIBase:     upstream.URL,
 		TokenURL:    upstream.URL + "/oauth2/token",
-		Flow:        "idtrustdocs_r2-idgov",
+		Flow:        "multiaccounts_idgov",
 		CallbackURI: "http://localhost:8080/",
 	}
 	client := newUnicoClient(config)
@@ -204,7 +204,7 @@ func TestUnicoConfigurationRequiresMexicoVerificationFlow(t *testing.T) {
 	if client.ready() {
 		t.Fatal("unsupported Unico flow should not be accepted for this four-step journey")
 	}
-	if !strings.Contains(client.configurationError(), "idtrustdocs_r2-idgov") {
+	if !strings.Contains(client.configurationError(), "multiaccounts_idgov") {
 		t.Fatalf("configuration error = %q", client.configurationError())
 	}
 }

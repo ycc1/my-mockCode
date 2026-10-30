@@ -92,7 +92,7 @@ func unicoConfigFromEnv() unicoConfig {
 		PrivateKey:  privateKey,
 		APIBase:     strings.TrimRight(envOrDefault("UNICO_API_BASE", "https://api.idcloud.uat.unico.app"), "/"),
 		TokenURL:    envOrDefault("UNICO_TOKEN_URL", "https://identityhomolog.acesso.io/oauth2/token"),
-		Flow:        envOrDefault("UNICO_FLOW", "idtrustdocs_r2-idgov"),
+		Flow:        envOrDefault("UNICO_FLOW", "multiaccounts_idgov"),
 		CallbackURI: envOrDefault("UNICO_CALLBACK_URI", "http://localhost:8080/"),
 	}
 }
@@ -111,8 +111,8 @@ func (c *unicoClient) ready() bool {
 }
 
 func (c *unicoClient) configurationError() string {
-	if c.config.Flow != "idtrustdocs_r2-idgov" {
-		return "UNICO_FLOW must be idtrustdocs_r2-idgov for the configured Mexico verification journey."
+	if c.config.Flow != "multiaccounts_idgov" {
+		return "UNICO_FLOW must be multiaccounts_idgov for the configured Mexico onboarding journey."
 	}
 	if strings.TrimSpace(c.config.Account) == "" || strings.TrimSpace(c.config.TenantID) == "" {
 		return "Unico account and tenant settings are required."
