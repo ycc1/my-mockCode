@@ -625,6 +625,14 @@
       @media(max-width:760px){.unico-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.unico-step{padding:10px}.step-panel h2{font-size:19px}}
       .kyc-form{max-width:620px;margin:20px auto}.kyc-form .field{margin-bottom:6px}
       .kyc-form input[type=file]{padding:10px}.consent{align-items:flex-start}
+      .doc-section{border:1px solid #3a3a3e;border-radius:12px;padding:18px;margin:17px 0;background:#202023}
+      .doc-section h3{margin:0 0 7px;font-size:15px;color:#f0f0f2}
+      .personal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px}
+      .personal-grid .full{grid-column:1/-1}.personal-grid .field{margin:0 0 7px}
+      .personal-grid .input{min-height:47px}.personal-grid input[type="date"]{color-scheme:dark}
+      .required{color:var(--red)}.helper{font-size:12px;color:var(--muted);margin-top:9px;line-height:1.5}
+      .curp-input{font-size:16px;letter-spacing:1.5px;text-transform:uppercase;font-weight:650;height:49px}
+      .doc-section .personal-grid{margin-top:15px}.doc-section .helper{margin-top:11px}
       .records{margin-top:28px;border-top:1px solid var(--line);padding-top:18px}
       .records h2{font-size:16px}.record-list{width:100%;border-collapse:collapse;font-size:12px}
       .record-list th,.record-list td{padding:9px 7px;text-align:left;border-bottom:1px solid #353539;word-break:break-word}
@@ -632,6 +640,7 @@
       .service-status{margin:12px 0;padding:10px 12px;border-radius:8px;background:#222225;color:#c5c5ca;font-size:12px}
       .service-status.error{color:#ff888e}.service-status.good{color:var(--teal)}
       .form-error{color:#ff888e;margin:10px 0;font-size:12px}
+      @media(max-width:760px){.doc-section{padding:14px}.personal-grid{grid-template-columns:1fr}}
       </style>
   </head>
   <body>
@@ -732,6 +741,10 @@
         status.className='service-status error';
       }
     }
+    function identityPanel(record){
+      const identity=record.identity||{};
+      return `<section class="doc-section"><h3>Paso 4 — Captura de documentos y confirmación de datos</h3><p class="muted small">Unico devolvió estos datos. Revísalos, corrígelos si es necesario y guárdalos en KYCTest. Los cambios no modifican el resultado original de Unico.</p><form id="identityForm" class="kyc-form"><div class="personal-grid"><div class="full"><label class="field" for="identityCurp">CURP <span class="required">*</span></label><input class="input curp-input" id="identityCurp" name="curp" maxlength="18" minlength="18" pattern="[A-Za-z0-9]{18}" autocomplete="off" placeholder="18 caracteres" value="${esc(identity.curp)}" required></div><div><label class="field" for="identityBirthDate">Fecha de nacimiento <span class="required">*</span></label><input class="input" id="identityBirthDate" name="birthDate" type="date" value="${esc(identity.birthDate)}" required></div><div><label class="field" for="identityFullName">Nombre completo <span class="required">*</span></label><input class="input" id="identityFullName" name="fullName" maxlength="120" placeholder="Nombre y apellidos" value="${esc(identity.fullName)}" required></div></div><p class="helper">Puedes corregir estos campos antes de guardarlos. Los cambios se almacenan en KYCTest por separado del resultado de Unico.</p><div id="identityError" class="form-error" role="alert"></div><button class="btn btn-main" type="submit">Guardar cambios</button></form></section>`;
+    }
     async function refreshCurrent(){
       const target=document.getElementById('currentRecord');
       if(!state.recordId)return;
@@ -739,7 +752,7 @@
         const record=await api('/api/kyc/process/'+encodeURIComponent(state.recordId));
         state.currentRecord=record;
         const finished=record.status==='PROCESS_STATE_FINISHED';
-        target.innerHTML=`${progress(finished?3:0)}<div class="service-status ${statusClass(record.status,record.result)}">Estado de Unico: <strong>${esc(record.status)}</strong>${record.result?` · Resultado: ${esc(record.result)}`:''}</div>${finished?`<section class="records"><h2>Paso 4 — Captura de documentos y confirmación de datos</h2><p class="muted">Unico devolvió estos datos. Revísalos, corrígelos si es necesario y guárdalos en KYCTest. Los cambios no modifican el resultado original de la verificación de Unico.</p><form id="identityForm" class="kyc-form"><label class="field" for="identityCurp">CURP</label><input class="input curp-input" id="identityCurp" name="curp" maxlength="18" minlength="18" pattern="[A-Za-z0-9]{18}" value="${esc(record.identity?.curp)}" required><label class="field" for="identityBirthDate">Fecha de nacimiento</label><input class="input" id="identityBirthDate" name="birthDate" type="date" value="${esc(record.identity?.birthDate)}" required><label class="field" for="identityFullName">Nombre completo</label><input class="input" id="identityFullName" name="fullName" maxlength="120" value="${esc(record.identity?.fullName)}" required><div id="identityError" class="form-error" role="alert"></div><button class="btn btn-main" type="submit">Guardar cambios</button></form></section>`:''}`;
+        target.innerHTML=`${progress(finished?3:0)}<div class="service-status ${statusClass(record.status,record.result)}">Estado de Unico: <strong>${esc(record.status)}</strong>${record.result?` · Resultado: ${esc(record.result)}`:''}</div>${finished?identityPanel(record):''}`;
         await loadRecords();
       }catch(err){
         target.innerHTML=`<div class="service-status error">${esc(err.message)}</div>`;
