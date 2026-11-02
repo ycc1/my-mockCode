@@ -748,137 +748,98 @@
       .step-panel .preview{margin:20px 0;min-height:210px}.step-panel .row{justify-content:space-between}
       .mode-note{font-size:12px;color:#a7a7ad;margin-top:15px}
       @media(max-width:760px){.unico-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.unico-step{padding:10px}.step-panel h2{font-size:19px}}
-      </style>
-  </head>
-  <body>
-    <div class="topline">
-      <span>▣ &nbsp;Deposit</span>
-      <div class="right">
-        <span>English⌄</span><span>Decimal⌄</span><span>◐</span><span>◉</span>
-      </div>
-    </div>
-    <header class="nav">
-      <span class="hamburger">☰</span>
-      <div class="brand">MEG<em>W</em>IN</div>
-      <div class="navlinks">
-        <span class="active">◉ &nbsp;Sports</span><span>◉ &nbsp;Live</span
-        ><span>▣ &nbsp;Casino</span><span>▣ &nbsp;Streaming</span
-        ><span>▤ &nbsp;My Bets</span>
-      </div>
-      <div class="nav-right">
-        <span class="nav-chip">🎁 Promotion</span
-        ><span class="nav-chip">$12,000.88 ⊞</span><span class="avatar">●</span>
-      </div>
-    </header>
-    <div class="shell">
-      <aside class="sidebar">
-        <div style="width: 100%">
-          <div class="menu"><span class="mi">♟</span>My profile</div>
-          <div class="menu"><span class="mi">▥</span>Bank</div>
-          <div class="menu active">
-            <span class="mi">▣</span>KYC Verification
-          </div>
-          <div class="menu"><span class="mi">◷</span>History</div>
-          <div class="menu"><span class="mi">✿</span>Benefits Center</div>
-          <div class="menu"><span class="mi">▣</span>Bonus</div>
-          <div class="menu"><span class="mi">♟</span>Inbox</div>
-        </div>
-      </aside>
-      <main class="main">
-        <section class="kyc" aria-live="polite">
-          <div class="split">
-            <h1>KYC Verification</h1>
-            <span class="badge" id="stateBadge">Not verified</span>
-          </div>
-          <div id="screen"></div>
-          <div class="footer-note" id="footnote">
-            MEGWIN · Identity verification powered by Unico (integration design)
-          </div>
-        </section>
-      </main>
-    </div>
-    <script>
+
+      /* MEGWIN-owned redirect flow */
+.intro-card{max-width:660px;margin:20px auto 4px}.intro-card h2{font-size:21px;margin:0 0 12px;text-align:center}.intro-card .lead{color:#b7b7bb;line-height:1.65;margin:0 0 20px}.important{background:#29292c;border:1px solid #404044;border-radius:7px;padding:17px;margin:15px 0 19px}.important h3{margin:0 0 12px;font-size:14px}.important ul{padding:0;margin:0;list-style:none}.important li{margin:12px 0;color:#bbb;display:flex;gap:10px}.important li:before{content:'●';font-size:10px;color:var(--teal);padding-top:3px}.consent{display:flex;align-items:flex-start;gap:10px;color:#c7c7cc;font-size:12px;line-height:1.55;margin:18px 0}.consent input{accent-color:var(--teal);margin-top:3px}.consent a{color:#ddd;text-decoration:underline}.intro-card .btn-main{width:100%;font-size:15px}.handoff{max-width:700px;margin:0 auto;text-align:center;padding:40px 12px 18px}.handoff h2{font-size:19px}.handoff p{color:#aaa;line-height:1.65}.handoff .btn{width:min(440px,100%);margin:8px auto;display:block}.status-icon{font-size:72px;line-height:1.3;margin-bottom:14px}.review-spinner{width:58px;height:58px;border:4px solid #3b3b40;border-left-color:var(--teal);border-radius:50%;animation:spin 1s linear infinite;margin:10px auto 23px}.demo-panel{border-top:1px solid #39393d;margin:24px auto 0;padding-top:15px;color:#a9a9b0;font-size:12px;max-width:550px}.demo-panel .btn{display:inline-block;width:auto;margin:8px 5px}.overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);display:grid;place-items:center;padding:14px;z-index:40}.overlay.hidden{display:none}.prompt{position:relative;background:#252527;border:1px solid #39393c;border-radius:10px;width:min(510px,100%);padding:22px 20px 18px;box-shadow:0 22px 70px #0009}.prompt h2{font-size:20px;text-align:center;margin:12px 0}.prompt .intro-card{margin:0}.prompt .intro-card h2{display:none}.prompt .close{position:absolute;right:14px;top:12px;border:0;background:transparent;color:#ddd;font-size:25px}.prompt .lang{border:1px solid #454549;background:#39393c;color:#eee;border-radius:5px;padding:7px 12px}.powered{text-align:center;color:#89898e;font-size:12px;margin-top:17px}.hint{color:#89898e;font-size:12px;line-height:1.6;margin-top:13px}.prompt .lead{margin-top:16px}
+@media(max-width:760px){.prompt{padding:18px 15px}.handoff{padding:25px 0}.intro-card{margin-top:12px}}
+
+/* KYC overlay: desktop right half; mobile fullscreen */
+.platform-home{padding:18px 14px 50px;max-width:1050px}.home-hero{padding:38px 34px;border:1px solid #303034;border-radius:15px;background:linear-gradient(125deg,#242827,#171719 70%)}.home-hero h1{font-size:32px;margin:12px 0}.home-hero p,.home-panels p{color:#a7a7ad;line-height:1.6}.eyebrow,.drawer-kicker{font-size:11px;color:var(--teal);letter-spacing:1.5px;font-weight:750}.home-hero .btn{margin-top:15px}.home-panels{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}.home-panels>div{padding:22px;border:1px solid #303034;border-radius:12px;background:#1b1b1d}.menu{cursor:pointer}.drawer-overlay{position:fixed;inset:0;z-index:30;visibility:hidden;pointer-events:none}.drawer-overlay.open{visibility:visible;pointer-events:auto}.drawer-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.64);opacity:0;transition:opacity .3s ease}.drawer-overlay.open .drawer-backdrop{opacity:1}.kyc-drawer{position:absolute;top:0;right:0;height:100%;height:100dvh;width:50vw;min-width:560px;max-width:100%;background:#1b1b1d;border-left:1px solid #3a3a3e;box-shadow:-22px 0 65px #0008;display:flex;flex-direction:column;transform:translateX(102%);transition:transform .32s cubic-bezier(.2,.8,.2,1)}.drawer-overlay.open .kyc-drawer{transform:translateX(0)}.drawer-top{height:86px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:18px 28px;border-bottom:1px solid #333338;background:#202023}.drawer-top h2{margin:5px 0 0;font-size:24px}.drawer-close{border:1px solid #47474c;background:#303034;color:#eee;border-radius:10px;width:40px;height:40px;font-size:28px;line-height:1}.drawer-scroll{overflow-y:auto;overscroll-behavior:contain;flex:1;padding:18px 26px 40px}.drawer-scroll .kyc{width:100%;min-height:0;padding:10px 0;background:transparent}.drawer-scroll .kyc> .split>h1{font-size:20px}.drawer-scroll .intro-card{max-width:640px}.drawer-scroll .handoff{padding:48px 10px 20px}.drawer-scroll .footer-note{margin-top:30px}body.drawer-active{overflow:hidden}
+@media(max-width:760px){.kyc-drawer{width:100vw;min-width:0;border-left:0}.drawer-top{height:68px;padding:12px 17px}.drawer-top h2{font-size:20px}.drawer-close{width:38px;height:38px}.drawer-scroll{padding:12px 18px 36px}.drawer-scroll .kyc{padding:6px 0}.home-panels{grid-template-columns:1fr}.home-hero{padding:26px 20px}.platform-home{padding:12px}.drawer-scroll .intro-card{margin-top:14px}.drawer-scroll .handoff{padding:32px 0}}
+@media(prefers-reduced-motion:reduce){.drawer-backdrop,.kyc-drawer{transition:none}}
+
+/* Embedded provider preview inside responsive KYC drawer */
+.embed-wrap{padding:16px 0 25px}.embed-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 18px}.embed-heading h2{margin:0 0 7px;font-size:21px}.embed-heading p{margin:0;color:#a4a4a9;font-size:13px}.embed-demo{background:#18181a;color:#f7f7f8;border:1px solid #37373b;border-radius:12px;min-height:390px;padding:45px 35px;line-height:1.5}.embed-demo-title{font-size:26px;font-weight:750;margin-bottom:20px}.embed-demo p{font-size:14px;max-width:610px;margin:0 0 19px}.embed-demo-foot{margin-top:55px;color:#999;font-size:11px;letter-spacing:1px}.embed-frame-wrap{height:min(70dvh,760px);min-height:420px;border:1px solid #45454a;border-radius:12px;overflow:hidden;background:white}.embed-frame-wrap iframe{width:100%;height:100%;border:0}.embed-actions{display:flex;gap:10px;margin-top:18px}.embed-actions .btn{flex:1}@media(max-width:760px){.embed-demo{padding:30px 20px;min-height:360px}.embed-demo-title{font-size:22px}.embed-heading h2{font-size:19px}.embed-frame-wrap{height:65dvh;min-height:360px}.embed-actions{flex-direction:column}}
+</style></head><body>
+<div class="topline"><span>▣ &nbsp;Deposit</span><div class="right"><span>English⌄</span><span>Decimal⌄</span><span>◐</span><span>◉</span></div></div>
+<header class="nav"><span class="hamburger">☰</span><div class="brand">MEG<em>W</em>IN</div><div class="navlinks"><span class="active">◉ &nbsp;Sports</span><span>◉ &nbsp;Live</span><span>▣ &nbsp;Casino</span><span>▣ &nbsp;Streaming</span><span>▤ &nbsp;My Bets</span></div><div class="nav-right"><span class="nav-chip">🎁 Promotion</span><span class="nav-chip">$12,000.88 ⊞</span><span class="avatar">●</span></div></header>
+<div class="shell"><aside class="sidebar"><div style="width:100%"><div class="menu"><span class="mi">♟</span>My profile</div><div class="menu"><span class="mi">▥</span>Bank</div><div class="menu active"><span class="mi">▣</span>KYC Verification</div><div class="menu"><span class="mi">◷</span>History</div><div class="menu"><span class="mi">✿</span>Benefits Center</div><div class="menu"><span class="mi">▣</span>Bonus</div><div class="menu"><span class="mi">♟</span>Inbox</div></div></aside>
+<main class="main"><section class="platform-home"><div class="home-hero"><div class="eyebrow">MEGWIN · MY ACCOUNT</div><h1>My profile</h1><p>Manage your account information and identity verification.</p><button type="button" class="btn btn-main" data-open-kyc>Open KYC Verification</button></div><div class="home-panels"><div><strong>Account security</strong><p>Complete identity verification to keep your account secure.</p></div><div><strong>Verification status</strong><p id="homeStatus">Not verified</p></div></div></section></main></div>
+<div id="drawerOverlay" class="drawer-overlay" aria-hidden="true"><div class="drawer-backdrop" data-close-drawer></div><aside class="kyc-drawer" role="dialog" aria-modal="true" aria-label="KYC Verification" tabindex="-1"><div class="drawer-top"><div><span class="drawer-kicker">MEGWIN · ACCOUNT</span><h2>KYC Verification</h2></div><button type="button" class="drawer-close" data-close-drawer aria-label="Close KYC">×</button></div><div class="drawer-scroll"><section class="kyc" aria-live="polite"><div class="split"><h1>KYC Verification</h1><span class="badge" id="stateBadge">Not verified</span></div><div id="screen"></div><div class="footer-note">MEGWIN · Identity verification powered by Unico (integration design)</div></section></div></aside></div>
+<div id="promptOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-label="Start verification"></div>
+<script>
     "use strict";
-    // Preview only. Real identity verification requires a secured MEGWIN backend and an enabled Unico recipe.
-    const live = new URLSearchParams(location.search).get('mode') === 'live';
-    const steps = [
-      {title:'Prueba de vida',desc:'Unico utiliza la cámara para comprobar que eres una persona real.',icon:'◉',detail:'Coloca tu rostro dentro del marco y sigue las indicaciones de la cámara.',note:'La captura biométrica real se realiza dentro de la sesión segura de Unico.'},
-      {title:'Verificación de identidad',desc:'Comprobación de identidad y, si está habilitado, consulta de datos CURP / RENAPO.',icon:'▣',detail:'Unico verifica los datos de identidad vinculados a la sesión.',note:'La validación RENAPO depende de las capacidades habilitadas para tu cuenta.'},
-      {title:'Evaluación de riesgo de fraude',desc:'Clasificación de señales de riesgo e inconsistencias detectadas.',icon:'⬡',detail:'El sistema analiza los indicadores de fraude disponibles.',note:'La decisión final de KYC corresponde al servidor de MEGWIN.'},
-      {title:'Captura y reutilización de documentos',desc:'Captura de identificación y reutilización, según el flujo habilitado.',icon:'▤',detail:'Prepara tu documento oficial y sigue las instrucciones de Unico.',note:'Los documentos admitidos y el orden real de captura dependen del recipe contratado.'}
-    ];
-    const state={page:0,applicationId:null,busy:false,error:'',identity:{curp:'',dob:'',fullName:''},validators:['idle','idle','idle'],validatorMessages:['','',''],documentResult:{status:'NOT_RECEIVED',capture:'NOT_RECEIVED',reuse:'NOT_RECEIVED',documentType:'',reference:''}};
-    const screen=document.getElementById('screen'), badge=document.getElementById('stateBadge');
-    const button=(label,action,kind='btn-main')=>`<button type="button" class="btn ${kind}" data-action="${action}">${label}</button>`;
-    const esc=(s)=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    function progress(){return `<div class="unico-steps" aria-label="Etapas de verificación">${steps.map((s,i)=>`<div class="unico-step ${typeof state.page==='number'?(i<state.page?'done':i===state.page?'current':''):''}"><div class="step-head"><span class="number">${i+1}</span><span>${s.title}</span></div><p>${s.desc}</p></div>`).join('')}</div>`}
-    function documentPanel(){
-      const v=state.identity;
-      return `<section class="doc-section"><h3>Datos personales · Confirmar o corregir</h3><p class="muted small">Revisa tus datos antes de continuar. Puedes corregirlos; los cambios no alteran el resultado original de Unico.</p><div class="personal-grid"><div class="full"><label class="field" for="docCurp">CURP <span class="required">*</span></label><input class="input curp-input" id="docCurp" data-identity="curp" maxlength="18" autocomplete="off" value="${esc(v.curp)}" placeholder="18 caracteres" /></div><div><label class="field" for="docDob">Fecha de nacimiento <span class="required">*</span></label><input class="input" type="date" id="docDob" data-identity="dob" value="${esc(v.dob)}" /></div><div><label class="field" for="docFullName">Nombre completo <span class="required">*</span></label><input class="input" id="docFullName" data-identity="fullName" maxlength="120" value="${esc(v.fullName)}" placeholder="Nombre y apellidos" /></div></div><p class="helper">Estos campos son editables y se guardan por separado de la evidencia del proveedor. La validación definitiva debe realizarse en el servidor.</p></section>
-<div class="error ${state.error?'':'hide'}" id="identityError" role="alert">${esc(state.error)}</div>`;
-    }
-    function validateIdentity(){
-      const v=state.identity, curp=v.curp.trim().toUpperCase();
-      if(!/^[A-ZÑ][AEIOUX][A-ZÑ]{2}\d{6}[HM](?:AS|BC|BS|CC|CL|CM|CS|CH|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS|NE)[B-DF-HJ-NP-TV-Z]{3}[A-Z0-9]\d$/.test(curp))return 'Ingresa un CURP con formato válido (18 caracteres).';
-      if(!v.dob)return 'Selecciona tu fecha de nacimiento.';
-      const yy=v.dob.slice(2,4),mm=v.dob.slice(5,7),dd=v.dob.slice(8,10);
-      if(curp.slice(4,10)!==yy+mm+dd)return 'La fecha de nacimiento no coincide con el CURP.';
-      const date=new Date(v.dob+'T12:00:00');if(!Number.isFinite(date.getTime())||date.toISOString().slice(0,10)!==v.dob)return 'La fecha de nacimiento no es válida.';
-      if(!v.fullName.trim()||v.fullName.trim().split(/\s+/).length<2)return 'Ingresa nombre y apellidos.';
-      return '';
-    }
-    function validatorPanel(n){
-      const status=state.validators[n], msg=state.validatorMessages[n];
-      const label=status==='passed'?'Validated':status==='failed'?'Validation failed':status==='checking'?'Validating…':status==='pending'?'Pending':'Not validated';
-      return `<div class="row" style="gap:9px;justify-content:flex-start">${button(status==='checking'?'Validating…':'Validator','validate','btn-outline')}<span class="badge ${status==='passed'?'good':status==='failed'?'bad':''}">${label}</span></div>${msg?`<div class="helper" role="status">${esc(msg)}</div>`:''}`;
-    }
-    async function validateStep(n){
-      state.validators[n]='checking';state.validatorMessages[n]='';render();
-      try{
-        if(live){
-          // Backend contract to be implemented by MEGWIN; browser never holds provider credentials.
-          const result=await api('/api/kyc/validators/'+(n+1),{method:'POST',body:JSON.stringify({applicationId:state.applicationId,step:n+1,provider:'UNICO'})});
-          const status=String(result.status||'').toUpperCase();
-          state.validators[n]=['PASSED','APPROVED','VERIFIED','SUCCESS'].includes(status)?'passed':status==='PENDING'||status==='PROCESSING'?'pending':'failed';
-          state.validatorMessages[n]=result.message|| (state.validators[n]==='passed'?'Validación completada.':'Verificación no completada; revisa el resultado del proveedor.');
-        }else{
-          // Preview simulation only; no third-party call is performed.
-          state.validators[n]='passed';state.validatorMessages[n]='Demo: validación simulada. No se llamó a Unico.';
-        }
-      }catch(err){state.validators[n]='failed';state.validatorMessages[n]=err.message||'Error de validación.';}
-    }
+    // Standalone UI prototype. MEGWIN endpoints below are PROPOSED contracts, NOT documented Unico endpoints.
+    const live=new URLSearchParams(location.search).get('mode')==='live';
+    const screen=document.getElementById('screen');
+    const badge=document.getElementById('stateBadge');
+    const overlay=document.getElementById('promptOverlay');
+    const drawer=document.getElementById('drawerOverlay');
+    function openDrawer(){drawer.classList.add('open');drawer.setAttribute('aria-hidden','false');document.body.classList.add('drawer-active');drawer.querySelector('.drawer-close').focus();}
+    function closeDrawer(){drawer.classList.remove('open');drawer.setAttribute('aria-hidden','true');document.body.classList.remove('drawer-active');}
+    document.addEventListener('click',e=>{if(e.target.closest('[data-open-kyc]')||e.target.closest('.menu.active'))openDrawer();if(e.target.closest('[data-close-drawer]'))closeDrawer();});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&drawer.classList.contains('open'))closeDrawer();});
+
+    const state={page:'intro',busy:false,applicationId:null,error:'',opened:false};
+    const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const btn=(label,action,kind='btn-main',extra='')=>`<button type="button" class="btn ${kind}" data-action="${action}" ${extra}>${label}</button>`;
+    const notice=`<div class="important"><h3>Important notes</h3><ul><li>Use a valid government-issued document</li><li>Find a well-lit surface</li><li>Be ready to take a selfie</li></ul></div>`;
+    function intro(modal=false){return `<div class="intro-card"><h2>Start verification</h2><p class="lead">This process is designed to verify your identity and protect you from identity theft.</p>${notice}<p class="hint">Your personal information will be processed for identity verification in accordance with our <a href="#privacy-notice" data-action="privacy" style="color:#ddd;text-decoration:underline">Privacy Notice</a>.</p>${btn('Start',modal?'modal-start':'start','btn-main')}<p class="hint">The verification experience will appear inside this KYC panel.</p></div>`}
+    function demoControls(){return live?'':`<div class="demo-panel">Demo only · Simulate the result returned by the MEGWIN backend.<div>${btn('Simulate Approved','approve','btn-outline')}${btn('Simulate Rejected','reject','btn-outline')}</div></div>`}
     function render(){
-      const n=state.page;
-      badge.textContent=typeof n==='number'?'In progress':n==='approved'?'Verified':n==='rejected'?'Failed':n==='processing'?'Under review':'Attention';
-      badge.className='badge'+(n==='approved'?' good':n==='rejected'||n==='error'?' bad':'');
-      if(typeof n==='number'){
-        const s=steps[n];
-        screen.innerHTML=`${progress()}<div class="step-panel"><div class="split"><h2>Step ${n+1} — ${s.title}</h2><span class="badge">${n+1} / 4</span></div><p>${s.desc}</p>${n===3?documentPanel():`<div class="preview"><span class="illustration">${s.icon}</span><strong>${s.detail}</strong><span>${live?'La captura real se completará en Unico.':'Vista previa interactiva · No se utiliza la cámara ni se verifica la identidad.'}</span></div>`}<div class="tip">${s.note}</div><div class="row" style="justify-content:space-between;align-items:center"><div class="row">${n>0?button('← Volver','back','btn-soft'):''}${n<3?validatorPanel(n):''}</div>${n<3&&state.validators[n]!=='passed'?'<button type="button" class="btn btn-main" disabled>Continuar →</button>':button(n===3?(live?'Abrir verificación Unico':'Finalizar demostración'):'Continuar →',n===3?'submit':'next')}</div><div class="mode-note">${live?'Integración pendiente de un backend MEGWIN autenticado.':'Modo demostración · Los pasos no representan resultados reales de Unico.'}</div></div>`;
-      }else if(n==='processing'){
-        screen.innerHTML=`<div class="verification-final" aria-live="polite"><div class="review-spinner" aria-hidden="true"></div><h2>Verification in progress</h2><p>Your identity verification is being processed. You can check its status here. A return from Unico does not automatically mean approval.</p>${button('Check verification status','refresh','btn-soft')}${!live?`<div class="demo-controls"><span class="demo-label">Demo · Simular resultado</span>${button('Approved','approve','btn-outline')}${button('Rejected','reject','btn-outline')}</div>`:''}</div>`;
-      }else if(n==='approved'||n==='rejected'){
-        const success=n==='approved';
-        screen.innerHTML=`<div class="verification-final"><div class="identity-symbol" aria-hidden="true">🪪<span class="outcome ${success?'ok':'no'}">${success?'✓':'!'}</span></div><h2>${success?'Your account is verified for Know Your Customer':'KYC verification of your account failed'}</h2><p>${success?'Please note, in certain circumstances we may require further information from you in accordance with our license conditions. We will contact you should this be necessary.':'Please confirm that the file you uploaded meets the requirements. It is important that we are able to positively identify our customers to comply with both regulatory requirements and to help ensure the security of accounts.'}</p>${success?'':button('Re-verification','retry','btn-soft')}${!live?`<div class="demo-controls"><span class="demo-label">Demo · ${success?'Simulated approval':'Simulated rejection'}</span>${success?button('Restart demo','reset','btn-outline'):''}</div>`:''}</div>`;
-      }else{
-        screen.innerHTML=`<div class="result bad"><div class="symbol">!</div><h2>No se pudo iniciar la verificación</h2><p>${esc(state.error)}</p>${button('Volver','reset','btn-soft')}</div>`;
-      }
+      const page=state.page;
+      badge.textContent=({intro:'Not verified',handoff:'In progress',embedded:'In progress',review:'Under review',approved:'Verified',rejected:'Failed',error:'Attention'})[page];
+      badge.className='badge'+(page==='approved'?' good':page==='rejected'||page==='error'?' bad':'');document.getElementById('homeStatus').textContent=badge.textContent;
+      if(page==='intro')screen.innerHTML=intro();
+      else if(page==='embedded')screen.innerHTML=`<div class="embed-wrap"><div class="embed-heading"><div><h2>Identity verification</h2><p>Complete verification without leaving MEGWIN.</p></div><span class="badge">${live?'Unico integration':'Demo preview'}</span></div>${live?`<div class="embed-frame-wrap"><iframe id="providerFrame" title="Unico verification" allow="camera; microphone" referrerpolicy="strict-origin-when-cross-origin"></iframe></div><p class="hint">If the provider blocks embedding, the verification cannot be displayed in an iframe. Use a provider-supported SDK or redirect instead.</p>`:embeddedDemo()}<div class="embed-actions">${btn('I have completed verification','completed','btn-main')}${btn('Back','back-intro','btn-soft')}</div></div>`;
+      else if(page==='handoff')screen.innerHTML=`<div class="handoff"><div class="status-icon">↗</div><h2>Complete your verification with Unico</h2><p>Complete the verification inside the KYC panel.</p><p>Opening the verification page does not mean your identity has been approved.</p>${btn('I have completed the verification','completed','btn-main')}${btn('Return to verification','reopen','btn-soft')}<p class="hint">If the new tab was blocked, allow pop-ups and try again.</p></div>`;
+      else if(page==='review')screen.innerHTML=`<div class="handoff"><div class="review-spinner"></div><h2>Verification in progress</h2><p>Your identity verification is being processed. You can check its status here. Completing the Unico flow does not automatically mean approval.</p>${btn('Check verification status','refresh','btn-soft')}${demoControls()}</div>`;
+      else if(page==='approved'||page==='rejected'){
+        const ok=page==='approved';
+        screen.innerHTML=`<div class="handoff"><div class="status-icon">🪪${ok?'✓':'❗'}</div><h2>${ok?'Your account is verified for Know Your Customer':'KYC verification of your account failed'}</h2><p>${ok?'Please note, in certain circumstances we may require further information from you in accordance with our license conditions. We will contact you should this be necessary.':'Please confirm that the document you provided meets the requirements. We need to positively identify our customers to comply with regulatory requirements and help ensure account security.'}</p>${ok?'':btn('Re-verification','retry','btn-soft')}${!live&&ok?btn('Restart demo','reset','btn-outline'):''}</div>`;
+      }else screen.innerHTML=`<div class="handoff"><h2>Unable to start verification</h2><p>${esc(state.error)}</p>${btn('Try again','reset','btn-soft')}</div>`;
     }
-    async function api(path,options={}){const r=await fetch(path,{credentials:'include',headers:{'Accept':'application/json',...(options.body?{'Content-Type':'application/json'}:{})},...options});if(!r.ok)throw Error('Error del servidor ('+r.status+')');return r.json()}
-    async function startLive(){
-      // No CURP or private keys are collected or exposed in this browser page.
-      // The backend must create an authorized Unico session with the enabled recipe.
-      const application=await api('/api/kyc/applications',{method:'POST',body:JSON.stringify({provider:'UNICO',locale:'es-MX',flow:'LIVENESS_IDENTITY_FRAUD_DOCUMENT'})});
-      state.applicationId=application.applicationId||application.id;
-      if(!state.applicationId)throw Error('Falta el ID de solicitud KYC.');
-      const session=await api('/api/kyc/applications/'+encodeURIComponent(state.applicationId)+'/sessions',{method:'POST',body:JSON.stringify({device:innerWidth<768?'H5':'PC'})});
-      const target=session.userRedirectUrl||session.redirectUrl;
-      if(!target||new URL(target).protocol!=='https:')throw Error('URL de Unico no válida.');
-      location.assign(target);
+    function showModal(){overlay.classList.remove('hidden');overlay.innerHTML=`<div class="prompt"><button type="button" class="close" data-action="close" aria-label="Close">×</button><button type="button" class="lang">◉ English ▾</button>${intro(true)}<div class="powered">Verification provided by Unico</div></div>`;}
+    function closeModal(){overlay.classList.add('hidden');overlay.innerHTML='';}
+    async function api(path,options={}){const r=await fetch(path,{credentials:'include',headers:{Accept:'application/json',...(options.body?{'Content-Type':'application/json'}:{})},...options});if(!r.ok)throw Error('MEGWIN server error ('+r.status+')');return r.json()}
+    // Embedded demo. Live iframe embedding requires explicit provider permission (CSP/X-Frame-Options).
+    function embeddedDemo(){return `<div class="embed-demo"><div class="embed-demo-title">Unico verification · Demo hand-off</div><p>This is a placeholder for the Unico hosted verification URL, not a real Unico page or identity check.</p><p>In production, MEGWIN's backend must return the actual provider URL. Embedded display is only possible if the provider permits iframe integration.</p><div class="embed-demo-foot">DEMO PREVIEW · NO IDENTITY CHECK IS PERFORMED</div></div>`;}
+    async function openProvider(){
+      state.page='embedded';state.error='';closeModal();openDrawer();render();
+      if(!live)return true;
+      try{
+        const data=await api('/api/kyc/unico/session',{method:'POST',body:JSON.stringify({locale:'es-MX'})});
+        const target=data.verificationUrl||data.userRedirectUrl;
+        if(typeof target!=='string'||!/^https:\/\//i.test(target))throw Error('No valid HTTPS verification URL was returned by MEGWIN.');
+        state.applicationId=data.applicationId||state.applicationId;
+        const frame=document.getElementById('providerFrame');
+        if(frame)frame.src=target;
+        return true;
+      }catch(e){state.error=e.message;state.page='error';render();return false;}
     }
-    async function refresh(){const data=await api(state.applicationId?'/api/kyc/applications/'+encodeURIComponent(state.applicationId):'/api/kyc/status');const status=String(data.status||data.kycStatus||'PENDING').toUpperCase();state.page=['APPROVED','VERIFIED','PASSED'].includes(status)?'approved':['REJECTED','FAILED','NOT_APPROVED'].includes(status)?'rejected':'processing';render()}
-    screen.addEventListener('input',e=>{const key=e.target.dataset.identity;if(!key)return;state.identity[key]=key==='curp'?e.target.value.toUpperCase():e.target.value;if(key==='curp'&&e.target.value!==state.identity[key])e.target.value=state.identity[key];const err=document.getElementById('identityError');if(err){err.textContent='';err.classList.add('hide')}});
-    screen.addEventListener('click',async e=>{const b=e.target.closest('[data-action]');if(!b||state.busy)return;state.busy=true;try{switch(b.dataset.action){case 'validate':if(typeof state.page==='number'&&state.page<3)await validateStep(state.page);break;case 'next':if(state.page<3&&state.validators[state.page]!=='passed')break;state.page=Math.min(3,state.page+1);break;case 'back':state.page=Math.max(0,state.page-1);break;case 'submit':{const problem=validateIdentity();if(problem){state.error=problem;break}state.error='';if(live){await startLive();return}state.page='processing';break;}case 'refresh':if(live){await refresh();return}break;case 'approve':if(!live)state.page='approved';break;case 'reject':if(!live)state.page='rejected';break;case 'retry':state.page=0;state.error='';break;case 'reset':state.page=0;state.error='';break}}catch(err){state.error=err.message;state.page='error'}finally{state.busy=false;render()}});
-    if(live)refresh().catch(()=>{state.page=0;render()});else render();
-    </script>
-  </body>
-</html>
+    async function refresh(){
+      if(!live)return;
+      const data=await api('/api/kyc/status'+(state.applicationId?'?applicationId='+encodeURIComponent(state.applicationId):''));
+      const value=String(data.status||data.kycStatus||'PENDING').toUpperCase();
+      state.page=['APPROVED','VERIFIED'].includes(value)?'approved':['REJECTED','FAILED'].includes(value)?'rejected':'review';
+      render();
+    }
+    async function clickHandler(e){const b=e.target.closest('[data-action]');if(!b||state.busy)return;const action=b.dataset.action;
+      if(action==='privacy'){e.preventDefault();alert('Connect this link to MEGWIN’s published Privacy Notice before production.');return;}
+      if(action==='close'){closeModal();return;}
+      if(action==='start'||action==='modal-start'||action==='reopen'){await openProvider();return;}
+      state.busy=true;try{
+        if(action==='completed'){state.page='review';if(live)await refresh();}
+        if(action==='back-intro'){state.page='intro';}
+        if(action==='refresh')await refresh();
+        if(action==='approve'&&!live)state.page='approved';
+        if(action==='reject'&&!live)state.page='rejected';
+        if(action==='retry'||action==='reset'){state.page='intro';state.opened=false;}
+        render();
+      }catch(err){state.error=err.message;state.page='error';render();}finally{state.busy=false;}
+    }
+    screen.addEventListener('click',clickHandler);overlay.addEventListener('click',clickHandler);
+    // ?modal=0 hides the login prompt, allowing direct inspection of the KYC page.
+    render();openDrawer();if(new URLSearchParams(location.search).get('modal')!=='0')showModal();
+
+</script></body></html>
