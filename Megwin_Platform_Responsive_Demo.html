@@ -87,12 +87,15 @@
       .pending-deposit-widget {
         position: fixed;
         z-index: 34;
-        top: 50%;
-        right: 0;
-        width: 224px;
-        transform: translateY(-50%);
-        transition: width 0.3s ease, opacity 0.3s ease;
-        animation: pending-widget-collapse 0.3s ease 5s forwards;
+        top: 54px;
+        left: 50%;
+        width: min(280px, calc(100vw - 32px));
+        transform: translateX(-50%);
+        transition: opacity 0.3s ease;
+        animation: pending-widget-fade 0.3s ease 5s forwards;
+      }
+      .pending-deposit-widget[hidden] {
+        display: none;
       }
       .pending-deposit-trigger {
         display: flex;
@@ -100,42 +103,30 @@
         min-height: 64px;
         align-items: center;
         gap: 10px;
-        padding: 10px 12px;
-        border: 1px solid #4e625e;
-        border-left: 0;
-        border-radius: 0 13px 13px 0;
+        padding: 10px 40px 10px 12px;
+        border: 1px solid #8a9693;
+        border-radius: 13px;
         background: linear-gradient(110deg, #14332f, #202729);
         box-shadow: 0 8px 26px #0008;
         color: #f6f7f8;
-        cursor: grab;
+        cursor: pointer;
         text-align: left;
-        touch-action: none;
       }
-      .pending-deposit-widget.is-snapped-left {
-        right: auto;
-        left: 0;
-      }
-      .pending-deposit-widget.is-snapped-left .pending-deposit-trigger {
-        border-left: 0;
-        border-right: 1px solid #4e625e;
-        border-radius: 0 13px 13px 0;
-      }
-      .pending-deposit-widget.is-snapped-right {
-        right: 0;
-        left: auto;
-      }
-      .pending-deposit-widget.is-snapped-right .pending-deposit-trigger {
-        border-right: 0;
-        border-left: 1px solid #4e625e;
-        border-radius: 13px 0 0 13px;
-      }
-      .pending-deposit-trigger:active {
-        cursor: grabbing;
-      }
-      .pending-deposit-widget.is-dragging,
-      .pending-deposit-widget.is-dragging .pending-deposit-trigger {
-        transition: none;
-        user-select: none;
+      .pending-deposit-dismiss {
+        position: absolute;
+        z-index: 1;
+        top: 5px;
+        right: 5px;
+        display: grid;
+        width: 26px;
+        height: 26px;
+        place-items: center;
+        border: 1px solid #ffffff50;
+        border-radius: 50%;
+        background: #10191acc;
+        color: #f6f7f8;
+        font-size: 18px;
+        line-height: 1;
       }
       .pending-deposit-icon {
         flex: 0 0 auto;
@@ -148,7 +139,6 @@
         flex-direction: column;
         gap: 4px;
         white-space: nowrap;
-        animation: pending-widget-copy-collapse 0.2s ease 5.1s forwards;
       }
       .pending-deposit-copy small {
         color: #aab8b5;
@@ -165,34 +155,6 @@
         color: #10211e;
         font-size: 12px;
         font-weight: 800;
-      }
-      .pending-deposit-widget.is-collapsed {
-        width: 96px;
-        opacity: 0.48;
-      }
-      .pending-deposit-widget.is-collapsed:hover,
-      .pending-deposit-widget.is-collapsed:focus-within {
-        opacity: 1;
-      }
-      .pending-deposit-widget.is-collapsed .pending-deposit-trigger {
-        min-height: 58px;
-        justify-content: center;
-        gap: 7px;
-        padding: 8px 7px;
-      }
-      .pending-deposit-widget.is-collapsed .pending-deposit-copy {
-        display: none;
-      }
-      .pending-deposit-widget.is-collapsed .pending-deposit-count {
-        width: auto;
-        height: auto;
-        border-radius: 10px;
-        padding: 5px 6px;
-        font-size: 11px;
-      }
-      .pending-deposit-widget.is-collapsed .pending-deposit-count::after {
-        content: " pending";
-        font-size: 9px;
       }
       .pending-deposit-list {
         display: grid;
@@ -227,22 +189,21 @@
         color: #aeb2b7;
         line-height: 1.5;
       }
-      @keyframes pending-widget-collapse {
+      @keyframes pending-widget-fade {
         to {
-          width: 96px;
-          opacity: 0.48;
-        }
-      }
-      @keyframes pending-widget-copy-collapse {
-        to {
-          opacity: 0;
-          visibility: hidden;
+          opacity: 0.68;
         }
       }
       .balance {
         background: #282a2d;
         padding: 9px 12px;
         border-radius: 6px;
+        color: inherit;
+        cursor: pointer;
+      }
+      .balance:focus-visible {
+        outline: 2px solid var(--teal);
+        outline-offset: 2px;
       }
       .shell {
         display: grid;
@@ -859,6 +820,57 @@
         font-weight: 700;
         color: #172338;
       }
+      .deposit-method-tabs {
+        display: flex;
+        gap: 8px;
+        margin: 10px 0;
+      }
+      .deposit-method-tab {
+        flex: 1;
+        padding: 10px 12px;
+        border: 1px solid #d5deed;
+        border-radius: 10px;
+        background: #fff;
+        color: #4a5870;
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .deposit-method-tab[aria-selected="true"] {
+        border-color: #2784ee;
+        background: #eaf3ff;
+        color: #1768da;
+      }
+      .deposit-view[hidden] {
+        display: none;
+      }
+      .deposit-pending-orders {
+        display: grid;
+        gap: 8px;
+        margin: 10px 0;
+      }
+      .deposit-pending-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #dce7ff;
+        border-radius: 9px;
+        background: #fff;
+        color: #25334a;
+        font-size: 12px;
+        text-align: left;
+        cursor: pointer;
+      }
+      .deposit-pending-row strong {
+        white-space: nowrap;
+      }
+      .deposit-pending-row small {
+        color: #9a6a13;
+        font-size: 10px;
+        white-space: nowrap;
+      }
       .deposit-steps {
         display: grid;
         gap: 7px;
@@ -1058,14 +1070,6 @@
         .tools button {
           padding: 7px;
         }
-        .pending-deposit-widget {
-          top: auto;
-          bottom: 76px;
-          right: 0;
-        }
-        .pending-deposit-widget.is-collapsed {
-          opacity: 0.55;
-        }
         .balance {
           padding: 7px;
           font-size: 10px;
@@ -1235,6 +1239,373 @@
           padding-bottom: 35px;
         }
       }
+      .deposit-modal {
+        background: #000c;
+        backdrop-filter: blur(3px);
+      }
+      .deposit-modal .deposit-card.cashier-card {
+        display: flex;
+        width: min(620px, calc(100vw - 32px));
+        max-height: min(680px, calc(100dvh - 32px));
+        flex-direction: column;
+        overflow-x: hidden;
+        overflow-y: auto;
+        border: 1px solid #343638;
+        border-radius: 14px;
+        padding: 0 18px 16px;
+        background: #191a1c;
+        color: #f3f4f5;
+        box-shadow: 0 24px 80px #000b;
+        scrollbar-width: thin;
+      }
+      .cashier-header {
+        position: relative;
+        display: flex;
+        min-height: 53px;
+        align-items: center;
+        border-bottom: 1px solid #303235;
+      }
+      .cashier-header h2 {
+        margin: 0;
+        color: #f4f5f6;
+        font-size: 16px;
+        font-weight: 750;
+      }
+      .cashier-header h2 span {
+        color: #39d9c0;
+        font-size: 18px;
+      }
+      .deposit-modal .deposit-close.cashier-close {
+        top: 8px;
+        right: 0;
+        width: 34px;
+        height: 34px;
+        border: 1px solid #414447;
+        background: transparent;
+        color: #aeb2b7;
+        font-size: 26px;
+        box-shadow: none;
+      }
+      .cashier-layout {
+        display: grid;
+        min-height: 480px;
+        flex: 1;
+        grid-template-columns: 126px minmax(0, 1fr);
+        gap: 18px;
+      }
+      .cashier-layout .deposit-method-tabs {
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+        margin: 18px 0 0;
+      }
+      .cashier-layout .deposit-method-tab {
+        display: flex;
+        min-height: 54px;
+        flex: 0 0 54px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid transparent;
+        border-radius: 12px;
+        background: #242527;
+        color: #f4f5f6;
+      }
+      .cashier-layout .deposit-method-tab[aria-selected="true"] {
+        border-color: #31d6bf;
+        background: #222426;
+        color: #fff;
+      }
+      .channel-logo {
+        display: inline-flex;
+        min-width: 62px;
+        min-height: 31px;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #d5d9de;
+        border-radius: 2px;
+        background: white;
+        font-size: 21px;
+        font-weight: 1000;
+        line-height: 1;
+      }
+      .spei-logo {
+        color: #353568;
+        letter-spacing: -1px;
+      }
+      .visa-logo {
+        color: #19427b;
+        font-size: 19px;
+        font-style: italic;
+      }
+      .oxxo-logo {
+        border-color: #f6c43a;
+        background: #e32636;
+        color: #fff;
+        font-size: 18px;
+        text-shadow: 1px 1px #79310b;
+      }
+      .cashier-layout .pending-channel-tab {
+        min-height: 58px;
+        flex-basis: 58px;
+        flex-direction: column;
+        gap: 4px;
+        padding: 8px 6px;
+        font-size: 11px;
+      }
+      .pending-channel-count {
+        color: #38d9c0;
+        font-size: 12px;
+      }
+      .cashier-content {
+        display: flex;
+        min-width: 0;
+        flex-direction: column;
+        padding-top: 16px;
+      }
+      .cashier-content .deposit-view[hidden],
+      .cashier-spei-details[hidden] {
+        display: none !important;
+      }
+      .cashier-form {
+        display: flex;
+        flex-direction: column;
+        gap: 11px;
+      }
+      .cashier-form[hidden] {
+        display: none !important;
+      }
+      .cashier-label {
+        display: block;
+        margin: 0;
+        color: #d7d8da;
+        font-size: 14px;
+        font-weight: 650;
+      }
+      .cashier-amount-input {
+        display: flex;
+        height: 54px;
+        align-items: center;
+        gap: 6px;
+        padding: 0 14px;
+        border: 1px solid #282a2c;
+        border-radius: 12px;
+        background: #242527;
+        color: #aeb0b2;
+        font-size: 14px;
+      }
+      .cashier-amount-input input {
+        width: 100%;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: #f4f5f6;
+        font-size: 14px;
+      }
+      .cashier-amount-input input::-webkit-inner-spin-button,
+      .cashier-amount-input input::-webkit-outer-spin-button {
+        margin: 0;
+        appearance: none;
+      }
+      .cashier-amount-options {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+      }
+      .cashier-amount-option {
+        min-height: 42px;
+        border: 1px solid #292b2d;
+        border-radius: 9px;
+        background: #1d1e20;
+        color: #9c9fa3;
+        font-size: 13px;
+      }
+      .cashier-amount-option.is-selected {
+        background: #f7f7f7;
+        color: #202124;
+        font-weight: 750;
+      }
+      .cashier-checkbox {
+        display: flex;
+        min-height: 20px;
+        align-items: center;
+        gap: 7px;
+        color: #a7a9ac;
+        font-size: 11px;
+        font-weight: 650;
+      }
+      .cashier-checkbox input {
+        width: 18px;
+        height: 18px;
+        flex: 0 0 auto;
+        margin: 0;
+        accent-color: #38d9c0;
+      }
+      .cashier-info {
+        display: inline-grid;
+        width: 14px;
+        height: 14px;
+        place-items: center;
+        border-radius: 50%;
+        background: #55595d;
+        color: #d6d8da;
+        font-size: 10px;
+      }
+      .cashier-submit {
+        min-height: 46px;
+        margin-top: 5px;
+        border-radius: 10px;
+        background: #fff;
+        color: #202124;
+        font-size: 15px;
+        font-weight: 750;
+      }
+      .cashier-help {
+        margin: 2px 0 0;
+        padding-left: 18px;
+        color: #777a7e;
+        font-size: 11px;
+        line-height: 1.45;
+      }
+      .cashier-help a {
+        color: #a1a3a6;
+      }
+      .cashier-trust {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: auto;
+        padding: 22px 0 3px;
+        color: #62666a;
+        font-size: 11px;
+      }
+      .cashier-demo-note {
+        margin: 4px 0 0;
+        color: #65686c;
+        font-size: 10px;
+        text-align: center;
+      }
+      .pending-orders-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin: 0;
+        font-size: 16px;
+      }
+      .pending-orders-title span {
+        color: #92979e;
+        font-size: 11px;
+      }
+      .pending-orders-description {
+        color: #92979e;
+        font-size: 12px;
+      }
+      .cashier-content .deposit-pending-orders {
+        gap: 9px;
+        margin: 8px 0;
+      }
+      .cashier-content .deposit-pending-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+        border-color: #383a3d;
+        background: #242527;
+        color: #f3f4f5;
+      }
+      .cashier-content .deposit-pending-row small {
+        color: #f2c56b;
+      }
+      .cashier-spei-details {
+        overflow-y: auto;
+        max-height: 430px;
+        text-align: center;
+      }
+      .cashier-back {
+        display: block;
+        margin: 0 0 12px;
+        padding: 6px 10px;
+        border-radius: 8px;
+        background: #292b2d;
+        color: #e1e3e5;
+      }
+      .cashier-payment-amount {
+        margin: 5px 0 12px;
+        color: #fff;
+        font-size: 28px;
+        font-weight: 800;
+      }
+      .cashier-payment-key {
+        display: block;
+        margin: 5px 0 10px;
+        color: #fff;
+        font-size: 20px;
+        overflow-wrap: anywhere;
+      }
+      .cashier-spei-details .deposit-info {
+        text-align: left;
+      }
+      .cashier-spei-details .deposit-info-row strong {
+        color: #172338;
+      }
+      @media (max-width: 650px) {
+        .deposit-modal {
+          align-items: flex-end;
+          padding: 0;
+        }
+        .deposit-modal .deposit-card.cashier-card {
+          width: 100%;
+          min-height: min(75dvh, 640px);
+          max-height: 100dvh;
+          border: 0;
+          border-radius: 20px 20px 0 0;
+          padding: 0 12px calc(12px + env(safe-area-inset-bottom));
+          box-shadow: 0 -12px 40px #0007;
+        }
+        .cashier-header {
+          min-height: 58px;
+          flex: 0 0 auto;
+        }
+        .cashier-layout {
+          display: flex;
+          min-height: 0;
+          flex-direction: column;
+          gap: 4px;
+        }
+        .cashier-layout .deposit-method-tabs {
+          flex-direction: row;
+          overflow-x: auto;
+          margin: 10px 0 2px;
+          padding-bottom: 5px;
+          scrollbar-width: none;
+          scroll-snap-type: x mandatory;
+        }
+        .cashier-layout .deposit-method-tabs::-webkit-scrollbar {
+          display: none;
+        }
+        .cashier-layout .deposit-method-tab {
+          min-width: 90px;
+          min-height: 52px;
+          flex: 0 0 auto;
+          scroll-snap-align: start;
+        }
+        .cashier-layout .pending-channel-tab {
+          min-width: 136px;
+        }
+        .cashier-content {
+          flex: 1;
+          padding: 10px 0 0;
+        }
+        .cashier-form {
+          gap: 9px;
+        }
+        .cashier-trust {
+          flex: 0 0 auto;
+          padding-top: 15px;
+        }
+        .cashier-spei-details {
+          max-height: 50dvh;
+        }
+      }
     </style>
   </head>
   <body>
@@ -1249,16 +1620,17 @@
       <div class="tools">
         <span class="lang">English ⌄　 Decimal ⌄</span
         ><span class="clock">◷ 00:48:46</span><button id="searchBtn">⌕</button
-        ><span class="balance">🪙 $12,000.88</span
+        ><button class="balance" id="balanceDepositBtn" type="button" aria-label="Open deposit interface">🪙 $12,000.88</button
         ><button id="profileBtn">◉</button>
       </div>
     </header>
-    <aside class="pending-deposit-widget is-snapped-right" id="pendingDepositWidget">
-      <button class="pending-deposit-trigger" id="pendingDepositTrigger" type="button" aria-label="View 3 pending deposits" title="Drag to move; click to view pending deposits">
+    <aside class="pending-deposit-widget" id="pendingDepositWidget">
+      <button class="pending-deposit-trigger" id="pendingDepositTrigger" type="button" aria-label="View 3 pending deposits">
         <span class="pending-deposit-icon" aria-hidden="true">💳</span>
         <span class="pending-deposit-copy"><strong>Pending deposits</strong><small>Continue pending payments</small></span>
         <span class="pending-deposit-count" data-pending-count>3</span>
       </button>
+      <button class="pending-deposit-dismiss" id="dismissPendingDepositWidget" type="button" aria-label="Dismiss pending deposits reminder">×</button>
     </aside>
     <div class="shell">
       <aside class="sidebar" id="sidebar"><div id="sideLinks"></div></aside>
@@ -1622,31 +1994,96 @@
       </div>
     </div>
     <div class="deposit-modal" id="depositModal" role="dialog" aria-modal="true" aria-labelledby="depositTitle">
-      <section class="deposit-card">
-        <button class="deposit-close" id="closeDeposit" type="button" aria-label="Close deposit">×</button>
-        <header class="deposit-head">
-          <strong class="deposit-label" id="depositTitle">Importe del pago:</strong>
-          <p class="deposit-amount">MXN$100.00</p>
-          <p class="deposit-key-label">Clave:</p>
-          <strong class="deposit-key" id="depositKey">734180016761891262</strong>
-          <button class="copy-button" type="button" data-copy="depositKey">📋 Copiar</button>
+      <section class="deposit-card cashier-card">
+        <header class="cashier-header">
+          <h2 id="depositTitle"><span aria-hidden="true">▰</span> Depositar</h2>
+          <button class="deposit-close cashier-close" id="closeDeposit" type="button" aria-label="Close deposit">×</button>
         </header>
-        <div class="deposit-body">
-          <div class="deposit-info">
-            <div class="deposit-info-row"><div><span>Banco Destino:</span><strong>FINCO PAY</strong></div></div>
-            <div class="deposit-info-row"><div><span>Beneficiario:</span><strong>SPEI</strong></div></div>
-            <div class="deposit-info-row">
-              <div><span>Concepto (opcional):</span><strong id="depositConcept">Pago</strong></div>
-              <button class="copy-button" type="button" data-copy="depositConcept">📋 Copiar</button>
-            </div>
+        <div class="cashier-layout">
+          <nav class="deposit-method-tabs" id="depositMethodTabs" role="tablist" aria-label="Deposit channels">
+            <button class="deposit-method-tab" id="speiTab" type="button" role="tab" data-deposit-channel="spei" aria-selected="true" aria-controls="speiDepositView"><span class="channel-logo spei-logo">SPEI</span></button>
+            <button class="deposit-method-tab" id="visaTab" type="button" role="tab" data-deposit-channel="visa" aria-selected="false" aria-controls="visaDepositView"><span class="channel-logo visa-logo">VISA</span></button>
+            <button class="deposit-method-tab" id="oxxoTab" type="button" role="tab" data-deposit-channel="oxxo" aria-selected="false" aria-controls="oxxoDepositView"><span class="channel-logo oxxo-logo">OXXO</span></button>
+            <button class="deposit-method-tab pending-channel-tab" id="pendingOrdersTab" type="button" role="tab" data-deposit-channel="pending" aria-selected="false" aria-controls="pendingOrdersView">Pending deposits <span class="pending-channel-count" data-deposit-pending-count>3</span></button>
+          </nav>
+          <div class="cashier-content">
+            <section class="deposit-view" id="speiDepositView" data-channel-view="spei" role="tabpanel" aria-labelledby="speiTab">
+              <div class="cashier-form" data-channel-form="spei">
+                <label class="cashier-label" for="depositAmount">Monto de Depósito</label>
+                <div class="cashier-amount-input"><span>$</span><input id="depositAmount" type="number" min="10" step="1" value="10" aria-label="Deposit amount in MXN"></div>
+                <div class="cashier-amount-options" aria-label="Quick deposit amounts">
+                  <button type="button" class="cashier-amount-option is-selected" data-amount="10">$10</button>
+                  <button type="button" class="cashier-amount-option" data-amount="20">$20</button>
+                  <button type="button" class="cashier-amount-option" data-amount="50">$50</button>
+                  <button type="button" class="cashier-amount-option" data-amount="100">$100</button>
+                  <button type="button" class="cashier-amount-option" data-amount="200">$200</button>
+                  <button type="button" class="cashier-amount-option" data-amount="500">$500</button>
+                  <button type="button" class="cashier-amount-option" data-amount="1000">$1000</button>
+                  <button type="button" class="cashier-amount-option" data-amount="5000">$5000</button>
+                </div>
+                <label class="cashier-checkbox"><input type="checkbox"><span>Bonus en tu primer depósito, hasta MXN $7,000!</span><span class="cashier-info" title="Demo promotion">i</span></label>
+                <label class="cashier-checkbox"><input type="checkbox"><span>FD0001</span><span class="cashier-info" title="Demo promotion">i</span></label>
+                <button class="cashier-submit" type="button" data-create-deposit="spei">Depositar</button>
+                <ul class="cashier-help">
+                  <li>Tarifas: Gratis</li>
+                  <li>Tiempo de Procesamiento: Hasta 30 minutos</li>
+                  <li>¿Necesitas ayuda? <a href="#" data-help-link>Obtener Ayuda</a></li>
+                </ul>
+              </div>
+              <div class="cashier-spei-details" id="speiPaymentDetails" hidden>
+                <button class="cashier-back" id="backToSpeiForm" type="button">‹ Back to deposit</button>
+                <p class="cashier-label">Importe del pago:</p>
+                <p class="cashier-payment-amount" id="speiPaymentAmount">MXN$10.00</p>
+                <p class="cashier-label">Clave:</p>
+                <strong class="cashier-payment-key" id="depositKey">734180016761891262</strong>
+                <button class="copy-button" type="button" data-copy="depositKey">📋 Copiar Clave</button>
+                <div class="deposit-info">
+                  <div class="deposit-info-row"><div><span>Banco Destino:</span><strong>FINCO PAY</strong></div></div>
+                  <div class="deposit-info-row"><div><span>Beneficiario:</span><strong>SPEI</strong></div></div>
+                  <div class="deposit-info-row"><div><span>Concepto (opcional):</span><strong id="depositConcept">Pago</strong></div><button class="copy-button" type="button" data-copy="depositConcept">📋 Copiar</button></div>
+                </div>
+                <div class="deposit-steps">
+                  <div class="deposit-step"><span class="deposit-step-icon">✅</span><div><strong>Paso 1</strong>Copiar la Clave.</div></div>
+                  <div class="deposit-step"><span class="deposit-step-icon">🏦</span><div><strong>Paso 2</strong>Pegar la Clave en su App bancaria e ingresar el monto a pagar.</div></div>
+                  <div class="deposit-step"><span class="deposit-step-icon">🔍</span><div><strong>Paso 3</strong>Revisar que el importe sea descontado de su saldo.</div></div>
+                </div>
+              </div>
+            </section>
+            <section class="deposit-view" id="visaDepositView" data-channel-view="visa" role="tabpanel" aria-labelledby="visaTab" hidden>
+              <div class="cashier-form">
+                <label class="cashier-label" for="visaAmount">Monto de Depósito</label>
+                <div class="cashier-amount-input"><span>$</span><input id="visaAmount" type="number" min="10" step="1" value="10" aria-label="VISA deposit amount in MXN"></div>
+                <div class="cashier-amount-options" aria-label="Quick deposit amounts">
+                  <button type="button" class="cashier-amount-option is-selected" data-amount="10">$10</button><button type="button" class="cashier-amount-option" data-amount="20">$20</button><button type="button" class="cashier-amount-option" data-amount="50">$50</button><button type="button" class="cashier-amount-option" data-amount="100">$100</button><button type="button" class="cashier-amount-option" data-amount="200">$200</button><button type="button" class="cashier-amount-option" data-amount="500">$500</button><button type="button" class="cashier-amount-option" data-amount="1000">$1000</button><button type="button" class="cashier-amount-option" data-amount="5000">$5000</button>
+                </div>
+                <button class="cashier-submit" type="button" data-create-deposit="visa">Depositar</button>
+                <ul class="cashier-help"><li>Pagos con VISA</li><li>¿Necesitas ayuda? <a href="#" data-help-link>Obtener Ayuda</a></li></ul>
+              </div>
+            </section>
+            <section class="deposit-view" id="oxxoDepositView" data-channel-view="oxxo" role="tabpanel" aria-labelledby="oxxoTab" hidden>
+              <div class="cashier-form">
+                <label class="cashier-label" for="oxxoAmount">Monto de Depósito</label>
+                <div class="cashier-amount-input"><span>$</span><input id="oxxoAmount" type="number" min="10" step="1" value="10" aria-label="OXXO deposit amount in MXN"></div>
+                <div class="cashier-amount-options" aria-label="Quick deposit amounts">
+                  <button type="button" class="cashier-amount-option is-selected" data-amount="10">$10</button><button type="button" class="cashier-amount-option" data-amount="20">$20</button><button type="button" class="cashier-amount-option" data-amount="50">$50</button><button type="button" class="cashier-amount-option" data-amount="100">$100</button><button type="button" class="cashier-amount-option" data-amount="200">$200</button><button type="button" class="cashier-amount-option" data-amount="500">$500</button><button type="button" class="cashier-amount-option" data-amount="1000">$1000</button><button type="button" class="cashier-amount-option" data-amount="5000">$5000</button>
+                </div>
+                <button class="cashier-submit" type="button" data-create-deposit="oxxo">Depositar</button>
+                <ul class="cashier-help"><li>Pagos en tiendas OXXO</li><li>¿Necesitas ayuda? <a href="#" data-help-link>Obtener Ayuda</a></li></ul>
+              </div>
+            </section>
+            <section class="deposit-view" id="pendingOrdersView" data-channel-view="pending" role="tabpanel" aria-labelledby="pendingOrdersTab" hidden>
+              <h3 class="pending-orders-title">Pending deposits <span><b data-deposit-pending-count>3</b> not completed</span></h3>
+              <p class="pending-orders-description">Select a pending order to continue its payment.</p>
+              <div class="deposit-pending-orders">
+                <button class="deposit-pending-row" type="button" data-resume-deposit><strong>Deposit MXN$100.00</strong><small>SPEI · Pending · Continue</small></button>
+                <button class="deposit-pending-row" type="button" data-resume-deposit><strong>Deposit MXN$100.00</strong><small>SPEI · Pending · Continue</small></button>
+                <button class="deposit-pending-row" type="button" data-resume-deposit><strong>Deposit MXN$100.00</strong><small>SPEI · Pending · Continue</small></button>
+              </div>
+            </section>
+            <footer class="cashier-trust"><span>🛡 Seguro</span><span>✿ Confiable</span><span>ϟ Rápido</span></footer>
           </div>
-          <div class="deposit-steps">
-            <div class="deposit-step"><span class="deposit-step-icon">✅</span><div><strong>Paso 1</strong>Copiar la Clave.</div></div>
-            <div class="deposit-step"><span class="deposit-step-icon">🏦</span><div><strong>Paso 2</strong>Pegar la Clave en su App bancaria e ingresar el monto a pagar.</div></div>
-            <div class="deposit-step"><span class="deposit-step-icon">🔍</span><div><strong>Paso 3</strong>Revisar que el importe sea descontado de su saldo. (Si este no es confirmado de inmediato, revisar más tarde)</div></div>
-          </div>
-          <p class="deposit-demo-note">Demo de interfaz: no se conecta a un banco ni confirma pagos reales.</p>
         </div>
+        <p class="cashier-demo-note">Demo de interfaz: no se conecta a un banco ni confirma pagos reales.</p>
       </section>
     </div>
     <div class="toast" id="toast">Demo action</div>
@@ -1813,143 +2250,115 @@
       }
       function openDeposit() {
         $("#pendingDepositModal").classList.remove("show");
+        setDepositView("spei");
         $("#depositModal").classList.add("show");
+      }
+      function setDepositView(view) {
+        $$("[data-deposit-channel]").forEach((tab) => {
+          tab.setAttribute(
+            "aria-selected",
+            String(tab.dataset.depositChannel === view),
+          );
+        });
+        $$("[data-channel-view]").forEach((panel) => {
+          panel.hidden = panel.dataset.channelView !== view;
+        });
+        if (view === "spei") {
+          $("#speiPaymentDetails").hidden = true;
+          $('.cashier-form[data-channel-form="spei"]').hidden = false;
+        }
       }
       const pendingDepositItems = $$(".pending-deposit-item");
       $$("[data-pending-count]").forEach((count) => {
+        count.textContent = pendingDepositItems.length;
+      });
+      $$("[data-deposit-pending-count]").forEach((count) => {
         count.textContent = pendingDepositItems.length;
       });
       $("#pendingDepositTrigger").setAttribute(
         "aria-label",
         `View ${pendingDepositItems.length} pending deposits`,
       );
+      $("#balanceDepositBtn").addEventListener("click", () => {
+        setDepositView("spei");
+        $("#depositModal").classList.add("show");
+      });
+      $$("[data-deposit-channel]").forEach((tab) => {
+        tab.addEventListener("click", () =>
+          setDepositView(tab.dataset.depositChannel),
+        );
+      });
+      $$(".cashier-amount-options").forEach((options) => {
+        options.addEventListener("click", (event) => {
+          const button = event.target.closest("[data-amount]");
+          if (!button) return;
+          const form = options.closest(".cashier-form");
+          form.querySelectorAll("[data-amount]").forEach((option) => {
+            option.classList.toggle("is-selected", option === button);
+          });
+          form.querySelector("input[type=number]").value =
+            button.dataset.amount;
+        });
+      });
+      $$("[data-create-deposit]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const channel = button.dataset.createDeposit;
+          const amount = Number(
+            button.closest(".cashier-form").querySelector("input").value,
+          );
+          if (!Number.isFinite(amount) || amount < 10) {
+            toast("El monto mínimo de depósito es MXN$10.");
+            return;
+          }
+          if (channel !== "spei") {
+            toast(`${channel.toUpperCase()} demo: payment is not connected.`);
+            return;
+          }
+          $("#speiPaymentAmount").textContent = `MXN$${amount.toFixed(2)}`;
+          $('.cashier-form[data-channel-form="spei"]').hidden = true;
+          $("#speiPaymentDetails").hidden = false;
+        });
+      });
+      $$("[data-resume-deposit]").forEach((order) => {
+        order.addEventListener("click", () => {
+          setDepositView("spei");
+          $('.cashier-form[data-channel-form="spei"]').hidden = true;
+          $("#speiPaymentDetails").hidden = false;
+          $("#speiPaymentAmount").textContent = "MXN$100.00";
+        });
+      });
+      $("#backToSpeiForm").addEventListener("click", () => {
+        $("#speiPaymentDetails").hidden = true;
+        $('.cashier-form[data-channel-form="spei"]').hidden = false;
+      });
+      $$("[data-help-link]").forEach((link) => {
+        link.addEventListener("click", (event) => {
+          event.preventDefault();
+          toast("Support preview — help service is not connected.");
+        });
+      });
       const pendingDepositWidget = $("#pendingDepositWidget");
       const pendingDepositTrigger = $("#pendingDepositTrigger");
-      let dragStart = null;
-      let suppressPendingClick = false;
-      pendingDepositTrigger.addEventListener("pointerdown", (event) => {
-        if (event.button !== 0) return;
-        const bounds = pendingDepositWidget.getBoundingClientRect();
-        dragStart = {
-          pointerX: event.clientX,
-          pointerY: event.clientY,
-          left: bounds.left,
-          top: bounds.top,
-          moved: false,
-        };
-        pendingDepositTrigger.setPointerCapture(event.pointerId);
-      });
-      pendingDepositTrigger.addEventListener("pointermove", (event) => {
-        if (!dragStart) return;
-        const deltaX = event.clientX - dragStart.pointerX;
-        const deltaY = event.clientY - dragStart.pointerY;
-        if (!dragStart.moved && Math.hypot(deltaX, deltaY) < 5) return;
-        dragStart.moved = true;
-        pendingDepositWidget.classList.add("is-dragging");
-        pendingDepositWidget.classList.remove(
-          "is-snapped-left",
-          "is-snapped-right",
-        );
-        pendingDepositWidget.style.left = `${Math.max(
-          0,
-          Math.min(
-            window.innerWidth - pendingDepositWidget.offsetWidth,
-            dragStart.left + deltaX,
-          ),
-        )}px`;
-        pendingDepositWidget.style.top = `${Math.max(
-          0,
-          Math.min(
-            window.innerHeight - pendingDepositWidget.offsetHeight,
-            dragStart.top + deltaY,
-          ),
-        )}px`;
-        pendingDepositWidget.style.right = "auto";
-        pendingDepositWidget.style.bottom = "auto";
-        pendingDepositWidget.style.transform = "none";
-      });
-      const finishPendingDepositDrag = (event) => {
-        if (!dragStart) return;
-        suppressPendingClick = dragStart.moved;
-        if (dragStart.moved) {
-          const snapLeft =
-            pendingDepositWidget.getBoundingClientRect().left +
-              pendingDepositWidget.offsetWidth / 2 <
-            window.innerWidth / 2;
-          pendingDepositWidget.classList.toggle("is-snapped-left", snapLeft);
-          pendingDepositWidget.classList.toggle("is-snapped-right", !snapLeft);
-          pendingDepositWidget.style.left = snapLeft ? "0px" : "auto";
-          pendingDepositWidget.style.right = snapLeft ? "auto" : "0px";
+      const pendingDepositDismissalKey = "megwin.pendingDepositWidget.dismissed";
+      try {
+        pendingDepositWidget.hidden =
+          localStorage.getItem(pendingDepositDismissalKey) === "true";
+      } catch (error) {
+        console.error("Could not read the pending-deposit reminder setting.", error);
+        toast("Could not load the reminder setting.");
+      }
+      $("#dismissPendingDepositWidget").addEventListener("click", (event) => {
+        event.stopPropagation();
+        pendingDepositWidget.hidden = true;
+        try {
+          localStorage.setItem(pendingDepositDismissalKey, "true");
+        } catch (error) {
+          pendingDepositWidget.hidden = false;
+          console.error("Could not save the pending-deposit reminder setting.", error);
+          toast("Could not save the reminder setting.");
         }
-        dragStart = null;
-        pendingDepositWidget.classList.remove("is-dragging");
-        if (suppressPendingClick)
-          setTimeout(() => {
-            suppressPendingClick = false;
-          }, 0);
-      };
-      window.addEventListener("resize", () => {
-        if (!pendingDepositWidget.style.left) return;
-        if (pendingDepositWidget.classList.contains("is-snapped-left")) {
-          pendingDepositWidget.style.left = "0px";
-          return;
-        }
-        if (pendingDepositWidget.classList.contains("is-snapped-right")) {
-          pendingDepositWidget.style.left = "auto";
-          pendingDepositWidget.style.right = "0px";
-          return;
-        }
-        const maxLeft = Math.max(
-          0,
-          window.innerWidth - pendingDepositWidget.offsetWidth,
-        );
-        const maxTop = Math.max(
-          0,
-          window.innerHeight - pendingDepositWidget.offsetHeight,
-        );
-        pendingDepositWidget.style.left = `${Math.min(
-          maxLeft,
-          Math.max(0, pendingDepositWidget.offsetLeft),
-        )}px`;
-        pendingDepositWidget.style.top = `${Math.min(
-          maxTop,
-          Math.max(0, pendingDepositWidget.offsetTop),
-        )}px`;
-      });
-      pendingDepositTrigger.addEventListener(
-        "pointerup",
-        finishPendingDepositDrag,
-      );
-      pendingDepositTrigger.addEventListener(
-        "pointercancel",
-        finishPendingDepositDrag,
-      );
-      pendingDepositTrigger.addEventListener(
-        "click",
-        (event) => {
-          if (!suppressPendingClick) return;
-          event.preventDefault();
-          event.stopImmediatePropagation();
-        },
-        true,
-      );
-      pendingDepositWidget.addEventListener("animationend", (event) => {
-        if (event.animationName === "pending-widget-collapse")
-          pendingDepositWidget.classList.add("is-collapsed");
       });
       pendingDepositTrigger.addEventListener("click", () => {
-        if (pendingDepositWidget.classList.contains("is-collapsed")) {
-          pendingDepositWidget.classList.remove("is-collapsed");
-          pendingDepositWidget.style.animation = "none";
-          $(".pending-deposit-copy").style.animation = "none";
-          pendingDepositTrigger.setAttribute(
-            "aria-label",
-            `View ${pendingDepositItems.length} pending deposits`,
-          );
-          return;
-        }
-        pendingDepositWidget.style.animation = "none";
-        $(".pending-deposit-copy").style.animation = "none";
         $("#pendingDepositModal").classList.add("show");
       });
       $("#closePendingDeposits").onclick = () =>
@@ -2036,7 +2445,12 @@
           c.classList.add("active");
           return;
         }
-        if (e.target.closest("button") && !e.target.closest(".close,#modalOk"))
+        if (
+          e.target.closest("button") &&
+          !e.target.closest(
+            ".close,#modalOk,.cashier-card,#balanceDepositBtn,#pendingDepositTrigger,#dismissPendingDepositWidget",
+          )
+        )
           toast("Preview mode — action not connected");
       });
       $("#closeModal").onclick = $("#modalOk").onclick = () =>
