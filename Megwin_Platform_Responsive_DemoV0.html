@@ -1,0 +1,2484 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>MEGWIN | Sports & Casino</title>
+    <style>
+      :root {
+        --bg: #0b0c0d;
+        --panel: #1a1b1d;
+        --panel2: #242628;
+        --line: #303235;
+        --muted: #92979e;
+        --teal: #38d9c0;
+        --green: #b6ff3b;
+        --white: #f6f7f8;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--white);
+        font:
+          12px Inter,
+          Arial,
+          sans-serif;
+      }
+      button,
+      input {
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+        border: 0;
+        color: inherit;
+      }
+      button:hover {
+        filter: brightness(1.2);
+      }
+      .top {
+        height: 39px;
+        background: #1b1c1e;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 0 16px;
+        border-bottom: 1px solid #262729;
+        position: sticky;
+        top: 0;
+        z-index: 20;
+      }
+      .logo {
+        font-size: 23px;
+        font-weight: 1000;
+        font-style: italic;
+        letter-spacing: -1.5px;
+        white-space: nowrap;
+      }
+      .logo i {
+        color: var(--teal);
+        font-style: italic;
+      }
+      .nav {
+        display: flex;
+        gap: 4px;
+      }
+      .nav button,
+      .tools button {
+        padding: 8px 12px;
+        border-radius: 7px;
+        background: transparent;
+        color: #aaa;
+      }
+      .nav button.active,
+      .nav button:hover {
+        background: #333638;
+        color: white;
+      }
+      .tools {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: auto;
+      }
+      .pending-deposit-widget {
+        position: fixed;
+        z-index: 34;
+        top: 54px;
+        left: 50%;
+        width: min(280px, calc(100vw - 32px));
+        transform: translateX(-50%);
+        transition: opacity 0.3s ease;
+        animation: pending-widget-fade 0.3s ease 5s forwards;
+      }
+      .pending-deposit-widget[hidden] {
+        display: none;
+      }
+      .pending-deposit-trigger {
+        display: flex;
+        width: 100%;
+        min-height: 64px;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 40px 10px 12px;
+        border: 1px solid #8a9693;
+        border-radius: 13px;
+        background: linear-gradient(110deg, #14332f, #202729);
+        box-shadow: 0 8px 26px #0008;
+        color: #f6f7f8;
+        cursor: pointer;
+        text-align: left;
+      }
+      .pending-deposit-dismiss {
+        position: absolute;
+        z-index: 1;
+        top: 5px;
+        right: 5px;
+        display: grid;
+        width: 26px;
+        height: 26px;
+        place-items: center;
+        border: 1px solid #ffffff50;
+        border-radius: 50%;
+        background: #10191acc;
+        color: #f6f7f8;
+        font-size: 18px;
+        line-height: 1;
+      }
+      .pending-deposit-icon {
+        flex: 0 0 auto;
+        font-size: 21px;
+      }
+      .pending-deposit-copy {
+        display: flex;
+        min-width: 0;
+        flex: 1;
+        flex-direction: column;
+        gap: 4px;
+        white-space: nowrap;
+      }
+      .pending-deposit-copy small {
+        color: #aab8b5;
+        font-size: 10px;
+      }
+      .pending-deposit-count {
+        display: grid;
+        width: 30px;
+        height: 30px;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 50%;
+        background: var(--teal);
+        color: #10211e;
+        font-size: 12px;
+        font-weight: 800;
+      }
+      .pending-deposit-list {
+        display: grid;
+        gap: 8px;
+        margin: 18px 0;
+      }
+      .pending-deposit-item {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        gap: 10px;
+        padding: 12px;
+        border: 1px solid #45494c;
+        border-radius: 10px;
+        background: #303235;
+        text-align: left;
+      }
+      .pending-deposit-item > span:nth-child(2) {
+        display: grid;
+        flex: 1;
+        gap: 4px;
+      }
+      .pending-deposit-item small {
+        color: #aeb2b7;
+      }
+      .pending-deposit-item .pending-status {
+        color: #f2c56b;
+        font-size: 10px;
+        white-space: nowrap;
+      }
+      .pending-deposit-note {
+        color: #aeb2b7;
+        line-height: 1.5;
+      }
+      @keyframes pending-widget-fade {
+        to {
+          opacity: 0.68;
+        }
+      }
+      .balance {
+        background: #282a2d;
+        padding: 9px 12px;
+        border-radius: 6px;
+        color: inherit;
+        cursor: pointer;
+      }
+      .balance:focus-visible {
+        outline: 2px solid var(--teal);
+        outline-offset: 2px;
+      }
+      .shell {
+        display: grid;
+        grid-template-columns: 205px minmax(0, 1fr);
+        min-height: 100vh;
+      }
+      .sidebar {
+        background: #101112;
+        border-right: 1px solid #28292b;
+        padding: 14px 10px;
+        position: sticky;
+        top: 39px;
+        height: calc(100vh - 39px);
+        overflow: auto;
+      }
+      .sideitem {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 11px 12px;
+        color: #a1a4a9;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .sideitem:hover,
+      .sideitem.selected {
+        background: #282a2c;
+        color: #fff;
+      }
+      .sideitem small {
+        margin-left: auto;
+        color: #777;
+      }
+      .sidehead {
+        color: #72767b;
+        margin: 16px 12px 7px;
+        font-size: 11px;
+      }
+      .main {
+        min-width: 0;
+        max-width: 1400px;
+        width: 100%;
+        margin: auto;
+        padding: 16px 18px 30px;
+      }
+      .page {
+        display: none;
+      }
+      .page.active {
+        display: block;
+      }
+      .section {
+        margin-top: 22px;
+      }
+      .section-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 11px;
+      }
+      .section-title h2 {
+        font-size: 16px;
+        margin: 0;
+        font-weight: 750;
+      }
+      .section-title a {
+        color: #9b9ea3;
+        cursor: pointer;
+      }
+      .chips {
+        display: flex;
+        gap: 6px;
+        overflow: auto;
+        scrollbar-width: none;
+        margin: 8px 0 12px;
+      }
+      .chip {
+        flex-shrink: 0;
+        border-radius: 20px;
+        background: #222427;
+        color: #b4b7bb;
+        padding: 9px 14px;
+      }
+      .chip.active {
+        background: #174e46;
+        color: #e4fff8;
+        border: 1px solid #38d9c0;
+      }
+      .banners {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .banner {
+        height: 155px;
+        border-radius: 10px;
+        overflow: hidden;
+        padding: 17px;
+        position: relative;
+        background: linear-gradient(115deg, #17493f, #09291f 60%, #26785d);
+        border: 1px solid #333;
+      }
+      .banner:nth-child(2) {
+        background: linear-gradient(110deg, #30200f, #7c380d);
+      }
+      .banner:nth-child(3) {
+        background: linear-gradient(110deg, #083c5a, #512da0);
+      }
+      .banner strong {
+        display: block;
+        font-size: 24px;
+        max-width: 66%;
+        line-height: 1.05;
+        color: #fff;
+      }
+      .banner p {
+        max-width: 65%;
+        color: #e7e7e7;
+      }
+      .banner .emoji {
+        position: absolute;
+        right: 8%;
+        top: 24%;
+        font-size: 72px;
+        filter: drop-shadow(0 7px 10px #0008);
+      }
+      .banner button {
+        background: white;
+        color: #171717;
+        border-radius: 5px;
+        padding: 7px 12px;
+        font-weight: bold;
+      }
+      .sports-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 230px;
+        gap: 14px;
+      }
+      .promo {
+        background: #191a1c;
+        padding: 13px;
+        border-radius: 9px;
+      }
+      .promo h3 {
+        margin: 2px 0 13px;
+      }
+      .promo-card {
+        background: #242628;
+        border-radius: 7px;
+        padding: 14px;
+        margin-bottom: 7px;
+        line-height: 1.5;
+      }
+      .league-icons {
+        display: flex;
+        gap: 7px;
+        overflow: hidden;
+        margin: 12px 0;
+      }
+      .league-icons span {
+        min-width: 75px;
+        text-align: center;
+        background: #202224;
+        padding: 12px 4px;
+        border-radius: 8px;
+      }
+      .league-icons b {
+        font-size: 21px;
+        display: block;
+      }
+      .matchbox {
+        background: #1b1c1e;
+        border: 1px solid #25272a;
+        border-radius: 10px;
+        margin: 7px 0;
+        overflow: hidden;
+      }
+      .matchhead {
+        padding: 11px 13px;
+        border-bottom: 1px solid #303135;
+        font-size: 11px;
+      }
+      .match {
+        display: grid;
+        grid-template-columns: minmax(130px, 1fr) minmax(150px, 1fr);
+        align-items: center;
+        gap: 8px;
+        padding: 10px 13px;
+        border-bottom: 1px solid #292a2d;
+      }
+      .teams {
+        line-height: 1.8;
+      }
+      .teams small {
+        color: #989da3;
+      }
+      .odds {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 4px;
+      }
+      .odd {
+        background: #35373a;
+        border-radius: 4px;
+        padding: 9px 3px;
+        text-align: center;
+      }
+      .odd b {
+        color: var(--teal);
+        display: block;
+        margin-top: 4px;
+      }
+      .bets-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 9px;
+      }
+      .bet-card {
+        background: #202123;
+        padding: 13px;
+        border-radius: 9px;
+      }
+      .bet-card h4 {
+        margin: 0 0 10px;
+      }
+      .bet-card p {
+        display: flex;
+        justify-content: space-between;
+        color: #bbb;
+      }
+      .bet-card b {
+        color: var(--teal);
+      }
+      .bet-card button {
+        width: 100%;
+        background: #fff;
+        color: #111;
+        padding: 8px;
+        border-radius: 5px;
+      }
+      .game-grid {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 8px;
+      }
+      .game {
+        aspect-ratio: 1.05;
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 10px;
+        background: linear-gradient(140deg, var(--c1), var(--c2));
+        border: 1px solid #39353a;
+        cursor: pointer;
+        isolation: isolate;
+      }
+      .game:before {
+        content: attr(data-emoji);
+        position: absolute;
+        top: 14%;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: clamp(28px, 5vw, 66px);
+        z-index: -1;
+        filter: drop-shadow(0 5px 5px #0009);
+      }
+      .game strong {
+        font-size: clamp(10px, 1.3vw, 17px);
+        line-height: 1.05;
+        text-shadow: 0 2px 4px #000;
+      }
+      .game small {
+        color: #f5e6ab;
+        margin-top: 5px;
+      }
+      .game .tag {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: #f32849;
+        font-size: 9px;
+        padding: 4px 7px;
+      }
+      .rank-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+      }
+      .rank-grid .game {
+        aspect-ratio: 1.65;
+      }
+      .rank-grid .game:after {
+        content: attr(data-rank);
+        position: absolute;
+        left: 6px;
+        top: 2px;
+        font-size: 60px;
+        font-weight: 900;
+        color: #46e0b7;
+        text-shadow: 3px 4px #09120f;
+      }
+      .provider-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 7px;
+      }
+      .provider-grid div {
+        padding: 15px 4px;
+        text-align: center;
+        background: #27282b;
+        border-radius: 7px;
+        font-size: 17px;
+        font-weight: 900;
+        color: #e4ca57;
+      }
+      .tablebox {
+        background: #222426;
+        border-radius: 9px;
+        overflow: hidden;
+      }
+      .tablebox table {
+        border-collapse: collapse;
+        width: 100%;
+        text-align: left;
+      }
+      .tablebox th,
+      .tablebox td {
+        padding: 12px;
+        border-bottom: 1px solid #36383b;
+      }
+      .tablebox th {
+        font-weight: 500;
+        color: #aaa;
+        background: #191a1c;
+      }
+      .tablebox td:nth-child(2) {
+        color: var(--teal);
+      }
+      .dual {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .hotcold {
+        padding: 15px;
+        background: #222426;
+        border-radius: 10px;
+      }
+      .hotcold h2 {
+        margin: 0 0 13px;
+        font-size: 24px;
+      }
+      .hotcold .hot {
+        color: #ff443e;
+      }
+      .hotcold .cold {
+        color: #65b9ff;
+      }
+      .trend {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        padding: 10px;
+        background: #18191b;
+        margin: 5px 0;
+        border-radius: 6px;
+      }
+      .trend .thumb {
+        width: 56px;
+        height: 58px;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(130deg, #752020, #ab681d);
+        border-radius: 6px;
+        font-size: 32px;
+      }
+      .jackpot {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        background: #212225;
+        border-radius: 10px;
+        padding: 16px;
+      }
+      .jackpot h2 {
+        color: #ffa32b;
+        font-size: 25px;
+        margin: 0;
+      }
+      .jackpot strong {
+        color: #ffe530;
+        font-size: 22px;
+      }
+      .jackpot .game {
+        width: 105px;
+        flex-shrink: 0;
+      }
+      .footer {
+        border-top: 1px solid #303134;
+        margin-top: 35px;
+        padding: 24px 8px 15px;
+      }
+      .footcols {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+      }
+      .footcols h4 {
+        margin: 8px 0;
+      }
+      .footcols p,
+      .legal {
+        color: #777b80;
+        line-height: 1.9;
+      }
+      .payments {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 18px 0;
+      }
+      .payments span {
+        background: #27282a;
+        color: #a5a7aa;
+        padding: 10px 25px;
+        border-radius: 5px;
+      }
+      .legal {
+        font-size: 10px;
+        border-top: 1px solid #303134;
+        padding-top: 12px;
+      }
+      .mobilebar {
+        display: none;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: #000b;
+        z-index: 40;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      .modal.show {
+        display: flex;
+      }
+      .modalcontent {
+        background: #252729;
+        border: 1px solid #414447;
+        border-radius: 14px;
+        padding: 25px;
+        width: min(380px, 100%);
+        position: relative;
+      }
+      .deposit-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 45;
+        align-items: center;
+        justify-content: center;
+        padding: 12px;
+        background: #080d18bb;
+        backdrop-filter: blur(4px);
+      }
+      .deposit-modal.show {
+        display: flex;
+      }
+      .deposit-card {
+        position: relative;
+        width: min(560px, 100%);
+        max-height: calc(100vh - 24px);
+        max-height: calc(100dvh - 24px);
+        overflow-x: hidden;
+        overflow-y: auto;
+        border: 1px solid #ffffff;
+        border-radius: 18px;
+        background: linear-gradient(180deg, #f8faff, #eef2fa);
+        color: #17181a;
+        box-shadow: 0 24px 80px #0008, 0 2px 8px #fff3 inset;
+        scrollbar-width: thin;
+      }
+      .deposit-head {
+        position: relative;
+        overflow: hidden;
+        min-height: 0;
+        display: block;
+        padding: 24px 20px 17px;
+        border: 0;
+        border-radius: 0 0 24px 24px;
+        background: linear-gradient(125deg, #2784ee 0%, #3b9df2 48%, #65c7f5 100%);
+        color: #fff;
+        text-align: center;
+      }
+      .deposit-head::after {
+        position: absolute;
+        right: -48px;
+        bottom: -96px;
+        width: 220px;
+        height: 220px;
+        border: 1px solid #ffffff30;
+        border-radius: 50%;
+        box-shadow: 0 0 0 22px #ffffff0d, 0 0 0 46px #ffffff0a;
+        content: "";
+        pointer-events: none;
+      }
+      .deposit-head > :not(.deposit-close) {
+        position: relative;
+        z-index: 1;
+      }
+      .deposit-head .deposit-label {
+        display: block;
+        margin-bottom: 10px;
+        font-size: 16px;
+        font-weight: 700;
+      }
+      .deposit-close {
+        position: absolute;
+        z-index: 2;
+        top: 9px;
+        right: 12px;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: #ffffffeb;
+        color: #3c5269;
+        font-size: 27px;
+        line-height: 1;
+        box-shadow: 0 2px 8px #14528b35;
+      }
+      .deposit-close:hover {
+        background: #fff;
+        transform: scale(1.05);
+      }
+      .deposit-body {
+        padding: 0 12px 10px;
+      }
+      .deposit-amount {
+        margin: 0 0 12px;
+        font-size: 34px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        text-shadow: 0 2px 8px #1268b52b;
+        text-align: center;
+      }
+      .deposit-key-label {
+        margin: 0 0 5px;
+        font-size: 19px;
+        text-align: center;
+      }
+      .deposit-key {
+        display: block;
+        margin: 0 auto 8px;
+        font-size: clamp(20px, 4.5vw, 28px);
+        font-weight: 800;
+        letter-spacing: 0.4px;
+        overflow-wrap: anywhere;
+        text-align: center;
+      }
+      .copy-button {
+        padding: 7px 15px;
+        border: 1px solid #c8dcff;
+        border-radius: 20px;
+        background: #ffffffeb;
+        color: #1768da;
+        font-size: 14px;
+        font-weight: 650;
+        white-space: nowrap;
+        box-shadow: 0 2px 6px #315d9b12;
+        transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+      }
+      .copy-button:hover {
+        background: #fff;
+        box-shadow: 0 4px 10px #315d9b22;
+        transform: translateY(-1px);
+      }
+      .deposit-info {
+        margin: 10px 0;
+        padding: 12px 16px;
+        border: 1px solid #dce7ff;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #eaf1ff, #e3edff);
+        box-shadow: 0 3px 12px #243a5a0d;
+      }
+      .deposit-info-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 0;
+        padding: 7px 0;
+        border-bottom: 1px solid #cddbf1;
+      }
+      .deposit-info-row:last-child {
+        border-bottom: 0;
+      }
+      .deposit-info-row span {
+        display: block;
+        color: #606d80;
+        font-size: 13px;
+        line-height: 1.3;
+      }
+      .deposit-info-row strong {
+        display: block;
+        font-size: 14px;
+        line-height: 1.35;
+      }
+      .deposit-info-row strong {
+        font-weight: 700;
+        color: #172338;
+      }
+      .deposit-method-tabs {
+        display: flex;
+        gap: 8px;
+        margin: 10px 0;
+      }
+      .deposit-method-tab {
+        flex: 1;
+        padding: 10px 12px;
+        border: 1px solid #d5deed;
+        border-radius: 10px;
+        background: #fff;
+        color: #4a5870;
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .deposit-method-tab[aria-selected="true"] {
+        border-color: #2784ee;
+        background: #eaf3ff;
+        color: #1768da;
+      }
+      .deposit-view[hidden] {
+        display: none;
+      }
+      .deposit-pending-orders {
+        display: grid;
+        gap: 8px;
+        margin: 10px 0;
+      }
+      .deposit-pending-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #dce7ff;
+        border-radius: 9px;
+        background: #fff;
+        color: #25334a;
+        font-size: 12px;
+        text-align: left;
+        cursor: pointer;
+      }
+      .deposit-pending-row strong {
+        white-space: nowrap;
+      }
+      .deposit-pending-row small {
+        color: #9a6a13;
+        font-size: 10px;
+        white-space: nowrap;
+      }
+      .deposit-steps {
+        display: grid;
+        gap: 7px;
+        padding: 0 0 3px;
+      }
+      .deposit-step {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+        padding: 9px 13px;
+        border: 1px solid #e7eaf0;
+        border-radius: 12px;
+        background: linear-gradient(110deg, #fff, #fcfdff);
+        box-shadow: 0 3px 9px #18253d0b;
+        font-size: 14px;
+        line-height: 1.35;
+      }
+      .deposit-step-icon {
+        display: grid;
+        flex: 0 0 38px;
+        width: 38px;
+        height: 38px;
+        place-items: center;
+        border-radius: 10px;
+        background: linear-gradient(145deg, #e5ebff, #dce5ff);
+        font-size: 19px;
+        box-shadow: 0 2px 5px #5578c21a inset;
+      }
+      .deposit-step strong {
+        display: block;
+        margin-bottom: 2px;
+      }
+      .deposit-demo-note {
+        margin: 7px 8px 3px;
+        color: #71757a;
+        font-size: 11px;
+        line-height: 1.45;
+        text-align: center;
+      }
+      @media (max-width: 650px) {
+        .deposit-modal {
+          align-items: flex-end;
+          justify-content: center;
+          padding: 0;
+        }
+        .deposit-card {
+          width: 100%;
+          height: auto;
+          min-height: min(75vh, 620px);
+          min-height: min(75dvh, 620px);
+          max-height: 100%;
+          border: 0;
+          border-radius: 20px 20px 0 0;
+          box-shadow: 0 -12px 40px #0005;
+          padding-bottom: env(safe-area-inset-bottom);
+        }
+        .deposit-modal.show .deposit-card {
+          animation: deposit-sheet-in 280ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+        }
+        .deposit-card::before {
+          display: block;
+          width: 38px;
+          height: 4px;
+          margin: 9px auto 0;
+          border-radius: 4px;
+          background: #c5ccd8;
+          content: "";
+        }
+        .deposit-head {
+          padding: 22px 14px 15px;
+        }
+        .deposit-amount {
+          font-size: 30px;
+        }
+        .deposit-info {
+          padding: 10px 12px;
+        }
+        .deposit-step {
+          padding: 10px 12px;
+        }
+      }
+      @media (max-height: 700px) {
+        .deposit-modal {
+          padding-block: 6px;
+        }
+        .deposit-card {
+          max-height: calc(100vh - 12px);
+          max-height: calc(100dvh - 12px);
+        }
+        .deposit-head {
+          padding-top: 17px;
+          padding-bottom: 12px;
+        }
+        .deposit-amount {
+          font-size: 29px;
+          margin-bottom: 8px;
+        }
+        .deposit-info {
+          padding-block: 10px;
+        }
+        .deposit-info-row {
+          margin-bottom: 6px;
+        }
+        .deposit-steps {
+          gap: 6px;
+        }
+        .deposit-step {
+          padding-block: 8px;
+        }
+        .deposit-step-icon {
+          width: 34px;
+          height: 34px;
+          flex-basis: 34px;
+        }
+      }
+      @media (max-width: 650px) and (max-height: 700px) {
+        .deposit-modal {
+          padding: 0;
+        }
+        .deposit-card {
+          max-height: 100%;
+        }
+      }
+      @keyframes deposit-sheet-in {
+        from {
+          transform: translateY(100%);
+        }
+        to {
+          transform: translateY(0);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .deposit-modal.show .deposit-card {
+          animation-duration: 1ms;
+        }
+      }
+      .close {
+        position: absolute;
+        right: 15px;
+        top: 12px;
+        background: none;
+        font-size: 24px;
+      }
+      .toast {
+        position: fixed;
+        bottom: 25px;
+        right: 20px;
+        background: #174b40;
+        border: 1px solid var(--teal);
+        padding: 13px 18px;
+        border-radius: 8px;
+        display: none;
+        z-index: 50;
+      }
+      .toast.show {
+        display: block;
+      }
+      @media (max-width: 1000px) {
+        .sports-layout {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .sports-layout > * {
+          min-width: 0;
+        }
+        .promo {
+          display: none;
+        }
+        .banners {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .banners .banner:nth-child(3) {
+          display: none;
+        }
+        .game-grid {
+          grid-template-columns: repeat(5, 1fr);
+        }
+      }
+      @media (max-width: 650px) {
+        .top {
+          height: 48px;
+          padding: 0 10px;
+          gap: 8px;
+        }
+        .logo {
+          font-size: 19px;
+        }
+        .nav {
+          display: none;
+        }
+        .tools {
+          gap: 4px;
+        }
+        .tools .lang,
+        .tools .clock {
+          display: none;
+        }
+        .tools button {
+          padding: 7px;
+        }
+        .balance {
+          padding: 7px;
+          font-size: 10px;
+        }
+        .shell {
+          display: block;
+        }
+        .sidebar {
+          display: none;
+        }
+        .main {
+          padding: 10px 9px 80px;
+        }
+        #sports .sports-layout {
+          width: calc(100% + 18px);
+          margin-inline: -9px;
+        }
+        #sports .sports-layout > div:first-child > :not(.banners) {
+          margin-inline: 9px;
+        }
+        .banners {
+          display: flex;
+          overflow-x: auto;
+          scroll-snap-type: x mandatory;
+          scrollbar-width: none;
+        }
+        .banners::-webkit-scrollbar,
+        .league-icons::-webkit-scrollbar,
+        .chips::-webkit-scrollbar,
+        .bets-grid::-webkit-scrollbar,
+        .game-grid::-webkit-scrollbar {
+          display: none;
+        }
+        .banner {
+          flex: 0 0 100%;
+          min-width: 100%;
+          height: 136px;
+          scroll-snap-align: start;
+          border-radius: 0;
+        }
+        .banner strong {
+          font-size: 21px;
+        }
+        .banner .emoji {
+          font-size: 55px;
+        }
+        .section {
+          margin-top: 18px;
+        }
+        .section-title h2 {
+          font-size: 15px;
+        }
+        .chips {
+          margin: 7px 0 10px;
+        }
+        .chip {
+          padding: 8px 10px;
+          font-size: 10px;
+        }
+        .league-icons span {
+          min-width: 59px;
+          padding: 8px 3px;
+        }
+        .league-icons {
+          overflow-x: auto;
+        }
+        .match {
+          grid-template-columns: 1fr;
+          gap: 7px;
+          padding: 9px;
+        }
+        .teams {
+          font-size: 11px;
+        }
+        .odds {
+          width: 100%;
+        }
+        .odd {
+          padding: 7px 3px;
+        }
+        .bets-grid {
+          display: flex;
+          overflow-x: auto;
+        }
+        .bet-card {
+          min-width: 76%;
+        }
+        .game-grid {
+          display: flex;
+          overflow-x: auto;
+          scroll-snap-type: x mandatory;
+        }
+        .game {
+          min-width: 108px;
+          aspect-ratio: 0.83;
+          scroll-snap-align: start;
+        }
+        .game:before {
+          font-size: 44px;
+        }
+        .game strong {
+          font-size: 13px;
+        }
+        .rank-grid {
+          display: flex;
+          overflow-x: auto;
+        }
+        .rank-grid .game {
+          min-width: 180px;
+          aspect-ratio: 1.5;
+        }
+        .provider-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        .dual {
+          grid-template-columns: 1fr;
+        }
+        .jackpot {
+          overflow-x: auto;
+        }
+        .jackpot .game {
+          min-width: 95px;
+        }
+        .jackpot h2 {
+          font-size: 18px;
+        }
+        .jackpot strong {
+          font-size: 15px;
+        }
+        .footcols {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .payments span {
+          flex: 1;
+          text-align: center;
+          padding: 10px 8px;
+        }
+        .mobilebar {
+          display: flex;
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          height: 60px;
+          background: #1a1c1d;
+          border-top: 1px solid #303235;
+          z-index: 30;
+          justify-content: space-around;
+          align-items: center;
+        }
+        .mobilebar button {
+          background: none;
+          color: #a8aab0;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          align-items: center;
+          font-size: 10px;
+        }
+        .mobilebar button.active {
+          color: var(--teal);
+        }
+        .mobilebar b {
+          font-size: 20px;
+        }
+        .footer {
+          padding-bottom: 35px;
+        }
+      }
+      .deposit-modal {
+        background: #000c;
+        backdrop-filter: blur(3px);
+      }
+      .deposit-modal .deposit-card.cashier-card {
+        display: flex;
+        width: min(620px, calc(100vw - 32px));
+        max-height: min(680px, calc(100dvh - 32px));
+        flex-direction: column;
+        overflow-x: hidden;
+        overflow-y: auto;
+        border: 1px solid #343638;
+        border-radius: 14px;
+        padding: 0 18px 16px;
+        background: #191a1c;
+        color: #f3f4f5;
+        box-shadow: 0 24px 80px #000b;
+        scrollbar-width: thin;
+      }
+      .cashier-header {
+        position: relative;
+        display: flex;
+        min-height: 53px;
+        align-items: center;
+        border-bottom: 1px solid #303235;
+      }
+      .cashier-header h2 {
+        margin: 0;
+        color: #f4f5f6;
+        font-size: 16px;
+        font-weight: 750;
+      }
+      .cashier-header h2 span {
+        color: #39d9c0;
+        font-size: 18px;
+      }
+      .deposit-modal .deposit-close.cashier-close {
+        top: 8px;
+        right: 0;
+        width: 34px;
+        height: 34px;
+        border: 1px solid #414447;
+        background: transparent;
+        color: #aeb2b7;
+        font-size: 26px;
+        box-shadow: none;
+      }
+      .cashier-layout {
+        display: grid;
+        min-height: 480px;
+        flex: 1;
+        grid-template-columns: 126px minmax(0, 1fr);
+        gap: 18px;
+      }
+      .cashier-layout .deposit-method-tabs {
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+        margin: 18px 0 0;
+      }
+      .cashier-layout .deposit-method-tab {
+        display: flex;
+        min-height: 54px;
+        flex: 0 0 54px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid transparent;
+        border-radius: 12px;
+        background: #242527;
+        color: #f4f5f6;
+      }
+      .cashier-layout .deposit-method-tab[aria-selected="true"] {
+        border-color: #31d6bf;
+        background: #222426;
+        color: #fff;
+      }
+      .channel-logo {
+        display: inline-flex;
+        min-width: 62px;
+        min-height: 31px;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #d5d9de;
+        border-radius: 2px;
+        background: white;
+        font-size: 21px;
+        font-weight: 1000;
+        line-height: 1;
+      }
+      .spei-logo {
+        color: #353568;
+        letter-spacing: -1px;
+      }
+      .visa-logo {
+        color: #19427b;
+        font-size: 19px;
+        font-style: italic;
+      }
+      .oxxo-logo {
+        border-color: #f6c43a;
+        background: #e32636;
+        color: #fff;
+        font-size: 18px;
+        text-shadow: 1px 1px #79310b;
+      }
+      .cashier-layout .pending-channel-tab {
+        min-height: 58px;
+        flex-basis: 58px;
+        flex-direction: column;
+        gap: 4px;
+        padding: 8px 6px;
+        font-size: 11px;
+      }
+      .pending-channel-count {
+        color: #38d9c0;
+        font-size: 12px;
+      }
+      .cashier-content {
+        display: flex;
+        min-width: 0;
+        flex-direction: column;
+        padding-top: 16px;
+      }
+      .cashier-content .deposit-view[hidden],
+      .cashier-spei-details[hidden] {
+        display: none !important;
+      }
+      .cashier-form {
+        display: flex;
+        flex-direction: column;
+        gap: 11px;
+      }
+      .cashier-form[hidden] {
+        display: none !important;
+      }
+      .cashier-label {
+        display: block;
+        margin: 0;
+        color: #d7d8da;
+        font-size: 14px;
+        font-weight: 650;
+      }
+      .cashier-amount-input {
+        display: flex;
+        height: 54px;
+        align-items: center;
+        gap: 6px;
+        padding: 0 14px;
+        border: 1px solid #282a2c;
+        border-radius: 12px;
+        background: #242527;
+        color: #aeb0b2;
+        font-size: 14px;
+      }
+      .cashier-amount-input input {
+        width: 100%;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: #f4f5f6;
+        font-size: 14px;
+      }
+      .cashier-amount-input input::-webkit-inner-spin-button,
+      .cashier-amount-input input::-webkit-outer-spin-button {
+        margin: 0;
+        appearance: none;
+      }
+      .cashier-amount-options {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+      }
+      .cashier-amount-option {
+        min-height: 42px;
+        border: 1px solid #292b2d;
+        border-radius: 9px;
+        background: #1d1e20;
+        color: #9c9fa3;
+        font-size: 13px;
+      }
+      .cashier-amount-option.is-selected {
+        background: #f7f7f7;
+        color: #202124;
+        font-weight: 750;
+      }
+      .cashier-checkbox {
+        display: flex;
+        min-height: 20px;
+        align-items: center;
+        gap: 7px;
+        color: #a7a9ac;
+        font-size: 11px;
+        font-weight: 650;
+      }
+      .cashier-checkbox input {
+        width: 18px;
+        height: 18px;
+        flex: 0 0 auto;
+        margin: 0;
+        accent-color: #38d9c0;
+      }
+      .cashier-info {
+        display: inline-grid;
+        width: 14px;
+        height: 14px;
+        place-items: center;
+        border-radius: 50%;
+        background: #55595d;
+        color: #d6d8da;
+        font-size: 10px;
+      }
+      .cashier-submit {
+        min-height: 46px;
+        margin-top: 5px;
+        border-radius: 10px;
+        background: #fff;
+        color: #202124;
+        font-size: 15px;
+        font-weight: 750;
+      }
+      .cashier-help {
+        margin: 2px 0 0;
+        padding-left: 18px;
+        color: #777a7e;
+        font-size: 11px;
+        line-height: 1.45;
+      }
+      .cashier-help a {
+        color: #a1a3a6;
+      }
+      .cashier-trust {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: auto;
+        padding: 22px 0 3px;
+        color: #62666a;
+        font-size: 11px;
+      }
+      .cashier-demo-note {
+        margin: 4px 0 0;
+        color: #65686c;
+        font-size: 10px;
+        text-align: center;
+      }
+      .pending-orders-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin: 0;
+        font-size: 16px;
+      }
+      .pending-orders-title span {
+        color: #92979e;
+        font-size: 11px;
+      }
+      .pending-orders-description {
+        color: #92979e;
+        font-size: 12px;
+      }
+      .cashier-content .deposit-pending-orders {
+        gap: 9px;
+        margin: 8px 0;
+      }
+      .cashier-content .deposit-pending-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+        border-color: #383a3d;
+        background: #242527;
+        color: #f3f4f5;
+      }
+      .cashier-content .deposit-pending-row small {
+        color: #f2c56b;
+      }
+      .cashier-spei-details {
+        overflow-y: auto;
+        max-height: 430px;
+        text-align: center;
+      }
+      .cashier-back {
+        display: block;
+        margin: 0 0 12px;
+        padding: 6px 10px;
+        border-radius: 8px;
+        background: #292b2d;
+        color: #e1e3e5;
+      }
+      .cashier-payment-amount {
+        margin: 5px 0 12px;
+        color: #fff;
+        font-size: 28px;
+        font-weight: 800;
+      }
+      .cashier-payment-key {
+        display: block;
+        margin: 5px 0 10px;
+        color: #fff;
+        font-size: 20px;
+        overflow-wrap: anywhere;
+      }
+      .cashier-spei-details .deposit-info {
+        text-align: left;
+      }
+      .cashier-spei-details .deposit-info-row strong {
+        color: #172338;
+      }
+      @media (max-width: 650px) {
+        .deposit-modal {
+          align-items: flex-end;
+          padding: 0;
+        }
+        .deposit-modal .deposit-card.cashier-card {
+          width: 100%;
+          min-height: min(75dvh, 640px);
+          max-height: 100dvh;
+          border: 0;
+          border-radius: 20px 20px 0 0;
+          padding: 0 12px calc(12px + env(safe-area-inset-bottom));
+          box-shadow: 0 -12px 40px #0007;
+        }
+        .cashier-header {
+          min-height: 58px;
+          flex: 0 0 auto;
+        }
+        .cashier-layout {
+          display: flex;
+          min-height: 0;
+          flex-direction: column;
+          gap: 4px;
+        }
+        .cashier-layout .deposit-method-tabs {
+          flex-direction: row;
+          overflow-x: auto;
+          margin: 10px 0 2px;
+          padding-bottom: 5px;
+          scrollbar-width: none;
+          scroll-snap-type: x mandatory;
+        }
+        .cashier-layout .deposit-method-tabs::-webkit-scrollbar {
+          display: none;
+        }
+        .cashier-layout .deposit-method-tab {
+          min-width: 90px;
+          min-height: 52px;
+          flex: 0 0 auto;
+          scroll-snap-align: start;
+        }
+        .cashier-layout .pending-channel-tab {
+          min-width: 136px;
+        }
+        .cashier-content {
+          flex: 1;
+          padding: 10px 0 0;
+        }
+        .cashier-form {
+          gap: 9px;
+        }
+        .cashier-trust {
+          flex: 0 0 auto;
+          padding-top: 15px;
+        }
+        .cashier-spei-details {
+          max-height: 50dvh;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="top">
+      <button id="menuBtn" style="background: none">☰</button>
+      <div class="logo">MEGW<i>IN</i></div>
+      <nav class="nav">
+        <button class="active" data-page="sports">⚽ Sports</button
+        ><button>◉ Live</button><button data-page="casino">♠ Casino</button
+        ><button>▣ Streaming</button><button>★ My Bets</button>
+      </nav>
+      <div class="tools">
+        <span class="lang">English ⌄　 Decimal ⌄</span
+        ><span class="clock">◷ 00:48:46</span><button id="searchBtn">⌕</button
+        ><button class="balance" id="balanceDepositBtn" type="button" aria-label="Open deposit interface">🪙 $12,000.88</button
+        ><button id="profileBtn">◉</button>
+      </div>
+    </header>
+    <aside class="pending-deposit-widget" id="pendingDepositWidget">
+      <button class="pending-deposit-trigger" id="pendingDepositTrigger" type="button" aria-label="View 3 pending deposits">
+        <span class="pending-deposit-icon" aria-hidden="true">💳</span>
+        <span class="pending-deposit-copy"><strong>Pending deposits</strong><small>Continue pending payments</small></span>
+        <span class="pending-deposit-count" data-pending-count>3</span>
+      </button>
+      <button class="pending-deposit-dismiss" id="dismissPendingDepositWidget" type="button" aria-label="Dismiss pending deposits reminder">×</button>
+    </aside>
+    <div class="shell">
+      <aside class="sidebar" id="sidebar"><div id="sideLinks"></div></aside>
+      <main class="main">
+        <div class="page active" id="sports">
+          <div class="sports-layout">
+            <div>
+              <div class="banners">
+                <div class="banner">
+                  <strong>⚡ 20% BOOST</strong>
+                  <p>PALMEIRAS × SANTOS<br />Exclusive boosted odds</p>
+                  <button>View Odds</button><span class="emoji">⚽</span>
+                </div>
+                <div class="banner">
+                  <strong style="color: #ffd438">FORTUNE TIGER</strong>
+                  <p>Desperte sua fortuna!</p>
+                  <button data-page="casino">Play Now</button
+                  ><span class="emoji">🐯</span>
+                </div>
+                <div class="banner">
+                  <strong style="color: #27c7ff">200% FIRST DEPOSIT</strong>
+                  <p>Cashback extra everyday.</p>
+                  <button>View More</button><span class="emoji">💎</span>
+                </div>
+              </div>
+              <div class="league-icons">
+                <span><b>🏆</b>UEFA</span><span><b>🏈</b>NFL</span
+                ><span><b>🏒</b>NHL</span><span><b>🏀</b>NBA</span
+                ><span><b>🏎️</b>F1</span><span><b>⚽</b>Ligue 1</span
+                ><span><b>🏆</b>Portugal</span>
+              </div>
+              <div class="chips" id="sportType">
+                <button class="chip active">⚽ Live</button
+                ><button class="chip">Soccer</button
+                ><button class="chip">Basketball</button
+                ><button class="chip">Crash Game</button
+                ><button class="chip">Tennis</button
+                ><button class="chip">Volleyball</button>
+              </div>
+              <section class="section">
+                <div class="section-title">
+                  <h2>Act Now</h2>
+                  <a>⚡ In Live　 Upcoming</a>
+                </div>
+                <div class="chips">
+                  <button class="chip active">⚽ Soccer</button
+                  ><button class="chip">Basketball</button
+                  ><button class="chip">Tennis</button
+                  ><button class="chip">Table Tennis</button
+                  ><button class="chip">Dota2</button
+                  ><button class="chip">CS:GO</button
+                  ><button class="chip">Volleyball</button>
+                </div>
+                <div id="liveMatches"></div>
+              </section>
+              <section class="section">
+                <div class="section-title">
+                  <h2>Megwin Best Picks</h2>
+                  <a>View All ›</a>
+                </div>
+                <div class="chips">
+                  <button class="chip active">Superodds</button
+                  ><button class="chip">Outright</button
+                  ><button class="chip">Hot Live</button
+                  ><button class="chip">Parlay Boost</button
+                  ><button class="chip">Hot SGP</button>
+                </div>
+                <div class="bets-grid" id="bestPicks"></div>
+              </section>
+              <section class="section">
+                <div class="section-title">
+                  <h2>Upcoming</h2>
+                  <a>View All ›</a>
+                </div>
+                <div class="chips">
+                  <button class="chip active">⚽ Soccer</button
+                  ><button class="chip">Basketball</button
+                  ><button class="chip">Tennis</button
+                  ><button class="chip">Table Tennis</button
+                  ><button class="chip">Dota2</button>
+                </div>
+                <div id="upcomingMatches"></div>
+              </section>
+              <section class="section">
+                <div class="section-title">
+                  <h2>Popular</h2>
+                  <a data-page="casino">View All ›</a>
+                </div>
+                <div class="game-grid" id="sportsPopular"></div>
+              </section>
+              <section class="section">
+                <div class="section-title"><h2>Top User</h2></div>
+                <div class="chips">
+                  <button class="chip active">Sport</button
+                  ><button class="chip">Casino</button
+                  ><button class="chip">Daily</button
+                  ><button class="chip">Weekly</button
+                  ><button class="chip">Monthly</button>
+                </div>
+                <div class="tablebox">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Rank User</th>
+                        <th>Bets</th>
+                        <th>Turnover</th>
+                      </tr>
+                    </thead>
+                    <tbody id="sportRank"></tbody>
+                  </table>
+                </div>
+                <div class="tablebox" style="margin-top: 10px">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Username</th>
+                        <th>Turnover</th>
+                        <th>Live Betting</th>
+                      </tr>
+                    </thead>
+                    <tbody id="liveRank"></tbody>
+                  </table>
+                </div>
+              </section>
+            </div>
+            <aside class="promo">
+              <h3>Hot Promotions</h3>
+              <div class="promo-card">
+                Oferta de 1er Depósito de Casino<br /><small
+                  >Bonos de hasta 200% para nuevos jugadores</small
+                >
+              </div>
+              <div class="promo-card">
+                Oferta de 1er Depósito de Casino<br /><small
+                  >¡Disfruta de promociones especiales!</small
+                >
+              </div>
+              <div class="promo-card">
+                Oferta de 1er Depósito de Casino<br /><small
+                  >Gana recompensas cada día</small
+                >
+              </div>
+            </aside>
+          </div>
+        </div>
+        <div class="page" id="casino">
+          <div
+            class="banner"
+            style="
+              height: 180px;
+              background: linear-gradient(
+                105deg,
+                #17191b 24%,
+                #4b1868 66%,
+                #dc5e1d
+              );
+            "
+          >
+            <strong style="color: #ffd22a">Chicken Goal</strong>
+            <p>Desperte sua fortuna!<br />Play the hottest games now.</p>
+            <button>Play Now</button><span class="emoji">🐔⚽</span>
+          </div>
+          <div class="chips">
+            <button class="chip active">⌂ Lobby</button
+            ><button class="chip">🏆 Top10</button
+            ><button class="chip">♠ Slots</button
+            ><button class="chip">🎁 Promo</button
+            ><button class="chip">🔥 Hot</button
+            ><button class="chip">✨ New Releases</button>
+          </div>
+          <section class="section">
+            <div class="section-title"><h2>Top10</h2></div>
+            <div class="rank-grid" id="topGames"></div>
+          </section>
+          <section class="section">
+            <div class="section-title">
+              <h2>🏆 Top Win</h2>
+              <a>View All ›</a>
+            </div>
+            <div class="game-grid" id="topWin"></div>
+          </section>
+          <section class="section">
+            <div class="section-title">
+              <h2>Slots</h2>
+              <a>View All ›</a>
+            </div>
+            <div class="game-grid" id="slots1"></div>
+          </section>
+          <section class="section">
+            <div class="section-title">
+              <h2>Slots</h2>
+              <a>View All ›</a>
+            </div>
+            <div class="game-grid" id="slots2"></div>
+          </section>
+          <section class="section">
+            <div class="section-title">
+              <h2>Hot</h2>
+              <a>View All ›</a>
+            </div>
+            <div class="game-grid" id="hotGames"></div>
+          </section>
+          <section class="section">
+            <div class="section-title">
+              <h2>New Releases</h2>
+              <a>View All ›</a>
+            </div>
+            <div class="game-grid" id="newGames"></div>
+          </section>
+          <section class="section">
+            <div class="section-title">
+              <h2>Our Providers</h2>
+              <a>View All ›</a>
+            </div>
+            <div class="provider-grid">
+              <div>PG SOFT</div>
+              <div>JILI</div>
+              <div>JDB</div>
+              <div>PRAGMATIC</div>
+              <div>DOLOMIT</div>
+              <div>BNG</div>
+            </div>
+          </section>
+          <section class="section">
+            <div class="section-title"><h2>Game Ranks</h2></div>
+            <div class="tablebox">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Game</th>
+                    <th>RTP</th>
+                    <th>Turnover</th>
+                  </tr>
+                </thead>
+                <tbody id="casinoRank"></tbody>
+              </table>
+            </div>
+          </section>
+          <section class="section dual">
+            <div class="hotcold">
+              <h2 class="hot">HOT! 🔥</h2>
+              <p>Impressive winning streak in the last 30 minutes.</p>
+              <div id="hotTrends"></div>
+            </div>
+            <div class="hotcold">
+              <h2 class="cold">COLD! ❄️</h2>
+              <p>Impressive winning streak in the last 30 minutes.</p>
+              <div id="coldTrends"></div>
+            </div>
+          </section>
+          <section class="section jackpot">
+            <div>
+              <h2>Jackpot 🎰</h2>
+              <p>Total co. jackpot</p>
+              <strong>62,408.56 R$</strong>
+            </div>
+            <div
+              class="game"
+              style="--c1: #d900a1; --c2: #fca325"
+              data-emoji="🍬"
+            >
+              <strong>Sweet Bonanza</strong>
+            </div>
+            <div
+              class="game"
+              style="--c1: #4c20ab; --c2: #ff7c00"
+              data-emoji="💎"
+            >
+              <strong>Sugar Rush</strong>
+            </div>
+            <div
+              class="game"
+              style="--c1: #115e45; --c2: #c9ab21"
+              data-emoji="🐟"
+            >
+              <strong>Big Bass</strong>
+            </div>
+          </section>
+        </div>
+        <footer class="footer">
+          <div class="logo">MEGW<i>IN</i></div>
+          <div class="footcols">
+            <div>
+              <h4>Sports</h4>
+              <p>
+                Promotions<br />Sports<br />In-Play<br />Top Events<br />Upcoming
+              </p>
+            </div>
+            <div>
+              <h4>Casino</h4>
+              <p>Popular<br />New<br />Slots<br />Live Casino</p>
+            </div>
+            <div>
+              <h4>Support</h4>
+              <p>
+                Affiliates<br />Deposits<br />Withdrawals<br />Help<br />Rules<br />Contact
+                us
+              </p>
+            </div>
+            <div>
+              <h4>About</h4>
+              <p>
+                Responsible Gaming<br />Privacy Policy<br />Terms of Service
+              </p>
+            </div>
+          </div>
+          <h4>Community</h4>
+          <p>🎵　▶️　🌐　𝕏　📸</p>
+          <div class="payments">
+            <span>VISA</span><span>Mastercard</span><span>SPEI</span
+            ><span>OXXO PAY</span><span>7-ELEVEN</span><span>BBVA</span
+            ><span>Banorte</span><span>PIX</span>
+          </div>
+          <div class="legal">
+            MEGWIN — Responsive frontend prototype. Game, odds, ranking and
+            promotional figures shown here are demonstration data. No real-money
+            betting, deposit or external API is connected.<br />© 2026 MEGWIN.
+            All rights reserved.
+          </div>
+        </footer>
+      </main>
+    </div>
+    <nav class="mobilebar">
+      <button data-page="sports" class="active"><b>⌂</b>Home</button
+      ><button><b>◷</b>In Live</button
+      ><button data-page="casino"><b>♠</b>Casino</button
+      ><button><b>▤</b>My Bets</button
+      ><button id="mobileMenu"><b>☷</b>Menu</button>
+    </nav>
+    <div class="modal" id="modal">
+      <div class="modalcontent">
+        <button class="close" id="closeModal">×</button>
+        <h2 id="modalTitle">Game Details</h2>
+        <p id="modalBody">Demo preview only.</p>
+        <button class="chip active" id="modalOk">Close</button>
+      </div>
+    </div>
+    <div class="modal" id="pendingDepositModal" role="dialog" aria-modal="true" aria-labelledby="pendingDepositTitle">
+      <div class="modalcontent">
+        <button class="close" id="closePendingDeposits" type="button" aria-label="Close">×</button>
+        <h2 id="pendingDepositTitle">Pending deposits</h2>
+        <p><strong><span data-pending-count>3</span> payments not completed</strong></p>
+        <div class="pending-deposit-list">
+          <button class="pending-deposit-item" type="button" data-open-deposit>
+            <span aria-hidden="true">💳</span>
+            <span><strong>Deposit MXN$100.00</strong><small>Bank details are ready to continue</small></span>
+            <span class="pending-status">Pending</span>
+          </button>
+          <button class="pending-deposit-item" type="button" data-open-deposit>
+            <span aria-hidden="true">🏦</span>
+            <span><strong>Deposit MXN$100.00</strong><small>Transfer is waiting to be completed</small></span>
+            <span class="pending-status">Pending</span>
+          </button>
+          <button class="pending-deposit-item" type="button" data-open-deposit>
+            <span aria-hidden="true">🔔</span>
+            <span><strong>Deposit MXN$100.00</strong><small>Review the payment instructions</small></span>
+            <span class="pending-status">Pending</span>
+          </button>
+        </div>
+        <p class="pending-deposit-note">Demo only: these entries do not represent real transactions.</p>
+      </div>
+    </div>
+    <div class="deposit-modal" id="depositModal" role="dialog" aria-modal="true" aria-labelledby="depositTitle">
+      <section class="deposit-card cashier-card">
+        <header class="cashier-header">
+          <h2 id="depositTitle"><span aria-hidden="true">▰</span> Depositar</h2>
+          <button class="deposit-close cashier-close" id="closeDeposit" type="button" aria-label="Close deposit">×</button>
+        </header>
+        <div class="cashier-layout">
+          <nav class="deposit-method-tabs" id="depositMethodTabs" role="tablist" aria-label="Deposit channels">
+            <button class="deposit-method-tab" id="speiTab" type="button" role="tab" data-deposit-channel="spei" aria-selected="true" aria-controls="speiDepositView"><span class="channel-logo spei-logo">SPEI</span></button>
+            <button class="deposit-method-tab" id="visaTab" type="button" role="tab" data-deposit-channel="visa" aria-selected="false" aria-controls="visaDepositView"><span class="channel-logo visa-logo">VISA</span></button>
+            <button class="deposit-method-tab" id="oxxoTab" type="button" role="tab" data-deposit-channel="oxxo" aria-selected="false" aria-controls="oxxoDepositView"><span class="channel-logo oxxo-logo">OXXO</span></button>
+            <button class="deposit-method-tab pending-channel-tab" id="pendingOrdersTab" type="button" role="tab" data-deposit-channel="pending" aria-selected="false" aria-controls="pendingOrdersView">Pending deposits <span class="pending-channel-count" data-deposit-pending-count>3</span></button>
+          </nav>
+          <div class="cashier-content">
+            <section class="deposit-view" id="speiDepositView" data-channel-view="spei" role="tabpanel" aria-labelledby="speiTab">
+              <div class="cashier-form" data-channel-form="spei">
+                <label class="cashier-label" for="depositAmount">Monto de Depósito</label>
+                <div class="cashier-amount-input"><span>$</span><input id="depositAmount" type="number" min="10" step="1" value="10" aria-label="Deposit amount in MXN"></div>
+                <div class="cashier-amount-options" aria-label="Quick deposit amounts">
+                  <button type="button" class="cashier-amount-option is-selected" data-amount="10">$10</button>
+                  <button type="button" class="cashier-amount-option" data-amount="20">$20</button>
+                  <button type="button" class="cashier-amount-option" data-amount="50">$50</button>
+                  <button type="button" class="cashier-amount-option" data-amount="100">$100</button>
+                  <button type="button" class="cashier-amount-option" data-amount="200">$200</button>
+                  <button type="button" class="cashier-amount-option" data-amount="500">$500</button>
+                  <button type="button" class="cashier-amount-option" data-amount="1000">$1000</button>
+                  <button type="button" class="cashier-amount-option" data-amount="5000">$5000</button>
+                </div>
+                <label class="cashier-checkbox"><input type="checkbox"><span>Bonus en tu primer depósito, hasta MXN $7,000!</span><span class="cashier-info" title="Demo promotion">i</span></label>
+                <label class="cashier-checkbox"><input type="checkbox"><span>FD0001</span><span class="cashier-info" title="Demo promotion">i</span></label>
+                <button class="cashier-submit" type="button" data-create-deposit="spei">Depositar</button>
+                <ul class="cashier-help">
+                  <li>Tarifas: Gratis</li>
+                  <li>Tiempo de Procesamiento: Hasta 30 minutos</li>
+                  <li>¿Necesitas ayuda? <a href="#" data-help-link>Obtener Ayuda</a></li>
+                </ul>
+              </div>
+              <div class="cashier-spei-details" id="speiPaymentDetails" hidden>
+                <button class="cashier-back" id="backToSpeiForm" type="button">‹ Back to deposit</button>
+                <p class="cashier-label">Importe del pago:</p>
+                <p class="cashier-payment-amount" id="speiPaymentAmount">MXN$10.00</p>
+                <p class="cashier-label">Clave:</p>
+                <strong class="cashier-payment-key" id="depositKey">734180016761891262</strong>
+                <button class="copy-button" type="button" data-copy="depositKey">📋 Copiar Clave</button>
+                <div class="deposit-info">
+                  <div class="deposit-info-row"><div><span>Banco Destino:</span><strong>FINCO PAY</strong></div></div>
+                  <div class="deposit-info-row"><div><span>Beneficiario:</span><strong>SPEI</strong></div></div>
+                  <div class="deposit-info-row"><div><span>Concepto (opcional):</span><strong id="depositConcept">Pago</strong></div><button class="copy-button" type="button" data-copy="depositConcept">📋 Copiar</button></div>
+                </div>
+                <div class="deposit-steps">
+                  <div class="deposit-step"><span class="deposit-step-icon">✅</span><div><strong>Paso 1</strong>Copiar la Clave.</div></div>
+                  <div class="deposit-step"><span class="deposit-step-icon">🏦</span><div><strong>Paso 2</strong>Pegar la Clave en su App bancaria e ingresar el monto a pagar.</div></div>
+                  <div class="deposit-step"><span class="deposit-step-icon">🔍</span><div><strong>Paso 3</strong>Revisar que el importe sea descontado de su saldo.</div></div>
+                </div>
+              </div>
+            </section>
+            <section class="deposit-view" id="visaDepositView" data-channel-view="visa" role="tabpanel" aria-labelledby="visaTab" hidden>
+              <div class="cashier-form">
+                <label class="cashier-label" for="visaAmount">Monto de Depósito</label>
+                <div class="cashier-amount-input"><span>$</span><input id="visaAmount" type="number" min="10" step="1" value="10" aria-label="VISA deposit amount in MXN"></div>
+                <div class="cashier-amount-options" aria-label="Quick deposit amounts">
+                  <button type="button" class="cashier-amount-option is-selected" data-amount="10">$10</button><button type="button" class="cashier-amount-option" data-amount="20">$20</button><button type="button" class="cashier-amount-option" data-amount="50">$50</button><button type="button" class="cashier-amount-option" data-amount="100">$100</button><button type="button" class="cashier-amount-option" data-amount="200">$200</button><button type="button" class="cashier-amount-option" data-amount="500">$500</button><button type="button" class="cashier-amount-option" data-amount="1000">$1000</button><button type="button" class="cashier-amount-option" data-amount="5000">$5000</button>
+                </div>
+                <button class="cashier-submit" type="button" data-create-deposit="visa">Depositar</button>
+                <ul class="cashier-help"><li>Pagos con VISA</li><li>¿Necesitas ayuda? <a href="#" data-help-link>Obtener Ayuda</a></li></ul>
+              </div>
+            </section>
+            <section class="deposit-view" id="oxxoDepositView" data-channel-view="oxxo" role="tabpanel" aria-labelledby="oxxoTab" hidden>
+              <div class="cashier-form">
+                <label class="cashier-label" for="oxxoAmount">Monto de Depósito</label>
+                <div class="cashier-amount-input"><span>$</span><input id="oxxoAmount" type="number" min="10" step="1" value="10" aria-label="OXXO deposit amount in MXN"></div>
+                <div class="cashier-amount-options" aria-label="Quick deposit amounts">
+                  <button type="button" class="cashier-amount-option is-selected" data-amount="10">$10</button><button type="button" class="cashier-amount-option" data-amount="20">$20</button><button type="button" class="cashier-amount-option" data-amount="50">$50</button><button type="button" class="cashier-amount-option" data-amount="100">$100</button><button type="button" class="cashier-amount-option" data-amount="200">$200</button><button type="button" class="cashier-amount-option" data-amount="500">$500</button><button type="button" class="cashier-amount-option" data-amount="1000">$1000</button><button type="button" class="cashier-amount-option" data-amount="5000">$5000</button>
+                </div>
+                <button class="cashier-submit" type="button" data-create-deposit="oxxo">Depositar</button>
+                <ul class="cashier-help"><li>Pagos en tiendas OXXO</li><li>¿Necesitas ayuda? <a href="#" data-help-link>Obtener Ayuda</a></li></ul>
+              </div>
+            </section>
+            <section class="deposit-view" id="pendingOrdersView" data-channel-view="pending" role="tabpanel" aria-labelledby="pendingOrdersTab" hidden>
+              <h3 class="pending-orders-title">Pending deposits <span><b data-deposit-pending-count>3</b> not completed</span></h3>
+              <p class="pending-orders-description">Select a pending order to continue its payment.</p>
+              <div class="deposit-pending-orders">
+                <button class="deposit-pending-row" type="button" data-resume-deposit><strong>Deposit MXN$100.00</strong><small>SPEI · Pending · Continue</small></button>
+                <button class="deposit-pending-row" type="button" data-resume-deposit><strong>Deposit MXN$100.00</strong><small>SPEI · Pending · Continue</small></button>
+                <button class="deposit-pending-row" type="button" data-resume-deposit><strong>Deposit MXN$100.00</strong><small>SPEI · Pending · Continue</small></button>
+              </div>
+            </section>
+            <footer class="cashier-trust"><span>🛡 Seguro</span><span>✿ Confiable</span><span>ϟ Rápido</span></footer>
+          </div>
+        </div>
+        <p class="cashier-demo-note">Demo de interfaz: no se conecta a un banco ni confirma pagos reales.</p>
+      </section>
+    </div>
+    <div class="toast" id="toast">Demo action</div>
+    <script>
+      const $ = (s) => document.querySelector(s),
+        $$ = (s) => [...document.querySelectorAll(s)];
+      let page = "sports";
+      const sportSide = [
+        "Home",
+        "In-Play 🟢",
+        "Top Events",
+        "Upcoming",
+        "VIP Club",
+        "Promotions",
+        "Affiliate",
+        "Sports Leaderboard",
+        "|Sports",
+        "Soccer",
+        "Basketball",
+        "Tennis",
+        "Futsal",
+        "MMA",
+        "Volleyball",
+        "American Football",
+        "Aussie Rules",
+        "Badminton",
+        "Baseball",
+        "Beach Volleyball",
+        "Boxing",
+        "Darts",
+        "Floorball",
+        "Handball",
+        "Ice Hockey",
+        "Rugby League",
+        "Snooker",
+        "Table Tennis",
+        "Water Polo",
+      ];
+      const casinoSide = [
+        "All Games",
+        "Popular",
+        "Favourites",
+        "Recent",
+        "VIP Club",
+        "Promotions",
+        "Sports Leaderboard",
+        "|Casino",
+        "Slots",
+        "Live Casino",
+        "Baccarat",
+        "New Releases",
+        "Bingo",
+        "Roulette",
+        "Megaways",
+        "Crash Games",
+        "Table",
+      ];
+      function side() {
+        $("#sideLinks").innerHTML = (page === "sports" ? sportSide : casinoSide)
+          .map((s, i) =>
+            s[0] === "|"
+              ? `<div class="sidehead">${s.slice(1)}</div>`
+              : `<div class="sideitem ${i === 0 ? "selected" : ""}" data-side="${s}">♧ ${s} ${i > 8 ? "<small>★</small>" : ""}</div>`,
+          )
+          .join("");
+      }
+      function switchPage(p) {
+        page = p;
+        $$(".page").forEach((x) => x.classList.toggle("active", x.id === p));
+        $$("[data-page]").forEach((x) =>
+          x.classList.toggle("active", x.dataset.page === p),
+        );
+        side();
+        window.scrollTo(0, 0);
+      }
+      const games = [
+        ["Lucky Streak", "🎰", "#df5c0a", "#7622ae"],
+        ["Wild West Gold", "🤠", "#c28c3c", "#342119"],
+        ["Gems Bonanza", "💎", "#8d36df", "#e677ca"],
+        ["Fortune Tiger", "🐯", "#f8aa16", "#8d2209"],
+        ["Sweet Bonanza", "🍬", "#ff339f", "#7a35ef"],
+        ["Dragon Treasure", "🐉", "#0a9478", "#3b1867"],
+        ["Big Bass Bonanza", "🐟", "#00a5ae", "#c47c1c"],
+        ["Chicken Goal", "🐔", "#e65e2d", "#5c208c"],
+        ["Aztec Clusters", "🗿", "#c33827", "#3a1219"],
+        ["Gold Trio", "🪙", "#f1b800", "#66242b"],
+        ["Fortune Gems", "🔮", "#8b3cf6", "#dd4d91"],
+        ["Wild Miner", "⛏️", "#f79e14", "#823a0a"],
+        ["Aviator", "✈️", "#d11229", "#170e12"],
+        ["Candy Stars", "⭐", "#ec44c7", "#632cce"],
+        ["Lucky Rabbit", "🐰", "#ffb642", "#3b206d"],
+        ["Mayan Gold", "🏆", "#cf7520", "#5e2c12"],
+      ];
+      function gameHTML(g, i, tag = "") {
+        return `<div class="game" data-game="${g[0]}" data-emoji="${g[1]}" style="--c1:${g[2]};--c2:${g[3]}">${tag ? `<span class="tag">${tag}</span>` : ""}<strong>${g[0]}</strong><small>🎮 1,238</small></div>`;
+      }
+      function renderGames(id, arr, tag = "") {
+        $("#" + id).innerHTML = arr.map((g, i) => gameHTML(g, i, tag)).join("");
+      }
+      function matchHTML(n, upcoming = false) {
+        return Array.from(
+          { length: n },
+          (_, i) =>
+            `<div class="matchbox"><div class="matchhead">🇺🇸 UEFA Conference League <span style="color:#8dd52c">${upcoming ? "" : "● 74:18"}</span></div>${Array.from({ length: 2 }, (_, j) => `<div class="match"><div class="teams"><small>◷ ${upcoming ? "Fri 09:00" : "74:18"}　　${upcoming ? "" : "1H"}</small><br>⚽ Leeds United　${upcoming ? "" : "0"}<br>🛡️ AFC Bournemouth　${upcoming ? "" : "2"}</div><div class="odds">${["1", "X", "2"].map((v) => `<button class="odd" data-odd="${v}">${v}<b>4.33</b></button>`).join("")}</div></div>`).join("")}</div>`,
+        ).join("");
+      }
+      $("#liveMatches").innerHTML = matchHTML(2);
+      $("#upcomingMatches").innerHTML = matchHTML(2, true);
+      $("#bestPicks").innerHTML = Array.from(
+        { length: 3 },
+        () =>
+          `<div class="bet-card"><h4>⚡ Superodds <span style="float:right;color:#ffda2d">BOOST+15%</span></h4><small>International · Sako Cup</small>${["Man United to Win", "Over 2.5 Goals", "Both Teams to Score - Yes", "Both Teams to Score - Yes"].map((s) => `<p>${s}<b>1.82</b></p>`).join("")}<button>44.02</button></div>`,
+      ).join("");
+      renderGames("sportsPopular", games.slice(0, 6));
+      renderGames("topWin", games.slice(3, 9));
+      renderGames("slots1", games.slice(0, 6));
+      renderGames("slots2", games.slice(6, 12));
+      renderGames("hotGames", games.slice(10, 16), "HOT");
+      renderGames("newGames", games.slice(2, 8), "NEW");
+      $("#topGames").innerHTML = games
+        .slice(0, 4)
+        .map((g, i) =>
+          gameHTML(g, i).replace(
+            'class="game"',
+            `class="game" data-rank="${i + 1}"`,
+          ),
+        )
+        .join("");
+      $("#sportRank").innerHTML = Array.from(
+        { length: 4 },
+        (_, i) =>
+          `<tr><td>🏅 ${i + 1}　Meg********</td><td>● 99</td><td>🪙 R$5,456.78</td></tr>`,
+      ).join("");
+      $("#liveRank").innerHTML = Array.from(
+        { length: 5 },
+        () =>
+          `<tr><td>Meg********</td><td>🪙 R$5,456.78</td><td>07-15 11:20</td></tr>`,
+      ).join("");
+      $("#casinoRank").innerHTML = Array.from(
+        { length: 5 },
+        (_, i) =>
+          `<tr><td>${i + 1}　Lucky Fortune Rabbit 9</td><td>● 96.8%</td><td>🪙 R$5,456.78</td></tr>`,
+      ).join("");
+      ["hotTrends", "coldTrends"].forEach(
+        (id, k) =>
+          ($("#" + id).innerHTML = games
+            .slice(k ? 3 : 10, k ? 6 : 13)
+            .map(
+              (g) =>
+                `<div class="trend"><div class="thumb">${g[1]}</div><div><small>Winning</small><h4 style="margin:5px 0">${g[0]}</h4><span style="color:${k ? "#65b9ff" : "#ff4646"}">● 95.5%</span></div></div>`,
+            )
+            .join("")),
+      );
+      side();
+      function showModal(t, b) {
+        $("#modalTitle").textContent = t;
+        $("#modalBody").textContent = b;
+        $("#modal").classList.add("show");
+      }
+      function toast(t) {
+        $("#toast").textContent = t;
+        $("#toast").classList.add("show");
+        setTimeout(() => $("#toast").classList.remove("show"), 2200);
+      }
+      function openDeposit() {
+        $("#pendingDepositModal").classList.remove("show");
+        setDepositView("spei");
+        $("#depositModal").classList.add("show");
+      }
+      function setDepositView(view) {
+        $$("[data-deposit-channel]").forEach((tab) => {
+          tab.setAttribute(
+            "aria-selected",
+            String(tab.dataset.depositChannel === view),
+          );
+        });
+        $$("[data-channel-view]").forEach((panel) => {
+          panel.hidden = panel.dataset.channelView !== view;
+        });
+        if (view === "spei") {
+          $("#speiPaymentDetails").hidden = true;
+          $('.cashier-form[data-channel-form="spei"]').hidden = false;
+        }
+      }
+      const pendingDepositItems = $$(".pending-deposit-item");
+      $$("[data-pending-count]").forEach((count) => {
+        count.textContent = pendingDepositItems.length;
+      });
+      $$("[data-deposit-pending-count]").forEach((count) => {
+        count.textContent = pendingDepositItems.length;
+      });
+      $("#pendingDepositTrigger").setAttribute(
+        "aria-label",
+        `View ${pendingDepositItems.length} pending deposits`,
+      );
+      $("#balanceDepositBtn").addEventListener("click", () => {
+        setDepositView("spei");
+        $("#depositModal").classList.add("show");
+      });
+      $$("[data-deposit-channel]").forEach((tab) => {
+        tab.addEventListener("click", () =>
+          setDepositView(tab.dataset.depositChannel),
+        );
+      });
+      $$(".cashier-amount-options").forEach((options) => {
+        options.addEventListener("click", (event) => {
+          const button = event.target.closest("[data-amount]");
+          if (!button) return;
+          const form = options.closest(".cashier-form");
+          form.querySelectorAll("[data-amount]").forEach((option) => {
+            option.classList.toggle("is-selected", option === button);
+          });
+          form.querySelector("input[type=number]").value =
+            button.dataset.amount;
+        });
+      });
+      $$("[data-create-deposit]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const channel = button.dataset.createDeposit;
+          const amount = Number(
+            button.closest(".cashier-form").querySelector("input").value,
+          );
+          if (!Number.isFinite(amount) || amount < 10) {
+            toast("El monto mínimo de depósito es MXN$10.");
+            return;
+          }
+          if (channel !== "spei") {
+            toast(`${channel.toUpperCase()} demo: payment is not connected.`);
+            return;
+          }
+          $("#speiPaymentAmount").textContent = `MXN$${amount.toFixed(2)}`;
+          $('.cashier-form[data-channel-form="spei"]').hidden = true;
+          $("#speiPaymentDetails").hidden = false;
+        });
+      });
+      $$("[data-resume-deposit]").forEach((order) => {
+        order.addEventListener("click", () => {
+          setDepositView("spei");
+          $('.cashier-form[data-channel-form="spei"]').hidden = true;
+          $("#speiPaymentDetails").hidden = false;
+          $("#speiPaymentAmount").textContent = "MXN$100.00";
+        });
+      });
+      $("#backToSpeiForm").addEventListener("click", () => {
+        $("#speiPaymentDetails").hidden = true;
+        $('.cashier-form[data-channel-form="spei"]').hidden = false;
+      });
+      $$("[data-help-link]").forEach((link) => {
+        link.addEventListener("click", (event) => {
+          event.preventDefault();
+          toast("Support preview — help service is not connected.");
+        });
+      });
+      const pendingDepositWidget = $("#pendingDepositWidget");
+      const pendingDepositTrigger = $("#pendingDepositTrigger");
+      const pendingDepositDismissalKey = "megwin.pendingDepositWidget.dismissed";
+      try {
+        pendingDepositWidget.hidden =
+          localStorage.getItem(pendingDepositDismissalKey) === "true";
+      } catch (error) {
+        console.error("Could not read the pending-deposit reminder setting.", error);
+        toast("Could not load the reminder setting.");
+      }
+      $("#dismissPendingDepositWidget").addEventListener("click", (event) => {
+        event.stopPropagation();
+        pendingDepositWidget.hidden = true;
+        try {
+          localStorage.setItem(pendingDepositDismissalKey, "true");
+        } catch (error) {
+          pendingDepositWidget.hidden = false;
+          console.error("Could not save the pending-deposit reminder setting.", error);
+          toast("Could not save the reminder setting.");
+        }
+      });
+      pendingDepositTrigger.addEventListener("click", () => {
+        $("#pendingDepositModal").classList.add("show");
+      });
+      $("#closePendingDeposits").onclick = () =>
+        $("#pendingDepositModal").classList.remove("show");
+      $("#pendingDepositModal").onclick = (e) => {
+        if (e.target.id === "pendingDepositModal")
+          $("#pendingDepositModal").classList.remove("show");
+      };
+      async function copyDepositValue(targetId, button) {
+        const value = document.getElementById(targetId)?.textContent?.trim();
+        if (!value) {
+          toast("No se encontró el dato para copiar");
+          return;
+        }
+        try {
+          await navigator.clipboard.writeText(value);
+        } catch {
+          const field = document.createElement("textarea");
+          field.value = value;
+          field.setAttribute("readonly", "");
+          field.style.position = "fixed";
+          field.style.opacity = "0";
+          document.body.appendChild(field);
+          field.select();
+          const copied = document.execCommand("copy");
+          field.remove();
+          if (!copied) {
+            toast("No se pudo copiar. Selecciona el dato manualmente.");
+            return;
+          }
+        }
+        const label = button.textContent;
+        button.textContent = "✓ Copiado";
+        toast("Copiado al portapapeles");
+        setTimeout(() => {
+          if (button.isConnected) button.textContent = label;
+        }, 1500);
+      }
+      document.addEventListener("click", (e) => {
+        const depositReminder = e.target.closest("[data-open-deposit]");
+        if (depositReminder) {
+          openDeposit();
+          return;
+        }
+        const copyButton = e.target.closest("[data-copy]");
+        if (copyButton) {
+          copyDepositValue(copyButton.dataset.copy, copyButton);
+          return;
+        }
+        const p = e.target.closest("[data-page]");
+        if (p) {
+          switchPage(p.dataset.page);
+          return;
+        }
+        const g = e.target.closest("[data-game]");
+        if (g) {
+          showModal(
+            g.dataset.game,
+            "Game detail preview. Provider integration, real game launch and wallet are not connected.",
+          );
+          return;
+        }
+        const o = e.target.closest("[data-odd]");
+        if (o) {
+          showModal(
+            "Bet selection",
+            `Selected ${o.dataset.odd} at odds 4.33. This is a UI-only demonstration.`,
+          );
+          return;
+        }
+        const s = e.target.closest("[data-side]");
+        if (s) {
+          $$(".sideitem").forEach((x) => x.classList.remove("selected"));
+          s.classList.add("selected");
+          toast(s.dataset.side + " selected");
+          return;
+        }
+        const c = e.target.closest(".chip");
+        if (c && !c.id) {
+          const parent = c.parentElement;
+          parent
+            .querySelectorAll(".chip")
+            .forEach((x) => x.classList.remove("active"));
+          c.classList.add("active");
+          return;
+        }
+        if (
+          e.target.closest("button") &&
+          !e.target.closest(
+            ".close,#modalOk,.cashier-card,#balanceDepositBtn,#pendingDepositTrigger,#dismissPendingDepositWidget",
+          )
+        )
+          toast("Preview mode — action not connected");
+      });
+      $("#closeModal").onclick = $("#modalOk").onclick = () =>
+        $("#modal").classList.remove("show");
+      $("#closeDeposit").onclick = () =>
+        $("#depositModal").classList.remove("show");
+      $("#depositModal").onclick = (e) => {
+        if (e.target.id === "depositModal")
+          $("#depositModal").classList.remove("show");
+      };
+      $("#modal").onclick = (e) => {
+        if (e.target.id === "modal") $("#modal").classList.remove("show");
+      };
+      $("#searchBtn").onclick = () =>
+        showModal(
+          "Search",
+          "Search UI preview. Connect your game and event API for real results.",
+        );
+      $("#profileBtn").onclick = () =>
+        showModal(
+          "Account",
+          "Account UI preview. Authentication is not connected.",
+        );
+      $("#menuBtn").onclick = $("#mobileMenu").onclick = () =>
+        showModal(
+          "Navigation",
+          "Use Sports or Casino in the top navigation or mobile bottom bar to switch pages.",
+        );
+    </script>
+  </body>
+</html>

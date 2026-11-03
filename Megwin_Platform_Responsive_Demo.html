@@ -84,122 +84,50 @@
         gap: 8px;
         margin-left: auto;
       }
-      .pending-deposit-widget {
-        position: fixed;
-        z-index: 34;
-        top: 54px;
-        left: 50%;
-        width: min(280px, calc(100vw - 32px));
-        transform: translateX(-50%);
-        transition: opacity 0.3s ease;
-        animation: pending-widget-fade 0.3s ease 5s forwards;
-      }
-      .pending-deposit-widget[hidden] {
-        display: none;
-      }
-      .pending-deposit-trigger {
-        display: flex;
-        width: 100%;
-        min-height: 64px;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 40px 10px 12px;
-        border: 1px solid #8a9693;
-        border-radius: 13px;
-        background: linear-gradient(110deg, #14332f, #202729);
-        box-shadow: 0 8px 26px #0008;
-        color: #f6f7f8;
-        cursor: pointer;
-        text-align: left;
-      }
-      .pending-deposit-dismiss {
-        position: absolute;
-        z-index: 1;
-        top: 5px;
-        right: 5px;
-        display: grid;
-        width: 26px;
-        height: 26px;
-        place-items: center;
-        border: 1px solid #ffffff50;
-        border-radius: 50%;
-        background: #10191acc;
-        color: #f6f7f8;
-        font-size: 18px;
-        line-height: 1;
-      }
-      .pending-deposit-icon {
-        flex: 0 0 auto;
-        font-size: 21px;
-      }
-      .pending-deposit-copy {
-        display: flex;
-        min-width: 0;
-        flex: 1;
-        flex-direction: column;
-        gap: 4px;
-        white-space: nowrap;
-      }
-      .pending-deposit-copy small {
-        color: #aab8b5;
-        font-size: 10px;
-      }
-      .pending-deposit-count {
-        display: grid;
-        width: 30px;
-        height: 30px;
-        flex: 0 0 auto;
-        place-items: center;
-        border-radius: 50%;
-        background: var(--teal);
-        color: #10211e;
-        font-size: 12px;
-        font-weight: 800;
-      }
-      .pending-deposit-list {
-        display: grid;
-        gap: 8px;
-        margin: 18px 0;
-      }
-      .pending-deposit-item {
-        display: flex;
-        width: 100%;
-        align-items: center;
-        gap: 10px;
-        padding: 12px;
-        border: 1px solid #45494c;
-        border-radius: 10px;
-        background: #303235;
-        text-align: left;
-      }
-      .pending-deposit-item > span:nth-child(2) {
-        display: grid;
-        flex: 1;
-        gap: 4px;
-      }
-      .pending-deposit-item small {
-        color: #aeb2b7;
-      }
-      .pending-deposit-item .pending-status {
-        color: #f2c56b;
-        font-size: 10px;
-        white-space: nowrap;
-      }
-      .pending-deposit-note {
-        color: #aeb2b7;
-        line-height: 1.5;
-      }
-      @keyframes pending-widget-fade {
-        to {
-          opacity: 0.68;
-        }
-      }
       .balance {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
         background: #282a2d;
         padding: 9px 12px;
         border-radius: 6px;
         color: inherit;
         cursor: pointer;
+      }
+      .pending-wallet-badge {
+        display: inline-grid;
+        min-width: 19px;
+        height: 19px;
+        padding: 0 5px;
+        place-items: center;
+        border: 1px solid #ffaaa0;
+        border-radius: 999px;
+        background: #ed493e;
+        box-shadow: 0 0 8px #ff554d99;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 800;
+        line-height: 1;
+        animation: pending-wallet-blink 1.2s ease-in-out infinite;
+      }
+      .pending-wallet-badge[hidden] {
+        display: none;
+      }
+      @keyframes pending-wallet-blink {
+        0%,
+        100% {
+          opacity: 1;
+          box-shadow: 0 0 9px #ff554ddd;
+        }
+        50% {
+          opacity: 0.42;
+          box-shadow: 0 0 2px #ff554d55;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .pending-wallet-badge {
+          animation: none;
+        }
       }
       .balance:focus-visible {
         outline: 2px solid var(--teal);
@@ -1620,18 +1548,10 @@
       <div class="tools">
         <span class="lang">English ⌄　 Decimal ⌄</span
         ><span class="clock">◷ 00:48:46</span><button id="searchBtn">⌕</button
-        ><button class="balance" id="balanceDepositBtn" type="button" aria-label="Open deposit interface">🪙 $12,000.88</button
+        ><button class="balance" id="balanceDepositBtn" type="button" aria-label="Open deposit interface">🪙 $12,000.88 <span class="pending-wallet-badge" id="pendingWalletBadge" data-deposit-pending-count aria-label="3 pending deposits">3</span></button
         ><button id="profileBtn">◉</button>
       </div>
     </header>
-    <aside class="pending-deposit-widget" id="pendingDepositWidget">
-      <button class="pending-deposit-trigger" id="pendingDepositTrigger" type="button" aria-label="View 3 pending deposits">
-        <span class="pending-deposit-icon" aria-hidden="true">💳</span>
-        <span class="pending-deposit-copy"><strong>Pending deposits</strong><small>Continue pending payments</small></span>
-        <span class="pending-deposit-count" data-pending-count>3</span>
-      </button>
-      <button class="pending-deposit-dismiss" id="dismissPendingDepositWidget" type="button" aria-label="Dismiss pending deposits reminder">×</button>
-    </aside>
     <div class="shell">
       <aside class="sidebar" id="sidebar"><div id="sideLinks"></div></aside>
       <main class="main">
@@ -1968,31 +1888,6 @@
         <button class="chip active" id="modalOk">Close</button>
       </div>
     </div>
-    <div class="modal" id="pendingDepositModal" role="dialog" aria-modal="true" aria-labelledby="pendingDepositTitle">
-      <div class="modalcontent">
-        <button class="close" id="closePendingDeposits" type="button" aria-label="Close">×</button>
-        <h2 id="pendingDepositTitle">Pending deposits</h2>
-        <p><strong><span data-pending-count>3</span> payments not completed</strong></p>
-        <div class="pending-deposit-list">
-          <button class="pending-deposit-item" type="button" data-open-deposit>
-            <span aria-hidden="true">💳</span>
-            <span><strong>Deposit MXN$100.00</strong><small>Bank details are ready to continue</small></span>
-            <span class="pending-status">Pending</span>
-          </button>
-          <button class="pending-deposit-item" type="button" data-open-deposit>
-            <span aria-hidden="true">🏦</span>
-            <span><strong>Deposit MXN$100.00</strong><small>Transfer is waiting to be completed</small></span>
-            <span class="pending-status">Pending</span>
-          </button>
-          <button class="pending-deposit-item" type="button" data-open-deposit>
-            <span aria-hidden="true">🔔</span>
-            <span><strong>Deposit MXN$100.00</strong><small>Review the payment instructions</small></span>
-            <span class="pending-status">Pending</span>
-          </button>
-        </div>
-        <p class="pending-deposit-note">Demo only: these entries do not represent real transactions.</p>
-      </div>
-    </div>
     <div class="deposit-modal" id="depositModal" role="dialog" aria-modal="true" aria-labelledby="depositTitle">
       <section class="deposit-card cashier-card">
         <header class="cashier-header">
@@ -2248,11 +2143,6 @@
         $("#toast").classList.add("show");
         setTimeout(() => $("#toast").classList.remove("show"), 2200);
       }
-      function openDeposit() {
-        $("#pendingDepositModal").classList.remove("show");
-        setDepositView("spei");
-        $("#depositModal").classList.add("show");
-      }
       function setDepositView(view) {
         $$("[data-deposit-channel]").forEach((tab) => {
           tab.setAttribute(
@@ -2268,19 +2158,23 @@
           $('.cashier-form[data-channel-form="spei"]').hidden = false;
         }
       }
-      const pendingDepositItems = $$(".pending-deposit-item");
-      $$("[data-pending-count]").forEach((count) => {
-        count.textContent = pendingDepositItems.length;
-      });
+      const pendingDepositItems = $$("[data-resume-deposit]");
       $$("[data-deposit-pending-count]").forEach((count) => {
         count.textContent = pendingDepositItems.length;
       });
-      $("#pendingDepositTrigger").setAttribute(
+      $("#pendingWalletBadge").hidden = pendingDepositItems.length === 0;
+      $("#pendingWalletBadge").setAttribute(
         "aria-label",
-        `View ${pendingDepositItems.length} pending deposits`,
+        `${pendingDepositItems.length} pending deposits`,
       );
-      $("#balanceDepositBtn").addEventListener("click", () => {
-        setDepositView("spei");
+      $("#balanceDepositBtn").setAttribute(
+        "aria-label",
+        `Open deposit interface. ${pendingDepositItems.length} pending deposits.`,
+      );
+      $("#balanceDepositBtn").addEventListener("click", (event) => {
+        setDepositView(
+          event.target.closest("#pendingWalletBadge") ? "pending" : "spei",
+        );
         $("#depositModal").classList.add("show");
       });
       $$("[data-deposit-channel]").forEach((tab) => {
@@ -2337,36 +2231,6 @@
           toast("Support preview — help service is not connected.");
         });
       });
-      const pendingDepositWidget = $("#pendingDepositWidget");
-      const pendingDepositTrigger = $("#pendingDepositTrigger");
-      const pendingDepositDismissalKey = "megwin.pendingDepositWidget.dismissed";
-      try {
-        pendingDepositWidget.hidden =
-          localStorage.getItem(pendingDepositDismissalKey) === "true";
-      } catch (error) {
-        console.error("Could not read the pending-deposit reminder setting.", error);
-        toast("Could not load the reminder setting.");
-      }
-      $("#dismissPendingDepositWidget").addEventListener("click", (event) => {
-        event.stopPropagation();
-        pendingDepositWidget.hidden = true;
-        try {
-          localStorage.setItem(pendingDepositDismissalKey, "true");
-        } catch (error) {
-          pendingDepositWidget.hidden = false;
-          console.error("Could not save the pending-deposit reminder setting.", error);
-          toast("Could not save the reminder setting.");
-        }
-      });
-      pendingDepositTrigger.addEventListener("click", () => {
-        $("#pendingDepositModal").classList.add("show");
-      });
-      $("#closePendingDeposits").onclick = () =>
-        $("#pendingDepositModal").classList.remove("show");
-      $("#pendingDepositModal").onclick = (e) => {
-        if (e.target.id === "pendingDepositModal")
-          $("#pendingDepositModal").classList.remove("show");
-      };
       async function copyDepositValue(targetId, button) {
         const value = document.getElementById(targetId)?.textContent?.trim();
         if (!value) {
@@ -2398,11 +2262,6 @@
         }, 1500);
       }
       document.addEventListener("click", (e) => {
-        const depositReminder = e.target.closest("[data-open-deposit]");
-        if (depositReminder) {
-          openDeposit();
-          return;
-        }
         const copyButton = e.target.closest("[data-copy]");
         if (copyButton) {
           copyDepositValue(copyButton.dataset.copy, copyButton);
@@ -2448,7 +2307,7 @@
         if (
           e.target.closest("button") &&
           !e.target.closest(
-            ".close,#modalOk,.cashier-card,#balanceDepositBtn,#pendingDepositTrigger,#dismissPendingDepositWidget",
+            ".close,#modalOk,.cashier-card,#balanceDepositBtn",
           )
         )
           toast("Preview mode — action not connected");
