@@ -88,7 +88,7 @@
         position: fixed;
         z-index: 34;
         top: 50%;
-        left: 0;
+        right: 0;
         width: 224px;
         transform: translateY(-50%);
         transition: width 0.3s ease, opacity 0.3s ease;
@@ -107,7 +107,35 @@
         background: linear-gradient(110deg, #14332f, #202729);
         box-shadow: 0 8px 26px #0008;
         color: #f6f7f8;
+        cursor: grab;
         text-align: left;
+        touch-action: none;
+      }
+      .pending-deposit-widget.is-snapped-left {
+        right: auto;
+        left: 0;
+      }
+      .pending-deposit-widget.is-snapped-left .pending-deposit-trigger {
+        border-left: 0;
+        border-right: 1px solid #4e625e;
+        border-radius: 0 13px 13px 0;
+      }
+      .pending-deposit-widget.is-snapped-right {
+        right: 0;
+        left: auto;
+      }
+      .pending-deposit-widget.is-snapped-right .pending-deposit-trigger {
+        border-right: 0;
+        border-left: 1px solid #4e625e;
+        border-radius: 13px 0 0 13px;
+      }
+      .pending-deposit-trigger:active {
+        cursor: grabbing;
+      }
+      .pending-deposit-widget.is-dragging,
+      .pending-deposit-widget.is-dragging .pending-deposit-trigger {
+        transition: none;
+        user-select: none;
       }
       .pending-deposit-icon {
         flex: 0 0 auto;
@@ -201,7 +229,7 @@
       }
       @keyframes pending-widget-collapse {
         to {
-          width: 70px;
+          width: 96px;
           opacity: 0.48;
         }
       }
@@ -1033,7 +1061,7 @@
         .pending-deposit-widget {
           top: auto;
           bottom: 76px;
-          transform: none;
+          right: 0;
         }
         .pending-deposit-widget.is-collapsed {
           opacity: 0.55;
@@ -1225,8 +1253,8 @@
         ><button id="profileBtn">◉</button>
       </div>
     </header>
-    <aside class="pending-deposit-widget" id="pendingDepositWidget">
-      <button class="pending-deposit-trigger" id="pendingDepositTrigger" type="button" aria-label="View 3 pending deposits">
+    <aside class="pending-deposit-widget is-snapped-right" id="pendingDepositWidget">
+      <button class="pending-deposit-trigger" id="pendingDepositTrigger" type="button" aria-label="View 3 pending deposits" title="Drag to move; click to view pending deposits">
         <span class="pending-deposit-icon" aria-hidden="true">💳</span>
         <span class="pending-deposit-copy"><strong>Pending deposits</strong><small>Continue pending payments</small></span>
         <span class="pending-deposit-count" data-pending-count>3</span>
@@ -1796,11 +1824,130 @@
         `View ${pendingDepositItems.length} pending deposits`,
       );
       const pendingDepositWidget = $("#pendingDepositWidget");
+      const pendingDepositTrigger = $("#pendingDepositTrigger");
+      let dragStart = null;
+      let suppressPendingClick = false;
+      pendingDepositTrigger.addEventListener("pointerdown", (event) => {
+        if (event.button !== 0) return;
+        const bounds = pendingDepositWidget.getBoundingClientRect();
+        dragStart = {
+          pointerX: event.clientX,
+          pointerY: event.clientY,
+          left: bounds.left,
+          top: bounds.top,
+          moved: false,
+        };
+        pendingDepositTrigger.setPointerCapture(event.pointerId);
+      });
+      pendingDepositTrigger.addEventListener("pointermove", (event) => {
+        if (!dragStart) return;
+        const deltaX = event.clientX - dragStart.pointerX;
+        const deltaY = event.clientY - dragStart.pointerY;
+        if (!dragStart.moved && Math.hypot(deltaX, deltaY) < 5) return;
+        dragStart.moved = true;
+        pendingDepositWidget.classList.add("is-dragging");
+        pendingDepositWidget.classList.remove(
+          "is-snapped-left",
+          "is-snapped-right",
+        );
+        pendingDepositWidget.style.left = `${Math.max(
+          0,
+          Math.min(
+            window.innerWidth - pendingDepositWidget.offsetWidth,
+            dragStart.left + deltaX,
+          ),
+        )}px`;
+        pendingDepositWidget.style.top = `${Math.max(
+          0,
+          Math.min(
+            window.innerHeight - pendingDepositWidget.offsetHeight,
+            dragStart.top + deltaY,
+          ),
+        )}px`;
+        pendingDepositWidget.style.right = "auto";
+        pendingDepositWidget.style.bottom = "auto";
+        pendingDepositWidget.style.transform = "none";
+      });
+      const finishPendingDepositDrag = (event) => {
+        if (!dragStart) return;
+        suppressPendingClick = dragStart.moved;
+        if (dragStart.moved) {
+          const snapLeft =
+            pendingDepositWidget.getBoundingClientRect().left +
+              pendingDepositWidget.offsetWidth / 2 <
+            window.innerWidth / 2;
+          pendingDepositWidget.classList.toggle("is-snapped-left", snapLeft);
+          pendingDepositWidget.classList.toggle("is-snapped-right", !snapLeft);
+          pendingDepositWidget.style.left = snapLeft ? "0px" : "auto";
+          pendingDepositWidget.style.right = snapLeft ? "auto" : "0px";
+        }
+        dragStart = null;
+        pendingDepositWidget.classList.remove("is-dragging");
+        if (suppressPendingClick)
+          setTimeout(() => {
+            suppressPendingClick = false;
+          }, 0);
+      };
+      window.addEventListener("resize", () => {
+        if (!pendingDepositWidget.style.left) return;
+        if (pendingDepositWidget.classList.contains("is-snapped-left")) {
+          pendingDepositWidget.style.left = "0px";
+          return;
+        }
+        if (pendingDepositWidget.classList.contains("is-snapped-right")) {
+          pendingDepositWidget.style.left = "auto";
+          pendingDepositWidget.style.right = "0px";
+          return;
+        }
+        const maxLeft = Math.max(
+          0,
+          window.innerWidth - pendingDepositWidget.offsetWidth,
+        );
+        const maxTop = Math.max(
+          0,
+          window.innerHeight - pendingDepositWidget.offsetHeight,
+        );
+        pendingDepositWidget.style.left = `${Math.min(
+          maxLeft,
+          Math.max(0, pendingDepositWidget.offsetLeft),
+        )}px`;
+        pendingDepositWidget.style.top = `${Math.min(
+          maxTop,
+          Math.max(0, pendingDepositWidget.offsetTop),
+        )}px`;
+      });
+      pendingDepositTrigger.addEventListener(
+        "pointerup",
+        finishPendingDepositDrag,
+      );
+      pendingDepositTrigger.addEventListener(
+        "pointercancel",
+        finishPendingDepositDrag,
+      );
+      pendingDepositTrigger.addEventListener(
+        "click",
+        (event) => {
+          if (!suppressPendingClick) return;
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        },
+        true,
+      );
       pendingDepositWidget.addEventListener("animationend", (event) => {
         if (event.animationName === "pending-widget-collapse")
           pendingDepositWidget.classList.add("is-collapsed");
       });
-      $("#pendingDepositTrigger").addEventListener("click", () => {
+      pendingDepositTrigger.addEventListener("click", () => {
+        if (pendingDepositWidget.classList.contains("is-collapsed")) {
+          pendingDepositWidget.classList.remove("is-collapsed");
+          pendingDepositWidget.style.animation = "none";
+          $(".pending-deposit-copy").style.animation = "none";
+          pendingDepositTrigger.setAttribute(
+            "aria-label",
+            `View ${pendingDepositItems.length} pending deposits`,
+          );
+          return;
+        }
         pendingDepositWidget.style.animation = "none";
         $(".pending-deposit-copy").style.animation = "none";
         $("#pendingDepositModal").classList.add("show");
