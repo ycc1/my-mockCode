@@ -1,6 +1,6 @@
 # KYCTest - Unico IDCloud UAT
 
-KYCTest is a local Go web server with a separate browser frontend and backend API. It starts Unico's Mexico UAT flow, which includes liveness, identity verification, fraud-risk classification, and document capture. After Unico finishes, the UI displays CURP, birth date, and full name returned by Unico for review and editing. It does not simulate approval.
+KYCTest is a local Go web server with a separate browser frontend and backend API. It starts Unico's Mexico UAT flow, which includes liveness, identity verification, fraud-risk classification, and document capture. After Unico approves and finishes the process, the UI fetches the returned CURP, birth date, and full name for review and editing. It does not simulate approval.
 
 ## Run on Windows
 
@@ -23,7 +23,8 @@ go test ./...
 
 - `POST /api/kyc/process` accepts an explicit consent confirmation and creates a `multiaccounts_idgov` process through `POST /client/v1/process`. No CURP or identity document is requested from the user before the Unico-hosted journey.
 - The Go backend signs a short-lived RS256 JWT assertion and exchanges it at the UAT OAuth token endpoint. No private key or access token is sent to the browser.
-- After the hosted journey, `GET /api/kyc/process/{recordId}` retrieves the result and extracted identity fields from Unico. `PATCH /api/kyc/process/{recordId}` validates and saves the user's edited CURP, birth date, and full name.
+- KYCTest stores Unico's validated continuation URL with the local process record. Opening KYC with a saved record ID checks the process and resumes an unfinished journey in a new browser window; a finished process is shown locally instead.
+- After the hosted journey, the user enters a waiting screen and checks `GET /api/kyc/process/{recordId}` for the Unico result. Only after an approved, finished process does `GET /api/kyc/process/{recordId}/identity` return the extracted identity fields for review. `PATCH /api/kyc/process/{recordId}` saves the user's validated CURP, birth date, and full name.
 - `GET /api/kyc/records` lists local audit records. `GET /healthz` is the server health check.
 - KYCTest persists process status and the identity fields returned by Unico or subsequently edited by the user in `data\records.json`. It does not store the original document, private key, or access token. The identity fields are sensitive; keep the local data directory protected.
 

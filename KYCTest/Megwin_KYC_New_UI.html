@@ -19,6 +19,11 @@
         --yellow: #e6bd5b;
         --font: Inter, "Segoe UI", Arial, sans-serif;
       }
+      .waiting-panel{max-width:620px;margin:46px auto 0;text-align:center}
+      .waiting-panel h2{font-size:18px;margin:0 0 14px}
+      .waiting-panel p{color:#aaa;line-height:1.65;margin:0 auto 20px;max-width:520px}
+      .waiting-panel .btn{width:100%;max-width:460px}
+      .waiting-error{color:#ff888e!important;font-size:12px;margin:0 auto 14px!important}
       * {
         box-sizing: border-box;
       }
@@ -121,6 +126,7 @@
         display: grid;
         grid-template-columns: 232px minmax(0, 1fr);
         gap: 12px;
+        min-height: calc(100vh - 91px);
       }
       .sidebar {
         padding: 12px 10px;
@@ -152,12 +158,144 @@
       .main {
         padding: 12px 22px 70px 0;
       }
+      .platform-home {
+        max-width: 1050px;
+        padding: 18px 14px 50px;
+      }
+      .home-hero {
+        padding: 38px 34px;
+        border: 1px solid #303034;
+        border-radius: 15px;
+        background: linear-gradient(125deg, #242827, #171719 70%);
+      }
+      .home-hero h1 {
+        margin: 12px 0;
+        font-size: 32px;
+      }
+      .home-hero p,
+      .home-panels p {
+        color: #a7a7ad;
+        line-height: 1.6;
+      }
+      .eyebrow,
+      .drawer-kicker {
+        color: var(--teal);
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 1.5px;
+      }
+      .home-hero .btn {
+        margin-top: 15px;
+      }
+      .home-panels {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-top: 18px;
+      }
+      .home-panels > div {
+        padding: 22px;
+        border: 1px solid #303034;
+        border-radius: 12px;
+        background: #1b1b1d;
+      }
+      .menu {
+        cursor: pointer;
+      }
+      .drawer-overlay {
+        position: fixed;
+        z-index: 30;
+        inset: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+      .drawer-overlay.open {
+        visibility: visible;
+        pointer-events: auto;
+      }
+      .drawer-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgb(0 0 0 / 64%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      .drawer-overlay.open .drawer-backdrop {
+        opacity: 1;
+      }
+      .kyc-drawer {
+        position: absolute;
+        top: 0;
+        right: 0;
+        display: flex;
+        width: 50vw;
+        min-width: 560px;
+        max-width: 100%;
+        height: 100dvh;
+        flex-direction: column;
+        border-left: 1px solid #3a3a3e;
+        background: #1b1b1d;
+        box-shadow: -22px 0 65px #0008;
+        transform: translateX(102%);
+        transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+      .drawer-overlay.open .kyc-drawer {
+        transform: translateX(0);
+      }
+      .drawer-top {
+        display: flex;
+        height: 86px;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 28px;
+        border-bottom: 1px solid #333338;
+        background: #202023;
+      }
+      .drawer-top h2 {
+        margin: 5px 0 0;
+        font-size: 24px;
+      }
+      .drawer-close {
+        width: 40px;
+        height: 40px;
+        border: 1px solid #47474c;
+        border-radius: 10px;
+        background: #303034;
+        color: #eee;
+        font-size: 28px;
+        line-height: 1;
+      }
+      .drawer-scroll {
+        flex: 1;
+        overflow-y: auto;
+        padding: 18px 26px 40px;
+        overscroll-behavior: contain;
+      }
+      .drawer-scroll .kyc {
+        width: 100%;
+        min-height: 0;
+        padding: 10px 0;
+        background: transparent;
+      }
+      .drawer-scroll .kyc > .split > h1 {
+        font-size: 20px;
+      }
+      .drawer-scroll .footer-note {
+        margin-top: 30px;
+      }
+      body.drawer-active {
+        overflow: hidden;
+      }
       .kyc {
         width: min(920px, 100%);
         background: var(--panel);
         border-radius: 12px;
         padding: 24px 23px 22px;
         min-height: 294px;
+      }
+      .kyc.provider-active {
+        padding-top: 12px;
       }
       .kyc h1 {
         font-size: 29px;
@@ -581,8 +719,39 @@
         .menu:not(.active) {
           display: none;
         }
+        .menu:not(.active) {
+          display: none;
+        }
         .main {
           padding: 12px 12px 35px;
+        }
+        .home-panels {
+          grid-template-columns: 1fr;
+        }
+        .home-hero {
+          padding: 26px 20px;
+        }
+        .platform-home {
+          padding: 12px;
+        }
+        .kyc-drawer {
+          width: 100vw;
+          min-width: 0;
+          border-left: 0;
+        }
+        .drawer-top {
+          height: 68px;
+          padding: 12px 17px;
+        }
+        .drawer-top h2 {
+          font-size: 20px;
+        }
+        .drawer-close {
+          width: 38px;
+          height: 38px;
+        }
+        .drawer-scroll {
+          padding: 12px 18px 36px;
         }
         .kyc {
           padding: 20px 15px;
@@ -619,11 +788,12 @@
       .unico-step .number{display:grid;place-items:center;width:24px;height:24px;flex-shrink:0;border-radius:50%;background:#36363b;color:#ddd}
       .unico-step.current .number,.unico-step.done .number{background:var(--teal);color:#102522}
       .unico-step p{font-size:11px;color:#a3a3aa;line-height:1.45;margin:8px 0 0}
-      .step-panel{max-width:700px;margin:auto}.step-panel h2{font-size:22px;margin:0 0 10px}.step-panel>p{color:#aaa;line-height:1.65}
+      .step-panel{max-width:700px;margin:auto}.step-panel h2{font-size:22px;margin:0 0 10px;text-align:center}.step-panel>p{color:#aaa;line-height:1.65}
       .step-panel .preview{margin:20px 0;min-height:210px}.step-panel .row{justify-content:space-between}
       .mode-note{font-size:12px;color:#a7a7ad;margin-top:15px}
       @media(max-width:760px){.unico-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.unico-step{padding:10px}.step-panel h2{font-size:19px}}
       .kyc-form{max-width:620px;margin:20px auto}.kyc-form .field{margin-bottom:6px}
+      .identity-error{min-height:18px;color:#ff888e;font-size:12px;margin:6px 0}
       .kyc-form input[type=file]{padding:10px}.consent{align-items:flex-start}
       .doc-section{border:1px solid #3a3a3e;border-radius:12px;padding:18px;margin:17px 0;background:#202023}
       .doc-section h3{margin:0 0 7px;font-size:15px;color:#f0f0f2}
@@ -631,16 +801,23 @@
       .personal-grid .full{grid-column:1/-1}.personal-grid .field{margin:0 0 7px}
       .personal-grid .input{min-height:47px}.personal-grid input[type="date"]{color-scheme:dark}
       .required{color:var(--red)}.helper{font-size:12px;color:var(--muted);margin-top:9px;line-height:1.5}
+      .identity-note{background:#242427;border:1px solid #38383d;border-radius:10px;padding:13px;font-size:12px;color:var(--muted);line-height:1.5;margin:16px 0}
       .curp-input{font-size:16px;letter-spacing:1.5px;text-transform:uppercase;font-weight:650;height:49px}
       .doc-section .personal-grid{margin-top:15px}.doc-section .helper{margin-top:11px}
       .records{margin-top:28px;border-top:1px solid var(--line);padding-top:18px}
       .records h2{font-size:16px}.record-list{width:100%;border-collapse:collapse;font-size:12px}
       .record-list th,.record-list td{padding:9px 7px;text-align:left;border-bottom:1px solid #353539;word-break:break-word}
       .record-list th{color:#aaa}.record-list button{background:transparent;color:var(--teal);border:0}
-      .service-status{margin:12px 0;padding:10px 12px;border-radius:8px;background:#222225;color:#c5c5ca;font-size:12px}
+      .service-status{margin:12px 0;padding:10px 12px;border-radius:8px;background:#222225;color:#c5c5ca;font-size:12px;line-height:1.55}
       .service-status.error{color:#ff888e}.service-status.good{color:var(--teal)}
+      .flow-result{margin:16px auto;max-width:700px;padding:18px;border:1px solid #3a3a3e;border-radius:12px;background:#202023}
+      .flow-result h3{margin:0 0 7px;font-size:16px}.flow-result p{margin:0;color:#aaa;line-height:1.55}
+      .flow-result.good{border-color:#35645e}.flow-result.bad{border-color:#68373b}
+      .flow-result .btn{margin:14px 8px 0 0}
+      .flow-result .identity-summary{margin:12px 0;color:#c5c5ca;font-size:13px;line-height:1.7}
       .form-error{color:#ff888e;margin:10px 0;font-size:12px}
       @media(max-width:760px){.doc-section{padding:14px}.personal-grid{grid-template-columns:1fr}}
+      @media(prefers-reduced-motion:reduce){.drawer-backdrop,.kyc-drawer{transition:none}}
       </style>
   </head>
   <body>
@@ -678,30 +855,78 @@
         </div>
       </aside>
       <main class="main">
-        <section class="kyc" aria-live="polite">
-          <div class="split">
-            <h1>KYC Verification</h1>
-            <span class="badge" id="stateBadge">Not verified</span>
+        <section class="platform-home">
+          <div class="home-hero">
+            <div class="eyebrow">MEGWIN · MY ACCOUNT</div>
+            <h1>My profile</h1>
+            <p>Manage your account information and identity verification.</p>
+            <button type="button" class="btn btn-main" data-open-kyc>Open</button>
           </div>
-          <div id="screen"></div>
-          <div class="footer-note" id="footnote">
-            MEGWIN · Identity verification powered by Unico (integration design)
+          <div class="home-panels">
+            <div>
+              <strong>Account security</strong>
+              <p>Complete identity verification to keep your account secure.</p>
+            </div>
+            <div>
+              <strong>Verification status</strong>
+              <p id="homeStatus">Not verified</p>
+            </div>
           </div>
         </section>
       </main>
     </div>
+    <div id="drawerOverlay" class="drawer-overlay" aria-hidden="true">
+      <div class="drawer-backdrop" data-close-drawer></div>
+      <aside class="kyc-drawer" role="dialog" aria-modal="true" aria-label="KYC Verification" tabindex="-1">
+        <div class="drawer-top">
+          <div>
+            <span class="drawer-kicker">MEGWIN · ACCOUNT</span>
+            <h2>KYC Verification</h2>
+          </div>
+          <button type="button" class="drawer-close" data-close-drawer aria-label="Close KYC">×</button>
+        </div>
+        <div class="drawer-scroll">
+          <section class="kyc" aria-live="polite">
+            <div class="split" id="stateHeader">
+              <h1>KYC Verification</h1>
+              <span class="badge" id="stateBadge">Not verified</span>
+            </div>
+            <div id="screen"></div>
+            <div class="footer-note" id="footnote">
+              MEGWIN · Identity verification powered by Unico (integration design)
+            </div>
+          </section>
+        </div>
+      </aside>
+    </div>
     <script>
     "use strict";
-    const steps = [
-      {title:'Prueba de vida',desc:'Unico captura tu rostro y confirma que eres una persona real.'},
-      {title:'Verificación de identidad',desc:'Unico valida tus datos de identidad y, si está disponible, consulta CURP / RENAPO.'},
-      {title:'Evaluación de riesgo de fraude',desc:'Unico evalúa las señales de riesgo disponibles.'},
-      {title:'Captura y reutilización de documentos',desc:'Unico te guía para capturar tu identificación y confirmar tus datos.'}
-    ];
-    const state={busy:false,recordId:localStorage.getItem('kycRecordId'),records:[],currentRecord:null};
+    const state={busy:false,recordId:localStorage.getItem('kycRecordId'),records:[],currentRecord:null,editingIdentity:false,reviewOnly:false,waitingActive:false,providerUrl:'',providerActive:false};
     const screen=document.getElementById('screen'), badge=document.getElementById('stateBadge');
+    const stateHeader=document.getElementById('stateHeader'), kycPanel=document.querySelector('.kyc'), footnote=document.getElementById('footnote');
+    const drawer=document.getElementById('drawerOverlay'), homeStatus=document.getElementById('homeStatus');
+    function openDrawer(){
+      drawer.classList.add('open');
+      drawer.setAttribute('aria-hidden','false');
+      document.body.classList.add('drawer-active');
+      drawer.querySelector('.drawer-close').focus();
+    }
+    function closeDrawer(){
+      drawer.classList.remove('open');
+      drawer.setAttribute('aria-hidden','true');
+      document.body.classList.remove('drawer-active');
+    }
+    document.addEventListener('click',event=>{
+      if(event.target.closest('[data-open-kyc]')||event.target.closest('.menu.active')){
+        openDrawer();
+        if(state.recordId)resumeSavedProcess(window.open('about:blank','_blank'));
+      }
+      if(event.target.closest('[data-close-drawer]'))closeDrawer();
+    });
+    document.addEventListener('keydown',event=>{
+      if(event.key==='Escape'&&drawer.classList.contains('open'))closeDrawer();
+    });
     const esc=(s)=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    function progress(active=0){return `<div class="unico-steps" aria-label="Etapas de verificación">${steps.map((s,i)=>`<div class="unico-step ${i<active?'done':i===active?'current':''}"><div class="step-head"><span class="number">${i+1}</span><span>${s.title}</span></div><p>${s.desc}</p></div>`).join('')}</div>`}
     async function api(path,options={}) {
       const response=await fetch(path,{headers:{'Accept':'application/json',...(options.headers||{})},...options});
       const data=await response.json().catch(()=>({}));
@@ -710,14 +935,24 @@
     }
     function formatDate(value){return value?new Date(value).toLocaleString():'—'}
     function statusClass(status,result=''){
-      if(/FAILED|ERROR/.test(status)||/INVALID_IDENTITY|NOT_APPROVED|ERROR/.test(result))return 'bad';
+      if(/FAILED|ERROR|REJECTED/.test(status)||/REJECTED|INVALID_IDENTITY|NOT_APPROVED|ERROR/.test(result))return 'bad';
       if(/APPROVED|_OK$|AUTHENTICATED/.test(result))return 'good';
       return '';
+    }
+    function processOutcome(record){
+      const result=String(record.result||'').toUpperCase();
+      if(/REJECTED|FAILED|INVALID_IDENTITY|NOT_APPROVED/.test(result)||/FAILED|ERROR|REJECTED/.test(record.status))return 'rejected';
+      if(/APPROVED|VERIFIED|AUTHENTICATED/.test(result))return 'approved';
+      return record.status==='PROCESS_STATE_FINISHED'?'finished':'pending';
+    }
+    function updateHomeStatus(record){
+      const outcome=processOutcome(record);
+      homeStatus.textContent=outcome==='approved'?(record.identityEdited?'Verified':'Confirm details'):outcome==='rejected'?'Not verified':outcome==='finished'?'Review required':'In progress';
     }
     function renderRecords(){
       const host=document.getElementById('recordRows');
       if(!host)return;
-      host.innerHTML=state.records.length?state.records.map(record=>`<tr><td>${esc(record.id)}</td><td class="${statusClass(record.status,record.result)}">${esc(record.status)}</td><td>${esc(record.result||'—')}</td><td>${esc(record.error||'—')}</td><td>${formatDate(record.updatedAt)}</td><td>${record.processId?`<button type="button" data-action="check" data-id="${esc(record.id)}">Consultar</button>`:'—'}</td></tr>`).join(''):'<tr><td colspan="6">Todavía no hay verificaciones registradas.</td></tr>';
+      host.innerHTML=state.records.length?state.records.map(record=>`<tr><td>${esc(record.id)}</td><td class="${statusClass(record.status,record.result)}">${esc(record.status)}</td><td>${esc(record.result||'—')}</td><td>${esc(record.error||'—')}</td><td>${formatDate(record.updatedAt)}</td><td>${record.processId?`<button type="button" data-action="check" data-id="${esc(record.id)}">Check status</button>`:'—'}</td></tr>`).join(''):'<tr><td colspan="6">No verification records yet.</td></tr>';
     }
     async function loadRecords(){
       const data=await api('/api/kyc/records');
@@ -725,43 +960,171 @@
       renderRecords();
     }
     function render(){
-      badge.textContent='UAT · Unico';
+      badge.textContent='Not verified';
       badge.className='badge';
-      screen.innerHTML=`${progress()}<div class="step-panel"><h2>Paso 1 — Prueba de vida</h2><p>Unico usará la cámara para confirmar que eres una persona real. Después realizará la verificación de identidad, la evaluación de riesgo y la captura de documentos. Al finalizar, podrás revisar y editar el CURP, la fecha de nacimiento y el nombre completo que Unico devuelva.</p><div id="serviceStatus" class="service-status">Comprobando la configuración de Unico…</div><form id="kycForm" class="kyc-form"><label class="checkboxline consent"><input type="checkbox" name="consent" required><span>Autorizo a Unico a procesar la captura biométrica y los datos necesarios para la verificación. Al finalizar, podré revisar y editar los datos de identidad que se devuelvan en KYCTest.</span></label><div id="formError" class="form-error" role="alert"></div><button class="btn btn-main" id="submitButton" type="submit">Iniciar verificación con Unico</button></form><div id="currentRecord"></div><section class="records"><h2>Registros de verificación de KYCTest</h2><div style="overflow-x:auto"><table class="record-list"><thead><tr><th>Registro</th><th>Estado</th><th>Resultado</th><th>Error</th><th>Última actualización</th><th>Acción</th></tr></thead><tbody id="recordRows"></tbody></table></div></section><p class="mode-note">Los datos de identidad se mostrarán cuando Unico finalice el proceso. El estado y el resultado reflejan la respuesta de Unico.</p></div>`;
+      state.providerActive=false;
+      stateHeader.hidden=false;
+      footnote.hidden=false;
+      kycPanel.classList.remove('provider-active');
+      screen.innerHTML=`<div class="step-panel"><h2>Start verification</h2><p>This process is designed to verify your identity and protect you from identity theft.</p><div class="tip"><strong>Important notes</strong><ul><li>Use a valid government-issued document</li><li>Find a well-lit surface</li><li>Be ready to take a selfie</li></ul></div><p class="mode-note">Your personal information will be processed for identity verification in accordance with our <a href="#privacy-notice" data-action="privacy">Privacy Notice</a>.</p><div id="serviceStatus" class="service-status" hidden>Checking Unico configuration…</div><form id="kycForm" class="kyc-form"><div id="formError" class="form-error" role="alert"></div><button class="btn btn-main" id="startButton" type="button" data-action="begin-start">Start</button><div id="consentStep" hidden><p class="mode-note">Before continuing, confirm that you authorize Unico to process your biometric capture and the personal information required for identity verification.</p><label class="checkboxline consent"><input type="checkbox" name="consent" required><span>I agree to the processing described above and in the <a href="#privacy-notice" data-action="privacy">Privacy Notice</a>.</span></label><button class="btn btn-main" id="submitButton" type="submit">Continue to verification</button><button class="btn btn-soft" type="button" data-action="cancel-start">Back</button></div></form><div id="currentRecord" aria-live="polite"></div><section class="records"><h2>Verification records</h2><div style="overflow-x:auto"><table class="record-list"><thead><tr><th>Record</th><th>Status</th><th>Result</th><th>Error</th><th>Last updated</th><th>Action</th></tr></thead><tbody id="recordRows"></tbody></table></div></section><p class="mode-note">Verification is complete only after Unico returns a result. KYCTest records the status and lets you review the returned identity details.</p></div>`;
       renderRecords();
+    }
+    function showProvider(url){
+      let target;
+      try{target=new URL(url)}catch{throw Error('Unico returned an invalid verification URL.')}
+      if(target.protocol!=='https:'||(target.hostname!=='unico.app'&&!target.hostname.endsWith('.unico.app')))throw Error('The verification URL must use a trusted Unico HTTPS domain.');
+      state.providerUrl=target.href;
+      localStorage.setItem('kycProviderUrl',state.providerUrl);
+      state.providerActive=false;
+      return target.href;
+    }
+    function renderWaiting(error=''){
+      state.waitingActive=true;
+      state.providerActive=false;
+      stateHeader.hidden=false;
+      footnote.hidden=true;
+      kycPanel.classList.remove('provider-active');
+      badge.textContent='Under review';
+      badge.className='badge';
+      screen.innerHTML=`<section class="waiting-panel"><div class="spinner" aria-hidden="true"></div><h2>Verification in progress</h2><p>Your identity verification is being processed in the Unico window. Return here and check its status when you finish. Completing the Unico flow does not automatically mean approval.</p>${error?`<p class="waiting-error" role="alert">${esc(error)}</p>`:''}${state.providerUrl?'<button class="btn btn-soft" type="button" data-action="continue-provider">Continue verification</button>':''}<button class="btn btn-main" type="button" data-action="check-status">Check verification status</button></section>`;
     }
     async function checkConfig(){
       const status=document.getElementById('serviceStatus');
+      if(!status)return;
       try{
         const data=await api('/api/kyc/config');
-        status.textContent=data.ready?'Unico IDCloud UAT está listo para iniciar el proceso de verificación.':data.message;
+        status.textContent=data.ready?'Unico IDCloud UAT is ready to start identity verification.':data.message;
         status.className='service-status '+(data.ready?'good':'');
       }catch(err){
-        status.textContent=err.message;
-        status.className='service-status error';
+        const currentStatus=document.getElementById('serviceStatus');
+        if(currentStatus){
+          currentStatus.textContent=err.message;
+          currentStatus.className='service-status error';
+        }
       }
     }
     function identityPanel(record){
       const identity=record.identity||{};
-      return `<section class="doc-section"><h3>Paso 4 — Captura de documentos y confirmación de datos</h3><p class="muted small">Unico devolvió estos datos. Revísalos, corrígelos si es necesario y guárdalos en KYCTest. Los cambios no modifican el resultado original de Unico.</p><form id="identityForm" class="kyc-form"><div class="personal-grid"><div class="full"><label class="field" for="identityCurp">CURP <span class="required">*</span></label><input class="input curp-input" id="identityCurp" name="curp" maxlength="18" minlength="18" pattern="[A-Za-z0-9]{18}" autocomplete="off" placeholder="18 caracteres" value="${esc(identity.curp)}" required></div><div><label class="field" for="identityBirthDate">Fecha de nacimiento <span class="required">*</span></label><input class="input" id="identityBirthDate" name="birthDate" type="date" value="${esc(identity.birthDate)}" required></div><div><label class="field" for="identityFullName">Nombre completo <span class="required">*</span></label><input class="input" id="identityFullName" name="fullName" maxlength="120" placeholder="Nombre y apellidos" value="${esc(identity.fullName)}" required></div></div><p class="helper">Puedes corregir estos campos antes de guardarlos. Los cambios se almacenan en KYCTest por separado del resultado de Unico.</p><div id="identityError" class="form-error" role="alert"></div><button class="btn btn-main" type="submit">Guardar cambios</button></form></section>`;
+      if(record.identityEdited&&!state.editingIdentity)return `<section class="flow-result good"><h3>Identity details confirmed</h3><p>You reviewed and saved your details in KYCTest. The original Unico result remains unchanged.</p><div class="identity-summary"><strong>CURP:</strong> ${esc(identity.curp||'—')}<br><strong>Date of birth:</strong> ${esc(identity.birthDate||'—')}<br><strong>Full name:</strong> ${esc(identity.fullName||'—')}</div><button class="btn btn-soft" type="button" data-action="edit-identity">Edit my details</button></section>`;
+      return `<section class="doc-section"><h3>Confirm your personal information</h3><p class="muted small">Enter or edit your CURP, date of birth and full name. These details must match your identity document.</p><form id="identityForm" class="kyc-form"><div class="personal-grid"><div class="full"><label class="field" for="identityCurp">CURP <span class="required">*</span></label><input class="input curp-input" id="identityCurp" name="curp" maxlength="18" minlength="18" pattern="[A-Za-z0-9]{18}" autocomplete="off" placeholder="18-character CURP" value="${esc(identity.curp)}" required><p class="helper">Enter the 18-character Mexican CURP.</p></div><div><label class="field" for="identityBirthDate">Date of birth <span class="required">*</span></label><input class="input" id="identityBirthDate" name="birthDate" type="date" value="${esc(identity.birthDate)}" required><p class="helper">Must match the birth date encoded in your CURP. You must be at least 18.</p></div><div><label class="field" for="identityFullName">Full name <span class="required">*</span></label><input class="input" id="identityFullName" name="fullName" maxlength="120" placeholder="Nombre(s) Apellido paterno Apellido materno" value="${esc(identity.fullName)}" required><p class="helper">Enter your legal name as shown on your document.</p></div></div><div class="identity-note">Front-end validation checks the CURP format and checksum, date of birth, and basic name consistency. It does not verify RENAPO registration or identity authenticity.</div><div id="identityError" class="form-error" role="alert"></div><button class="btn btn-main" type="submit">Confirm and continue</button><button class="btn btn-soft" type="button" data-action="back-review">Back to verification status</button>${state.editingIdentity?'<button class="btn btn-soft" type="button" data-action="cancel-edit">Cancel editing</button>':''}</form></section>`;
     }
-    async function refreshCurrent(){
-      const target=document.getElementById('currentRecord');
+    function validateIdentity(form){
+      const curp=String(new FormData(form).get('curp')||'').trim().toUpperCase();
+      const birthDate=String(new FormData(form).get('birthDate')||'').trim();
+      const fullName=String(new FormData(form).get('fullName')||'').trim().replace(/\s+/g,' ');
+      const format=/^[A-Z][AEIOUX][A-Z]{2}\d{6}[HM](?:AS|BC|BS|CC|CL|CM|CS|CH|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS|NE)[B-DF-HJ-NP-TV-Z]{3}[0-9A-Z]\d$/;
+      if(!format.test(curp))return 'Enter a valid 18-character CURP.';
+      const alphabet='0123456789ABCDEFGHIJKLMNÑOPQRSTUVWXYZ';
+      let sum=0;
+      for(let i=0;i<17;i++)sum+=alphabet.indexOf(curp[i])*(18-i);
+      if((10-(sum%10))%10!==Number(curp[17]))return 'The CURP check digit does not match.';
+      const [year,month,day]=birthDate.split('-').map(Number);
+      const birth=new Date(Date.UTC(year,month-1,day));
+      if(!birthDate||birth.getUTCFullYear()!==year||birth.getUTCMonth()!==month-1||birth.getUTCDate()!==day||birth.getTime()>Date.now())return 'Enter a valid date of birth.';
+      const today=new Date();
+      const age=today.getFullYear()-year-(today.getMonth()<month-1||(today.getMonth()===month-1&&today.getDate()<day)?1:0);
+      if(age<18)return 'You must be at least 18 years old.';
+      if(curp.slice(4,10)!==birthDate.slice(2).replaceAll('-',''))return 'The date of birth does not match the CURP.';
+      if(year>=2000?!/[A-Z]/.test(curp[16]):!/[0-9]/.test(curp[16]))return 'The CURP century marker does not match the date of birth.';
+      const words=fullName.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').split(' ').filter(Boolean);
+      if(words.length<2||!words.every(word=>/^[A-ZÑÜ]+(?:[-'][A-ZÑÜ]+)*$/.test(word)))return 'Enter your legal full name using letters.';
+      if(words.length>=3&&words[words.length-2][0]!==curp[0])return 'Check the paternal surname against the CURP.';
+      return '';
+    }
+    async function refreshCurrent(knownRecord=null){
       if(!state.recordId)return;
       try{
-        const record=await api('/api/kyc/process/'+encodeURIComponent(state.recordId));
+        const record=knownRecord||await api('/api/kyc/process/'+encodeURIComponent(state.recordId));
         state.currentRecord=record;
-        const finished=record.status==='PROCESS_STATE_FINISHED';
-        target.innerHTML=`${progress(finished?3:0)}<div class="service-status ${statusClass(record.status,record.result)}">Estado de Unico: <strong>${esc(record.status)}</strong>${record.result?` · Resultado: ${esc(record.result)}`:''}</div>${finished?identityPanel(record):''}`;
+        updateHomeStatus(record);
+        const outcome=processOutcome(record);
+        const wasWaiting=state.waitingActive;
+        if(wasWaiting&&outcome==='pending'){
+          renderWaiting();
+          await loadRecords();
+          return;
+        }
+        if(outcome==='approved'&&!record.identityEdited){
+          const userData=await api('/api/kyc/process/'+encodeURIComponent(state.recordId)+'/identity');
+          record.identity=userData.identity;
+        }
+        if(wasWaiting){
+          state.waitingActive=false;
+          render();
+        }
+        if(state.providerActive&&outcome!=='pending'){
+          state.providerActive=false;
+          render();
+        }
+        const target=document.getElementById('currentRecord');
+        if(!target)return;
+        const startForm=document.getElementById('kycForm');
+        if(startForm)startForm.hidden=outcome!=='rejected';
+        badge.textContent=outcome==='approved'?(record.identityEdited?'Verified':'Confirm details'):outcome==='rejected'?'Not verified':outcome==='finished'?'Review required':'In progress';
+        badge.className='badge'+(outcome==='approved'?' good':outcome==='rejected'?' bad':'');
+        const details=outcome==='approved'
+          ? state.reviewOnly
+            ? `<section class="flow-result good"><h3>Identity verification approved</h3><p>Unico returned an approved result. Review and confirm the identity details to complete this step.</p><button class="btn btn-main" type="button" data-action="review-identity">Review personal information</button></section>`
+            : `<section class="flow-result good"><h3>Unico verification complete</h3><p>Unico returned an approved result. Review and confirm your identity details to save them in KYCTest.</p></section>${identityPanel(record)}`
+          : outcome==='rejected'
+            ? `<section class="flow-result bad"><h3>Verification was not approved</h3><p>Unico reported that the process was not completed successfully. Review the result or start a new verification.</p><button class="btn btn-soft" type="button" data-action="reverify">Start a new verification</button></section>`
+            : outcome==='finished'
+              ? `<section class="flow-result"><h3>Unico process finished</h3><p>The process ended without a recognized approved or rejected result. Check the record or contact support before trying again.</p></section>`
+              : `<section class="flow-result"><h3>Verification in progress</h3><p>When you finish with Unico, check the status again to review the result. ${state.providerUrl?'You can continue in the verification panel.':'If you closed the Unico flow, you can start a new process; this record remains in the history.'}</p>${state.providerUrl&&!state.providerActive?'<button class="btn btn-main" type="button" data-action="continue-provider">Continue with Unico</button>':''}<button class="btn btn-soft" type="button" data-action="check-current">Check status</button>${!state.providerUrl?'<button class="btn btn-soft" type="button" data-action="reverify">Start a new process</button>':''}</section>`;
+        target.innerHTML=`<div class="service-status ${statusClass(record.status,record.result)}">Unico status: <strong>${esc(record.status)}</strong>${record.result?` · Result: ${esc(record.result)}`:''}</div>${details}`;
         await loadRecords();
       }catch(err){
-        target.innerHTML=`<div class="service-status error">${esc(err.message)}</div>`;
+        if(state.waitingActive){
+          renderWaiting(err.message);
+          return;
+        }
+        const target=document.getElementById('currentRecord');
+        if(!target)return;
+        target.innerHTML=`<div class="service-status error" role="alert">${esc(err.message)} <button class="btn btn-soft" type="button" data-action="check-current">Check again</button></div>`;
+      }
+    }
+    async function resumeSavedProcess(providerWindow){
+      if(state.busy||!state.recordId){
+        if(providerWindow&&!providerWindow.closed)providerWindow.close();
+        return;
+      }
+      state.busy=true;
+      state.waitingActive=true;
+      renderWaiting();
+      try{
+        const record=await api('/api/kyc/process/'+encodeURIComponent(state.recordId));
+        state.providerUrl=record.providerUrl||state.providerUrl;
+        const outcome=processOutcome(record);
+        if(outcome==='pending'&&!state.providerUrl){
+          if(providerWindow&&!providerWindow.closed)providerWindow.close();
+          state.currentRecord=record;
+          updateHomeStatus(record);
+          renderWaiting('The existing Unico process is still pending, but Unico did not return a continuation URL. Check status again or contact support.');
+          await loadRecords();
+          return;
+        }
+        if(outcome==='pending'&&state.providerUrl&&providerWindow&&!providerWindow.closed){
+          providerWindow.location.replace(showProvider(state.providerUrl));
+        }else if(providerWindow&&!providerWindow.closed){
+          providerWindow.close();
+        }
+        await refreshCurrent(record);
+      }catch(err){
+        if(providerWindow&&!providerWindow.closed)providerWindow.close();
+        renderWaiting(err.message);
+      }finally{
+        state.busy=false;
       }
     }
     screen.addEventListener('submit',async event=>{
       event.preventDefault();
       if(state.busy)return;
       if(event.target.id==='identityForm'){
+        const validationError=validateIdentity(event.target);
+        if(validationError){
+          document.getElementById('identityError').textContent=validationError;
+          return;
+        }
         state.busy=true;
         const button=event.target.querySelector('button[type="submit"]');
         const error=document.getElementById('identityError');
@@ -774,6 +1137,7 @@
             headers:{'Content-Type':'application/json'},
             body:JSON.stringify({curp:form.get('curp'),birthDate:form.get('birthDate'),fullName:form.get('fullName')})
           });
+          state.editingIdentity=false;
           await refreshCurrent();
         }catch(err){
           error.textContent=err.message;
@@ -787,41 +1151,138 @@
       state.busy=true;
       const button=document.getElementById('submitButton');
       const error=document.getElementById('formError');
+      const providerWindow=window.open('about:blank','_blank');
+      if(!providerWindow){
+        error.textContent='The Unico window was blocked. Allow pop-ups for this site and try again.';
+        return;
+      }
+      providerWindow.opener=null;
       button.disabled=true;
-      button.textContent='Iniciando…';
+      button.textContent='Starting…';
       error.textContent='';
       try{
         const data=await api('/api/kyc/process',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({consent:event.target.elements.consent.checked})});
+        const providerUrl=showProvider(data.userRedirectUrl);
+        state.waitingActive=false;
+        state.editingIdentity=false;
+        state.reviewOnly=false;
         state.recordId=data.record.id;
         localStorage.setItem('kycRecordId',state.recordId);
-        location.assign(data.userRedirectUrl);
-      }catch(err){
-        error.textContent=err.message;
-        button.disabled=false;
-        button.textContent='Iniciar verificación con Unico';
+        homeStatus.textContent='In progress';
+        providerWindow.location.replace(providerUrl);
+        renderWaiting();
         state.busy=false;
-        await loadRecords();
+      }catch(err){
+        if(!providerWindow.closed)providerWindow.close();
+        error.textContent=err.message;
+        const currentButton=document.getElementById('submitButton');
+        if(currentButton){
+          currentButton.disabled=false;
+          currentButton.textContent='Start';
+        }
+        state.busy=false;
       }
     });
     screen.addEventListener('click',async event=>{
-      const button=event.target.closest('[data-action="check"]');
+      const button=event.target.closest('[data-action]');
       if(!button||state.busy)return;
+      const action=button.dataset.action;
+      if(action==='privacy'){
+        event.preventDefault();
+        alert('Connect this link to MEGWIN’s published Privacy Notice before production.');
+        return;
+      }
+      if(action==='begin-start'){
+        button.hidden=true;
+        document.getElementById('consentStep').hidden=false;
+        document.querySelector('#consentStep input[name="consent"]').focus();
+        return;
+      }
+      if(action==='cancel-start'){
+        document.getElementById('consentStep').hidden=true;
+        document.getElementById('startButton').hidden=false;
+        document.querySelector('#consentStep input[name="consent"]').checked=false;
+        return;
+      }
+      if(action==='check-status'||action==='check-current'){
+        state.busy=true;
+        button.disabled=true;
+        try{await refreshCurrent()}finally{state.busy=false;if(button.isConnected)button.disabled=false}
+        return;
+      }
+      if(action==='back-provider'){
+        state.providerActive=false;
+        state.waitingActive=false;
+        render();
+        await refreshCurrent();
+        return;
+      }
+      if(action==='continue-provider'){
+        if(state.providerUrl){
+          const providerWindow=window.open('about:blank','_blank');
+          if(providerWindow){
+            providerWindow.opener=null;
+            providerWindow.location.replace(showProvider(state.providerUrl));
+          }else{
+            renderWaiting('Allow pop-ups for this site to continue verification.');
+          }
+        }
+        return;
+      }
+      if(action==='back-review'||action==='review-identity'){
+        state.reviewOnly=action==='back-review';
+        state.editingIdentity=false;
+        await refreshCurrent();
+        return;
+      }
+      if(action==='edit-identity'||action==='cancel-edit'){
+        state.editingIdentity=action==='edit-identity';
+        await refreshCurrent();
+        return;
+      }
+      if(action==='reverify'){
+        state.recordId=null;
+        state.currentRecord=null;
+        state.editingIdentity=false;
+        state.reviewOnly=false;
+        state.waitingActive=false;
+        state.providerUrl='';
+        homeStatus.textContent='Not verified';
+        localStorage.removeItem('kycRecordId');
+        render();
+        await Promise.all([checkConfig(),loadRecords()]);
+        document.getElementById('kycForm').scrollIntoView({behavior:'smooth',block:'center'});
+        return;
+      }
+      if(action!=='check'&&action!=='check-current')return;
       state.busy=true;
+      const recordId=button.dataset.id||state.recordId;
+      if(!recordId){state.busy=false;return}
       button.disabled=true;
       try{
-        state.recordId=button.dataset.id;
+        state.recordId=recordId;
+        state.editingIdentity=false;
+        state.providerUrl='';
         localStorage.setItem('kycRecordId',state.recordId);
         await refreshCurrent();
+      }catch(err){
+        const target=document.getElementById('currentRecord');
+        target.innerHTML=`<div class="service-status error" role="alert">${esc(err.message)}</div>`;
       }finally{
         state.busy=false;
-        button.disabled=false;
+        if(button.isConnected)button.disabled=false;
       }
     });
     render();
-    Promise.all([checkConfig(),loadRecords()]).then(refreshCurrent).catch(err=>{
+    Promise.all([checkConfig(),loadRecords()]).then(async()=>{
+      await refreshCurrent();
+      if(state.currentRecord&&processOutcome(state.currentRecord)==='pending')renderWaiting();
+    }).catch(err=>{
       const status=document.getElementById('serviceStatus');
-      status.textContent=err.message;
-      status.className='service-status error';
+      if(status){
+        status.textContent=err.message;
+        status.className='service-status error';
+      }
     });
     </script>
   </body>

@@ -67,11 +67,12 @@ func TestRecordStorePersistsRecordsWithoutIdentityFields(t *testing.T) {
 		t.Fatal(err)
 	}
 	record := kycRecord{
-		ID:        "record-1",
-		ProcessID: "process-1",
-		Status:    "PROCESS_STATE_CREATED",
-		CreatedAt: time.Now().UTC(),
-		UpdatedAt: time.Now().UTC(),
+		ID:          "record-1",
+		ProcessID:   "process-1",
+		ProviderURL: "https://id.uat.unico.app/flow?id=resume-token",
+		Status:      "PROCESS_STATE_CREATED",
+		CreatedAt:   time.Now().UTC(),
+		UpdatedAt:   time.Now().UTC(),
 	}
 	if err := store.save(record); err != nil {
 		t.Fatal(err)
@@ -88,7 +89,7 @@ func TestRecordStorePersistsRecordsWithoutIdentityFields(t *testing.T) {
 		t.Fatal(err)
 	}
 	got, ok := reopened.get(record.ID)
-	if !ok || got.ProcessID != record.ProcessID || got.Status != record.Status {
+	if !ok || got.ProcessID != record.ProcessID || got.ProviderURL != record.ProviderURL || got.Status != record.Status {
 		t.Fatalf("reopened record = %#v, found = %v", got, ok)
 	}
 }
@@ -243,6 +244,55 @@ func TestIdentityCanBeEditedAfterUnicoFinishes(t *testing.T) {
 		updated.Identity.BirthDate != "1992-06-20" ||
 		updated.Identity.FullName != "Ana Perez Lopez" || !updated.IdentityEdited {
 		t.Fatalf("edited record = %#v", updated)
+	}
+}
+
+func TestIdentityLookupRequiresApprovedFinishedProcess(t *testing.T) {
+	store, err := newRecordStore(filepath.Join(t.TempDir(), "records.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	record := kycRecord{
+		ID:        "record-1",
+		ProcessID: "process-1",
+		Status:    "PROCESS_STATE_CREATED",
+		Identity: identityData{
+			CURP:      "ABCD123456HDFXXX01",
+			BirthDate: "1990-04-15",
+			FullName:  "Ana Perez",
+		},
+	}
+	if err := store.save(record); err != nil {
+		t.Fatal(err)
+	}
+	app := &server{store: store}
+	request := httptest.NewRequest(http.MethodGet, "/api/kyc/process/record-1/identity", nil)
+	response := httptest.NewRecorder()
+	app.processRecord(response, request)
+	if response.Code != http.StatusConflict {
+		t.Fatalf("pending identity lookup status=%d body=%s", response.Code, response.Body.String())
+	}
+
+	record.Status = "PROCESS_STATE_FINISHED"
+	record.Result = "PROCESS_RESULT_REJECTED"
+	if err := store.save(record); err != nil {
+		t.Fatal(err)
+	}
+	response = httptest.NewRecorder()
+	app.processRecord(response, request)
+	if response.Code != http.StatusConflict {
+		t.Fatalf("rejected identity lookup status=%d body=%s", response.Code, response.Body.String())
+	}
+
+	record.Result = "PROCESS_RESULT_APPROVED"
+	if err := store.save(record); err != nil {
+		t.Fatal(err)
+	}
+	response = httptest.NewRecorder()
+	app.processRecord(response, request)
+	if response.Code != http.StatusOK ||
+		!strings.Contains(response.Body.String(), "ABCD123456HDFXXX01") {
+		t.Fatalf("approved identity lookup status=%d body=%s", response.Code, response.Body.String())
 	}
 }
 

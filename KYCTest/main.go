@@ -38,6 +38,18 @@ type kycRecordSummary struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
+type kycProcessStatus struct {
+	ID             string    `json:"id"`
+	ProcessID      string    `json:"processId,omitempty"`
+	ProviderURL    string    `json:"providerUrl,omitempty"`
+	Status         string    `json:"status"`
+	Result         string    `json:"result,omitempty"`
+	IdentityEdited bool      `json:"identityEdited,omitempty"`
+	Error          string    `json:"error,omitempty"`
+	CreatedAt      time.Time `json:"createdAt"`
+	UpdatedAt      time.Time `json:"updatedAt"`
+}
+
 func main() {
 	if err := loadDotEnv(".env"); err != nil {
 		log.Fatalf("load local environment: %v", err)
@@ -199,6 +211,7 @@ func (s *server) createProcess(w http.ResponseWriter, r *http.Request) {
 	}
 
 	record.ProcessID = process.ID
+	record.ProviderURL = process.UserRedirectURL
 	record.Status = process.State
 	if record.Status == "" {
 		record.Status = "PROCESS_STATE_CREATED"
@@ -216,8 +229,18 @@ func (s *server) createProcess(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) processRecord(w http.ResponseWriter, r *http.Request) {
-	recordID := strings.TrimPrefix(r.URL.Path, "/api/kyc/process/")
-	if recordID == "" || strings.Contains(recordID, "/") {
+	path := strings.TrimPrefix(r.URL.Path, "/api/kyc/process/")
+	parts := strings.Split(path, "/")
+	if len(parts) == 2 && parts[1] == "identity" {
+		if r.Method != http.MethodGet {
+			methodNotAllowed(w, http.MethodGet)
+			return
+		}
+		s.getIdentity(w, parts[0])
+		return
+	}
+	recordID := path
+	if recordID == "" || len(parts) != 1 || strings.Contains(recordID, "/") {
 		writeError(w, http.StatusBadRequest, "A KYC record ID is required.")
 		return
 	}
@@ -230,6 +253,23 @@ func (s *server) processRecord(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Allow", "GET, PATCH")
 		writeError(w, http.StatusMethodNotAllowed, "Method not allowed.")
 	}
+}
+
+func (s *server) getIdentity(w http.ResponseWriter, recordID string) {
+	record, ok := s.store.get(recordID)
+	if !ok {
+		writeError(w, http.StatusNotFound, "KYC record not found.")
+		return
+	}
+	result := strings.ToUpper(record.Result)
+	approved := strings.Contains(result, "APPROVED") ||
+		strings.Contains(result, "VERIFIED") ||
+		strings.Contains(result, "AUTHENTICATED")
+	if record.Status != "PROCESS_STATE_FINISHED" || !approved {
+		writeError(w, http.StatusConflict, "Identity details are available only after an approved Unico process.")
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]identityData{"identity": record.Identity})
 }
 
 func (s *server) getProcess(w http.ResponseWriter, r *http.Request, recordID string) {
@@ -250,6 +290,9 @@ func (s *server) getProcess(w http.ResponseWriter, r *http.Request, recordID str
 	}
 	record.Status = process.State
 	record.Result = process.Result
+	if validUnicoRedirect(process.UserRedirectURL) {
+		record.ProviderURL = process.UserRedirectURL
+	}
 	if record.Status == "PROCESS_STATE_FINISHED" && !record.IdentityEdited {
 		record.Identity = identityFromProcess(process)
 	}
@@ -258,7 +301,17 @@ func (s *server) getProcess(w http.ResponseWriter, r *http.Request, recordID str
 		writeError(w, http.StatusInternalServerError, "Could not update the KYC record.")
 		return
 	}
-	writeJSON(w, http.StatusOK, record)
+	writeJSON(w, http.StatusOK, kycProcessStatus{
+		ID:             record.ID,
+		ProcessID:      record.ProcessID,
+		ProviderURL:    record.ProviderURL,
+		Status:         record.Status,
+		Result:         record.Result,
+		IdentityEdited: record.IdentityEdited,
+		Error:          record.Error,
+		CreatedAt:      record.CreatedAt,
+		UpdatedAt:      record.UpdatedAt,
+	})
 }
 
 func (s *server) updateIdentity(w http.ResponseWriter, r *http.Request, recordID string) {
