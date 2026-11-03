@@ -84,63 +84,132 @@
         gap: 8px;
         margin-left: auto;
       }
-      .notification-btn {
-        position: relative;
-        font-size: 17px;
-      }
-      .notification-dot {
-        position: absolute;
-        width: 7px;
-        height: 7px;
-        right: 7px;
-        top: 6px;
-        border-radius: 50%;
-        background: #ff454f;
-        box-shadow: 0 0 0 2px #1b1c1e;
-      }
-      .notification-panel {
-        display: none;
+      .pending-deposit-widget {
         position: fixed;
-        z-index: 35;
-        top: 49px;
-        right: 16px;
-        width: min(320px, calc(100vw - 24px));
-        padding: 8px;
-        border: 1px solid #45474a;
-        border-radius: 12px;
-        background: #252729;
-        box-shadow: 0 14px 36px #0009;
+        z-index: 34;
+        top: 50%;
+        left: 0;
+        width: 224px;
+        transform: translateY(-50%);
+        transition: width 0.3s ease, opacity 0.3s ease;
+        animation: pending-widget-collapse 0.3s ease 5s forwards;
       }
-      .notification-panel.show {
-        display: block;
-      }
-      .notification-title {
-        padding: 9px 10px 7px;
-        color: #aeb2b7;
-        font-weight: 700;
-      }
-      .deposit-notification {
+      .pending-deposit-trigger {
         display: flex;
         width: 100%;
+        min-height: 64px;
         align-items: center;
-        gap: 11px;
-        padding: 13px 11px;
-        margin-bottom: 6px;
-        border-radius: 8px;
-        background: #303235;
+        gap: 10px;
+        padding: 10px 12px;
+        border: 1px solid #4e625e;
+        border-left: 0;
+        border-radius: 0 13px 13px 0;
+        background: linear-gradient(110deg, #14332f, #202729);
+        box-shadow: 0 8px 26px #0008;
         color: #f6f7f8;
         text-align: left;
       }
-      .deposit-notification:hover {
-        background: #3a3d40;
+      .pending-deposit-icon {
+        flex: 0 0 auto;
+        font-size: 21px;
       }
-      .deposit-notification .bell {
-        font-size: 22px;
+      .pending-deposit-copy {
+        display: flex;
+        min-width: 0;
+        flex: 1;
+        flex-direction: column;
+        gap: 4px;
+        white-space: nowrap;
+        animation: pending-widget-copy-collapse 0.2s ease 5.1s forwards;
       }
-      .deposit-notification small {
-        display: block;
-        margin-top: 4px;
+      .pending-deposit-copy small {
+        color: #aab8b5;
+        font-size: 10px;
+      }
+      .pending-deposit-count {
+        display: grid;
+        width: 30px;
+        height: 30px;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 50%;
+        background: var(--teal);
+        color: #10211e;
+        font-size: 12px;
+        font-weight: 800;
+      }
+      .pending-deposit-widget.is-collapsed {
+        width: 96px;
+        opacity: 0.48;
+      }
+      .pending-deposit-widget.is-collapsed:hover,
+      .pending-deposit-widget.is-collapsed:focus-within {
+        opacity: 1;
+      }
+      .pending-deposit-widget.is-collapsed .pending-deposit-trigger {
+        min-height: 58px;
+        justify-content: center;
+        gap: 7px;
+        padding: 8px 7px;
+      }
+      .pending-deposit-widget.is-collapsed .pending-deposit-copy {
+        display: none;
+      }
+      .pending-deposit-widget.is-collapsed .pending-deposit-count {
+        width: auto;
+        height: auto;
+        border-radius: 10px;
+        padding: 5px 6px;
+        font-size: 11px;
+      }
+      .pending-deposit-widget.is-collapsed .pending-deposit-count::after {
+        content: " pending";
+        font-size: 9px;
+      }
+      .pending-deposit-list {
+        display: grid;
+        gap: 8px;
+        margin: 18px 0;
+      }
+      .pending-deposit-item {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        gap: 10px;
+        padding: 12px;
+        border: 1px solid #45494c;
+        border-radius: 10px;
+        background: #303235;
+        text-align: left;
+      }
+      .pending-deposit-item > span:nth-child(2) {
+        display: grid;
+        flex: 1;
+        gap: 4px;
+      }
+      .pending-deposit-item small {
         color: #aeb2b7;
+      }
+      .pending-deposit-item .pending-status {
+        color: #f2c56b;
+        font-size: 10px;
+        white-space: nowrap;
+      }
+      .pending-deposit-note {
+        color: #aeb2b7;
+        line-height: 1.5;
+      }
+      @keyframes pending-widget-collapse {
+        to {
+          width: 70px;
+          opacity: 0.48;
+        }
+      }
+      @keyframes pending-widget-copy-collapse {
+        to {
+          opacity: 0;
+          visibility: hidden;
+        }
       }
       .balance {
         background: #282a2d;
@@ -961,9 +1030,13 @@
         .tools button {
           padding: 7px;
         }
-        .notification-panel {
-          top: 54px;
-          right: 8px;
+        .pending-deposit-widget {
+          top: auto;
+          bottom: 76px;
+          transform: none;
+        }
+        .pending-deposit-widget.is-collapsed {
+          opacity: 0.55;
         }
         .balance {
           padding: 7px;
@@ -1149,25 +1222,16 @@
         <span class="lang">English ⌄　 Decimal ⌄</span
         ><span class="clock">◷ 00:48:46</span><button id="searchBtn">⌕</button
         ><span class="balance">🪙 $12,000.88</span
-        ><button id="profileBtn">◉</button
-        ><button id="notificationBtn" class="notification-btn" aria-label="Notifications" aria-expanded="false">🔔<span class="notification-dot"></span></button>
+        ><button id="profileBtn">◉</button>
       </div>
     </header>
-    <div class="notification-panel" id="notificationPanel" role="dialog" aria-label="Notifications">
-      <div class="notification-title">Notifications</div>
-      <button class="deposit-notification" type="button" data-open-deposit>
-        <span class="bell" aria-hidden="true">🔔</span>
-        <span><strong>Deposit MXN$100.00</strong><small>Your bank transfer details are ready</small></span>
+    <aside class="pending-deposit-widget" id="pendingDepositWidget">
+      <button class="pending-deposit-trigger" id="pendingDepositTrigger" type="button" aria-label="View 3 pending deposits">
+        <span class="pending-deposit-icon" aria-hidden="true">💳</span>
+        <span class="pending-deposit-copy"><strong>Pending deposits</strong><small>Continue pending payments</small></span>
+        <span class="pending-deposit-count" data-pending-count>3</span>
       </button>
-      <button class="deposit-notification" type="button" data-open-deposit>
-        <span class="bell" aria-hidden="true">💳</span>
-        <span><strong>Complete your deposit</strong><small>Continue your MXN$100.00 payment</small></span>
-      </button>
-      <button class="deposit-notification" type="button" data-open-deposit>
-        <span class="bell" aria-hidden="true">📢</span>
-        <span><strong>Deposit reminder</strong><small>Tap to view the CLABE and instructions</small></span>
-      </button>
-    </div>
+    </aside>
     <div class="shell">
       <aside class="sidebar" id="sidebar"><div id="sideLinks"></div></aside>
       <main class="main">
@@ -1504,6 +1568,31 @@
         <button class="chip active" id="modalOk">Close</button>
       </div>
     </div>
+    <div class="modal" id="pendingDepositModal" role="dialog" aria-modal="true" aria-labelledby="pendingDepositTitle">
+      <div class="modalcontent">
+        <button class="close" id="closePendingDeposits" type="button" aria-label="Close">×</button>
+        <h2 id="pendingDepositTitle">Pending deposits</h2>
+        <p><strong><span data-pending-count>3</span> payments not completed</strong></p>
+        <div class="pending-deposit-list">
+          <button class="pending-deposit-item" type="button" data-open-deposit>
+            <span aria-hidden="true">💳</span>
+            <span><strong>Deposit MXN$100.00</strong><small>Bank details are ready to continue</small></span>
+            <span class="pending-status">Pending</span>
+          </button>
+          <button class="pending-deposit-item" type="button" data-open-deposit>
+            <span aria-hidden="true">🏦</span>
+            <span><strong>Deposit MXN$100.00</strong><small>Transfer is waiting to be completed</small></span>
+            <span class="pending-status">Pending</span>
+          </button>
+          <button class="pending-deposit-item" type="button" data-open-deposit>
+            <span aria-hidden="true">🔔</span>
+            <span><strong>Deposit MXN$100.00</strong><small>Review the payment instructions</small></span>
+            <span class="pending-status">Pending</span>
+          </button>
+        </div>
+        <p class="pending-deposit-note">Demo only: these entries do not represent real transactions.</p>
+      </div>
+    </div>
     <div class="deposit-modal" id="depositModal" role="dialog" aria-modal="true" aria-labelledby="depositTitle">
       <section class="deposit-card">
         <button class="deposit-close" id="closeDeposit" type="button" aria-label="Close deposit">×</button>
@@ -1695,10 +1784,33 @@
         setTimeout(() => $("#toast").classList.remove("show"), 2200);
       }
       function openDeposit() {
-        $("#notificationPanel").classList.remove("show");
-        $("#notificationBtn").setAttribute("aria-expanded", "false");
+        $("#pendingDepositModal").classList.remove("show");
         $("#depositModal").classList.add("show");
       }
+      const pendingDepositItems = $$(".pending-deposit-item");
+      $$("[data-pending-count]").forEach((count) => {
+        count.textContent = pendingDepositItems.length;
+      });
+      $("#pendingDepositTrigger").setAttribute(
+        "aria-label",
+        `View ${pendingDepositItems.length} pending deposits`,
+      );
+      const pendingDepositWidget = $("#pendingDepositWidget");
+      pendingDepositWidget.addEventListener("animationend", (event) => {
+        if (event.animationName === "pending-widget-collapse")
+          pendingDepositWidget.classList.add("is-collapsed");
+      });
+      $("#pendingDepositTrigger").addEventListener("click", () => {
+        pendingDepositWidget.style.animation = "none";
+        $(".pending-deposit-copy").style.animation = "none";
+        $("#pendingDepositModal").classList.add("show");
+      });
+      $("#closePendingDeposits").onclick = () =>
+        $("#pendingDepositModal").classList.remove("show");
+      $("#pendingDepositModal").onclick = (e) => {
+        if (e.target.id === "pendingDepositModal")
+          $("#pendingDepositModal").classList.remove("show");
+      };
       async function copyDepositValue(targetId, button) {
         const value = document.getElementById(targetId)?.textContent?.trim();
         if (!value) {
@@ -1739,17 +1851,6 @@
         if (copyButton) {
           copyDepositValue(copyButton.dataset.copy, copyButton);
           return;
-        }
-        if (e.target.closest("#notificationBtn")) {
-          const panel = $("#notificationPanel");
-          const open = !panel.classList.contains("show");
-          panel.classList.toggle("show", open);
-          $("#notificationBtn").setAttribute("aria-expanded", String(open));
-          return;
-        }
-        if (!e.target.closest("#notificationPanel")) {
-          $("#notificationPanel").classList.remove("show");
-          $("#notificationBtn").setAttribute("aria-expanded", "false");
         }
         const p = e.target.closest("[data-page]");
         if (p) {
