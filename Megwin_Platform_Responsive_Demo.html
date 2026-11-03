@@ -95,37 +95,69 @@
         cursor: pointer;
       }
       .pending-wallet-badge {
-        display: inline-grid;
-        min-width: 19px;
-        height: 19px;
-        padding: 0 5px;
+        position: relative;
+        display: inline-block;
+        width: 30px;
+        height: 30px;
+        flex: 0 0 30px;
+        vertical-align: middle;
+      }
+      .pending-wallet-coin {
+        position: absolute;
+        inset: 1px 3px 3px 1px;
+        display: grid;
         place-items: center;
-        border: 1px solid #ffaaa0;
+        border: 1px solid #fff0a7;
+        border-radius: 50%;
+        background:
+          radial-gradient(ellipse at 32% 22%, #fff8c8 0 4%, transparent 28%),
+          linear-gradient(145deg, #ffeaa0 0%, #e8ad35 35%, #b86c12 68%, #f8d86a 100%);
+        box-shadow:
+          inset 0 2px 2px #fff8d9cc,
+          inset 0 -3px 3px #8e4b0ccc,
+          0 2px 0 #874d11,
+          0 4px 7px #0009;
+        color: #75420f;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 19px;
+        font-weight: 900;
+        line-height: 1;
+        text-shadow: 0 1px 0 #fff0ad, 0 -1px 0 #9c6019;
+        animation: pending-wallet-coin 20s ease-in-out infinite;
+      }
+      .pending-wallet-count {
+        position: absolute;
+        z-index: 1;
+        top: -2px;
+        right: -3px;
+        display: grid;
+        min-width: 15px;
+        height: 15px;
+        padding: 0 3px;
+        place-items: center;
+        border: 1px solid #ffd1c9;
         border-radius: 999px;
-        background: #ed493e;
-        box-shadow: 0 0 8px #ff554d99;
+        background: linear-gradient(145deg, #ff8172, #d52528 72%);
+        box-shadow: 0 1px 3px #000b, inset 0 1px 1px #ffffff90;
         color: #fff;
-        font-size: 11px;
+        font-size: 9px;
         font-weight: 800;
         line-height: 1;
-        animation: pending-wallet-blink 1.2s ease-in-out infinite;
       }
       .pending-wallet-badge[hidden] {
         display: none;
       }
-      @keyframes pending-wallet-blink {
+      @keyframes pending-wallet-coin {
         0%,
         100% {
-          opacity: 1;
-          box-shadow: 0 0 9px #ff554ddd;
+          transform: rotateY(0);
         }
         50% {
-          opacity: 0.42;
-          box-shadow: 0 0 2px #ff554d55;
+          transform: rotateY(180deg);
         }
       }
       @media (prefers-reduced-motion: reduce) {
-        .pending-wallet-badge {
+        .pending-wallet-coin {
           animation: none;
         }
       }
@@ -1548,7 +1580,7 @@
       <div class="tools">
         <span class="lang">English ⌄　 Decimal ⌄</span
         ><span class="clock">◷ 00:48:46</span><button id="searchBtn">⌕</button
-        ><button class="balance" id="balanceDepositBtn" type="button" aria-label="Open deposit interface">🪙 $12,000.88 <span class="pending-wallet-badge" id="pendingWalletBadge" data-deposit-pending-count aria-label="3 pending deposits">3</span></button
+        ><button class="balance" id="balanceDepositBtn" type="button" aria-label="Open deposit interface">🪙 $12,000.88 <span class="pending-wallet-badge" id="pendingWalletBadge" aria-label="3 pending deposits"><span class="pending-wallet-coin" aria-hidden="true">$</span><span class="pending-wallet-count" id="pendingWalletCount" data-deposit-pending-count aria-hidden="true">3</span></span></button
         ><button id="profileBtn">◉</button>
       </div>
     </header>
