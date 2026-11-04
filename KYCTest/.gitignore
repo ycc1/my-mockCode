@@ -1,3 +1,6 @@
 .env
 /data/
 /secrets/
+/certs/
+/node_modules/
+/assets/

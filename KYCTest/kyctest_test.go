@@ -42,6 +42,38 @@ func TestLoadDotEnvLoadsMissingVariablesAndPreservesExistingValues(t *testing.T)
 	}
 }
 
+func TestLoadOrCreateDevTLSCreatesLocalhostCertificate(t *testing.T) {
+	dir := t.TempDir()
+	certPath := filepath.Join(dir, "localhost.cert.pem")
+	keyPath := filepath.Join(dir, "localhost.key.pem")
+
+	certificate, err := loadOrCreateDevTLS(certPath, keyPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(certificate.Certificate) == 0 {
+		t.Fatal("generated TLS certificate chain is empty")
+	}
+	leaf, err := x509.ParseCertificate(certificate.Certificate[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := leaf.VerifyHostname("localhost"); err != nil {
+		t.Fatalf("certificate does not cover localhost: %v", err)
+	}
+	if err := leaf.VerifyHostname("127.0.0.1"); err != nil {
+		t.Fatalf("certificate does not cover loopback IP: %v", err)
+	}
+
+	reloaded, err := loadOrCreateDevTLS(certPath, keyPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(reloaded.Certificate[0]) != string(certificate.Certificate[0]) {
+		t.Fatal("reloading the development certificate unexpectedly replaced it")
+	}
+}
+
 func TestDescribeUpstreamErrorIncludesSafeDiagnostics(t *testing.T) {
 	got := describeUpstreamError(http.MethodPost, "/client/v1/process", http.StatusBadRequest, "req-123", []byte(`{"code":"FLOW_NOT_ENABLED","message":"Flow is not enabled for this account."}`))
 	for _, want := range []string{
@@ -67,12 +99,13 @@ func TestRecordStorePersistsRecordsWithoutIdentityFields(t *testing.T) {
 		t.Fatal(err)
 	}
 	record := kycRecord{
-		ID:          "record-1",
-		ProcessID:   "process-1",
-		ProviderURL: "https://id.uat.unico.app/flow?id=resume-token",
-		Status:      "PROCESS_STATE_CREATED",
-		CreatedAt:   time.Now().UTC(),
-		UpdatedAt:   time.Now().UTC(),
+		ID:           "record-1",
+		ProcessID:    "process-1",
+		JourneyToken: "secret-journey-token",
+		ProviderURL:  "https://id.uat.unico.app/flow?id=resume-token",
+		Status:       "PROCESS_STATE_CREATED",
+		CreatedAt:    time.Now().UTC(),
+		UpdatedAt:    time.Now().UTC(),
 	}
 	if err := store.save(record); err != nil {
 		t.Fatal(err)
@@ -89,7 +122,7 @@ func TestRecordStorePersistsRecordsWithoutIdentityFields(t *testing.T) {
 		t.Fatal(err)
 	}
 	got, ok := reopened.get(record.ID)
-	if !ok || got.ProcessID != record.ProcessID || got.ProviderURL != record.ProviderURL || got.Status != record.Status {
+	if !ok || got.ProcessID != record.ProcessID || got.JourneyToken != record.JourneyToken || got.ProviderURL != record.ProviderURL || got.Status != record.Status {
 		t.Fatalf("reopened record = %#v, found = %v", got, ok)
 	}
 }
@@ -138,7 +171,7 @@ func TestUnicoCreateAndGetProcess(t *testing.T) {
 		_ = json.Unmarshal(payload["clientReference"], &clientReference)
 		_ = json.Unmarshal(payload["callbackUri"], &callbackURI)
 		if flow != "multiaccounts_idgov" || purpose != "biometryonboarding" ||
-			clientReference != "record-1" || callbackURI != "http://localhost:8080/" {
+			clientReference != "record-1" || callbackURI != "https://localhost:8080/" {
 			t.Errorf("unexpected KYC process payload: %#v", payload)
 		}
 		if _, exists := payload["person"]; exists {
@@ -147,13 +180,13 @@ func TestUnicoCreateAndGetProcess(t *testing.T) {
 		if _, exists := payload["document"]; exists {
 			t.Error("process must not include a document before the Unico-hosted journey")
 		}
-		_, _ = io.WriteString(w, `{"process":{"id":"process-1","state":"PROCESS_STATE_CREATED","userRedirectUrl":"https://cadastro.uat.unico.app/flow"}}`)
+		_, _ = io.WriteString(w, `{"process":{"id":"process-1","token":"journey-token","state":"PROCESS_STATE_CREATED","userRedirectUrl":"https://cadastro.uat.unico.app/flow"}}`)
 	})
 	mux.HandleFunc("/client/v1/process/process-1", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet || r.Header.Get("Authorization") != "Bearer test-token" {
 			t.Errorf("unexpected status request: %s", r.Method)
 		}
-		_, _ = io.WriteString(w, `{"process":{"id":"process-1","state":"PROCESS_STATE_FINISHED","result":"PROCESS_RESULT_APPROVED","person":{"duiValue":"ABCD123456HDFXXX01","friendlyName":"Ana Perez"},"services":[{"documents":[{"doc":{"data":{"curp":"ABCD123456HDFXXX01","fechaNacimiento":"1990-04-15T00:00:00Z","nombreCompleto":"Ana Perez"}}}]}]}}`)
+		_, _ = io.WriteString(w, `{"process":{"id":"process-1","token":"journey-token","state":"PROCESS_STATE_FINISHED","result":"PROCESS_RESULT_APPROVED","person":{"duiValue":"ABCD123456HDFXXX01","friendlyName":"Ana Perez"},"services":[{"documents":[{"doc":{"data":{"curp":"ABCD123456HDFXXX01","fechaNacimiento":"1990-04-15T00:00:00Z","nombreCompleto":"Ana Perez"}}}]}]}}`)
 	})
 	upstream = httptest.NewTLSServer(mux)
 	defer upstream.Close()
@@ -164,7 +197,7 @@ func TestUnicoCreateAndGetProcess(t *testing.T) {
 		APIBase:     upstream.URL,
 		TokenURL:    upstream.URL + "/oauth2/token",
 		Flow:        "multiaccounts_idgov",
-		CallbackURI: "http://localhost:8080/",
+		CallbackURI: "https://localhost:8080/",
 	}
 	client := newUnicoClient(config)
 	client.httpClient = upstream.Client()
@@ -175,7 +208,7 @@ func TestUnicoCreateAndGetProcess(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if created.ID != "process-1" || created.UserRedirectURL != "https://cadastro.uat.unico.app/flow" {
+	if created.ID != "process-1" || created.Token != "journey-token" || created.UserRedirectURL != "https://cadastro.uat.unico.app/flow" {
 		t.Fatalf("created process = %#v", created)
 	}
 	checked, err := client.getProcess(context.Background(), created.ID)
@@ -302,8 +335,9 @@ func TestRecordListDoesNotExposeIdentityFields(t *testing.T) {
 		t.Fatal(err)
 	}
 	if err := store.save(kycRecord{
-		ID:     "record-1",
-		Status: "PROCESS_STATE_FINISHED",
+		ID:           "record-1",
+		JourneyToken: "secret-journey-token",
+		Status:       "PROCESS_STATE_FINISHED",
 		Identity: identityData{
 			CURP:      "ABCD123456HDFXXX01",
 			BirthDate: "1990-04-15",
@@ -321,7 +355,7 @@ func TestRecordListDoesNotExposeIdentityFields(t *testing.T) {
 		t.Fatalf("list status = %d", response.Code)
 	}
 	body := response.Body.String()
-	for _, privateValue := range []string{"ABCD123456HDFXXX01", "1990-04-15", "Ana Perez"} {
+	for _, privateValue := range []string{"ABCD123456HDFXXX01", "1990-04-15", "Ana Perez", "secret-journey-token"} {
 		if strings.Contains(body, privateValue) {
 			t.Fatalf("record list leaked identity value %q: %s", privateValue, body)
 		}

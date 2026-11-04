@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"crypto/rand"
+	"crypto/tls"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -41,6 +42,7 @@ type kycRecordSummary struct {
 type kycProcessStatus struct {
 	ID             string    `json:"id"`
 	ProcessID      string    `json:"processId,omitempty"`
+	Token          string    `json:"token,omitempty"`
 	ProviderURL    string    `json:"providerUrl,omitempty"`
 	Status         string    `json:"status"`
 	Result         string    `json:"result,omitempty"`
@@ -55,9 +57,15 @@ func main() {
 		log.Fatalf("load local environment: %v", err)
 	}
 
-	listenAddr := envOrDefault("LISTEN_ADDR", "127.0.0.1:8080")
+	listenAddr := envOrDefault("LISTEN_ADDR", "localhost:8080")
 	dataDir := envOrDefault("KYCTEST_DATA_DIR", "./data")
+	certPath := envOrDefault("KYCTEST_TLS_CERT_FILE", "./certs/localhost.cert.pem")
+	keyPath := envOrDefault("KYCTEST_TLS_KEY_FILE", "./certs/localhost.key.pem")
 	config := unicoConfigFromEnv()
+	certificate, err := loadOrCreateDevTLS(certPath, keyPath)
+	if err != nil {
+		log.Fatalf("configure HTTPS listener: %v", err)
+	}
 
 	store, err := newRecordStore(filepath.Join(dataDir, "records.json"))
 	if err != nil {
@@ -70,14 +78,22 @@ func main() {
 	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", app.frontend)
+	mux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
 	mux.HandleFunc("/healthz", app.health)
 	mux.HandleFunc("/api/kyc/config", app.config)
 	mux.HandleFunc("/api/kyc/process", app.createProcess)
 	mux.HandleFunc("/api/kyc/process/", app.processRecord)
 	mux.HandleFunc("/api/kyc/records", app.listRecords)
 
-	log.Printf("KYCTest listening on http://%s", listenAddr)
-	log.Fatal(http.ListenAndServe(listenAddr, withSecurityHeaders(mux)))
+	listener, err := tls.Listen("tcp", listenAddr, &tls.Config{
+		MinVersion:   tls.VersionTLS12,
+		Certificates: []tls.Certificate{certificate},
+	})
+	if err != nil {
+		log.Fatalf("listen on %s: %v", listenAddr, err)
+	}
+	log.Printf("KYCTest listening on https://%s", listenAddr)
+	log.Fatal(http.Serve(listener, withSecurityHeaders(mux)))
 }
 
 func loadDotEnv(path string) error {
@@ -199,9 +215,9 @@ func (s *server) createProcess(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadGateway, err.Error())
 		return
 	}
-	if process.ID == "" || !validUnicoRedirect(process.UserRedirectURL) {
+	if process.ID == "" || process.Token == "" {
 		record.Status = "FAILED"
-		record.Error = "Unico response did not include a process ID and secure redirect URL."
+		record.Error = "Unico response did not include the process ID and journey token required by its Web SDK."
 		record.UpdatedAt = time.Now().UTC()
 		if saveErr := s.store.save(record); saveErr != nil {
 			log.Printf("save incomplete KYC record %s: %v", record.ID, saveErr)
@@ -211,6 +227,7 @@ func (s *server) createProcess(w http.ResponseWriter, r *http.Request) {
 	}
 
 	record.ProcessID = process.ID
+	record.JourneyToken = process.Token
 	record.ProviderURL = process.UserRedirectURL
 	record.Status = process.State
 	if record.Status == "" {
@@ -223,7 +240,17 @@ func (s *server) createProcess(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusCreated, map[string]any{
-		"record":          record,
+		"record": kycRecordSummary{
+			ID:        record.ID,
+			ProcessID: record.ProcessID,
+			Status:    record.Status,
+			Result:    record.Result,
+			Error:     record.Error,
+			CreatedAt: record.CreatedAt,
+			UpdatedAt: record.UpdatedAt,
+		},
+		"transactionId":   process.ID,
+		"token":           process.Token,
 		"userRedirectUrl": process.UserRedirectURL,
 	})
 }
@@ -290,6 +317,9 @@ func (s *server) getProcess(w http.ResponseWriter, r *http.Request, recordID str
 	}
 	record.Status = process.State
 	record.Result = process.Result
+	if process.Token != "" {
+		record.JourneyToken = process.Token
+	}
 	if validUnicoRedirect(process.UserRedirectURL) {
 		record.ProviderURL = process.UserRedirectURL
 	}
@@ -304,6 +334,7 @@ func (s *server) getProcess(w http.ResponseWriter, r *http.Request, recordID str
 	writeJSON(w, http.StatusOK, kycProcessStatus{
 		ID:             record.ID,
 		ProcessID:      record.ProcessID,
+		Token:          record.JourneyToken,
 		ProviderURL:    record.ProviderURL,
 		Status:         record.Status,
 		Result:         record.Result,

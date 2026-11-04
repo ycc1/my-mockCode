@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "esbuild web/sdk-entry.js --bundle --minify --outfile=assets/unico-sdk.js"
+  },
+  "dependencies": {
+    "unico-journey-sdk": "^2.3.2"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}

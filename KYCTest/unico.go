@@ -57,6 +57,7 @@ type tokenResponse struct {
 
 type unicoProcess struct {
 	ID              string `json:"id"`
+	Token           string `json:"token"`
 	State           string `json:"state"`
 	Result          string `json:"result"`
 	UserRedirectURL string `json:"userRedirectUrl"`
@@ -93,7 +94,7 @@ func unicoConfigFromEnv() unicoConfig {
 		APIBase:     strings.TrimRight(envOrDefault("UNICO_API_BASE", "https://api.idcloud.uat.unico.app"), "/"),
 		TokenURL:    envOrDefault("UNICO_TOKEN_URL", "https://identityhomolog.acesso.io/oauth2/token"),
 		Flow:        envOrDefault("UNICO_FLOW", "multiaccounts_idgov"),
-		CallbackURI: envOrDefault("UNICO_CALLBACK_URI", "http://localhost:8080/"),
+		CallbackURI: envOrDefault("UNICO_CALLBACK_URI", "https://localhost:8080/"),
 	}
 }
 

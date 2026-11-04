@@ -13,6 +13,7 @@ import (
 type kycRecord struct {
 	ID             string       `json:"id"`
 	ProcessID      string       `json:"processId,omitempty"`
+	JourneyToken   string       `json:"journeyToken,omitempty"`
 	ProviderURL    string       `json:"providerUrl,omitempty"`
 	Status         string       `json:"status"`
 	Result         string       `json:"result,omitempty"`
