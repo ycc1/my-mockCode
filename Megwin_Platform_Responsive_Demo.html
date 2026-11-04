@@ -94,73 +94,6 @@
         color: inherit;
         cursor: pointer;
       }
-      .pending-wallet-badge {
-        position: relative;
-        display: inline-block;
-        width: 30px;
-        height: 30px;
-        flex: 0 0 30px;
-        vertical-align: middle;
-      }
-      .pending-wallet-coin {
-        position: absolute;
-        inset: 1px 3px 3px 1px;
-        display: grid;
-        place-items: center;
-        border: 1px solid #fff0a7;
-        border-radius: 50%;
-        background:
-          radial-gradient(ellipse at 32% 22%, #fff8c8 0 4%, transparent 28%),
-          linear-gradient(145deg, #ffeaa0 0%, #e8ad35 35%, #b86c12 68%, #f8d86a 100%);
-        box-shadow:
-          inset 0 2px 2px #fff8d9cc,
-          inset 0 -3px 3px #8e4b0ccc,
-          0 2px 0 #874d11,
-          0 4px 7px #0009;
-        color: #75420f;
-        font-family: Georgia, "Times New Roman", serif;
-        font-size: 19px;
-        font-weight: 900;
-        line-height: 1;
-        text-shadow: 0 1px 0 #fff0ad, 0 -1px 0 #9c6019;
-        animation: pending-wallet-coin 20s ease-in-out infinite;
-      }
-      .pending-wallet-count {
-        position: absolute;
-        z-index: 1;
-        top: -2px;
-        right: -3px;
-        display: grid;
-        min-width: 15px;
-        height: 15px;
-        padding: 0 3px;
-        place-items: center;
-        border: 1px solid #ffd1c9;
-        border-radius: 999px;
-        background: linear-gradient(145deg, #ff8172, #d52528 72%);
-        box-shadow: 0 1px 3px #000b, inset 0 1px 1px #ffffff90;
-        color: #fff;
-        font-size: 9px;
-        font-weight: 800;
-        line-height: 1;
-      }
-      .pending-wallet-badge[hidden] {
-        display: none;
-      }
-      @keyframes pending-wallet-coin {
-        0%,
-        100% {
-          transform: rotateY(0);
-        }
-        50% {
-          transform: rotateY(180deg);
-        }
-      }
-      @media (prefers-reduced-motion: reduce) {
-        .pending-wallet-coin {
-          animation: none;
-        }
-      }
       .balance:focus-visible {
         outline: 2px solid var(--teal);
         outline-offset: 2px;
@@ -1580,7 +1513,7 @@
       <div class="tools">
         <span class="lang">English ⌄　 Decimal ⌄</span
         ><span class="clock">◷ 00:48:46</span><button id="searchBtn">⌕</button
-        ><button class="balance" id="balanceDepositBtn" type="button" aria-label="Open deposit interface">🪙 $12,000.88 <span class="pending-wallet-badge" id="pendingWalletBadge" aria-label="3 pending deposits"><span class="pending-wallet-coin" aria-hidden="true">$</span><span class="pending-wallet-count" id="pendingWalletCount" data-deposit-pending-count aria-hidden="true">3</span></span></button
+        ><button class="balance" id="balanceDepositBtn" type="button" aria-label="Open deposit interface">🪙 $12,000.88</button
         ><button id="profileBtn">◉</button>
       </div>
     </header>
@@ -1928,7 +1861,7 @@
         </header>
         <div class="cashier-layout">
           <nav class="deposit-method-tabs" id="depositMethodTabs" role="tablist" aria-label="Deposit channels">
-            <button class="deposit-method-tab pending-channel-tab" id="pendingOrdersTab" type="button" role="tab" data-deposit-channel="pending" aria-selected="false" aria-controls="pendingOrdersView">Pending deposits <span class="pending-channel-count" data-deposit-pending-count>3</span></button>
+            <button class="deposit-method-tab pending-channel-tab" id="pendingOrdersTab" type="button" role="tab" data-deposit-channel="pending" aria-selected="false" aria-controls="speiDepositView">Pending Deposit</button>
             <button class="deposit-method-tab" id="speiTab" type="button" role="tab" data-deposit-channel="spei" aria-selected="true" aria-controls="speiDepositView"><span class="channel-logo spei-logo">SPEI</span></button>
             <button class="deposit-method-tab" id="visaTab" type="button" role="tab" data-deposit-channel="visa" aria-selected="false" aria-controls="visaDepositView"><span class="channel-logo visa-logo">VISA</span></button>
             <button class="deposit-method-tab" id="oxxoTab" type="button" role="tab" data-deposit-channel="oxxo" aria-selected="false" aria-controls="oxxoDepositView"><span class="channel-logo oxxo-logo">OXXO</span></button>
@@ -1996,15 +1929,6 @@
                 </div>
                 <button class="cashier-submit" type="button" data-create-deposit="oxxo">Depositar</button>
                 <ul class="cashier-help"><li>Pagos en tiendas OXXO</li><li>¿Necesitas ayuda? <a href="#" data-help-link>Obtener Ayuda</a></li></ul>
-              </div>
-            </section>
-            <section class="deposit-view" id="pendingOrdersView" data-channel-view="pending" role="tabpanel" aria-labelledby="pendingOrdersTab" hidden>
-              <h3 class="pending-orders-title">Pending deposits <span><b data-deposit-pending-count>3</b> not completed</span></h3>
-              <p class="pending-orders-description">Select a pending order to continue its payment.</p>
-              <div class="deposit-pending-orders">
-                <button class="deposit-pending-row" type="button" data-resume-deposit><strong>Deposit MXN$100.00</strong><small>SPEI · Pending · Continue</small></button>
-                <button class="deposit-pending-row" type="button" data-resume-deposit><strong>Deposit MXN$100.00</strong><small>SPEI · Pending · Continue</small></button>
-                <button class="deposit-pending-row" type="button" data-resume-deposit><strong>Deposit MXN$100.00</strong><small>SPEI · Pending · Continue</small></button>
               </div>
             </section>
             <footer class="cashier-trust"><span>🛡 Seguro</span><span>✿ Confiable</span><span>ϟ Rápido</span></footer>
@@ -2176,6 +2100,7 @@
         setTimeout(() => $("#toast").classList.remove("show"), 2200);
       }
       function setDepositView(view) {
+        const panelView = view === "pending" ? "spei" : view;
         $$("[data-deposit-channel]").forEach((tab) => {
           tab.setAttribute(
             "aria-selected",
@@ -2183,36 +2108,38 @@
           );
         });
         $$("[data-channel-view]").forEach((panel) => {
-          panel.hidden = panel.dataset.channelView !== view;
+          panel.hidden = panel.dataset.channelView !== panelView;
         });
+        const activePanel = $(`[data-channel-view="${panelView}"]`);
+        if (activePanel)
+          activePanel.setAttribute(
+            "aria-labelledby",
+            view === "pending" ? "pendingOrdersTab" : `${view}Tab`,
+          );
         if (view === "spei") {
           $("#speiPaymentDetails").hidden = true;
           $('.cashier-form[data-channel-form="spei"]').hidden = false;
         }
       }
-      const pendingDepositItems = $$("[data-resume-deposit]");
-      $$("[data-deposit-pending-count]").forEach((count) => {
-        count.textContent = pendingDepositItems.length;
-      });
-      $("#pendingWalletBadge").hidden = pendingDepositItems.length === 0;
-      $("#pendingWalletBadge").setAttribute(
-        "aria-label",
-        `${pendingDepositItems.length} pending deposits`,
-      );
       $("#balanceDepositBtn").setAttribute(
         "aria-label",
-        `Open deposit interface. ${pendingDepositItems.length} pending deposits.`,
+        "Open deposit interface.",
       );
-      $("#balanceDepositBtn").addEventListener("click", (event) => {
-        setDepositView(
-          event.target.closest("#pendingWalletBadge") ? "pending" : "spei",
-        );
+      $("#balanceDepositBtn").addEventListener("click", () => {
+        setDepositView("spei");
         $("#depositModal").classList.add("show");
       });
       $$("[data-deposit-channel]").forEach((tab) => {
-        tab.addEventListener("click", () =>
-          setDepositView(tab.dataset.depositChannel),
-        );
+        tab.addEventListener("click", () => {
+          if (tab.dataset.depositChannel === "pending") {
+            setDepositView("pending");
+            $('.cashier-form[data-channel-form="spei"]').hidden = true;
+            $("#speiPaymentDetails").hidden = false;
+            $("#speiPaymentAmount").textContent = "MXN$100.00";
+            return;
+          }
+          setDepositView(tab.dataset.depositChannel);
+        });
       });
       $$(".cashier-amount-options").forEach((options) => {
         options.addEventListener("click", (event) => {
@@ -2243,14 +2170,6 @@
           $("#speiPaymentAmount").textContent = `MXN$${amount.toFixed(2)}`;
           $('.cashier-form[data-channel-form="spei"]').hidden = true;
           $("#speiPaymentDetails").hidden = false;
-        });
-      });
-      $$("[data-resume-deposit]").forEach((order) => {
-        order.addEventListener("click", () => {
-          setDepositView("spei");
-          $('.cashier-form[data-channel-form="spei"]').hidden = true;
-          $("#speiPaymentDetails").hidden = false;
-          $("#speiPaymentAmount").textContent = "MXN$100.00";
         });
       });
       $("#backToSpeiForm").addEventListener("click", () => {
