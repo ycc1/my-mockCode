@@ -246,6 +246,50 @@
       .drawer-overlay.open .kyc-drawer {
         transform: translateX(0);
       }
+      .kyc-prompt-overlay {
+        position: fixed;
+        z-index: 40;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 14px;
+        background: rgb(0 0 0 / 78%);
+      }
+      .kyc-prompt-overlay[hidden] {
+        display: none;
+      }
+      .kyc-prompt {
+        position: relative;
+        width: min(510px, 100%);
+        padding: 22px 20px 18px;
+        border: 1px solid #39393c;
+        border-radius: 10px;
+        background: #252527;
+        box-shadow: 0 22px 70px #0009;
+      }
+      .kyc-prompt h2 {
+        margin: 0 32px 12px;
+        font-size: 20px;
+        text-align: center;
+      }
+      .kyc-prompt .close {
+        position: absolute;
+        top: 8px;
+        right: 12px;
+        border: 0;
+        background: transparent;
+        color: #ddd;
+        font-size: 25px;
+      }
+      .kyc-prompt .tip {
+        margin: 14px 0;
+      }
+      .kyc-prompt .btn {
+        width: 100%;
+      }
+      .kyc-prompt .mode-note {
+        text-align: center;
+      }
       .drawer-top {
         display: flex;
         height: 86px;
@@ -924,6 +968,24 @@
         </div>
       </aside>
     </div>
+    <div id="promptOverlay" class="kyc-prompt-overlay" role="dialog" aria-modal="true" aria-labelledby="promptTitle">
+      <section class="kyc-prompt">
+        <button type="button" class="close" data-prompt-action="close" aria-label="Close">×</button>
+        <h2 id="promptTitle">Start verification</h2>
+        <p class="mode-note">This process is designed to verify your identity and protect you from identity theft.</p>
+        <div class="tip">
+          <strong>Important notes</strong>
+          <ul>
+            <li>Use a valid government-issued document</li>
+            <li>Find a well-lit surface</li>
+            <li>Be ready to take a selfie</li>
+          </ul>
+        </div>
+        <p class="mode-note">This is a mock flow. No documents, biometric data, or personal information are uploaded or sent.</p>
+        <button type="button" class="btn btn-main" data-prompt-action="start">Start</button>
+        <p class="mode-note">The verification journey will appear inside this KYC panel.</p>
+      </section>
+    </div>
     <script>
     "use strict";
     const mockStorageKey = "megwinKycMockStatus";
@@ -938,6 +1000,7 @@
     const stateHeader = document.getElementById("stateHeader");
     const footnote = document.getElementById("footnote");
     const drawer = document.getElementById("drawerOverlay");
+    const promptOverlay = document.getElementById("promptOverlay");
     const kycDrawer = document.querySelector(".kyc-drawer");
     const drawerScroll = document.querySelector(".drawer-scroll");
     const homeStatus = document.getElementById("homeStatus");
@@ -945,7 +1008,7 @@
     const esc = value => String(value || "").replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
 
     function updateStatus() {
-      const label = state.status === "approved" ? (state.identityConfirmed ? "Verified (mock)" : "Confirm details") : state.status === "rejected" ? "Not verified" : state.status === "pending" ? "In progress" : "Not verified";
+      const label = state.status === "approved" ? (state.identityConfirmed ? "Verified" : "Confirm details") : state.status === "rejected" ? "Not verified" : state.status === "pending" ? "In progress" : "Not verified";
       homeStatus.textContent = label;
       badge.textContent = label;
       badge.className = "badge" + (state.status === "approved" ? " good" : state.status === "rejected" ? " bad" : "");
@@ -974,6 +1037,18 @@
       document.body.classList.remove("drawer-active");
     }
 
+    promptOverlay.addEventListener("click", event => {
+      const action = event.target.closest("[data-prompt-action]")?.dataset.promptAction;
+      if (action === "close") {
+        promptOverlay.hidden = true;
+      } else if (action === "start") {
+        promptOverlay.hidden = true;
+        if (state.status === "none") setMockStatus("pending");
+        openDrawer();
+        renderJourney();
+      }
+    });
+
     function render() {
       const outcome = state.status;
       stateHeader.hidden = false;
@@ -987,11 +1062,11 @@
           renderIdentityForm();
           return;
         }
-        screen.innerHTML = `<section class="step-panel"><section class="flow-result good"><h3>Identity details confirmed (mock)</h3><p>The information you entered was validated in this browser session only and was not saved or sent.</p></section><button class="btn btn-soft" type="button" data-action="reset">Reset mock process</button></section>`;
+        screen.innerHTML = `<section class="step-panel"><section class="flow-result good"><h3>Identity details confirmed</h3><p>The information you entered was validated in this browser session only and was not saved or sent.</p></section><button class="btn btn-soft" type="button" data-action="reset">Reset mock process</button></section>`;
         return;
       }
       if (outcome === "rejected") {
-        screen.innerHTML = `<section class="step-panel"><section class="flow-result bad"><h3>Verification not approved (mock)</h3><p>Simulated outcome only. This is not a real Unico decision.</p><button class="btn btn-soft" type="button" data-action="reset">Start a new mock process</button></section></section>`;
+        screen.innerHTML = `<section class="step-panel"><section class="flow-result bad"><h3>Verification not approved</h3><p>Simulated outcome only. This is not a real Unico decision.</p><button class="btn btn-soft" type="button" data-action="reset">Start a new mock process</button></section></section>`;
         return;
       }
       const canContinue = outcome === "pending";
@@ -1021,7 +1096,7 @@
       footnote.hidden = true;
       drawerScroll.classList.remove("waiting-mode", "journey-mode");
       kycDrawer.classList.remove("journey-mode");
-      screen.innerHTML = `<section class="doc-section"><h3>Confirm your personal information (mock)</h3><p class="muted small">Enter sample values to preview this step. Values are used only in memory and will not be persisted or transmitted.</p><form id="identityForm" class="kyc-form"><div class="personal-grid"><div class="full"><label class="field" for="identityCurp">CURP</label><input class="input curp-input" id="identityCurp" name="curp" maxlength="18" minlength="18" pattern="[A-Za-z0-9]{18}" autocomplete="off" placeholder="18-character CURP" required></div><div><label class="field" for="identityBirthDate">Date of birth</label><input class="input" id="identityBirthDate" name="birthDate" type="date" required></div><div><label class="field" for="identityFullName">Full name</label><input class="input" id="identityFullName" name="fullName" maxlength="120" placeholder="Full name" required></div></div><div id="identityError" class="form-error" role="alert"></div><button class="btn btn-main" type="submit">Confirm details in this demo</button><button class="btn btn-soft" type="button" data-action="back-review">Back</button></form></section>`;
+      screen.innerHTML = `<section class="doc-section"><h3>Confirm your personal information (mock)</h3><p class="muted small">The sample information below is read-only in this demonstration. It is not real identity data and is not saved or sent.</p><form id="identityForm" class="kyc-form"><div class="personal-grid"><div class="full"><label class="field" for="identityCurp">CURP</label><input class="input curp-input" id="identityCurp" name="curp" value="MOCK000000HDFXXX00" readonly aria-readonly="true"></div><div><label class="field" for="identityBirthDate">Date of birth</label><input class="input" id="identityBirthDate" name="birthDate" type="date" value="1990-01-01" readonly aria-readonly="true"></div><div><label class="field" for="identityFullName">Full name</label><input class="input" id="identityFullName" name="fullName" value="DEMO USER" readonly aria-readonly="true"></div></div><div class="identity-note">Sample data only — editing is disabled for this mock flow.</div><button class="btn btn-main" type="submit">Confirm details in this demo</button><button class="btn btn-soft" type="button" data-action="back-review">Back</button></form></section>`;
     }
 
     document.addEventListener("click", event => {
@@ -1053,24 +1128,20 @@
         if (state.status === "none") setMockStatus("pending");
         renderJourney();
       } else if (event.target.id === "identityForm") {
-        const formData = new FormData(event.target);
-        const curp = String(formData.get("curp") || "").trim().toUpperCase();
-        const birthDate = String(formData.get("birthDate") || "").trim();
-        const fullName = String(formData.get("fullName") || "").trim();
-        const error = document.getElementById("identityError");
-        if (!/^[A-Z0-9]{18}$/.test(curp)) { error.textContent = "Enter an 18-character sample CURP."; return; }
-        if (!birthDate || !fullName) { error.textContent = "Complete all fields to continue."; return; }
-        state.identity = { curp, birthDate, fullName };
+        state.identity = { curp: "MOCK000000HDFXXX00", birthDate: "1990-01-01", fullName: "DEMO USER" };
         state.identityConfirmed = true;
         render();
       }
     });
 
     document.addEventListener("keydown", event => {
-      if (event.key === "Escape" && drawer.classList.contains("open")) closeDrawer();
+      if (event.key !== "Escape") return;
+      if (drawer.classList.contains("open")) closeDrawer();
+      else if (!promptOverlay.hidden) promptOverlay.hidden = true;
     });
     updateStatus();
     render();
+    promptOverlay.querySelector('[data-prompt-action="start"]').focus();
     </script>
   </body>
 </html>
