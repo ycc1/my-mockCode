@@ -995,7 +995,7 @@
         return;
       }
       const canContinue = outcome === "pending";
-      screen.innerHTML = `<div class="step-panel"><h2>Start verification</h2><p>This process is designed to verify your identity and protect you from identity theft.</p><div class="tip"><strong>Important notes</strong><ul><li>Use a valid government-issued document</li><li>Find a well-lit surface</li><li>Be ready to take a selfie</li></ul></div><p class="mode-note">This is a mock flow. No documents, biometric data, or personal information are uploaded or sent.</p><form id="kycForm" class="kyc-form">${canContinue ? "" : `<label class="checkboxline consent"><input type="checkbox" name="consent" required><span>I agree to continue with this mock demonstration. <a href="#privacy-notice" data-action="privacy">Privacy Notice</a></span></label>`}<button class="btn btn-main" id="submitButton" type="submit">${canContinue ? "Continue" : "Start"}</button></form><div id="currentRecord" aria-live="polite"></div><p class="mode-note">The verification journey and results are simulated locally. No real Unico service is contacted.</p></div>`;
+      screen.innerHTML = `<div class="step-panel"><h2>Start verification</h2><p>This process is designed to verify your identity and protect you from identity theft.</p><div class="tip"><strong>Important notes</strong><ul><li>Use a valid government-issued document</li><li>Find a well-lit surface</li><li>Be ready to take a selfie</li></ul></div><p class="mode-note">This is a mock flow. No documents, biometric data, or personal information are uploaded or sent.</p><form id="kycForm" class="kyc-form"><button class="btn btn-main" id="submitButton" type="submit">${canContinue ? "Continue" : "Start"}</button></form><div id="currentRecord" aria-live="polite"></div><p class="mode-note">The verification journey and results are simulated locally. No real Unico service is contacted.</p></div>`;
     }
 
     function renderJourney() {
@@ -1035,7 +1035,10 @@
       else if (action === "check-status") renderWaiting("Mock status: verification is still in progress. No real Unico request was made and no approval is simulated.");
       else if (action === "demo-approved") { setMockStatus("approved"); render(); }
       else if (action === "demo-rejected") { setMockStatus("rejected"); render(); }
-      else if (action === "back-review") render();
+      else if (action === "back-review") {
+        setMockStatus("pending");
+        renderWaiting("Returned to the mock verification status. You can continue the journey or check the simulated status.");
+      }
       else if (action === "reset") { setMockStatus("none"); render(); }
       else if (action === "privacy") {
         event.preventDefault();
