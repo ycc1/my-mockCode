@@ -19,15 +19,93 @@
         --yellow: #e6bd5b;
         --font: Inter, "Segoe UI", Arial, sans-serif;
       }
-      [hidden]{display:none!important}
-      .waiting-panel{display:flex;width:100%;min-height:100%;margin:0;padding:clamp(20px,4vh,40px);flex-direction:column;justify-content:center;text-align:center}
-      .waiting-panel p{color:#aaa;line-height:1.65;margin:0 auto 20px;max-width:520px}
-      .waiting-panel .btn{width:100%;max-width:460px}
-      .drawer-scroll.waiting-mode{display:flex;overflow:hidden;padding:0}
-      .drawer-scroll.waiting-mode .kyc{display:flex;height:100%;flex:1;flex-direction:column;padding:0}
-      .drawer-scroll.waiting-mode #screen{display:flex;min-height:0;flex:1}
-      .drawer-scroll.waiting-mode .waiting-panel{flex:1}
-      .waiting-error{color:#ff888e!important;font-size:12px;margin:0 auto 14px!important}
+      [hidden] {
+        display: none !important;
+      }
+      .waiting-panel {
+        display: flex;
+        width: calc(100% - 32px);
+        min-height: 0;
+        flex: 1;
+        margin: 8px 16px 16px;
+        padding: 24px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #303034;
+        border-radius: 10px;
+        background: #1b1b1d;
+        text-align: center;
+      }
+      .waiting-content {
+        display: flex;
+        width: 100%;
+        flex-direction: column;
+        align-items: center;
+      }
+      .waiting-panel .spinner {
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 20px;
+        border-width: 6px;
+      }
+      .waiting-panel p {
+        color: #eee;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.5;
+        margin: 0 auto 18px;
+        max-width: 520px;
+      }
+      .waiting-panel .btn {
+        width: min(213px, 100%);
+        min-height: 35px;
+        max-width: 100%;
+        border-radius: 8px;
+        font-size: 12px;
+      }
+      .waiting-panel .btn-main {
+        background: #f5f5f5;
+        color: #171719;
+      }
+      .waiting-panel .btn-main:hover:not(:disabled) {
+        background: #dcdcdc;
+      }
+      .waiting-demo-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 18px;
+      }
+      .waiting-demo-actions .btn {
+        width: auto;
+      }
+      .drawer-scroll.waiting-mode {
+        display: flex;
+        overflow: hidden;
+        padding: 0;
+      }
+      .drawer-scroll.waiting-mode .kyc {
+        display: flex;
+        height: 100%;
+        flex: 1;
+        flex-direction: column;
+        padding: 0;
+      }
+      .drawer-scroll.waiting-mode #screen {
+        display: flex;
+        min-height: 0;
+        flex: 1;
+      }
+      .drawer-scroll.waiting-mode .waiting-panel {
+        flex: 1;
+      }
+      .waiting-error {
+        color: #ff888e !important;
+        font-size: 12px;
+        margin: 0 auto 14px !important;
+      }
       * {
         box-sizing: border-box;
       }
@@ -168,21 +246,6 @@
         max-width: 1050px;
         padding: 18px 14px 50px;
       }
-      .home-hero {
-        padding: 38px 34px;
-        border: 1px solid #303034;
-        border-radius: 15px;
-        background: linear-gradient(125deg, #242827, #171719 70%);
-      }
-      .home-hero h1 {
-        margin: 12px 0;
-        font-size: 32px;
-      }
-      .home-hero p,
-      .home-panels p {
-        color: #a7a7ad;
-        line-height: 1.6;
-      }
       .eyebrow,
       .drawer-kicker {
         color: var(--teal);
@@ -190,20 +253,110 @@
         font-weight: 750;
         letter-spacing: 1.5px;
       }
-      .home-hero .btn {
-        margin-top: 15px;
-      }
-      .home-panels {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-        margin-top: 18px;
-      }
-      .home-panels > div {
-        padding: 22px;
-        border: 1px solid #303034;
-        border-radius: 12px;
+      .kyc-home-card {
+        max-width: 690px;
+        min-height: 370px;
+        padding: 16px;
+        border-radius: 9px;
         background: #1b1b1d;
+      }
+      .kyc-home-card > h1 {
+        margin: 0;
+        font-size: 23px;
+      }
+      .kyc-home-state {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        padding: 42px 12px 0;
+        text-align: center;
+      }
+      .verified-icon {
+        position: relative;
+        display: inline-grid;
+        width: 84px;
+        height: 56px;
+        place-items: center;
+        border: 1px solid #51565e;
+        border-radius: 13px;
+        background: linear-gradient(145deg, #69717e, #353941);
+        box-shadow:
+          inset 0 2px 6px #ffffff18,
+          0 6px 12px #0006;
+        font-size: 37px;
+        line-height: 1;
+      }
+      .verified-check {
+        position: absolute;
+        right: -3px;
+        bottom: -7px;
+        display: grid;
+        width: 23px;
+        height: 23px;
+        place-items: center;
+        border-radius: 50%;
+        background: var(--teal);
+        color: #173b37;
+        font-size: 16px;
+        font-weight: 900;
+        box-shadow: 0 0 8px #41d2bf99;
+      }
+      .kyc-home-state strong {
+        display: block;
+        margin-top: 30px;
+        font-size: 12px;
+      }
+      .kyc-home-state > p {
+        margin: 2px 0 0;
+        color: #96969a;
+        font-size: 11px;
+        line-height: 1.4;
+      }
+      .kyc-home-notes {
+        width: min(361px, 100%);
+        margin: 17px 0 0;
+        padding: 11px;
+        border: 1px solid #39393d;
+        border-radius: 5px;
+        background: #222225;
+        text-align: left;
+      }
+      .kyc-home-notes strong {
+        margin: 0 0 7px;
+        color: #c5c5ca;
+        font-size: 11px;
+      }
+      .kyc-home-notes .kyc-progress-list {
+        gap: 2px;
+        margin-top: 0;
+      }
+      .kyc-home-notes .kyc-progress-list li {
+        min-height: 20px;
+        padding: 1px 5px;
+        font-size: 10px;
+      }
+      .kyc-home-notes .kyc-progress-list li::before {
+        width: 4px;
+        height: 4px;
+        flex-basis: 4px;
+      }
+      .kyc-home-start {
+        width: min(213px, 100%);
+        min-height: 35px;
+        margin-top: 17px;
+        border-radius: 8px;
+        background: #f5f5f5;
+        color: #171719;
+        font-size: 12px;
+      }
+      .kyc-home-start:hover:not(:disabled) {
+        background: #dcdcdc;
+      }
+      .kyc-home-complete .kyc-home-state {
+        padding-top: 42px;
+      }
+      .kyc-home-complete .kyc-home-state strong {
+        margin-top: 32px;
       }
       .menu {
         cursor: pointer;
@@ -248,70 +401,26 @@
       .drawer-overlay.open .kyc-drawer {
         transform: translateX(0);
       }
-      .kyc-prompt-overlay {
-        position: fixed;
-        z-index: 40;
-        inset: 0;
-        display: grid;
-        place-items: center;
-        padding: 14px;
-        background: rgb(0 0 0 / 78%);
-      }
-      .kyc-prompt-overlay[hidden] {
-        display: none;
-      }
-      .kyc-prompt {
-        position: relative;
-        width: min(510px, 100%);
-        padding: 22px 20px 18px;
-        border: 1px solid #39393c;
-        border-radius: 10px;
-        background: #252527;
-        box-shadow: 0 22px 70px #0009;
-      }
-      .kyc-prompt h2 {
-        margin: 0 32px 12px;
-        font-size: 20px;
-        text-align: center;
-      }
-      .kyc-prompt .close {
-        position: absolute;
-        top: 8px;
-        right: 12px;
-        border: 0;
-        background: transparent;
-        color: #ddd;
-        font-size: 25px;
-      }
-      .kyc-prompt .tip {
-        margin: 14px 0;
-      }
-      .kyc-prompt .btn {
-        width: 100%;
-      }
-      .kyc-prompt .mode-note {
-        text-align: center;
-      }
       .drawer-top {
         display: flex;
-        height: 86px;
+        height: 68px;
         flex-shrink: 0;
         align-items: center;
         justify-content: space-between;
-        padding: 18px 28px;
+        padding: 12px 16px;
         border-bottom: 1px solid #333338;
         background: #202023;
       }
       .drawer-top h2 {
-        margin: 5px 0 0;
-        font-size: 24px;
+        margin: 3px 0 0;
+        font-size: 23px;
       }
       .drawer-close {
-        width: 40px;
-        height: 40px;
-        border: 1px solid #47474c;
-        border-radius: 10px;
-        background: #303034;
+        width: 36px;
+        height: 36px;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
         color: #eee;
         font-size: 28px;
         line-height: 1;
@@ -525,6 +634,54 @@
         font-size: 12px;
         line-height: 1.55;
         margin: 14px 0;
+      }
+      .kyc-progress-list {
+        display: grid;
+        gap: 7px;
+        margin: 10px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+      .kyc-progress-list li {
+        display: flex;
+        min-height: 27px;
+        align-items: center;
+        gap: 10px;
+        padding: 4px 9px;
+        border: 1px solid transparent;
+        border-radius: 7px;
+        color: #8d8d95;
+        font-size: 13px;
+        transition:
+          color 0.2s,
+          background 0.2s,
+          border-color 0.2s,
+          box-shadow 0.2s;
+      }
+      .kyc-progress-list li::before {
+        width: 7px;
+        height: 7px;
+        flex: 0 0 7px;
+        border-radius: 50%;
+        background: #55555c;
+        content: "";
+      }
+      .kyc-progress-list li.is-current {
+        border-color: #337e75;
+        background: #1e302e;
+        color: #e4fffb;
+        box-shadow: 0 0 15px rgb(65 207 189 / 13%);
+      }
+      .kyc-progress-list li.is-done {
+        border-color: #35645e;
+        background: #1e302e;
+        color: #42cfbd;
+        box-shadow: 0 0 14px rgb(65 207 189 / 18%);
+      }
+      .kyc-progress-list li.is-current::before,
+      .kyc-progress-list li.is-done::before {
+        background: #42cfbd;
+        box-shadow: 0 0 9px #42cfbd;
       }
       .choice {
         border: 1px solid #414146;
@@ -780,14 +937,12 @@
         .main {
           padding: 12px 12px 35px;
         }
-        .home-panels {
-          grid-template-columns: 1fr;
-        }
-        .home-hero {
-          padding: 26px 20px;
-        }
         .platform-home {
           padding: 12px;
+        }
+        .kyc-home-card {
+          min-height: 0;
+          padding: 16px;
         }
         .kyc-drawer {
           width: 100vw;
@@ -842,54 +997,390 @@
         text-decoration: underline;
         text-underline-offset: 2px;
       }
-      .unico-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:18px 0 24px}
-      .unico-step{border:1px solid #39393d;border-radius:10px;background:#222225;padding:13px 10px;min-width:0}
-      .unico-step.current{border-color:var(--teal);background:#1e302e}.unico-step.done{border-color:#35645e}
-      .unico-step .step-head{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:750}
-      .unico-step .number{display:grid;place-items:center;width:24px;height:24px;flex-shrink:0;border-radius:50%;background:#36363b;color:#ddd}
-      .unico-step.current .number,.unico-step.done .number{background:var(--teal);color:#102522}
-      .unico-step p{font-size:11px;color:#a3a3aa;line-height:1.45;margin:8px 0 0}
-      .step-panel{max-width:700px;margin:auto}.step-panel h2{font-size:22px;margin:0 0 10px;text-align:center}.step-panel>p{color:#aaa;line-height:1.65}
-      .drawer-scroll.journey-mode .kyc{display:flex;height:100%;flex-direction:column;padding:0}
-      .drawer-scroll.journey-mode #screen{display:flex;min-height:0;flex:1}
-      .journey-panel{display:flex;width:100%;max-width:none;min-height:0;flex-direction:column;margin:0;padding:24px 30px}
-      .journey-panel h2{margin:0 0 8px;text-align:center}
-      .journey-panel>.mode-note{margin:0;text-align:center}
-      .journey-frame-placeholder{display:grid;flex:1;min-height:220px;place-items:center;margin:16px 0;padding:24px;border:1px solid #39393d;border-radius:12px;background:linear-gradient(145deg,#222225,#19191b);text-align:center}
-      .journey-frame-placeholder strong{display:block;margin-bottom:8px;color:#eee}
-      .journey-frame-placeholder p{max-width:480px;color:#aaa;line-height:1.6}
-      .journey-demo{align-self:center;margin-top:8px}
-      .journey-demo-note{color:#999;font-size:12px;line-height:1.5;text-align:center}
-      .step-panel .preview{margin:20px 0;min-height:210px}.step-panel .row{justify-content:space-between}
-      .mode-note{font-size:12px;color:#a7a7ad;margin-top:15px}
-      @media(max-width:760px){.unico-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.unico-step{padding:10px}.step-panel h2{font-size:19px}}
-      .kyc-form{max-width:620px;margin:20px auto}.kyc-form .field{margin-bottom:6px}
-      .identity-error{min-height:18px;color:#ff888e;font-size:12px;margin:6px 0}
-      .kyc-form input[type=file]{padding:10px}.consent{align-items:flex-start}
-      .doc-section{border:1px solid #3a3a3e;border-radius:12px;padding:18px;margin:17px 0;background:#202023}
-      .doc-section h3{margin:0 0 7px;font-size:15px;color:#f0f0f2}
-      .personal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px}
-      .personal-grid .full{grid-column:1/-1}.personal-grid .field{margin:0 0 7px}
-      .personal-grid .input{min-height:47px}.personal-grid input[type="date"]{color-scheme:dark}
-      .required{color:var(--red)}.helper{font-size:12px;color:var(--muted);margin-top:9px;line-height:1.5}
-      .identity-note{background:#242427;border:1px solid #38383d;border-radius:10px;padding:13px;font-size:12px;color:var(--muted);line-height:1.5;margin:16px 0}
-      .curp-input{font-size:16px;letter-spacing:1.5px;text-transform:uppercase;font-weight:650;height:49px}
-      .doc-section .personal-grid{margin-top:15px}.doc-section .helper{margin-top:11px}
-      .records{margin-top:28px;border-top:1px solid var(--line);padding-top:18px}
-      .records h2{font-size:16px}.record-list{width:100%;border-collapse:collapse;font-size:12px}
-      .record-list th,.record-list td{padding:9px 7px;text-align:left;border-bottom:1px solid #353539;word-break:break-word}
-      .record-list th{color:#aaa}.record-list button{background:transparent;color:var(--teal);border:0}
-      .service-status{margin:12px 0;padding:10px 12px;border-radius:8px;background:#222225;color:#c5c5ca;font-size:12px;line-height:1.55}
-      .service-status.error{color:#ff888e}.service-status.good{color:var(--teal)}
-      .flow-result{margin:16px auto;max-width:700px;padding:18px;border:1px solid #3a3a3e;border-radius:12px;background:#202023}
-      .flow-result h3{margin:0 0 7px;font-size:16px}.flow-result p{margin:0;color:#aaa;line-height:1.55}
-      .flow-result.good{border-color:#35645e}.flow-result.bad{border-color:#68373b}
-      .flow-result .btn{margin:14px 8px 0 0}
-      .flow-result .identity-summary{margin:12px 0;color:#c5c5ca;font-size:13px;line-height:1.7}
-      .form-error{color:#ff888e;margin:10px 0;font-size:12px}
-      @media(max-width:760px){.doc-section{padding:14px}.personal-grid{grid-template-columns:1fr}}
-      @media(prefers-reduced-motion:reduce){.drawer-backdrop,.kyc-drawer{transition:none}}
-      </style>
+      .unico-steps {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+        margin: 18px 0 24px;
+      }
+      .unico-step {
+        border: 1px solid #39393d;
+        border-radius: 10px;
+        background: #222225;
+        padding: 13px 10px;
+        min-width: 0;
+      }
+      .unico-step.current {
+        border-color: var(--teal);
+        background: #1e302e;
+      }
+      .unico-step.done {
+        border-color: #35645e;
+      }
+      .unico-step .step-head {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 12px;
+        font-weight: 750;
+      }
+      .unico-step .number {
+        display: grid;
+        place-items: center;
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: #36363b;
+        color: #ddd;
+      }
+      .unico-step.current .number,
+      .unico-step.done .number {
+        background: var(--teal);
+        color: #102522;
+      }
+      .unico-step p {
+        font-size: 11px;
+        color: #a3a3aa;
+        line-height: 1.45;
+        margin: 8px 0 0;
+      }
+      .step-panel {
+        max-width: 700px;
+        margin: auto;
+      }
+      .step-panel h2 {
+        font-size: 22px;
+        margin: 0 0 10px;
+        text-align: center;
+      }
+      .step-panel > p {
+        color: #aaa;
+        line-height: 1.65;
+      }
+      .drawer-scroll.journey-mode .kyc {
+        display: flex;
+        height: 100%;
+        flex-direction: column;
+        padding: 0;
+      }
+      .drawer-scroll.journey-mode #screen {
+        display: flex;
+        min-height: 0;
+        flex: 1;
+      }
+      .journey-panel {
+        display: flex;
+        width: 100%;
+        max-width: none;
+        min-height: 0;
+        flex-direction: column;
+        margin: 0;
+        padding: 24px 30px;
+      }
+      .journey-panel h2 {
+        margin: 0 0 8px;
+        text-align: center;
+      }
+      .journey-panel > .mode-note {
+        margin: 0;
+        text-align: center;
+      }
+      .journey-frame-placeholder {
+        display: grid;
+        flex: 1;
+        min-height: 220px;
+        place-items: center;
+        margin: 16px 0;
+        padding: 24px;
+        border: 1px solid #39393d;
+        border-radius: 12px;
+        background: linear-gradient(145deg, #222225, #19191b);
+        text-align: center;
+      }
+      .journey-frame-placeholder strong {
+        display: block;
+        margin-bottom: 8px;
+        color: #eee;
+      }
+      .journey-frame-placeholder p {
+        max-width: 480px;
+        color: #aaa;
+        line-height: 1.6;
+      }
+      .journey-demo {
+        align-self: center;
+        margin-top: 8px;
+      }
+      .journey-demo-note {
+        color: #999;
+        font-size: 12px;
+        line-height: 1.5;
+        text-align: center;
+      }
+      .journey-panel.liveness-mode {
+        gap: 12px;
+        padding: 12px 16px 16px;
+      }
+      .liveness-frame-placeholder {
+        min-height: 0;
+        flex: 1;
+        border: 1px solid #303034;
+        border-radius: 10px;
+        background: #1b1b1d;
+      }
+      .journey-panel.liveness-mode .journey-demo {
+        align-self: flex-end;
+        margin: 0;
+      }
+      .drawer-scroll.journey-mode .identity-review-panel {
+        display: flex;
+        width: calc(100% - 32px);
+        min-height: 0;
+        flex: 1;
+        flex-direction: column;
+        margin: 8px 16px 16px;
+        padding: 12px;
+        border: 1px solid #303034;
+        border-radius: 10px;
+        background: #1b1b1d;
+      }
+      .identity-review-panel h3 {
+        margin: 0 0 10px;
+        font-size: 15px;
+      }
+      .identity-review-form {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .identity-review-form .field {
+        margin: 0;
+        color: #c5c5ca;
+        font-size: 10px;
+      }
+      .identity-review-form .input {
+        height: 35px;
+        min-height: 35px;
+        padding: 0 11px;
+        border: 0;
+        border-radius: 9px;
+        background: #262629;
+        color: #dedee1;
+        font-size: 10px;
+      }
+      .identity-review-form .btn-main {
+        width: 100%;
+        margin-top: 7px;
+        background: #f5f5f5;
+        color: #171719;
+        font-size: 12px;
+      }
+      .identity-review-form .btn-main:hover:not(:disabled) {
+        background: #dcdcdc;
+      }
+      .identity-review-form .identity-demo {
+        align-self: flex-start;
+        margin-top: 2px;
+      }
+      .step-panel .preview {
+        margin: 20px 0;
+        min-height: 210px;
+      }
+      .step-panel .row {
+        justify-content: space-between;
+      }
+      .mode-note {
+        font-size: 12px;
+        color: #a7a7ad;
+        margin-top: 15px;
+      }
+      @media (max-width: 760px) {
+        .unico-steps {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .unico-step {
+          padding: 10px;
+        }
+        .step-panel h2 {
+          font-size: 19px;
+        }
+      }
+      .kyc-form {
+        max-width: 620px;
+        margin: 20px auto;
+      }
+      .kyc-form .field {
+        margin-bottom: 6px;
+      }
+      .identity-error {
+        min-height: 18px;
+        color: #ff888e;
+        font-size: 12px;
+        margin: 6px 0;
+      }
+      .kyc-form input[type="file"] {
+        padding: 10px;
+      }
+      .consent {
+        align-items: flex-start;
+      }
+      .doc-section {
+        border: 1px solid #3a3a3e;
+        border-radius: 12px;
+        padding: 18px;
+        margin: 17px 0;
+        background: #202023;
+      }
+      .doc-section h3 {
+        margin: 0 0 7px;
+        font-size: 15px;
+        color: #f0f0f2;
+      }
+      .personal-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px 16px;
+      }
+      .personal-grid .full {
+        grid-column: 1/-1;
+      }
+      .personal-grid .field {
+        margin: 0 0 7px;
+      }
+      .personal-grid .input {
+        min-height: 47px;
+      }
+      .personal-grid input[type="date"] {
+        color-scheme: dark;
+      }
+      .required {
+        color: var(--red);
+      }
+      .helper {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 9px;
+        line-height: 1.5;
+      }
+      .identity-note {
+        background: #242427;
+        border: 1px solid #38383d;
+        border-radius: 10px;
+        padding: 13px;
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.5;
+        margin: 16px 0;
+      }
+      .curp-input {
+        font-size: 16px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        font-weight: 650;
+        height: 49px;
+      }
+      .doc-section .personal-grid {
+        margin-top: 15px;
+      }
+      .doc-section .helper {
+        margin-top: 11px;
+      }
+      .records {
+        margin-top: 28px;
+        border-top: 1px solid var(--line);
+        padding-top: 18px;
+      }
+      .records h2 {
+        font-size: 16px;
+      }
+      .record-list {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      .record-list th,
+      .record-list td {
+        padding: 9px 7px;
+        text-align: left;
+        border-bottom: 1px solid #353539;
+        word-break: break-word;
+      }
+      .record-list th {
+        color: #aaa;
+      }
+      .record-list button {
+        background: transparent;
+        color: var(--teal);
+        border: 0;
+      }
+      .service-status {
+        margin: 12px 0;
+        padding: 10px 12px;
+        border-radius: 8px;
+        background: #222225;
+        color: #c5c5ca;
+        font-size: 12px;
+        line-height: 1.55;
+      }
+      .service-status.error {
+        color: #ff888e;
+      }
+      .service-status.good {
+        color: var(--teal);
+      }
+      .flow-result {
+        margin: 16px auto;
+        max-width: 700px;
+        padding: 18px;
+        border: 1px solid #3a3a3e;
+        border-radius: 12px;
+        background: #202023;
+      }
+      .flow-result h3 {
+        margin: 0 0 7px;
+        font-size: 16px;
+      }
+      .flow-result p {
+        margin: 0;
+        color: #aaa;
+        line-height: 1.55;
+      }
+      .flow-result.good {
+        border-color: #35645e;
+      }
+      .flow-result.bad {
+        border-color: #68373b;
+      }
+      .flow-result .btn {
+        margin: 14px 8px 0 0;
+      }
+      .flow-result .identity-summary {
+        margin: 12px 0;
+        color: #c5c5ca;
+        font-size: 13px;
+        line-height: 1.7;
+      }
+      .form-error {
+        color: #ff888e;
+        margin: 10px 0;
+        font-size: 12px;
+      }
+      @media (max-width: 760px) {
+        .doc-section {
+          padding: 14px;
+        }
+        .personal-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .drawer-backdrop,
+        .kyc-drawer {
+          transition: none;
+        }
+      }
+    </style>
   </head>
   <body>
     <div class="topline">
@@ -900,7 +1391,12 @@
     </div>
     <header class="nav">
       <span class="hamburger">☰</span>
-      <a class="brand" href="Megwin_Platform_Responsive_Demo.html" aria-label="MEGWIN home">MEG<em>W</em>IN</a>
+      <a
+        class="brand"
+        href="Megwin_Platform_Responsive_Demo.html"
+        aria-label="MEGWIN home"
+        >MEG<em>W</em>IN</a
+      >
       <div class="navlinks">
         <span class="active">◉ &nbsp;Sports</span><span>◉ &nbsp;Live</span
         ><span>▣ &nbsp;Casino</span><span>▣ &nbsp;Streaming</span
@@ -927,34 +1423,69 @@
       </aside>
       <main class="main">
         <section class="platform-home">
-          <div class="home-hero">
-            <div class="eyebrow">MEGWIN · MY ACCOUNT</div>
-            <h1>My profile</h1>
-            <p>Manage your account information and identity verification.</p>
-            <button type="button" class="btn btn-main" data-open-kyc>Open</button>
-          </div>
-          <div class="home-panels">
-            <div>
-              <strong>Account security</strong>
-              <p>Complete identity verification to keep your account secure.</p>
+          <section class="kyc-home-card" id="kycHomeCard" aria-live="polite">
+            <h1>KYC Verification</h1>
+            <div class="kyc-home-state" id="kycIncompleteView">
+              <span class="verified-icon" aria-hidden="true">🪪</span>
+              <strong>Identity verification</strong>
+              <p>
+                Complete identity verification securely with our verification
+                provider.
+              </p>
+              <div class="kyc-home-notes">
+                <strong>Important notes</strong>
+                <div id="kycHomeProgress"></div>
+              </div>
+              <button
+                type="button"
+                class="btn kyc-home-start"
+                id="kycHomeStart"
+                data-open-kyc
+              >
+                Start Verification
+              </button>
             </div>
-            <div>
-              <strong>Verification status</strong>
-              <p id="homeStatus">Not verified</p>
+            <div
+              class="kyc-home-state kyc-home-complete"
+              id="kycCompleteView"
+              hidden
+            >
+              <span class="verified-icon" aria-hidden="true"
+                >🪪<span class="verified-check">✓</span></span
+              >
+              <strong>Your account is verified for Know Your Customer</strong>
+              <p>
+                Please note, in certain circumstances we may require further
+                information from you in accordance with our license conditions.
+                We will contact you should this be necessary.
+              </p>
             </div>
-          </div>
+          </section>
         </section>
       </main>
     </div>
     <div id="drawerOverlay" class="drawer-overlay" aria-hidden="true">
       <div class="drawer-backdrop" data-close-drawer></div>
-      <aside class="kyc-drawer" role="dialog" aria-modal="true" aria-label="KYC Verification" tabindex="-1">
+      <aside
+        class="kyc-drawer"
+        role="dialog"
+        aria-modal="true"
+        aria-label="KYC Verification"
+        tabindex="-1"
+      >
         <div class="drawer-top">
           <div>
             <span class="drawer-kicker">MEGWIN · ACCOUNT</span>
             <h2>KYC Verification</h2>
           </div>
-          <button type="button" class="drawer-close" data-close-drawer aria-label="Close KYC">×</button>
+          <button
+            type="button"
+            class="drawer-close"
+            data-close-drawer
+            aria-label="Close KYC"
+          >
+            ×
+          </button>
         </div>
         <div class="drawer-scroll">
           <section class="kyc" aria-live="polite">
@@ -970,188 +1501,281 @@
         </div>
       </aside>
     </div>
-    <div id="promptOverlay" class="kyc-prompt-overlay" role="dialog" aria-modal="true" aria-labelledby="promptTitle">
-      <section class="kyc-prompt">
-        <button type="button" class="close" data-prompt-action="close" aria-label="Close">×</button>
-        <h2 id="promptTitle">Start verification</h2>
-        <p class="mode-note">This process is designed to verify your identity and protect you from identity theft.</p>
-        <div class="tip">
-          <strong>Important notes</strong>
-          <ul>
-            <li>Use a valid government-issued document</li>
-            <li>Find a well-lit surface</li>
-            <li>Be ready to take a selfie</li>
-          </ul>
-        </div>
-        <p class="mode-note">This is a mock flow. No documents, biometric data, or personal information are uploaded or sent.</p>
-        <button type="button" class="btn btn-main" data-prompt-action="start">Start</button>
-        <p class="mode-note">The verification journey will appear inside this KYC panel.</p>
-      </section>
-    </div>
     <script>
-    "use strict";
-    const mockStorageKey = "megwinKycMockStatus";
-    const storedMockStatus = localStorage.getItem(mockStorageKey);
-    const state = {
-      status: ["pending", "approved", "rejected"].includes(storedMockStatus) ? storedMockStatus : "none",
-      identityConfirmed: false,
-      identity: null
-    };
-    const screen = document.getElementById("screen");
-    const badge = document.getElementById("stateBadge");
-    const stateHeader = document.getElementById("stateHeader");
-    const footnote = document.getElementById("footnote");
-    const drawer = document.getElementById("drawerOverlay");
-    const promptOverlay = document.getElementById("promptOverlay");
-    const kycDrawer = document.querySelector(".kyc-drawer");
-    const drawerScroll = document.querySelector(".drawer-scroll");
-    const homeStatus = document.getElementById("homeStatus");
-    const kycPanel = document.querySelector(".kyc");
-    const esc = value => String(value || "").replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
+      "use strict";
+      const mockStorageKey = "megwinKycMockStatus";
+      const mockStepStorageKey = "megwinKycMockStep";
+      const storedMockStatus = localStorage.getItem(mockStorageKey);
+      const validSteps = ["liveness", "document", "personal-info"];
+      const storedMockStep = localStorage.getItem(mockStepStorageKey);
+      const state = {
+        status: ["pending", "review", "approved", "rejected"].includes(
+          storedMockStatus,
+        )
+          ? storedMockStatus
+          : "none",
+        currentStep: validSteps.includes(storedMockStep)
+          ? storedMockStep
+          : "liveness",
+      };
+      const screen = document.getElementById("screen");
+      const badge = document.getElementById("stateBadge");
+      const stateHeader = document.getElementById("stateHeader");
+      const footnote = document.getElementById("footnote");
+      const drawer = document.getElementById("drawerOverlay");
+      const kycDrawer = document.querySelector(".kyc-drawer");
+      const drawerScroll = document.querySelector(".drawer-scroll");
+      const kycIncompleteView = document.getElementById("kycIncompleteView");
+      const kycCompleteView = document.getElementById("kycCompleteView");
+      const kycHomeProgress = document.getElementById("kycHomeProgress");
+      const kycHomeStart = document.getElementById("kycHomeStart");
+      const kycPanel = document.querySelector(".kyc");
+      const esc = (value) =>
+        String(value || "").replace(
+          /[&<>"']/g,
+          (char) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[char],
+        );
 
-    function updateStatus() {
-      const label = state.status === "approved" ? (state.identityConfirmed ? "Verified" : "Confirm details") : state.status === "rejected" ? "Not verified" : state.status === "pending" ? "In progress" : "Not verified";
-      homeStatus.textContent = label;
-      badge.textContent = label;
-      badge.className = "badge" + (state.status === "approved" ? " good" : state.status === "rejected" ? " bad" : "");
-    }
-
-    function setMockStatus(status) {
-      state.status = status;
-      state.identityConfirmed = false;
-      state.identity = null;
-      if (status === "none") localStorage.removeItem(mockStorageKey);
-      else localStorage.setItem(mockStorageKey, status);
-      updateStatus();
-    }
-
-    function openDrawer() {
-      drawer.classList.add("open");
-      drawer.setAttribute("aria-hidden", "false");
-      document.body.classList.add("drawer-active");
-      render();
-      drawer.querySelector(".drawer-close").focus();
-    }
-
-    function closeDrawer() {
-      drawer.classList.remove("open");
-      drawer.setAttribute("aria-hidden", "true");
-      document.body.classList.remove("drawer-active");
-    }
-
-    promptOverlay.addEventListener("click", event => {
-      const action = event.target.closest("[data-prompt-action]")?.dataset.promptAction;
-      if (action === "close") {
-        promptOverlay.hidden = true;
-      } else if (action === "start") {
-        promptOverlay.hidden = true;
-        if (state.status === "none") setMockStatus("pending");
-        openDrawer();
-        renderJourney();
+      function updateStatus() {
+        const label =
+          state.status === "approved"
+            ? "Verified"
+            : state.status === "review"
+              ? "Confirm details"
+              : state.status === "rejected"
+                ? "Not verified"
+                : state.status === "pending"
+                  ? "In progress"
+                  : "Not verified";
+        badge.textContent = label;
+        badge.className =
+          "badge" +
+          (state.status === "approved"
+            ? " good"
+            : state.status === "rejected"
+              ? " bad"
+              : "");
+        const isComplete = state.status === "approved";
+        kycIncompleteView.hidden = isComplete;
+        kycCompleteView.hidden = !isComplete;
+        kycHomeStart.textContent =
+          state.status === "pending" ? "Continue" : "Start Verification";
+        kycHomeProgress.innerHTML = renderStepProgress();
       }
-    });
 
-    function render() {
-      const outcome = state.status;
-      stateHeader.hidden = false;
-      footnote.hidden = false;
-      kycDrawer.classList.remove("journey-mode");
-      drawerScroll.classList.remove("journey-mode", "waiting-mode");
-      kycPanel.classList.remove("provider-active");
-      updateStatus();
-      if (outcome === "approved") {
-        if (!state.identityConfirmed) {
+      function setMockStatus(status) {
+        state.status = status;
+        if (status === "none") {
+          state.currentStep = "liveness";
+          localStorage.removeItem(mockStorageKey);
+          localStorage.removeItem(mockStepStorageKey);
+        } else {
+          if (status === "review" || status === "approved")
+            state.currentStep = "personal-info";
+          localStorage.setItem(mockStorageKey, status);
+          localStorage.setItem(mockStepStorageKey, state.currentStep);
+        }
+        updateStatus();
+      }
+
+      function setCurrentStep(step) {
+        if (!validSteps.includes(step))
+          throw new Error(`Unknown KYC step: ${step}`);
+        state.currentStep = step;
+        if (state.status === "pending")
+          localStorage.setItem(mockStepStorageKey, step);
+      }
+
+      function openDrawer() {
+        drawer.classList.add("open");
+        drawer.setAttribute("aria-hidden", "false");
+        document.body.classList.add("drawer-active");
+        render();
+        drawer.querySelector(".drawer-close").focus();
+      }
+
+      function closeDrawer() {
+        drawer.classList.remove("open");
+        drawer.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("drawer-active");
+      }
+
+      function renderStepProgress() {
+        const currentIndex = validSteps.indexOf(state.currentStep);
+        const labels = {
+          liveness: "Liveness verification",
+          document: "Document verification",
+          "personal-info": "Personal information verification",
+        };
+        return `<ul class="kyc-progress-list">${validSteps
+          .map((step, index) => {
+            const isDone =
+              state.status === "approved" ||
+              (["pending", "review"].includes(state.status) &&
+                index < currentIndex);
+            const isCurrent =
+              ["pending", "review"].includes(state.status) &&
+              index === currentIndex;
+            const classes = [
+              isDone ? "is-done" : "",
+              isCurrent ? "is-current" : "",
+            ]
+              .filter(Boolean)
+              .join(" ");
+            return `<li${classes ? ` class="${classes}"` : ""}${isCurrent ? ' aria-current="step"' : ""}>${labels[step]}</li>`;
+          })
+          .join("")}</ul>`;
+      }
+
+      function render() {
+        const outcome = state.status;
+        stateHeader.hidden = false;
+        footnote.hidden = false;
+        kycDrawer.classList.remove("journey-mode");
+        drawerScroll.classList.remove("journey-mode", "waiting-mode");
+        kycPanel.classList.remove("provider-active");
+        updateStatus();
+        if (outcome === "approved") {
+          screen.innerHTML = `<section class="step-panel"><div class="result good"><div class="symbol" aria-hidden="true">🪪</div><h2>Your account is verified for Know Your Customer</h2><p>Please note, in certain circumstances we may require further information from you in accordance with our license conditions. We will contact you should this be necessary.</p></div></section>`;
+          return;
+        }
+        if (outcome === "review") {
           renderIdentityForm();
           return;
         }
-        screen.innerHTML = `<section class="step-panel"><section class="flow-result good"><h3>Identity details confirmed</h3><p>The information you entered was validated in this browser session only and was not saved or sent.</p></section><button class="btn btn-soft" type="button" data-action="reset">Reset mock process</button></section>`;
-        return;
-      }
-      if (outcome === "rejected") {
-        screen.innerHTML = `<section class="step-panel"><section class="flow-result bad"><h3>Verification not approved</h3><p>Simulated outcome only. This is not a real Unico decision.</p><button class="btn btn-soft" type="button" data-action="reset">Start a new mock process</button></section></section>`;
-        return;
-      }
-      const canContinue = outcome === "pending";
-      screen.innerHTML = `<div class="step-panel"><h2>Start verification</h2><p>This process is designed to verify your identity and protect you from identity theft.</p><div class="tip"><strong>Important notes</strong><ul><li>Use a valid government-issued document</li><li>Find a well-lit surface</li><li>Be ready to take a selfie</li></ul></div><p class="mode-note">This is a mock flow. No documents, biometric data, or personal information are uploaded or sent.</p><form id="kycForm" class="kyc-form"><button class="btn btn-main" id="submitButton" type="submit">${canContinue ? "Continue" : "Start"}</button></form><div id="currentRecord" aria-live="polite"></div><p class="mode-note">The verification journey and results are simulated locally. No real Unico service is contacted.</p></div>`;
-    }
-
-    function renderJourney() {
-      kycDrawer.classList.add("journey-mode");
-      drawerScroll.classList.add("journey-mode");
-      drawerScroll.classList.remove("waiting-mode");
-      stateHeader.hidden = true;
-      footnote.hidden = true;
-      screen.innerHTML = `<section class="journey-panel"><h2>Unico journey</h2><p class="mode-note">Mock verification screen. No external Unico page is loaded.</p><div class="journey-frame-placeholder" aria-live="polite"><div><strong>Unico verification</strong><p>This area represents the embedded verification experience. No personal or biometric data is collected.</p></div></div><p class="journey-demo-note">Demo only: continue to the waiting screen. This does not complete identity verification or mark the process approved.</p><button class="btn btn-soft journey-demo" type="button" data-action="demo-finish">Demo: go to waiting screen</button></section>`;
-    }
-
-    function renderWaiting(message = "Demo transition only: this is the waiting screen. No approval is simulated; the mock process remains in progress.") {
-      stateHeader.hidden = true;
-      footnote.hidden = true;
-      kycDrawer.classList.remove("journey-mode");
-      drawerScroll.classList.remove("journey-mode");
-      drawerScroll.classList.add("waiting-mode");
-      screen.innerHTML = `<section class="waiting-panel"><div class="spinner" aria-hidden="true"></div><p>${esc(message)}</p><button class="btn btn-soft" type="button" data-action="continue-provider">Continue verification</button><button class="btn btn-main" type="button" data-action="check-status">Check verification status</button><p class="journey-demo-note">Optional mock outcomes — these do not represent real identity checks.</p><button class="btn btn-soft" type="button" data-action="demo-approved">Demo: show approved result</button><button class="btn btn-soft" type="button" data-action="demo-rejected">Demo: show not approved result</button></section>`;
-    }
-
-    function renderIdentityForm() {
-      stateHeader.hidden = false;
-      footnote.hidden = true;
-      drawerScroll.classList.remove("waiting-mode", "journey-mode");
-      kycDrawer.classList.remove("journey-mode");
-      screen.innerHTML = `<section class="doc-section"><h3>Confirm your personal information</h3><p class="muted small">The sample information below is read-only in this demonstration. It is not real identity data and is not saved or sent.</p><form id="identityForm" class="kyc-form"><div class="personal-grid"><div class="full"><label class="field" for="identityCurp">CURP</label><input class="input curp-input" id="identityCurp" name="curp" value="MOCK000000HDFXXX00" readonly aria-readonly="true"></div><div><label class="field" for="identityBirthDate">Date of birth</label><input class="input" id="identityBirthDate" name="birthDate" type="date" value="1990-01-01" readonly aria-readonly="true"></div><div><label class="field" for="identityFullName">Full name</label><input class="input" id="identityFullName" name="fullName" value="DEMO USER" readonly aria-readonly="true"></div></div><div class="identity-note">Sample data only — editing is disabled for this mock flow.</div><button class="btn btn-main" type="submit">Confirm details in this demo</button><button class="btn btn-soft" type="button" data-action="back-review">Back</button></form></section>`;
-    }
-
-    document.addEventListener("click", event => {
-      if (event.target.closest("[data-open-kyc]") || event.target.closest(".menu.active")) openDrawer();
-      if (event.target.closest("[data-close-drawer]")) closeDrawer();
-      const actionButton = event.target.closest("[data-action]");
-      if (!actionButton || !drawer.classList.contains("open")) return;
-      const action = actionButton.dataset.action;
-      if (action === "demo-finish") renderWaiting();
-      else if (action === "continue-provider") renderJourney();
-      else if (action === "check-status") renderWaiting("Mock status: verification is still in progress. No real Unico request was made and no approval is simulated.");
-      else if (action === "demo-approved") { setMockStatus("approved"); render(); }
-      else if (action === "demo-rejected") { setMockStatus("rejected"); render(); }
-      else if (action === "back-review") {
-        setMockStatus("pending");
-        renderWaiting("Returned to the mock verification status. You can continue the journey or check the simulated status.");
-      }
-      else if (action === "reset") { setMockStatus("none"); render(); }
-      else if (action === "privacy") {
-        event.preventDefault();
-        const target = document.getElementById("currentRecord");
-        if (target) target.innerHTML = `<div class="service-status">Privacy notice: This frontend mock stores only the demo status in this browser. It does not collect or transmit identity or biometric information.</div>`;
-      }
-    });
-
-    screen.addEventListener("submit", event => {
-      event.preventDefault();
-      if (event.target.id === "kycForm") {
-        if (state.status === "none") setMockStatus("pending");
+        if (outcome === "rejected") {
+          screen.innerHTML = `<section class="step-panel"><section class="flow-result bad"><h3>Verification not approved</h3><p>Simulated outcome only. This is not a real Unico decision.</p><button class="btn btn-soft" type="button" data-action="reset">Start a new mock process</button></section></section>`;
+          return;
+        }
         renderJourney();
-      } else if (event.target.id === "identityForm") {
-        state.identity = { curp: "MOCK000000HDFXXX00", birthDate: "1990-01-01", fullName: "DEMO USER" };
-        state.identityConfirmed = true;
-        render();
       }
-    });
 
-    document.addEventListener("keydown", event => {
-      if (event.key !== "Escape") return;
-      if (drawer.classList.contains("open")) closeDrawer();
-      else if (!promptOverlay.hidden) promptOverlay.hidden = true;
-    });
-    updateStatus();
-    render();
-    const entryParams = new URLSearchParams(window.location.search);
-    if (entryParams.has("fromHome") || entryParams.has("openKyc")) {
-      promptOverlay.hidden = true;
-      openDrawer();
-    } else if (entryParams.has("fromProfile")) {
-      promptOverlay.hidden = true;
-    } else {
-      promptOverlay.querySelector('[data-prompt-action="start"]').focus();
-    }
+      function renderJourney() {
+        kycDrawer.classList.add("journey-mode");
+        drawerScroll.classList.add("journey-mode");
+        drawerScroll.classList.remove("waiting-mode");
+        stateHeader.hidden = true;
+        footnote.hidden = true;
+        const stepLabels = {
+          liveness: [
+            "Liveness verification",
+            "Complete the selfie check to move to document verification.",
+          ],
+          document: [
+            "Document verification",
+            "Complete the document check to move to personal information.",
+          ],
+          "personal-info": [
+            "Personal information verification",
+            "Continue to review and confirm your personal information.",
+          ],
+        };
+        const [stepTitle, stepDescription] = stepLabels[state.currentStep];
+        if (state.currentStep === "liveness") {
+          screen.innerHTML = `<section class="journey-panel liveness-mode" aria-label="Liveness verification"><div class="liveness-frame-placeholder" aria-label="Liveness verification content area"></div><button class="btn btn-soft journey-demo" type="button" data-action="demo-finish">Demo: complete this step</button></section>`;
+          return;
+        }
+        screen.innerHTML = `<section class="journey-panel"><h2>${stepTitle}</h2><p class="mode-note">Mock verification screen. No external Unico page is loaded.</p><div class="journey-frame-placeholder" aria-live="polite"><div><strong>${stepTitle}</strong><p>${stepDescription} No personal or biometric data is collected.</p></div></div><p class="journey-demo-note">Demo only: completing this step advances your saved progress. It does not complete identity verification or mark the process approved.</p><button class="btn btn-soft journey-demo" type="button" data-action="demo-finish">Demo: complete this step</button></section>`;
+      }
+
+      function renderWaiting(message = "verification is still in progress.") {
+        stateHeader.hidden = true;
+        footnote.hidden = true;
+        kycDrawer.classList.remove("journey-mode");
+        drawerScroll.classList.remove("journey-mode");
+        drawerScroll.classList.add("waiting-mode");
+        screen.innerHTML = `<section class="waiting-panel"><div class="waiting-content"><div class="spinner" aria-hidden="true"></div><p>${esc(message)}</p><button class="btn btn-main" type="button" data-action="check-status">Check verification status</button><div class="waiting-demo-actions" aria-label="Demo controls"><button class="btn btn-soft" type="button" data-action="continue-provider">Demo: continue verification</button><button class="btn btn-soft" type="button" data-action="demo-approved">Demo: show approved result</button><button class="btn btn-soft" type="button" data-action="demo-rejected">Demo: show not approved result</button></div></div></section>`;
+      }
+
+      function renderIdentityForm() {
+        stateHeader.hidden = true;
+        footnote.hidden = true;
+        drawerScroll.classList.remove("waiting-mode");
+        drawerScroll.classList.add("journey-mode");
+        kycDrawer.classList.add("journey-mode");
+        screen.innerHTML = `<section class="identity-review-panel"><h3>Confirm your personal information</h3><form id="identityForm" class="identity-review-form"><label class="field" for="identityCurp">CURP</label><input class="input" id="identityCurp" name="curp" value="MOCK000000HDFXXX00" readonly aria-readonly="true"><label class="field" for="identityFullName">Full Name</label><input class="input" id="identityFullName" name="fullName" value="DEMO USER" readonly aria-readonly="true"><label class="field" for="identityBirthDate">Date of birth</label><input class="input" id="identityBirthDate" name="birthDate" value="1990/01/01" readonly aria-readonly="true"><button class="btn btn-main" type="submit">Confirm details</button><button class="btn btn-soft identity-demo" type="button" data-action="demo-confirm-details">Demo: confirm details</button></form></section>`;
+      }
+
+      document.addEventListener("click", (event) => {
+        if (
+          event.target.closest("[data-open-kyc]") ||
+          event.target.closest(".menu.active")
+        ) {
+          if (["none", "rejected"].includes(state.status))
+            setMockStatus("pending");
+          openDrawer();
+        }
+        if (event.target.closest("[data-close-drawer]")) closeDrawer();
+        const actionButton = event.target.closest("[data-action]");
+        if (!actionButton || !drawer.classList.contains("open")) return;
+        const action = actionButton.dataset.action;
+        if (action === "demo-finish") {
+          const stepIndex = validSteps.indexOf(state.currentStep);
+          setCurrentStep(
+            validSteps[Math.min(stepIndex + 1, validSteps.length - 1)],
+          );
+          if (state.currentStep === "personal-info") {
+            setMockStatus("review");
+            renderIdentityForm();
+          } else {
+            renderWaiting();
+          }
+        } else if (action === "continue-provider") renderJourney();
+        else if (action === "check-status") renderWaiting();
+        else if (action === "demo-approved") {
+          setMockStatus("review");
+          render();
+        } else if (action === "demo-confirm-details") {
+          setMockStatus("approved");
+          render();
+        } else if (action === "demo-rejected") {
+          setMockStatus("rejected");
+          render();
+        } else if (action === "back-review") {
+          setMockStatus("pending");
+          renderWaiting(
+            "Returned to the mock verification status. You can continue the journey or check the simulated status.",
+          );
+        } else if (action === "reset") {
+          setMockStatus("none");
+          render();
+        } else if (action === "privacy") {
+          event.preventDefault();
+          const target = document.getElementById("currentRecord");
+          if (target)
+            target.innerHTML = `<div class="service-status">Privacy notice: This frontend mock stores only the demo status in this browser. It does not collect or transmit identity or biometric information.</div>`;
+        }
+      });
+
+      screen.addEventListener("submit", (event) => {
+        event.preventDefault();
+        if (event.target.id === "identityForm") {
+          setMockStatus("approved");
+          render();
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape") return;
+        if (drawer.classList.contains("open")) closeDrawer();
+      });
+      updateStatus();
+      render();
+      const entryParams = new URLSearchParams(window.location.search);
+      if (entryParams.has("fromHome")) {
+        if (state.status === "none") setMockStatus("pending");
+        openDrawer();
+      } else if (entryParams.has("openKyc")) {
+        if (state.status === "none") setMockStatus("pending");
+        openDrawer();
+      }
     </script>
   </body>
 </html>

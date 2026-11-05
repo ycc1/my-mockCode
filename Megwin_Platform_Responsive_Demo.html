@@ -564,50 +564,98 @@
       }
       .kyc-prompt {
         position: relative;
-        width: min(510px, 100%);
-        padding: 24px 22px 20px;
-        border: 1px solid #414447;
-        border-radius: 14px;
-        background: #252729;
+        width: min(610px, 100%);
+        padding: 22px 25px 20px;
+        border: 1px solid #39393c;
+        border-radius: 12px;
+        background: #252527;
         box-shadow: 0 24px 80px #000b;
       }
       .kyc-prompt h2 {
-        margin: 0 34px 12px;
-        font-size: 20px;
+        margin: 0 34px 14px;
+        font-size: 24px;
         text-align: center;
       }
       .kyc-prompt p {
         color: #b7bbc0;
         line-height: 1.55;
         text-align: center;
+        margin: 0 0 18px;
       }
       .kyc-prompt .kyc-tip {
-        margin: 14px 0;
-        padding: 13px 15px;
-        border: 1px solid #3b3e41;
-        border-radius: 9px;
-        background: #1b1c1e;
+        margin: 20px 0 18px;
+        padding: 18px;
+        min-height: 156px;
+        border: 1px solid #39393d;
+        border-radius: 10px;
+        background: #222225;
       }
-      .kyc-prompt .kyc-tip ul {
-        margin: 8px 0 0;
-        padding-left: 20px;
-        color: #c8cbd0;
-        line-height: 1.7;
+      .kyc-prompt .kyc-tip strong {
+        display: block;
+        margin-bottom: 12px;
+        color: #b8b8bf;
       }
-      .kyc-prompt .kyc-disclaimer {
-        font-size: 11px;
+      .kyc-progress-list {
+        display: grid;
+        gap: 7px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .kyc-progress-list li {
+        display: flex;
+        min-height: 27px;
+        align-items: center;
+        gap: 10px;
+        padding: 4px 9px;
+        border: 1px solid transparent;
+        border-radius: 7px;
+        color: #8d8d95;
+        font-size: 14px;
+        transition: color 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s;
+      }
+      .kyc-progress-list li::before {
+        width: 7px;
+        height: 7px;
+        flex: 0 0 7px;
+        border-radius: 50%;
+        background: #55555c;
+        content: "";
+      }
+      .kyc-progress-list li.is-current {
+        border-color: #337e75;
+        background: #1e302e;
+        color: #e4fffb;
+        box-shadow: 0 0 15px rgb(65 207 189 / 13%);
+      }
+      .kyc-progress-list li.is-done {
+        border-color: #35645e;
+        background: #1e302e;
+        color: #42cfbd;
+        box-shadow: 0 0 14px rgb(65 207 189 / 18%);
+      }
+      .kyc-progress-list li.is-current::before,
+      .kyc-progress-list li.is-done::before {
+        background: #42cfbd;
+        box-shadow: 0 0 9px #42cfbd;
       }
       .kyc-prompt .kyc-start {
         display: block;
         width: 100%;
-        margin-top: 16px;
-        padding: 12px;
-        border-radius: 8px;
-        background: #16b99f;
-        color: #071411;
+        margin-top: 18px;
+        padding: 15px 12px;
+        border-radius: 10px;
+        background: #41cfbd;
+        color: #101b1a;
         font-weight: 750;
+        font-size: 16px;
         text-align: center;
         text-decoration: none;
+      }
+      .kyc-prompt .kyc-footer {
+        margin: 18px 0 0;
+        color: #aaaab1;
+        font-size: 13px;
       }
       .kyc-prompt .kyc-close {
         position: absolute;
@@ -619,6 +667,21 @@
         background: transparent;
         color: #ddd;
         font-size: 25px;
+      }
+      @media (max-width: 600px) {
+        .kyc-prompt {
+          padding: 21px 16px 18px;
+        }
+        .kyc-prompt h2 {
+          font-size: 21px;
+        }
+        .kyc-prompt .kyc-tip {
+          min-height: 0;
+          padding: 14px;
+        }
+        .kyc-progress-list li {
+          font-size: 13px;
+        }
       }
       .profile-menu {
         position: fixed;
@@ -753,6 +816,9 @@
         background: #17191a;
         color: #e8e9ea;
         text-align: left;
+      }
+      .profile-kyc-entry[hidden] {
+        display: none;
       }
       .profile-kyc-entry-copy {
         display: grid;
@@ -2885,15 +2951,14 @@
         <p>This process is designed to verify your identity and protect you from identity theft.</p>
         <div class="kyc-tip">
           <strong>Important notes</strong>
-          <ul>
-            <li>Use a valid government-issued document</li>
-            <li>Find a well-lit surface</li>
-            <li>Be ready to take a selfie</li>
+          <ul class="kyc-progress-list" id="kycProgressList">
+            <li data-kyc-step="liveness">Liveness verification</li>
+            <li data-kyc-step="document">Document verification</li>
+            <li data-kyc-step="personal-info">Personal information verification</li>
           </ul>
         </div>
-        <p class="kyc-disclaimer">This is a mock flow. No documents, biometric data, or personal information are uploaded or sent.</p>
-        <a class="kyc-start" href="Megwin_KYC_New_UI.html?fromHome=1">Start</a>
-        <p class="kyc-disclaimer">The verification journey will appear inside the KYC panel.</p>
+        <a class="kyc-start" id="kycStartLink" href="Megwin_KYC_New_UI.html?fromHome=1">Start Verification</a>
+        <p class="kyc-footer">The verification journey will appear inside this KYC panel.</p>
       </section>
     </div>
     <section class="profile-menu" id="profileMenu" role="dialog" aria-label="Personal center" aria-hidden="true">
@@ -3064,6 +3129,31 @@
         $$ = (s) => [...document.querySelectorAll(s)];
       let page = "sports";
       const kycStatusStorageKey = "megwinKycMockStatus";
+      const kycStepStorageKey = "megwinKycMockStep";
+      const kycStepOrder = ["liveness", "document", "personal-info"];
+      function updateKycPromptProgress() {
+        const status = localStorage.getItem(kycStatusStorageKey);
+        const prompt = $("#kycPrompt");
+        prompt.classList.toggle("show", status !== "approved");
+        prompt.setAttribute("aria-hidden", String(status === "approved"));
+        const step = localStorage.getItem(kycStepStorageKey);
+        const currentIndex = kycStepOrder.indexOf(step);
+        const activeIndex = currentIndex < 0 ? 0 : currentIndex;
+        $$("#kycProgressList [data-kyc-step]").forEach((item) => {
+          const itemIndex = kycStepOrder.indexOf(item.dataset.kycStep);
+          const isDone = status === "approved" || (status === "pending" && itemIndex < activeIndex);
+          const isCurrent = status === "pending" && itemIndex === activeIndex;
+          item.classList.toggle("is-done", isDone);
+          item.classList.toggle("is-current", isCurrent);
+          if (isCurrent) item.setAttribute("aria-current", "step");
+          else item.removeAttribute("aria-current");
+        });
+        const continuing = status === "pending";
+        $("#kycStartLink").textContent = continuing ? "Continue" : "Start Verification";
+        $("#kycStartLink").href = continuing
+          ? "Megwin_KYC_New_UI.html?fromHome=1"
+          : "Megwin_KYC_New_UI.html?fromHome=1";
+      }
       function updateKycIndicators() {
         const complete = localStorage.getItem(kycStatusStorageKey) === "approved";
         const status = complete ? "complete" : "incomplete";
@@ -3075,14 +3165,21 @@
         });
         const entry = $(".profile-kyc-entry");
         if (entry) {
+          entry.hidden = complete;
           entry.dataset.status = status;
           const statusLabel = entry.querySelector("[data-kyc-status-label]");
           if (statusLabel) statusLabel.textContent = label;
         }
       }
       updateKycIndicators();
+      updateKycPromptProgress();
       window.addEventListener("storage", (event) => {
         if (event.key === kycStatusStorageKey || event.key === null) updateKycIndicators();
+        if (event.key === kycStatusStorageKey || event.key === kycStepStorageKey || event.key === null) updateKycPromptProgress();
+      });
+      window.addEventListener("pageshow", () => {
+        updateKycIndicators();
+        updateKycPromptProgress();
       });
       const sportSide = [
         "Home",
@@ -3446,7 +3543,7 @@
           setDepositView("spei");
           $("#depositModal").classList.add("show");
         } else if (action === "kyc") {
-          $("#kycPrompt").classList.add("show");
+          window.location.href = "Megwin_KYC_New_UI.html?fromProfile=1&openKyc=1";
         } else if (action === "account") {
           window.location.href = "Megwin_KYC_New_UI.html?fromProfile=1";
         } else if (action === "open-kyc-page") {
