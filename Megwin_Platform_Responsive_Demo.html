@@ -548,6 +548,739 @@
       .modal.show {
         display: flex;
       }
+      .kyc-prompt-overlay {
+        display: none;
+        position: fixed;
+        z-index: 60;
+        inset: 0;
+        align-items: center;
+        justify-content: center;
+        padding: 14px;
+        background: #000c;
+        backdrop-filter: blur(3px);
+      }
+      .kyc-prompt-overlay.show {
+        display: flex;
+      }
+      .kyc-prompt {
+        position: relative;
+        width: min(510px, 100%);
+        padding: 24px 22px 20px;
+        border: 1px solid #414447;
+        border-radius: 14px;
+        background: #252729;
+        box-shadow: 0 24px 80px #000b;
+      }
+      .kyc-prompt h2 {
+        margin: 0 34px 12px;
+        font-size: 20px;
+        text-align: center;
+      }
+      .kyc-prompt p {
+        color: #b7bbc0;
+        line-height: 1.55;
+        text-align: center;
+      }
+      .kyc-prompt .kyc-tip {
+        margin: 14px 0;
+        padding: 13px 15px;
+        border: 1px solid #3b3e41;
+        border-radius: 9px;
+        background: #1b1c1e;
+      }
+      .kyc-prompt .kyc-tip ul {
+        margin: 8px 0 0;
+        padding-left: 20px;
+        color: #c8cbd0;
+        line-height: 1.7;
+      }
+      .kyc-prompt .kyc-disclaimer {
+        font-size: 11px;
+      }
+      .kyc-prompt .kyc-start {
+        display: block;
+        width: 100%;
+        margin-top: 16px;
+        padding: 12px;
+        border-radius: 8px;
+        background: #16b99f;
+        color: #071411;
+        font-weight: 750;
+        text-align: center;
+        text-decoration: none;
+      }
+      .kyc-prompt .kyc-close {
+        position: absolute;
+        top: 8px;
+        right: 12px;
+        width: 34px;
+        height: 34px;
+        border: 0;
+        background: transparent;
+        color: #ddd;
+        font-size: 25px;
+      }
+      .profile-menu {
+        position: fixed;
+        z-index: 55;
+        top: 46px;
+        right: 12px;
+        display: none;
+        width: min(320px, calc(100vw - 24px));
+        overflow: hidden;
+        border: 1px solid #383a3d;
+        border-radius: 12px;
+        background: #1b1c1e;
+        box-shadow: 0 18px 48px #000b;
+      }
+      .profile-menu.show {
+        display: block;
+      }
+      .profile-menu-head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 17px;
+        border-bottom: 1px solid #303235;
+        background: linear-gradient(120deg, #242729, #1b1c1e);
+      }
+      .profile-menu-avatar {
+        display: grid;
+        width: 42px;
+        height: 42px;
+        flex: 0 0 42px;
+        place-items: center;
+        border: 1px solid #42464a;
+        border-radius: 50%;
+        background: #303438;
+        color: #f4f6f7;
+        font-size: 20px;
+      }
+      .profile-menu-head strong,
+      .profile-menu-head small {
+        display: block;
+      }
+      .profile-menu-head small {
+        margin-top: 4px;
+        color: #969ba1;
+      }
+      .profile-menu-balance {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 13px 17px;
+        border-bottom: 1px solid #303235;
+        color: #aeb2b7;
+      }
+      .profile-menu-balance strong {
+        color: #f4f5f6;
+      }
+      .profile-menu-actions {
+        display: grid;
+        padding: 7px;
+      }
+      .profile-menu-actions button {
+        display: flex;
+        min-height: 42px;
+        align-items: center;
+        gap: 11px;
+        padding: 9px 11px;
+        border-radius: 7px;
+        background: transparent;
+        color: #d7d9dc;
+        text-align: left;
+      }
+      .profile-menu-actions button:hover {
+        background: #292c2e;
+      }
+      .profile-menu-actions .menu-icon {
+        width: 20px;
+        color: var(--teal);
+        text-align: center;
+      }
+      .profile-menu-actions .menu-arrow {
+        margin-left: auto;
+        color: #81868c;
+      }
+      .kyc-status-icon {
+        position: relative;
+        display: inline-grid;
+        width: 24px;
+        height: 24px;
+        flex: 0 0 24px;
+        place-items: center;
+        border: 1px solid #414447;
+        border-radius: 6px;
+        background: #222426;
+        color: #555b60;
+        font-size: 13px;
+        line-height: 1;
+      }
+      .kyc-status-icon .kyc-status-check {
+        position: absolute;
+        right: -4px;
+        bottom: -3px;
+        display: none;
+        width: 12px;
+        height: 12px;
+        place-items: center;
+        border: 1px solid #090a0a;
+        border-radius: 50%;
+        background: #20d2b5;
+        color: #08201b;
+        font-size: 9px;
+        font-weight: 900;
+      }
+      .kyc-status-icon[data-status="complete"] {
+        border-color: #1bc4aa;
+        background: #103b34;
+        color: #65f3d9;
+        box-shadow: 0 0 8px #15d4b333;
+      }
+      .kyc-status-icon[data-status="complete"] .kyc-status-check {
+        display: grid;
+      }
+      .profile-kyc-entry {
+        display: flex;
+        width: 100%;
+        min-height: 48px;
+        align-items: center;
+        gap: 10px;
+        margin: -10px 0 14px;
+        padding: 6px 10px;
+        border: 1px solid #303235;
+        border-radius: 9px;
+        background: #17191a;
+        color: #e8e9ea;
+        text-align: left;
+      }
+      .profile-kyc-entry-copy {
+        display: grid;
+        gap: 2px;
+      }
+      .profile-kyc-entry-copy strong {
+        font-size: 13px;
+      }
+      .profile-kyc-entry-copy small {
+        color: #858a8f;
+        font-size: 11px;
+      }
+      .profile-kyc-entry[data-status="complete"] .profile-kyc-entry-copy small {
+        color: #38d9c0;
+      }
+      .profile-kyc-entry-arrow {
+        margin-left: auto;
+        color: #777d82;
+        font-size: 20px;
+      }
+      .profile-mobile {
+        display: none;
+      }
+      @media (min-width: 651px) {
+        body.profile-active {
+          overflow: hidden;
+        }
+        .profile-menu,
+        .profile-menu.show {
+          position: fixed;
+          z-index: 70;
+          inset: 0;
+          display: none;
+          width: 100%;
+          max-height: 100dvh;
+          overflow: auto;
+          place-items: center;
+          padding: 24px;
+          border: 0;
+          border-radius: 0;
+          background: #000c;
+          box-shadow: none;
+        }
+        body .profile-menu.show {
+          display: grid;
+        }
+        .profile-menu-head,
+        .profile-menu-balance,
+        .profile-menu-actions {
+          display: none;
+        }
+        .profile-mobile {
+          display: block;
+          width: min(660px, 100%);
+          max-height: calc(100dvh - 48px);
+          overflow: auto;
+          padding: 20px 24px 24px;
+          border: 1px solid #383a3d;
+          border-radius: 18px;
+          background: #090a0a;
+          color: #f3f3f3;
+          box-shadow: 0 24px 80px #000b;
+        }
+        .profile-mobile-header {
+          display: flex;
+          height: 48px;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .profile-mobile-header button {
+          display: grid;
+          width: 42px;
+          height: 42px;
+          place-items: center;
+          border: 0;
+          background: transparent;
+          color: #f5f5f5;
+          font-size: 24px;
+        }
+        .profile-mobile-tools {
+          display: flex;
+          gap: 12px;
+        }
+        .profile-user {
+          display: flex;
+          width: 100%;
+          min-height: 112px;
+          align-items: center;
+          gap: 16px;
+          padding: 12px 4px;
+          border: 0;
+          background: transparent;
+          color: inherit;
+          text-align: left;
+        }
+        .profile-user-avatar {
+          display: grid;
+          width: 74px;
+          height: 74px;
+          flex: 0 0 74px;
+          place-items: center;
+          border: 3px solid #b78a69;
+          border-radius: 50%;
+          background: radial-gradient(circle at 38% 30%, #e0b993, #674f42 65%, #23201e);
+          font-size: 38px;
+          box-shadow: 0 0 0 3px #583d31;
+        }
+        .profile-user-info {
+          min-width: 0;
+          flex: 1;
+        }
+        .profile-user-name {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 8px;
+          font-size: 21px;
+          font-weight: 750;
+        }
+        .profile-vip-badge {
+          padding: 4px 9px;
+          border-radius: 14px;
+          background: #b76a08;
+          color: #ffe4a8;
+          font-size: 13px;
+        }
+        .profile-user-id {
+          margin-top: 7px;
+          color: #a3a5a8;
+          font-size: 15px;
+          font-weight: 650;
+        }
+        .profile-user-chevron {
+          color: #6d7175;
+          font-size: 28px;
+        }
+        .profile-wallet {
+          margin: 0 0 16px;
+          padding: 20px 20px 16px;
+          border-radius: 18px;
+          background: linear-gradient(130deg, #121b19, #121313 52%, #10201c);
+        }
+        .profile-balance-label {
+          color: #a4a6a8;
+          font-size: 16px;
+          text-align: center;
+        }
+        .profile-balance-value {
+          margin: 5px 0 18px;
+          color: #29cdb9;
+          font-size: 46px;
+          font-weight: 750;
+          letter-spacing: -1.5px;
+          line-height: 1.1;
+          text-align: center;
+        }
+        .profile-wallet-actions {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+        }
+        .profile-wallet-actions button {
+          min-height: 58px;
+          border: 0;
+          border-radius: 12px;
+          background: #252729;
+          color: #a1a3a6;
+          font-size: 18px;
+          font-weight: 700;
+        }
+        .profile-wallet-actions button.primary {
+          background: #f8f8f8;
+          color: #111;
+        }
+        .profile-bonuses {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+          margin-top: 16px;
+          padding-top: 14px;
+          border-top: 1px solid #343638;
+        }
+        .profile-bonus {
+          display: flex;
+          min-width: 0;
+          align-items: center;
+          gap: 10px;
+          padding: 3px 0;
+          border: 0;
+          background: transparent;
+          color: inherit;
+          text-align: left;
+        }
+        .profile-bonus + .profile-bonus {
+          border-left: 1px solid #343638;
+          padding-left: 12px;
+        }
+        .profile-bonus-icon {
+          display: grid;
+          width: 44px;
+          height: 44px;
+          flex: 0 0 44px;
+          place-items: center;
+          border-radius: 50%;
+          background: #4a3c0c;
+          color: #ffce46;
+          font-size: 21px;
+        }
+        .profile-bonus.casino .profile-bonus-icon {
+          background: #302046;
+          color: #a878ff;
+        }
+        .profile-bonus strong,
+        .profile-bonus small {
+          display: block;
+          white-space: nowrap;
+        }
+        .profile-bonus strong {
+          color: #aaa;
+          font-size: 14px;
+        }
+        .profile-bonus small {
+          margin-top: 4px;
+          color: #eee;
+          font-size: 17px;
+          font-weight: 700;
+        }
+        .profile-vip-card {
+          display: block;
+          width: 100%;
+          margin-bottom: 20px;
+          padding: 14px 18px;
+          border: 0;
+          border-radius: 12px;
+          background: linear-gradient(105deg, #bd805c, #ffe1ca);
+          color: #743916;
+          text-align: left;
+        }
+        .profile-vip-title {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-size: 30px;
+          font-weight: 850;
+        }
+        .profile-vip-emblem {
+          display: grid;
+          width: 50px;
+          height: 50px;
+          place-items: center;
+          color: #ffe4ce;
+          font-size: 36px;
+          text-shadow: 1px 2px 3px #683b28;
+        }
+        .profile-vip-title span:last-child {
+          margin-left: auto;
+          font-size: 27px;
+        }
+        .profile-vip-progress {
+          display: block;
+          height: 9px;
+          margin: 12px 0 6px;
+          overflow: hidden;
+          border-radius: 8px;
+          background: #855b46a8;
+        }
+        .profile-vip-progress span {
+          display: block;
+          width: 27%;
+          height: 100%;
+          border-radius: inherit;
+          background: #793b19;
+        }
+        .profile-vip-note {
+          font-size: 13px;
+        }
+        .profile-group {
+          margin: 22px 0 26px;
+        }
+        .profile-group h2 {
+          margin: 0 0 12px;
+          font-size: 22px;
+          font-weight: 750;
+        }
+        .profile-shortcuts {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 6px;
+        }
+        .profile-shortcut {
+          position: relative;
+          display: flex;
+          min-width: 0;
+          min-height: 82px;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 9px;
+          padding: 8px 3px;
+          border: 0;
+          background: transparent;
+          color: #ededed;
+          font-size: 14px;
+          line-height: 1.2;
+          text-align: center;
+        }
+        .profile-shortcut-icon {
+          color: #fff;
+          font-size: 25px;
+          line-height: 1;
+        }
+        .profile-shortcut-badge {
+          position: absolute;
+          top: 0;
+          left: 50%;
+          padding: 2px 7px;
+          border-radius: 12px;
+          background: #ff4d5a;
+          color: #fff;
+          font-size: 12px;
+          transform: translateX(2px);
+        }
+      }
+      .avatar-button {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        padding: 0 !important;
+        border: 1px solid #42464a !important;
+        border-radius: 50% !important;
+        background: #303438 !important;
+        color: #f4f6f7 !important;
+        font-size: 17px;
+      }
+      @media (min-width: 651px) {
+        .profile-menu,
+        .profile-menu.show {
+          position: fixed;
+          z-index: 55;
+          top: 54px;
+          right: 12px;
+          bottom: auto;
+          left: auto;
+          display: none;
+          width: min(285px, calc(100vw - 24px));
+          max-height: calc(100dvh - 66px);
+          overflow: hidden;
+          padding: 0;
+          border: 1px solid #383a3d;
+          border-radius: 12px;
+          background: #090a0a;
+          box-shadow: 0 18px 48px #000b;
+        }
+        body .profile-menu.show {
+          display: block;
+        }
+        .profile-menu-head,
+        .profile-menu-balance,
+        .profile-menu-actions {
+          display: none;
+        }
+        .profile-mobile {
+          display: block;
+          width: 100%;
+          max-height: calc(100dvh - 66px);
+          overflow: auto;
+          padding: 7px 8px 10px;
+          border: 0;
+          border-radius: 0;
+          background: #090a0a;
+          color: #f3f3f3;
+          box-shadow: none;
+        }
+        .profile-mobile-header {
+          display: none;
+        }
+        .profile-mobile-header {
+          height: 30px;
+        }
+        .profile-mobile-header button {
+          width: 26px;
+          height: 26px;
+          font-size: 17px;
+        }
+        .profile-mobile-tools {
+          gap: 5px;
+        }
+        .profile-user {
+          min-height: 59px;
+          gap: 8px;
+          padding: 5px 1px;
+        }
+        .profile-user-avatar {
+          width: 40px;
+          height: 40px;
+          flex-basis: 40px;
+          border-width: 2px;
+          font-size: 22px;
+        }
+        .profile-user-name {
+          gap: 4px;
+          font-size: 13px;
+        }
+        .profile-vip-badge {
+          padding: 2px 5px;
+          font-size: 9px;
+        }
+        .profile-user-id {
+          margin-top: 3px;
+          font-size: 10px;
+        }
+        .profile-user-chevron {
+          font-size: 19px;
+        }
+        .profile-wallet {
+          margin-bottom: 8px;
+          padding: 10px 8px 8px;
+          border-radius: 12px;
+        }
+        .profile-balance-label {
+          font-size: 10px;
+        }
+        .profile-balance-value {
+          margin: 3px 0 9px;
+          font-size: 26px;
+          letter-spacing: -0.5px;
+        }
+        .profile-wallet-actions {
+          gap: 6px;
+        }
+        .profile-wallet-actions button {
+          min-height: 30px;
+          border-radius: 7px;
+          font-size: 11px;
+        }
+        .profile-bonuses {
+          gap: 5px;
+          margin-top: 8px;
+          padding-top: 7px;
+        }
+        .profile-bonus {
+          gap: 5px;
+        }
+        .profile-bonus + .profile-bonus {
+          padding-left: 5px;
+        }
+        .profile-bonus-icon {
+          width: 25px;
+          height: 25px;
+          flex-basis: 25px;
+          font-size: 13px;
+        }
+        .profile-bonus strong {
+          font-size: 8px;
+        }
+        .profile-bonus small {
+          margin-top: 2px;
+          font-size: 10px;
+        }
+        .profile-vip-card {
+          margin-bottom: 9px;
+          padding: 6px 8px;
+          border-radius: 7px;
+        }
+        .profile-kyc-entry {
+          min-height: 34px;
+          gap: 7px;
+          margin: -3px 0 7px;
+          padding: 4px 6px;
+          border-radius: 6px;
+        }
+        .profile-kyc-entry-copy {
+          gap: 1px;
+        }
+        .profile-kyc-entry-copy strong {
+          font-size: 10px;
+        }
+        .profile-kyc-entry-copy small {
+          font-size: 8px;
+        }
+        .profile-kyc-entry-arrow {
+          font-size: 16px;
+        }
+        .profile-vip-title {
+          gap: 5px;
+          font-size: 18px;
+        }
+        .profile-vip-emblem {
+          width: 27px;
+          height: 27px;
+          font-size: 20px;
+        }
+        .profile-vip-title span:last-child {
+          font-size: 17px;
+        }
+        .profile-vip-progress {
+          height: 5px;
+          margin: 6px 0 3px;
+        }
+        .profile-vip-note {
+          font-size: 8px;
+        }
+        .profile-group {
+          margin: 9px 0 11px;
+        }
+        .profile-group h2 {
+          margin-bottom: 5px;
+          font-size: 12px;
+        }
+        .profile-shortcuts {
+          gap: 1px;
+        }
+        .profile-shortcut {
+          min-height: 48px;
+          gap: 4px;
+          padding: 4px 1px;
+          font-size: 9px;
+        }
+        .profile-shortcut-icon {
+          font-size: 15px;
+        }
+        .profile-shortcut-badge {
+          top: 0;
+          padding: 1px 4px;
+          font-size: 8px;
+        }
+      }
       .modalcontent {
         background: #252729;
         border: 1px solid #414447;
@@ -804,6 +1537,298 @@
         text-align: center;
       }
       @media (max-width: 650px) {
+        body.profile-active {
+          overflow: hidden;
+        }
+        .profile-menu,
+        .profile-menu.show {
+          position: fixed;
+          z-index: 70;
+          inset: 0;
+          display: none;
+          width: 100%;
+          max-height: 100dvh;
+          overflow-x: hidden;
+          overflow-y: auto;
+          border: 0;
+          border-radius: 0;
+          background: #090a0a;
+          box-shadow: none;
+          scrollbar-width: none;
+          padding-bottom: max(24px, env(safe-area-inset-bottom));
+        }
+        .profile-menu.show {
+          display: block;
+        }
+        .profile-menu-head,
+        .profile-menu-balance,
+        .profile-menu-actions {
+          display: none;
+        }
+        .profile-mobile {
+          display: block;
+          min-height: 100%;
+          padding: max(12px, env(safe-area-inset-top)) 16px 30px;
+          color: #f3f3f3;
+        }
+        .profile-mobile-header {
+          display: flex;
+          height: 54px;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .profile-mobile-header button {
+          display: grid;
+          width: 38px;
+          height: 38px;
+          place-items: center;
+          background: transparent;
+          color: #f5f5f5;
+          font-size: 24px;
+        }
+        .profile-mobile-tools {
+          display: flex;
+          gap: 12px;
+        }
+        .profile-user {
+          display: flex;
+          width: 100%;
+          min-height: 150px;
+          align-items: center;
+          gap: 14px;
+          padding: 20px 2px 12px;
+          border: 0;
+          background: transparent;
+          color: inherit;
+          text-align: left;
+        }
+        .profile-user-avatar {
+          display: grid;
+          width: 82px;
+          height: 82px;
+          flex: 0 0 82px;
+          place-items: center;
+          border: 3px solid #b78a69;
+          border-radius: 50%;
+          background: radial-gradient(circle at 38% 30%, #e0b993, #674f42 65%, #23201e);
+          font-size: 42px;
+          box-shadow: 0 0 0 3px #583d31;
+        }
+        .profile-user-info {
+          min-width: 0;
+          flex: 1;
+        }
+        .profile-user-name {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 7px;
+          font-size: 19px;
+          font-weight: 750;
+        }
+        .profile-vip-badge {
+          padding: 3px 8px;
+          border-radius: 14px;
+          background: #b76a08;
+          color: #ffe4a8;
+          font-size: 12px;
+        }
+        .profile-user-id {
+          margin-top: 6px;
+          color: #a3a5a8;
+          font-size: 14px;
+          font-weight: 650;
+        }
+        .profile-user-chevron {
+          color: #6d7175;
+          font-size: 25px;
+        }
+        .profile-wallet {
+          margin: 0 0 16px;
+          padding: 20px 16px 15px;
+          border-radius: 20px;
+          background: linear-gradient(130deg, #121b19, #121313 52%, #10201c);
+        }
+        .profile-balance-label {
+          color: #a4a6a8;
+          font-size: 15px;
+          text-align: center;
+        }
+        .profile-balance-value {
+          margin: 5px 0 18px;
+          color: #29cdb9;
+          font-size: clamp(36px, 11vw, 52px);
+          font-weight: 750;
+          letter-spacing: -1.5px;
+          line-height: 1.1;
+          text-align: center;
+        }
+        .profile-wallet-actions {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+        }
+        .profile-wallet-actions button {
+          min-height: 52px;
+          border-radius: 12px;
+          background: #252729;
+          color: #a1a3a6;
+          font-size: 16px;
+          font-weight: 700;
+        }
+        .profile-wallet-actions button.primary {
+          background: #f8f8f8;
+          color: #111;
+        }
+        .profile-bonuses {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 9px;
+          margin-top: 15px;
+          padding-top: 14px;
+          border-top: 1px solid #343638;
+        }
+        .profile-bonus {
+          display: flex;
+          min-width: 0;
+          align-items: center;
+          gap: 9px;
+          padding: 3px 0;
+          background: transparent;
+          text-align: left;
+        }
+        .profile-bonus + .profile-bonus {
+          border-left: 1px solid #343638;
+          padding-left: 10px;
+        }
+        .profile-bonus-icon {
+          display: grid;
+          width: 42px;
+          height: 42px;
+          flex: 0 0 42px;
+          place-items: center;
+          border-radius: 50%;
+          background: #4a3c0c;
+          color: #ffce46;
+          font-size: 20px;
+        }
+        .profile-bonus.casino .profile-bonus-icon {
+          background: #302046;
+          color: #a878ff;
+        }
+        .profile-bonus strong,
+        .profile-bonus small {
+          display: block;
+          white-space: nowrap;
+        }
+        .profile-bonus strong {
+          overflow: hidden;
+          color: #aaa;
+          font-size: 12px;
+          text-overflow: ellipsis;
+        }
+        .profile-bonus small {
+          margin-top: 4px;
+          color: #eee;
+          font-size: 15px;
+          font-weight: 700;
+        }
+        .profile-vip-card {
+          display: block;
+          width: 100%;
+          margin-bottom: 20px;
+          padding: 14px;
+          border: 0;
+          border-radius: 12px;
+          background: linear-gradient(105deg, #bd805c, #ffe1ca);
+          color: #743916;
+          text-align: left;
+        }
+        .profile-vip-title {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-size: 28px;
+          font-weight: 850;
+        }
+        .profile-vip-emblem {
+          display: grid;
+          width: 48px;
+          height: 48px;
+          place-items: center;
+          color: #ffe4ce;
+          font-size: 34px;
+          text-shadow: 1px 2px 3px #683b28;
+        }
+        .profile-vip-title span:last-child {
+          margin-left: auto;
+          font-size: 26px;
+        }
+        .profile-vip-progress {
+          height: 8px;
+          margin: 12px 0 6px;
+          overflow: hidden;
+          border-radius: 8px;
+          background: #855b46a8;
+        }
+        .profile-vip-progress span {
+          display: block;
+          width: 27%;
+          height: 100%;
+          border-radius: inherit;
+          background: #793b19;
+        }
+        .profile-vip-note {
+          font-size: 12px;
+        }
+        .profile-group {
+          margin: 22px 0 28px;
+        }
+        .profile-group h2 {
+          margin: 0 0 16px;
+          font-size: 21px;
+          font-weight: 750;
+        }
+        .profile-shortcuts {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 5px;
+        }
+        .profile-shortcut {
+          position: relative;
+          display: flex;
+          min-width: 0;
+          min-height: 88px;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 9px;
+          padding: 8px 2px;
+          background: transparent;
+          color: #ededed;
+          font-size: 12px;
+          line-height: 1.2;
+          text-align: center;
+        }
+        .profile-shortcut-icon {
+          color: #fff;
+          font-size: 23px;
+          line-height: 1;
+        }
+        .profile-shortcut-badge {
+          position: absolute;
+          top: 0;
+          left: 50%;
+          padding: 2px 7px;
+          border-radius: 12px;
+          background: #ff4d5a;
+          color: #fff;
+          font-size: 12px;
+          transform: translateX(2px);
+        }
+        .profile-menu .profile-mobile ~ * {
+          display: none;
+        }
         .deposit-modal {
           align-items: flex-end;
           justify-content: center;
@@ -1514,7 +2539,7 @@
         <span class="lang">English ⌄　 Decimal ⌄</span
         ><span class="clock">◷ 00:48:46</span><button id="searchBtn">⌕</button
         ><button class="balance" id="balanceDepositBtn" type="button" aria-label="Open deposit interface">🪙 $12,000.88</button
-        ><button id="profileBtn">◉</button>
+        ><button class="avatar-button" id="profileBtn" type="button" aria-label="Open personal center" aria-haspopup="dialog" aria-controls="profileMenu">👤</button>
       </div>
     </header>
     <div class="shell">
@@ -1853,6 +2878,102 @@
         <button class="chip active" id="modalOk">Close</button>
       </div>
     </div>
+    <div class="kyc-prompt-overlay show" id="kycPrompt" role="dialog" aria-modal="true" aria-labelledby="kycPromptTitle">
+      <section class="kyc-prompt">
+        <button class="kyc-close" id="closeKycPrompt" type="button" aria-label="Close KYC prompt">×</button>
+        <h2 id="kycPromptTitle">Start verification</h2>
+        <p>This process is designed to verify your identity and protect you from identity theft.</p>
+        <div class="kyc-tip">
+          <strong>Important notes</strong>
+          <ul>
+            <li>Use a valid government-issued document</li>
+            <li>Find a well-lit surface</li>
+            <li>Be ready to take a selfie</li>
+          </ul>
+        </div>
+        <p class="kyc-disclaimer">This is a mock flow. No documents, biometric data, or personal information are uploaded or sent.</p>
+        <a class="kyc-start" href="Megwin_KYC_New_UI.html?fromHome=1">Start</a>
+        <p class="kyc-disclaimer">The verification journey will appear inside the KYC panel.</p>
+      </section>
+    </div>
+    <section class="profile-menu" id="profileMenu" role="dialog" aria-label="Personal center" aria-hidden="true">
+      <div class="profile-menu-head">
+        <span class="profile-menu-avatar" aria-hidden="true">👤</span>
+        <div><strong>Megwin Player</strong><small>Personal center</small></div>
+      </div>
+      <div class="profile-menu-balance"><span>Available balance</span><strong>R$ 12,000.88</strong></div>
+      <div class="profile-menu-actions">
+        <button type="button" data-profile-action="account"><span class="menu-icon">♙</span>My profile<span class="menu-arrow">›</span></button>
+        <button type="button" data-profile-action="deposit"><span class="menu-icon">▣</span>Deposit<span class="menu-arrow">›</span></button>
+        <button type="button" data-profile-action="kyc"><span class="menu-icon">✓</span>KYC verification<span class="menu-arrow">›</span></button>
+        <button type="button" data-profile-action="help"><span class="menu-icon">?</span>Help & support<span class="menu-arrow">›</span></button>
+      </div>
+      <div class="profile-mobile">
+        <div class="profile-mobile-header">
+          <button type="button" data-profile-action="close" aria-label="Back to home">‹</button>
+          <div class="profile-mobile-tools">
+            <button type="button" data-profile-action="notifications" aria-label="Notifications">♟</button>
+            <button type="button" data-profile-action="support" aria-label="Live support">☏</button>
+            <button type="button" data-profile-action="settings" aria-label="Settings">⚙</button>
+          </div>
+        </div>
+        <button class="profile-user" type="button" data-profile-action="account">
+          <span class="profile-user-avatar" aria-hidden="true">👤</span>
+          <span class="profile-user-info">
+            <span class="profile-user-name">BetMaster <span class="profile-vip-badge">✥ VIP5</span><span class="kyc-status-icon" data-kyc-status-icon data-status="incomplete" role="img" aria-label="KYC not completed" title="KYC not completed">▣<span class="kyc-status-check" aria-hidden="true">✓</span></span></span>
+            <span class="profile-user-id">ID: 23782387238　▣</span>
+          </span>
+          <span class="profile-user-chevron" aria-hidden="true">›</span>
+        </button>
+        <section class="profile-wallet" aria-label="Wallet and bonuses">
+          <div class="profile-balance-label">Balance</div>
+          <div class="profile-balance-value">R$160.67　⟳</div>
+          <div class="profile-wallet-actions">
+            <button type="button" data-profile-action="bank">▤ &nbsp;Bank</button>
+            <button class="primary" type="button" data-profile-action="deposit">▰ &nbsp;Deposit</button>
+          </div>
+          <div class="profile-bonuses">
+            <button class="profile-bonus" type="button" data-profile-action="sports-bonus">
+              <span class="profile-bonus-icon" aria-hidden="true">🏆</span>
+              <span><strong>Sports Bonus</strong><small>$100.00 ›</small></span>
+            </button>
+            <button class="profile-bonus casino" type="button" data-profile-action="casino-bonus">
+              <span class="profile-bonus-icon" aria-hidden="true">🎁</span>
+              <span><strong>Casino Bonus</strong><small>$100.00 ›</small></span>
+            </button>
+          </div>
+        </section>
+        <button class="profile-vip-card" type="button" data-profile-action="vip">
+          <span class="profile-vip-title"><span class="profile-vip-emblem">✥</span>VIP 5<span>›</span></span>
+          <span class="profile-vip-progress" aria-label="VIP progress"><span></span></span>
+          <span class="profile-vip-note">50XP to Retention</span>
+        </button>
+        <button class="profile-kyc-entry" type="button" data-profile-action="open-kyc-page" data-status="incomplete">
+          <span class="kyc-status-icon" data-kyc-status-icon data-status="incomplete" aria-hidden="true">▣<span class="kyc-status-check" aria-hidden="true">✓</span></span>
+          <span class="profile-kyc-entry-copy"><strong>KYC Verification</strong><small data-kyc-status-label>Not completed</small></span>
+          <span class="profile-kyc-entry-arrow" aria-hidden="true">›</span>
+        </button>
+        <section class="profile-group">
+          <h2>Common Function</h2>
+          <div class="profile-shortcuts">
+            <button class="profile-shortcut" type="button" data-profile-action="offers"><span class="profile-shortcut-icon">％</span><span class="profile-shortcut-badge">99+</span><span>My Offers</span></button>
+            <button class="profile-shortcut" type="button" data-profile-action="history"><span class="profile-shortcut-icon">◷</span><span>History</span></button>
+            <button class="profile-shortcut" type="button" data-profile-action="inbox"><span class="profile-shortcut-icon">♟</span><span class="profile-shortcut-badge">99+</span><span>Inbox</span></button>
+            <button class="profile-shortcut" type="button" data-profile-action="withdraw"><span class="profile-shortcut-icon">▰</span><span>Withdraw</span></button>
+          </div>
+        </section>
+        <section class="profile-group">
+          <h2>Security &amp; More</h2>
+          <div class="profile-shortcuts">
+            <button class="profile-shortcut" type="button" data-profile-action="kyc"><span class="profile-shortcut-icon">▣</span><span>Verification</span></button>
+            <button class="profile-shortcut" type="button" data-profile-action="responsible"><span class="profile-shortcut-icon">♣</span><span>Responsible<br>Gambling</span></button>
+            <button class="profile-shortcut" type="button" data-profile-action="support"><span class="profile-shortcut-icon">☏</span><span>Live Support</span></button>
+            <button class="profile-shortcut" type="button" data-profile-action="help"><span class="profile-shortcut-icon">❔</span><span>Help</span></button>
+            <button class="profile-shortcut" type="button" data-profile-action="settings"><span class="profile-shortcut-icon">⚙</span><span>Settings</span></button>
+          </div>
+        </section>
+      </div>
+    </section>
     <div class="deposit-modal" id="depositModal" role="dialog" aria-modal="true" aria-labelledby="depositTitle">
       <section class="deposit-card cashier-card">
         <header class="cashier-header">
@@ -1942,6 +3063,27 @@
       const $ = (s) => document.querySelector(s),
         $$ = (s) => [...document.querySelectorAll(s)];
       let page = "sports";
+      const kycStatusStorageKey = "megwinKycMockStatus";
+      function updateKycIndicators() {
+        const complete = localStorage.getItem(kycStatusStorageKey) === "approved";
+        const status = complete ? "complete" : "incomplete";
+        const label = complete ? "Completed" : "Not completed";
+        $$("[data-kyc-status-icon]").forEach((icon) => {
+          icon.dataset.status = status;
+          icon.title = `KYC ${label.toLowerCase()}`;
+          icon.setAttribute("aria-label", `KYC ${label.toLowerCase()}`);
+        });
+        const entry = $(".profile-kyc-entry");
+        if (entry) {
+          entry.dataset.status = status;
+          const statusLabel = entry.querySelector("[data-kyc-status-label]");
+          if (statusLabel) statusLabel.textContent = label;
+        }
+      }
+      updateKycIndicators();
+      window.addEventListener("storage", (event) => {
+        if (event.key === kycStatusStorageKey || event.key === null) updateKycIndicators();
+      });
       const sportSide = [
         "Home",
         "In-Play 🟢",
@@ -2274,16 +3416,71 @@
       $("#modal").onclick = (e) => {
         if (e.target.id === "modal") $("#modal").classList.remove("show");
       };
+      function closeKycPrompt() {
+        $("#kycPrompt").classList.remove("show");
+      }
+      function setProfileMenu(open) {
+        $("#profileMenu").classList.toggle("show", open);
+        $("#profileMenu").setAttribute("aria-hidden", String(!open));
+        $("#profileBtn").setAttribute("aria-expanded", String(open));
+        document.body.classList.toggle(
+          "profile-active",
+          open && window.matchMedia("(max-width: 650px)").matches,
+        );
+      }
+      $("#closeKycPrompt").onclick = closeKycPrompt;
+      $("#kycPrompt").onclick = (e) => {
+        if (e.target.id === "kycPrompt") closeKycPrompt();
+      };
       $("#searchBtn").onclick = () =>
         showModal(
           "Search",
           "Search UI preview. Connect your game and event API for real results.",
         );
-      $("#profileBtn").onclick = () =>
-        showModal(
-          "Account",
-          "Account UI preview. Authentication is not connected.",
-        );
+      $("#profileBtn").onclick = () => setProfileMenu(!$("#profileMenu").classList.contains("show"));
+      $("#profileMenu").addEventListener("click", (e) => {
+        const action = e.target.closest("[data-profile-action]")?.dataset.profileAction;
+        if (!action) return;
+        setProfileMenu(false);
+        if (action === "deposit") {
+          setDepositView("spei");
+          $("#depositModal").classList.add("show");
+        } else if (action === "kyc") {
+          $("#kycPrompt").classList.add("show");
+        } else if (action === "account") {
+          window.location.href = "Megwin_KYC_New_UI.html?fromProfile=1";
+        } else if (action === "open-kyc-page") {
+          window.location.href = "Megwin_KYC_New_UI.html?fromProfile=1&openKyc=1";
+        } else if (action === "close") {
+          return;
+        } else {
+          const labels = {
+            bank: "Bank",
+            "sports-bonus": "Sports Bonus",
+            "casino-bonus": "Casino Bonus",
+            vip: "VIP 5",
+            offers: "My Offers",
+            history: "History",
+            inbox: "Inbox",
+            withdraw: "Withdraw",
+            responsible: "Responsible Gambling",
+            support: "Live Support",
+            help: "Help",
+            notifications: "Notifications",
+            settings: "Settings",
+          };
+          toast(`${labels[action] || "Personal center"} preview — service is not connected.`);
+        }
+      });
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest("#profileMenu,#profileBtn")) setProfileMenu(false);
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeKycPrompt();
+          setProfileMenu(false);
+        }
+      });
       $("#menuBtn").onclick = $("#mobileMenu").onclick = () =>
         showModal(
           "Navigation",

@@ -85,6 +85,8 @@
         letter-spacing: -1.8px;
         font-style: italic;
         white-space: nowrap;
+        color: inherit;
+        text-decoration: none;
       }
       .brand em {
         color: var(--teal);
@@ -898,7 +900,7 @@
     </div>
     <header class="nav">
       <span class="hamburger">☰</span>
-      <div class="brand">MEG<em>W</em>IN</div>
+      <a class="brand" href="Megwin_Platform_Responsive_Demo.html" aria-label="MEGWIN home">MEG<em>W</em>IN</a>
       <div class="navlinks">
         <span class="active">◉ &nbsp;Sports</span><span>◉ &nbsp;Live</span
         ><span>▣ &nbsp;Casino</span><span>▣ &nbsp;Streaming</span
@@ -1141,7 +1143,15 @@
     });
     updateStatus();
     render();
-    promptOverlay.querySelector('[data-prompt-action="start"]').focus();
+    const entryParams = new URLSearchParams(window.location.search);
+    if (entryParams.has("fromHome") || entryParams.has("openKyc")) {
+      promptOverlay.hidden = true;
+      openDrawer();
+    } else if (entryParams.has("fromProfile")) {
+      promptOverlay.hidden = true;
+    } else {
+      promptOverlay.querySelector('[data-prompt-action="start"]').focus();
+    }
     </script>
   </body>
 </html>
