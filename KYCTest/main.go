@@ -176,7 +176,8 @@ func (s *server) createProcess(w http.ResponseWriter, r *http.Request) {
 
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<10)
 	var request struct {
-		Consent bool `json:"consent"`
+		Consent bool   `json:"consent"`
+		CURP    string `json:"curp"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		writeError(w, http.StatusBadRequest, "A valid JSON consent confirmation is required.")
@@ -184,6 +185,11 @@ func (s *server) createProcess(w http.ResponseWriter, r *http.Request) {
 	}
 	if !request.Consent {
 		writeError(w, http.StatusBadRequest, "Consent is required before starting the liveness check.")
+		return
+	}
+	curp := strings.ToUpper(strings.TrimSpace(request.CURP))
+	if !curpPattern.MatchString(curp) {
+		writeError(w, http.StatusBadRequest, "CURP must contain exactly 18 letters or numbers.")
 		return
 	}
 
@@ -204,7 +210,7 @@ func (s *server) createProcess(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	process, err := s.unico.createProcess(r.Context(), record.ID)
+	process, err := s.unico.createProcess(r.Context(), record.ID, curp)
 	if err != nil {
 		record.Status = "FAILED"
 		record.Error = err.Error()

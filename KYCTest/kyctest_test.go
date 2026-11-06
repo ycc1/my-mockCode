@@ -170,15 +170,17 @@ func TestUnicoCreateAndGetProcess(t *testing.T) {
 		_ = json.Unmarshal(payload["purpose"], &purpose)
 		_ = json.Unmarshal(payload["clientReference"], &clientReference)
 		_ = json.Unmarshal(payload["callbackUri"], &callbackURI)
-		if flow != "multiaccounts_idgov" || purpose != "biometryonboarding" ||
+		if flow != "id_r2-idgov-r2" || purpose != "biometryonboarding" ||
 			clientReference != "record-1" || callbackURI != "https://localhost:8080/" {
 			t.Errorf("unexpected KYC process payload: %#v", payload)
 		}
-		if _, exists := payload["person"]; exists {
-			t.Error("liveness process must not include a person identifier")
-		}
 		if _, exists := payload["document"]; exists {
 			t.Error("process must not include a document before the Unico-hosted journey")
+		}
+		var person map[string]string
+		_ = json.Unmarshal(payload["person"], &person)
+		if person["duiType"] != "DUI_TYPE_MX_CURP" || person["duiValue"] != "ABCD123456HDFXXX01" {
+			t.Errorf("unexpected person payload: %#v", person)
 		}
 		_, _ = io.WriteString(w, `{"process":{"id":"process-1","token":"journey-token","state":"PROCESS_STATE_CREATED","userRedirectUrl":"https://cadastro.uat.unico.app/flow"}}`)
 	})
@@ -196,7 +198,7 @@ func TestUnicoCreateAndGetProcess(t *testing.T) {
 		PrivateKey:  privateKeyPEM,
 		APIBase:     upstream.URL,
 		TokenURL:    upstream.URL + "/oauth2/token",
-		Flow:        "multiaccounts_idgov",
+		Flow:        "id_r2-idgov-r2",
 		CallbackURI: "https://localhost:8080/",
 	}
 	client := newUnicoClient(config)
@@ -204,7 +206,7 @@ func TestUnicoCreateAndGetProcess(t *testing.T) {
 	if !client.ready() {
 		t.Fatal("configured UAT client should be ready")
 	}
-	created, err := client.createProcess(context.Background(), "record-1")
+	created, err := client.createProcess(context.Background(), "record-1", "ABCD123456HDFXXX01")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -238,7 +240,7 @@ func TestUnicoConfigurationRequiresMexicoVerificationFlow(t *testing.T) {
 	if client.ready() {
 		t.Fatal("unsupported Unico flow should not be accepted for this four-step journey")
 	}
-	if !strings.Contains(client.configurationError(), "multiaccounts_idgov") {
+	if !strings.Contains(client.configurationError(), "id_r2-idgov-r2") {
 		t.Fatalf("configuration error = %q", client.configurationError())
 	}
 }
@@ -427,6 +429,14 @@ func TestCreateProcessRequiresConsentAndRecordsLivenessAttempt(t *testing.T) {
 	}
 
 	handler = httptest.NewRequest(http.MethodPost, "/api/kyc/process", strings.NewReader(`{"consent":true}`))
+	handler.Header.Set("Content-Type", "application/json")
+	response = httptest.NewRecorder()
+	app.createProcess(response, handler)
+	if response.Code != http.StatusBadRequest || len(store.list()) != 0 {
+		t.Fatalf("without CURP: status=%d records=%d", response.Code, len(store.list()))
+	}
+
+	handler = httptest.NewRequest(http.MethodPost, "/api/kyc/process", strings.NewReader(`{"consent":true,"curp":"abcd123456hdfxxx01"}`))
 	handler.Header.Set("Content-Type", "application/json")
 	response = httptest.NewRecorder()
 	app.createProcess(response, handler)

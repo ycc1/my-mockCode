@@ -1566,7 +1566,9 @@
         kycIncompleteView.hidden = isComplete;
         kycCompleteView.hidden = !isComplete;
         kycHomeStart.textContent =
-          state.status === "pending" ? "Continue" : "Start Verification";
+          ["pending", "review"].includes(state.status)
+            ? "Continue"
+            : "Start Verification";
         kycHomeProgress.innerHTML = renderStepProgress();
       }
 

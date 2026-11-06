@@ -924,10 +924,9 @@
         </div>
       </aside>
     </div>
-    <script src="/assets/unico-sdk.js"></script>
     <script>
     "use strict";
-    const state={busy:false,recordId:localStorage.getItem('kycRecordId'),currentRecord:null,journeyToken:'',sdkInitializedToken:'',editingIdentity:false,reviewOnly:false,waitingActive:false,journeyActive:false,demoWaiting:false,providerActive:false,waitingPollTimer:null,waitingPolls:0};
+    const state={busy:false,recordId:localStorage.getItem('kycRecordId'),currentRecord:null,journeyToken:'',editingIdentity:false,reviewOnly:false,waitingActive:false,journeyActive:false,externalJourney:false,demoWaiting:false,providerActive:false,waitingPollTimer:null,waitingPolls:0};
     const screen=document.getElementById('screen'), badge=document.getElementById('stateBadge');
     const stateHeader=document.getElementById('stateHeader'), kycPanel=document.querySelector('.kyc'), footnote=document.getElementById('footnote');
     const drawer=document.getElementById('drawerOverlay'), kycDrawer=document.querySelector('.kyc-drawer'), drawerScroll=document.querySelector('.drawer-scroll'), homeStatus=document.getElementById('homeStatus');
@@ -988,7 +987,7 @@
       footnote.hidden=false;
       kycPanel.classList.remove('provider-active');
       const canContinue=state.currentRecord&&processOutcome(state.currentRecord)==='pending'&&state.currentRecord.processId&&state.journeyToken;
-      screen.innerHTML=`<div class="step-panel"><h2>Start verification</h2><p>This process is designed to verify your identity and protect you from identity theft.</p><div class="tip"><strong>Important notes</strong><ul><li>Use a valid government-issued document</li><li>Find a well-lit surface</li><li>Be ready to take a selfie</li></ul></div><p class="mode-note">Your personal information will be processed for identity verification in accordance with our <a href="#privacy-notice" data-action="privacy">Privacy Notice</a>.</p><div id="serviceStatus" class="service-status" hidden>Checking Unico configuration…</div><form id="kycForm" class="kyc-form"><div id="formError" class="form-error" role="alert"></div>${canContinue?'':'<p class="mode-note">Before continuing, confirm that you authorize Unico to process your biometric capture and the personal information required for identity verification.</p><label class="checkboxline consent"><input type="checkbox" name="consent" required><span>I agree to the processing described above and in the <a href="#privacy-notice" data-action="privacy">Privacy Notice</a>.</span></label>'}<button class="btn btn-main" id="submitButton" type="submit">${canContinue?'Continue':'Start'}</button></form><div id="currentRecord" aria-live="polite"></div><p class="mode-note">Verification is complete only after Unico returns a result. KYCTest records the status and lets you review the returned identity details.</p></div>`;
+      screen.innerHTML=`<div class="step-panel"><h2>Start verification</h2><p>This process is designed to verify your identity and protect you from identity theft.</p><div class="tip"><strong>Important notes</strong><ul><li>Use a valid government-issued document</li><li>Find a well-lit surface</li><li>Be ready to take a selfie</li></ul></div><p class="mode-note">Your personal information will be processed for identity verification in accordance with our <a href="#privacy-notice" data-action="privacy">Privacy Notice</a>.</p><div id="serviceStatus" class="service-status" hidden>Checking Unico configuration…</div><form id="kycForm" class="kyc-form"><div id="formError" class="form-error" role="alert"></div>${canContinue?'':'<div class="full"><label class="field" for="startCurp">CURP <span class="required">*</span></label><input class="input curp-input" id="startCurp" name="curp" maxlength="18" minlength="18" pattern="[A-Za-z0-9]{18}" autocomplete="off" placeholder="18-character CURP" required><p class="helper">Enter your 18-character Mexican CURP to start verification.</p></div><p class="mode-note">Before continuing, confirm that you authorize Unico to process your biometric capture and the personal information required for identity verification.</p><label class="checkboxline consent"><input type="checkbox" name="consent" required><span>I agree to the processing described above and in the <a href="#privacy-notice" data-action="privacy">Privacy Notice</a>.</span></label>'}<button class="btn btn-main" id="submitButton" type="submit">${canContinue?'Continue':'Start'}</button></form><div id="currentRecord" aria-live="polite"></div><p class="mode-note">Verification is complete only after Unico returns a result. KYCTest records the status and lets you review the returned identity details.</p></div>`;
     }
     function renderJourney(error=''){
       state.journeyActive=true;
@@ -998,7 +997,7 @@
       state.waitingActive=false;
       stateHeader.hidden=true;
       footnote.hidden=true;
-      screen.innerHTML=`<section class="journey-panel"><h2>Unico journey</h2><p class="mode-note">Complete identity verification in the secure Unico window. KYCTest will check the result when the journey ends.</p><div class="journey-frame-placeholder" aria-live="polite"><div><strong>Unico verification</strong><p>The official Unico SDK manages the embedded verification window. If it does not appear, the current HTTPS domain must be authorized in your Unico UAT configuration.</p></div></div>${error?`<div class="service-status error" role="alert">${esc(error)}</div>`:''}<p class="journey-demo-note">Demo only: this advances to the waiting screen. It does not complete identity verification or mark the process approved.</p><button class="btn btn-soft journey-demo" type="button" data-action="demo-finish">Demo: go to waiting screen</button></section>`;
+      screen.innerHTML=`<section class="journey-panel"><h2>Unico verification</h2><p class="mode-note">Verification opens in a new browser tab. KYCTest will check the result once you complete it.</p><div class="journey-frame-placeholder" aria-live="polite"><div><strong>Unico verification</strong><p>The verification page could not be opened automatically. Allow pop-ups for this site, then open it again.</p><button class="btn btn-main" type="button" data-action="continue-provider">Open verification in a new tab</button></div></div>${error?`<div class="service-status error" role="alert">${esc(error)}</div>`:''}<p class="journey-demo-note">Demo only: this advances to the waiting screen. It does not complete identity verification or mark the process approved.</p><button class="btn btn-soft journey-demo" type="button" data-action="demo-finish">Demo: go to waiting screen</button></section>`;
     }
     async function loadStartStatus(){
       try{
@@ -1026,8 +1025,8 @@
       footnote.hidden=true;
       drawerScroll.classList.add('waiting-mode');
       kycPanel.classList.remove('provider-active');
-      const message=demo?'Demo transition only: this is the waiting screen. No approval is simulated; KYCTest is checking the saved process status.':'Unico has returned you to KYCTest. We are checking the verification result; finishing the Unico journey does not automatically mean approval.';
-      screen.innerHTML=`<section class="waiting-panel"><div class="spinner" aria-hidden="true"></div><p>${message}</p>${error?`<p class="waiting-error" role="alert">${esc(error)}</p>`:''}${state.journeyToken?'<button class="btn btn-soft" type="button" data-action="continue-provider">Continue verification</button>':''}<button class="btn btn-main" type="button" data-action="check-status">Check verification status</button></section>`;
+      const message=demo?'Demo transition only: this is the waiting screen. No approval is simulated; KYCTest is checking the saved process status.':state.externalJourney?'Verification is open in a new tab. Complete it there; this page checks the result automatically. Finishing the journey does not automatically mean approval.':'We are checking the verification result; finishing the Unico journey does not automatically mean approval.';
+      screen.innerHTML=`<section class="waiting-panel"><div class="spinner" aria-hidden="true"></div><p>${message}</p>${error?`<p class="waiting-error" role="alert">${esc(error)}</p>`:''}${state.journeyToken?'<button class="btn btn-soft" type="button" data-action="continue-provider">Reopen verification tab</button>':''}<button class="btn btn-main" type="button" data-action="check-status">Check verification status</button></section>`;
     }
     function stopWaitingPoll(){
       if(state.waitingPollTimer){
@@ -1057,11 +1056,6 @@
       renderWaiting();
       await refreshCurrent();
     }
-    async function finishJourney(){
-      if(state.waitingActive)return;
-      state.providerActive=false;
-      await beginWaiting();
-    }
     async function checkConfig(){
       const status=document.getElementById('serviceStatus');
       if(!status)return;
@@ -1082,16 +1076,21 @@
       if(record.identityEdited&&!state.editingIdentity)return `<section class="flow-result good"><h3>Identity details confirmed</h3><p>You reviewed and saved your details in KYCTest. The original Unico result remains unchanged.</p><div class="identity-summary"><strong>CURP:</strong> ${esc(identity.curp||'—')}<br><strong>Date of birth:</strong> ${esc(identity.birthDate||'—')}<br><strong>Full name:</strong> ${esc(identity.fullName||'—')}</div><button class="btn btn-soft" type="button" data-action="edit-identity">Edit my details</button></section>`;
       return `<section class="doc-section"><h3>Confirm your personal information</h3><p class="muted small">Enter or edit your CURP, date of birth and full name. These details must match your identity document.</p><form id="identityForm" class="kyc-form"><div class="personal-grid"><div class="full"><label class="field" for="identityCurp">CURP <span class="required">*</span></label><input class="input curp-input" id="identityCurp" name="curp" maxlength="18" minlength="18" pattern="[A-Za-z0-9]{18}" autocomplete="off" placeholder="18-character CURP" value="${esc(identity.curp)}" required><p class="helper">Enter the 18-character Mexican CURP.</p></div><div><label class="field" for="identityBirthDate">Date of birth <span class="required">*</span></label><input class="input" id="identityBirthDate" name="birthDate" type="date" value="${esc(identity.birthDate)}" required><p class="helper">Must match the birth date encoded in your CURP. You must be at least 18.</p></div><div><label class="field" for="identityFullName">Full name <span class="required">*</span></label><input class="input" id="identityFullName" name="fullName" maxlength="120" placeholder="Nombre(s) Apellido paterno Apellido materno" value="${esc(identity.fullName)}" required><p class="helper">Enter your legal name as shown on your document.</p></div></div><div class="identity-note">Front-end validation checks the CURP format and checksum, date of birth, and basic name consistency. It does not verify RENAPO registration or identity authenticity.</div><div id="identityError" class="form-error" role="alert"></div><button class="btn btn-main" type="submit">Confirm and continue</button><button class="btn btn-soft" type="button" data-action="back-review">Back to verification status</button>${state.editingIdentity?'<button class="btn btn-soft" type="button" data-action="cancel-edit">Cancel editing</button>':''}</form></section>`;
     }
-    function validateIdentity(form){
-      const curp=String(new FormData(form).get('curp')||'').trim().toUpperCase();
-      const birthDate=String(new FormData(form).get('birthDate')||'').trim();
-      const fullName=String(new FormData(form).get('fullName')||'').trim().replace(/\s+/g,' ');
+    function curpError(curp){
       const format=/^[A-Z][AEIOUX][A-Z]{2}\d{6}[HM](?:AS|BC|BS|CC|CL|CM|CS|CH|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS|NE)[B-DF-HJ-NP-TV-Z]{3}[0-9A-Z]\d$/;
       if(!format.test(curp))return 'Enter a valid 18-character CURP.';
       const alphabet='0123456789ABCDEFGHIJKLMNÑOPQRSTUVWXYZ';
       let sum=0;
       for(let i=0;i<17;i++)sum+=alphabet.indexOf(curp[i])*(18-i);
       if((10-(sum%10))%10!==Number(curp[17]))return 'The CURP check digit does not match.';
+      return '';
+    }
+    function validateIdentity(form){
+      const curp=String(new FormData(form).get('curp')||'').trim().toUpperCase();
+      const birthDate=String(new FormData(form).get('birthDate')||'').trim();
+      const fullName=String(new FormData(form).get('fullName')||'').trim().replace(/\s+/g,' ');
+      const formatError=curpError(curp);
+      if(formatError)return formatError;
       const [year,month,day]=birthDate.split('-').map(Number);
       const birth=new Date(Date.UTC(year,month-1,day));
       if(!birthDate||birth.getUTCFullYear()!==year||birth.getUTCMonth()!==month-1||birth.getUTCDate()!==day||birth.getTime()>Date.now())return 'Enter a valid date of birth.';
@@ -1125,6 +1124,7 @@
         }
         if(wasWaiting){
           state.waitingActive=false;
+          state.externalJourney=false;
           state.demoWaiting=false;
           stopWaitingPoll();
           render();
@@ -1160,44 +1160,44 @@
         target.innerHTML=`<div class="service-status error" role="alert">${esc(err.message)} <button class="btn btn-soft" type="button" data-action="check-current">Check again</button></div>`;
       }
     }
-    async function openUnicoJourney(record){
-      const sdk=window.ByUnicoSDK;
-      if(!sdk)throw Error('The Unico Web SDK did not load. Restart KYCTest to build and serve the SDK bundle.');
+    function isUnicoUrl(value){
+      try{
+        const url=new URL(value);
+        return url.protocol==='https:'&&(url.hostname==='unico.app'||url.hostname.endsWith('.unico.app'));
+      }catch{return false}
+    }
+    // Must be called synchronously inside a user gesture, before any await, so the browser allows the new tab.
+    function openJourneyWindow(){
+      const journeyWindow=window.open('about:blank','_blank');
+      if(journeyWindow)journeyWindow.opener=null;
+      return journeyWindow;
+    }
+    async function openUnicoJourney(record,journeyWindow){
       if(!record.processId||!record.token)throw Error('The saved Unico process is missing its transaction ID or journey token.');
       state.currentRecord=record;
       state.journeyToken=record.token;
-      state.waitingActive=false;
-      renderJourney();
-      stopWaitingPoll();
-      state.providerActive=true;
-      try{
-        if(state.sdkInitializedToken!==record.token){
-          await sdk.init({token:record.token,env:'uat'});
-          state.sdkInitializedToken=record.token;
-        }
-        sdk.open({
-          transactionId:record.processId,
-          token:record.token,
-          onFinish:finishJourney
-        });
-      }catch(err){
-        state.providerActive=false;
-        throw err;
-      }
+      if(!isUnicoUrl(record.providerUrl))throw Error('The saved Unico process is missing its verification link. Start a new verification.');
+      if(!journeyWindow||journeyWindow.closed)throw Error('The browser blocked the new verification tab. Allow pop-ups for this site, then open it again.');
+      journeyWindow.location.href=record.providerUrl;
+      state.externalJourney=true;
+      await beginWaiting();
     }
     async function resumeSavedProcess(){
       if(state.busy||!state.recordId)return;
       const wasWaiting=state.waitingActive;
       state.busy=true;
+      const journeyWindow=openJourneyWindow();
       try{
         const record=await api('/api/kyc/process/'+encodeURIComponent(state.recordId));
         const outcome=processOutcome(record);
         if(outcome==='pending'){
-          await openUnicoJourney(record);
+          await openUnicoJourney(record,journeyWindow);
         }else{
+          if(journeyWindow)journeyWindow.close();
           await beginWaiting();
         }
       }catch(err){
+        if(journeyWindow)journeyWindow.close();
         state.providerActive=false;
         if(wasWaiting){
           state.waitingActive=true;
@@ -1250,26 +1250,33 @@
         await resumeSavedProcess();
         return;
       }
+      const curp=String(event.target.elements.curp.value||'').trim().toUpperCase();
+      const curpProblem=curpError(curp);
+      if(curpProblem){
+        document.getElementById('formError').textContent=curpProblem;
+        return;
+      }
       state.busy=true;
+      const journeyWindow=openJourneyWindow();
       const button=document.getElementById('submitButton');
       const error=document.getElementById('formError');
       button.disabled=true;
       button.textContent='Starting…';
       error.textContent='';
       try{
-        const data=await api('/api/kyc/process',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({consent:event.target.elements.consent.checked})});
+        const data=await api('/api/kyc/process',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({consent:event.target.elements.consent.checked,curp})});
         state.waitingActive=false;
         state.editingIdentity=false;
         state.reviewOnly=false;
         state.recordId=data.record.id;
-        state.currentRecord={...data.record,processId:data.transactionId,token:data.token};
+        state.currentRecord={...data.record,processId:data.transactionId,token:data.token,providerUrl:data.userRedirectUrl};
         state.journeyToken=data.token;
-        state.sdkInitializedToken='';
         localStorage.setItem('kycRecordId',state.recordId);
         homeStatus.textContent='In progress';
-        await openUnicoJourney(state.currentRecord);
+        await openUnicoJourney(state.currentRecord,journeyWindow);
         state.busy=false;
       }catch(err){
+        if(journeyWindow)journeyWindow.close();
         state.providerActive=false;
         if(state.currentRecord&&state.currentRecord.processId&&state.journeyToken){
           renderJourney(err.message);
@@ -1317,9 +1324,6 @@
       }
       if(action==='demo-finish'){
         const waiting=beginWaiting(true);
-        if(state.providerActive&&window.ByUnicoSDK&&typeof window.ByUnicoSDK.close==='function'){
-          window.ByUnicoSDK.close();
-        }
         await waiting;
         return;
       }
@@ -1341,7 +1345,7 @@
         state.reviewOnly=false;
         state.waitingActive=false;
         state.journeyToken='';
-        state.sdkInitializedToken='';
+        state.externalJourney=false;
         stopWaitingPoll();
         homeStatus.textContent='Not verified';
         localStorage.removeItem('kycRecordId');

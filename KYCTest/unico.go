@@ -93,7 +93,7 @@ func unicoConfigFromEnv() unicoConfig {
 		PrivateKey:  privateKey,
 		APIBase:     strings.TrimRight(envOrDefault("UNICO_API_BASE", "https://api.idcloud.uat.unico.app"), "/"),
 		TokenURL:    envOrDefault("UNICO_TOKEN_URL", "https://identityhomolog.acesso.io/oauth2/token"),
-		Flow:        envOrDefault("UNICO_FLOW", "multiaccounts_idgov"),
+		Flow:        envOrDefault("UNICO_FLOW", "id_r2-idgov-r2"),
 		CallbackURI: envOrDefault("UNICO_CALLBACK_URI", "https://localhost:8080/"),
 	}
 }
@@ -112,8 +112,8 @@ func (c *unicoClient) ready() bool {
 }
 
 func (c *unicoClient) configurationError() string {
-	if c.config.Flow != "multiaccounts_idgov" {
-		return "UNICO_FLOW must be multiaccounts_idgov for the configured Mexico onboarding journey."
+	if c.config.Flow != "id_r2-idgov-r2" {
+		return "UNICO_FLOW must be id_r2-idgov-r2 for the configured Mexico onboarding journey."
 	}
 	if strings.TrimSpace(c.config.Account) == "" || strings.TrimSpace(c.config.TenantID) == "" {
 		return "Unico account and tenant settings are required."
@@ -144,15 +144,19 @@ func validHTTPSURL(value string) bool {
 	return err == nil && parsed.Scheme == "https" && parsed.Host != ""
 }
 
-func (c *unicoClient) createProcess(ctx context.Context, clientReference string) (unicoProcess, error) {
+func (c *unicoClient) createProcess(ctx context.Context, clientReference, curp string) (unicoProcess, error) {
 	if !c.ready() {
 		return unicoProcess{}, &upstreamError{message: c.configurationError()}
 	}
-	body := map[string]string{
+	body := map[string]any{
 		"flow":            c.config.Flow,
 		"purpose":         "biometryonboarding",
 		"clientReference": clientReference,
 		"callbackUri":     c.config.CallbackURI,
+		"person": map[string]string{
+			"duiType":  "DUI_TYPE_MX_CURP",
+			"duiValue": curp,
+		},
 	}
 	var response struct {
 		Process unicoProcess `json:"process"`
