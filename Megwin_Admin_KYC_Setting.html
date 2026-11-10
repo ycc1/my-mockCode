@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
@@ -1763,14 +1763,14 @@
                 <div class="form-field"><label>APIKey</label><input id="kycApiFilter" placeholder="Please enter" value="${kycEsc(kycFilter.apiKey)}"></div>
                 <div class="form-field"><label>Merchant Name</label><input id="kycNameFilter" placeholder="Please enter" value="${kycEsc(kycFilter.name)}"></div>
               </div><div class="action-row"><button class="btn" id="kycSearchBtn">⌕ Search</button><button class="btn reset" id="kycResetBtn">↺ Reset</button><button class="btn" id="kycAddBtn" style="margin-left:auto;background:#31c768">＋ Add Merchant</button></div></div>
-              <div class="panel"><div class="table-wrap"><table class="table" style="min-width:1320px"><thead><tr><th>ID</th><th>Merchant Name</th><th>API URL</th><th>ISS (Security Key)</th><th>APIKey</th><th>Verification Steps</th><th>Deposit / Withdraw Notice</th><th>Status</th><th>Create Time</th><th>Update Time</th><th>Edit</th></tr></thead><tbody>
-              ${paged.length ? paged.map(r=>`<tr><td>${r.id}</td><td><b>${kycEsc(r.name)}</b><div style="font-size:11px;color:#98a2b3;margin-top:5px">${kycEsc(r.description||'')}</div></td><td title="${kycEsc(r.url)}">${kycEsc(r.url)}</td><td>${kycMask(r.iss)}</td><td>${kycMask(r.apiKey)}</td><td>${r.basic?'Basic Info<br>':''}${r.third?'Third-party Flow':''}</td><td>${r.noticeEnabled?'Enabled':'Disabled'}</td><td><label class="status-switch"><input type="checkbox" data-kyc-status="${r.id}" ${r.enabled?'checked':''}><span class="status-slider"></span><span class="status-switch-text">${r.enabled?'Enabled':'Disabled'}</span></label></td><td>${kycEsc(r.createdAt)}</td><td>${kycEsc(r.updatedAt)}</td><td><button class="btn" data-kyc-edit="${r.id}" style="padding:7px 10px;background:#e4f0ff;color:#2677d5">Edit</button></td></tr>`).join('') : '<tr><td colspan="11" class="empty">No data available · Click Add Merchant to create a configuration</td></tr>'}
+              <div class="panel"><div class="table-wrap"><table class="table" style="min-width:1320px"><thead><tr><th>ID</th><th>Merchant Name</th><th>API URL</th><th>ISS (Security Key)</th><th>APIKey</th><th>Verification Steps</th><th>Bank Setting</th><th>Status</th><th>Create Time</th><th>Update Time</th><th>Edit</th></tr></thead><tbody>
+              ${paged.length ? paged.map(r=>`<tr><td>${r.id}</td><td><b>${kycEsc(r.name)}</b><div style="font-size:11px;color:#98a2b3;margin-top:5px">${kycEsc(r.description||'')}</div></td><td title="${kycEsc(r.url)}">${kycEsc(r.url)}</td><td>${kycMask(r.iss)}</td><td>${kycMask(r.apiKey)}</td><td>${r.basic?'Basic Info<br>':''}${r.third?'Third-party Flow':''}</td><td>${r.bankFace?'Face Verification Required':'Disabled'}</td><td><label class="status-switch"><input type="checkbox" data-kyc-status="${r.id}" ${r.enabled?'checked':''}><span class="status-slider"></span><span class="status-switch-text">${r.enabled?'Enabled':'Disabled'}</span></label></td><td>${kycEsc(r.createdAt)}</td><td>${kycEsc(r.updatedAt)}</td><td><button class="btn" data-kyc-edit="${r.id}" style="padding:7px 10px;background:#e4f0ff;color:#2677d5">Edit</button></td></tr>`).join('') : '<tr><td colspan="11" class="empty">No data available · Click Add Merchant to create a configuration</td></tr>'}
               </tbody></table></div><div class="kyc-pagination"><span>Total: ${rows.length}</span><button class="btn light" data-kyc-page="${kycPage-1}" ${kycPage===1?'disabled':''}>‹</button><b>${kycPage} / ${pages}</b><button class="btn light" data-kyc-page="${kycPage+1}" ${kycPage===pages?'disabled':''}>›</button></div></div>
               <div class="kyc-bottom-tip">Demo only: data is stored in this browser. For production, credentials must be managed by the backend secret store and never returned to the browser.</div>`;
         }
         function openKycModal(row=null){
             editingKycId=row?.id??null;
-            const d=row||{name:'',url:'',iss:'',apiKey:'',description:'',enabled:true,basic:true,third:true,noticeEnabled:true,depositText:'Para continuar con tu depósito, completa la verificación de identidad.',withdrawText:'Para continuar con tu retiro, completa la verificación de identidad.'};
+            const d=row||{name:'',url:'',iss:'',apiKey:'',description:'',enabled:true,basic:true,third:true,bankFace:false};
             $('#kycModalTitle').textContent=row?'Edit KYC Merchant':'Add KYC Merchant';
             $('#kycModalBody').innerHTML=`<form id="kycForm" autocomplete="off"><div class="kyc-form-grid">
               <div class="modal-field"><label>Merchant Name <span class="required">*</span></label><input id="kName" maxlength="100" required value="${kycEsc(d.name)}" placeholder="e.g. Unico MX"></div>
@@ -1780,12 +1780,10 @@
               <div class="modal-field full"><label>Description</label><textarea id="kDescription" rows="3" placeholder="Merchant configuration description">${kycEsc(d.description)}</textarea></div>
               <div class="modal-field full"><label>Status</label><label class="status-switch"><input id="kEnabled" type="checkbox" ${d.enabled?'checked':''}><span class="status-slider"></span><span class="status-switch-text">${d.enabled?'Enabled':'Disabled'}</span></label></div>
               <div class="modal-field full kyc-section"><label>Verification Steps <span class="required">*</span></label><div class="kyc-checks"><label><input id="kBasic" type="checkbox" ${d.basic?'checked':''}> Fill in Basic Information <small>姓名、DOB、CURP、手机号 / OTP（如启用）</small></label><label><input id="kThird" type="checkbox" ${d.third?'checked':''}> Third-party Verification Flow <small>Unico 证件、自拍活体及审核流程</small></label></div><p class="form-note">可单独或同时启用；实际验证顺序为基本资料 → 三方流程。</p></div>
-              <div class="modal-field full kyc-section"><label>Deposit / Withdraw Limit Notice</label><label class="status-switch"><input id="kNotice" type="checkbox" ${d.noticeEnabled?'checked':''}><span class="status-slider"></span><span class="status-switch-text">${d.noticeEnabled?'Enabled':'Disabled'}</span></label><p class="form-note">充值、提现累计金额超过已配置的限额时，在前台显示以下提示。金额阈值沿用 Validator and KYC Setting，不在此重复配置。</p></div>
-              <div class="modal-field full kyc-notice-fields" id="kycNoticeFields"><label>Deposit Notice (es-MX)</label><textarea id="kDepositText" rows="3">${kycEsc(d.depositText)}</textarea><label>Withdraw Notice (es-MX)</label><textarea id="kWithdrawText" rows="3">${kycEsc(d.withdrawText)}</textarea><div class="kyc-preview"><b>Frontend preview</b><div id="kycPreviewText"></div><button type="button" class="btn light" id="kycPreviewToggle">Switch Deposit / Withdraw</button></div></div>
+              <div class="modal-field full kyc-section"><label>Bank Setting</label><label class="status-switch"><input id="kBankFace" type="checkbox" ${d.bankFace?'checked':''}><span class="status-slider"></span><span class="status-switch-text">${d.bankFace?'Enabled':'Disabled'}</span></label><p class="form-note">开启后，前台用户更新银行信息时需先完成人脸识别。</p></div>
             </div></form>`;
-            $('#kycModalMask').classList.add('open');syncKycNotice();
+            $('#kycModalMask').classList.add('open');
         }
-        function syncKycNotice(){const enabled=$('#kNotice')?.checked;const fields=$('#kycNoticeFields');if(fields)fields.style.display=enabled?'':'none';const preview=$('#kycPreviewText');if(preview)preview.textContent=($('#kycPreviewToggle')?.dataset.mode==='withdraw'?$('#kWithdrawText'):$('#kDepositText'))?.value||'';}
         function closeKycModal(){$('#kycModalMask').classList.remove('open');editingKycId=null;}
         function saveKycModal(){
             const current=kycMerchants.find(r=>r.id===editingKycId);
@@ -1793,8 +1791,7 @@
             if(!name||!url||(!iss&&!current)||(!apiKey&&!current)){toast('请填写商户名、API URL、ISS、APIKey');return;}
             try{if(new URL(url).protocol!=='https:')throw Error();}catch(e){toast('API URL 必须是有效的 HTTPS 地址');return;}
             if(!$('#kBasic').checked&&!$('#kThird').checked){toast('请至少勾选一个验证步骤');return;}
-            if($('#kNotice').checked&&(!$('#kDepositText').value.trim()||!$('#kWithdrawText').value.trim())){toast('请填写充值及提现提示信息');return;}
-            const time=nowText();const record={id:current?.id??Math.max(0,...kycMerchants.map(r=>r.id))+1,name,url,iss:iss||current?.iss,apiKey:apiKey||current?.apiKey,description:$('#kDescription').value.trim(),enabled:$('#kEnabled').checked,basic:$('#kBasic').checked,third:$('#kThird').checked,noticeEnabled:$('#kNotice').checked,depositText:$('#kDepositText').value.trim(),withdrawText:$('#kWithdrawText').value.trim(),createdAt:current?.createdAt||time,updatedAt:time};
+            const time=nowText();const record={id:current?.id??Math.max(0,...kycMerchants.map(r=>r.id))+1,name,url,iss:iss||current?.iss,apiKey:apiKey||current?.apiKey,description:$('#kDescription').value.trim(),enabled:$('#kEnabled').checked,basic:$('#kBasic').checked,third:$('#kThird').checked,bankFace:$('#kBankFace').checked,createdAt:current?.createdAt||time,updatedAt:time};
             if(current)Object.assign(current,record);else kycMerchants.unshift(record);
             saveState(STORE_KYC_MERCHANT,kycMerchants);closeKycModal();renderContent('KYC Merchant');toast(current?'KYC Merchant updated':'KYC Merchant added');
         }
@@ -2623,9 +2620,8 @@
         $('#kycModalCancel').addEventListener('click',closeKycModal);
         $('#kycModalSave').addEventListener('click',saveKycModal);
         $('#kycModalMask').addEventListener('click',e=>{if(e.target.id==='kycModalMask')closeKycModal()});
-        $('#kycModalBody').addEventListener('click',e=>{const show=e.target.closest('[data-kyc-show]');if(show){const input=document.getElementById(show.dataset.kycShow);input.type=input.type==='password'?'text':'password';show.textContent=input.type==='password'?'Show':'Hide';}if(e.target.id==='kycPreviewToggle'){e.target.dataset.mode=e.target.dataset.mode==='withdraw'?'deposit':'withdraw';syncKycNotice();}});
-        $('#kycModalBody').addEventListener('input',e=>{if(['kDepositText','kWithdrawText'].includes(e.target.id))syncKycNotice()});
-        $('#kycModalBody').addEventListener('change',e=>{if(e.target.id==='kNotice')syncKycNotice();if(e.target.id==='kEnabled'){$('#kEnabled').closest('label').querySelector('.status-switch-text').textContent=e.target.checked?'Enabled':'Disabled';}});
+        $('#kycModalBody').addEventListener('click',e=>{const show=e.target.closest('[data-kyc-show]');if(show){const input=document.getElementById(show.dataset.kycShow);input.type=input.type==='password'?'text':'password';show.textContent=input.type==='password'?'Show':'Hide';}});
+        $('#kycModalBody').addEventListener('change',e=>{if(e.target.id==='kBankFace'){e.target.closest('label').querySelector('.status-switch-text').textContent=e.target.checked?'Enabled':'Disabled';}if(e.target.id==='kEnabled'){$('#kEnabled').closest('label').querySelector('.status-switch-text').textContent=e.target.checked?'Enabled':'Disabled';}});
         $('#merchantModalClose').addEventListener('click', closeMerchantModal);
         $('#merchantModalCancel').addEventListener('click', closeMerchantModal);
         $('#merchantModalSave').addEventListener('click', saveMerchantModal);
