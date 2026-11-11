@@ -1,0 +1,3300 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Megwin Admin</title>
+    <style>
+      :root {
+        --blue: #2d7fd8;
+        --blue-dark: #256ec0;
+        --blue-soft: #eef6ff;
+        --border: #dfe4ea;
+        --text: #111827;
+        --muted: #667085;
+        --content: #f3f7fd;
+        --header-h: 52px;
+        --sidebar-w: 260px;
+        --shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        --success: #16a34a;
+        --danger: #dc2626;
+        --warning: #f6bd11;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        font-family: Arial, "Microsoft JhengHei", sans-serif;
+        color: var(--text);
+        font-size: 14px;
+        background: #fff;
+      }
+
+      button,
+      input,
+      select {
+        font-family: inherit;
+      }
+
+      .topbar {
+        height: var(--header-h);
+        background: var(--blue);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+      }
+
+      .brand {
+        width: var(--sidebar-w);
+        flex: 0 0 var(--sidebar-w);
+        height: 100%;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0 12px;
+      }
+
+      .menu-toggle {
+        border: 0;
+        background: transparent;
+        color: #fff;
+        font-size: 20px;
+        cursor: pointer;
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+      }
+
+      .menu-toggle:hover {
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .logo {
+        font-size: 30px;
+        line-height: 1;
+        font-style: italic;
+        font-weight: 900;
+        letter-spacing: -2px;
+        color: #fff;
+      }
+
+      .tabs {
+        height: 40px;
+        display: flex;
+        align-items: center;
+        align-self: center;
+        background: rgba(0, 0, 0, 0.06);
+        overflow-x: auto;
+        max-width: min(860px, 48vw);
+        scrollbar-width: none;
+      }
+
+      .tabs::-webkit-scrollbar {
+        display: none;
+      }
+
+      .tab {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 0 14px;
+        background: #2b77cf;
+        color: #fff;
+        border-left: 1px solid rgba(255, 255, 255, 0.06);
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .tab.active {
+        background: var(--blue-dark);
+        font-weight: 800;
+      }
+
+      .tab .close {
+        width: 18px;
+        height: 18px;
+        display: grid;
+        place-items: center;
+        border-radius: 3px;
+        font-size: 16px;
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .top-spacer {
+        flex: 1;
+      }
+
+      .clock {
+        font-size: 13px;
+        margin-right: 14px;
+        white-space: nowrap;
+      }
+
+      .country-context {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-right: 10px;
+        padding: 6px 10px;
+        border-radius: 7px;
+        background: rgba(255, 255, 255, 0.14);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .user {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-right: 10px;
+        font-size: 13px;
+      }
+
+      .avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #2b4f87, #9bb5d7);
+      }
+
+      .layout {
+        display: flex;
+        min-height: calc(100vh - var(--header-h));
+      }
+
+      .sidebar {
+        width: var(--sidebar-w);
+        flex: 0 0 var(--sidebar-w);
+        background: #fff;
+        border-right: 1px solid var(--border);
+        overflow-y: auto;
+        height: calc(100vh - var(--header-h));
+        position: sticky;
+        top: var(--header-h);
+        transition:
+          0.2s width,
+          0.2s flex-basis;
+      }
+
+      .content {
+        flex: 1;
+        padding: 16px;
+        background: var(--content);
+        min-width: 0;
+        overflow: auto;
+        height: calc(100vh - var(--header-h));
+      }
+
+      .menu-section {
+        border-bottom: 1px solid var(--border);
+      }
+
+      .menu-item {
+        height: 44px;
+        display: flex;
+        align-items: center;
+        padding: 0 16px 0 12px;
+        gap: 10px;
+        cursor: pointer;
+        font-weight: 500;
+        position: relative;
+        background: #fff;
+      }
+
+      .menu-item:hover {
+        background: #f7fbff;
+      }
+
+      .menu-icon {
+        width: 22px;
+        height: 22px;
+        display: grid;
+        place-items: center;
+        color: var(--blue);
+        font-size: 18px;
+        flex: 0 0 22px;
+      }
+
+      .chev {
+        margin-left: auto;
+        color: #777;
+        transition: 0.2s transform;
+      }
+
+      .menu-section.open > .menu-item .chev {
+        transform: rotate(180deg);
+      }
+
+      .submenu {
+        display: none;
+        padding: 4px 0 8px;
+        background: #fff;
+      }
+
+      .menu-section.open > .submenu {
+        display: block;
+      }
+
+      .submenu .sub {
+        height: 40px;
+        display: flex;
+        align-items: center;
+        padding-left: 38px;
+        gap: 10px;
+        cursor: pointer;
+      }
+
+      .submenu .sub:hover,
+      .submenu .sub.active {
+        background: var(--blue-soft);
+      }
+
+      .submenu .sub.active {
+        color: var(--blue);
+        font-weight: 800;
+        border-left: 3px solid var(--blue);
+        padding-left: 35px;
+      }
+
+      .nested .sub.active {
+        padding-left: 57px;
+      }
+
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #bfc1c4;
+      }
+
+      .sub.active .dot {
+        background: var(--blue);
+      }
+
+      .sub-label {
+        flex: 1;
+      }
+
+      .nested {
+        display: none;
+      }
+
+      .nested.open {
+        display: block;
+      }
+
+      .nested .sub {
+        padding-left: 60px;
+      }
+
+      body.collapsed .brand,
+      body.collapsed .sidebar {
+        width: 56px;
+        flex-basis: 56px;
+      }
+
+      body.collapsed .logo,
+      body.collapsed .menu-label,
+      body.collapsed .chev,
+      body.collapsed .submenu {
+        display: none;
+      }
+
+      body.collapsed .menu-item {
+        justify-content: center;
+        padding: 0;
+      }
+
+      .breadcrumb {
+        font-size: 12px;
+        color: #777;
+        margin-bottom: 10px;
+      }
+
+      .page-title {
+        font-size: 22px;
+        font-weight: 900;
+        margin: 0 0 12px;
+      }
+
+      .panel,
+      .filter-box {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+      }
+
+      .filter-box {
+        padding: 14px;
+        margin-bottom: 12px;
+      }
+
+      .filter-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(170px, 1fr));
+        gap: 12px;
+      }
+
+      .form-field label {
+        display: block;
+        font-size: 12px;
+        font-weight: 800;
+        color: #344054;
+        margin-bottom: 5px;
+      }
+
+      .form-field input,
+      .form-field select {
+        width: 100%;
+        height: 36px;
+        border: 1px solid #d6deeb;
+        border-radius: 6px;
+        padding: 0 10px;
+        background: #fff;
+      }
+
+      .action-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 12px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        border: 0;
+        border-radius: 5px;
+        padding: 8px 14px;
+        color: #fff;
+        font-weight: 800;
+        font-size: 13px;
+        cursor: pointer;
+        background: var(--blue);
+      }
+
+      .btn:hover {
+        filter: brightness(0.97);
+      }
+
+      .btn.reset {
+        background: var(--warning);
+        color: #111;
+      }
+
+      .btn.gray {
+        background: #7e8795;
+      }
+
+      .btn.light {
+        background: #fff;
+        color: #111;
+        border: 1px solid #d6deeb;
+      }
+
+      .btn.danger {
+        background: var(--danger);
+      }
+
+      .panel {
+        overflow: hidden;
+      }
+
+      .panel-head {
+        min-height: 52px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .panel-head h2 {
+        margin: 0;
+        font-size: 17px;
+      }
+
+      .table-wrap {
+        overflow: auto;
+      }
+
+      .table {
+        width: 100%;
+        min-width: 1450px;
+        border-collapse: collapse;
+        background: #fff;
+        font-size: 13px;
+      }
+
+      .table th,
+      .table td {
+        border-bottom: 1px solid #edf0f3;
+        text-align: left;
+        padding: 10px 12px;
+        white-space: nowrap;
+        vertical-align: middle;
+      }
+
+      .table th {
+        background: #f8fbff;
+        color: #344054;
+        font-weight: 900;
+      }
+
+      .table tr:hover td {
+        background: #fbfdff;
+      }
+
+      .ud-time-range {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .ud-status {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: #eef2f6;
+        color: #475467;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .ud-status.approved {
+        background: #e8f7ed;
+        color: #15803d;
+      }
+
+      .ud-status.rejected {
+        background: #fff0ef;
+        color: #c2413b;
+      }
+
+      .ud-actions {
+        display: flex;
+        gap: 6px;
+      }
+
+      .ud-actions .btn {
+        padding: 6px 10px;
+      }
+
+      .user-link {
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: #1677ff;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .user-summary {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+
+      .user-summary > div {
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .user-summary strong {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .user-info-heading {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin: 0 0 16px;
+      }
+
+      .user-info-heading h1 {
+        margin: 0;
+        font-size: 22px;
+        overflow-wrap: anywhere;
+      }
+
+      .user-info-tabs {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        overflow-x: auto;
+        margin-bottom: 12px;
+        padding: 4px 0;
+      }
+
+      .user-info-tabs span,
+      .user-info-tabs button {
+        flex: 0 0 auto;
+        min-width: 90px;
+        padding: 10px 14px;
+        border: 0;
+        border-radius: 6px;
+        background: #fff;
+        color: #475467;
+        text-align: center;
+        font: inherit;
+      }
+
+      .user-info-tabs .active {
+        background: var(--blue);
+        color: #fff;
+        font-weight: 800;
+      }
+
+      .user-info-tabs button {
+        background: var(--blue);
+        color: #fff;
+        cursor: pointer;
+      }
+
+      .user-info-panel {
+        padding: 16px;
+        overflow: visible;
+      }
+
+      .user-info-panel h2 {
+        margin: 0 0 14px;
+        font-size: 18px;
+      }
+
+      .user-info-metrics {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(140px, 1fr));
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+
+      .user-info-metric {
+        min-height: 68px;
+        padding: 10px;
+        border-radius: 6px;
+        background: #e7f0fb;
+        color: #2563a6;
+      }
+
+      .user-info-metric:nth-child(2) {
+        background: #e3f6e8;
+        color: #299259;
+      }
+
+      .user-info-metric:nth-child(3) {
+        background: #fde9ec;
+        color: #bd5260;
+      }
+
+      .user-info-metric:nth-child(4) {
+        background: #faf2d9;
+        color: #a37b16;
+      }
+
+      .user-info-metric:nth-child(5) {
+        background: #dceddf;
+        color: #49854e;
+      }
+
+      .user-info-metric span,
+      .user-info-metric strong {
+        display: block;
+      }
+
+      .user-info-metric strong {
+        margin-top: 3px;
+        color: #101828;
+        font-size: 19px;
+      }
+
+      .user-info-metric small {
+        margin-left: 6px;
+        color: #667085;
+        font-size: 12px;
+      }
+
+      .user-info-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        border-top: 1px solid #edf0f3;
+        border-left: 1px solid #edf0f3;
+      }
+
+      .user-info-field {
+        display: grid;
+        grid-template-columns: minmax(105px, 1fr) minmax(0, 1.4fr);
+        gap: 10px;
+        align-items: center;
+        min-height: 42px;
+        padding: 8px 10px;
+        border-right: 1px solid #edf0f3;
+        border-bottom: 1px solid #edf0f3;
+        overflow-wrap: anywhere;
+      }
+
+      .user-info-field strong {
+        color: #667085;
+        font-weight: 500;
+        text-align: right;
+      }
+
+      @media (max-width: 760px) {
+        .user-summary {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .user-info-metrics {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .user-info-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .status-switch {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .status-switch input {
+        display: none;
+      }
+
+      .status-slider {
+        width: 42px;
+        height: 22px;
+        border-radius: 999px;
+        background: #c7d0dd;
+        position: relative;
+        transition: 0.2s;
+      }
+
+      .status-slider::before {
+        content: "";
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #fff;
+        left: 2px;
+        top: 2px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+        transition: 0.2s;
+      }
+
+      .status-switch input:checked + .status-slider {
+        background: var(--blue);
+      }
+
+      .status-switch input:checked + .status-slider::before {
+        left: 22px;
+      }
+
+      .status-switch-text {
+        min-width: 42px;
+        font-size: 12px;
+        font-weight: 900;
+        color: #667085;
+      }
+
+      .status-switch input:checked ~ .status-switch-text {
+        color: var(--success);
+      }
+
+      .link-action {
+        border: 0;
+        background: transparent;
+        color: #1677ff;
+        cursor: pointer;
+        padding: 0 7px;
+      }
+
+      .link-action.remove {
+        color: #ef4444;
+      }
+
+      .empty {
+        text-align: center !important;
+        color: #98a2b3;
+        padding: 24px !important;
+      }
+
+      .modal-mask {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.48);
+        z-index: 200;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+      }
+
+      /* Confirmation dialog must stack above the KYC edit dialog. */
+      #confirmMask {
+        z-index: 420;
+      }
+      #confirmMask .modal {
+        width: min(560px, 100%) !important;
+      }
+      #confirmMessage {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        line-height: 1.65;
+      }
+
+      .modal-mask.open {
+        display: flex;
+      }
+
+      .modal {
+        width: min(720px, 100%);
+        max-height: 90vh;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .modal-head {
+        min-height: 54px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 18px;
+        border-bottom: 1px solid var(--border);
+        background: #fbfdff;
+      }
+
+      .modal-head h3 {
+        margin: 0;
+        font-size: 18px;
+      }
+
+      .modal-close {
+        border: 0;
+        background: transparent;
+        font-size: 26px;
+        color: #667085;
+        cursor: pointer;
+      }
+
+      .modal-body {
+        padding: 18px;
+        overflow: auto;
+      }
+
+      .modal-foot {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 12px 18px;
+        border-top: 1px solid var(--border);
+        background: #fbfdff;
+      }
+
+      .modal-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px 16px;
+      }
+
+      .modal-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .modal-field.full {
+        grid-column: 1 / -1;
+      }
+
+      .modal-field label {
+        font-size: 13px;
+        color: #344054;
+        font-weight: 900;
+      }
+
+      .modal-field input,
+      .modal-field select {
+        width: 100%;
+        height: 40px;
+        border: 1px solid #d6deeb;
+        border-radius: 7px;
+        padding: 0 10px;
+        background: #fff;
+      }
+
+      .required {
+        color: #ef4444;
+      }
+
+      .form-note {
+        margin-top: 4px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .paycode-logo-upload {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .paycode-logo-preview {
+        width: 72px;
+        height: 72px;
+        border: 1px solid #d6deeb;
+        border-radius: 8px;
+        background: #f8fafc;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        color: #98a2b3;
+        font-size: 11px;
+        text-align: center;
+      }
+
+      .paycode-logo-preview img,
+      .paycode-logo-thumb {
+        object-fit: contain;
+        background: #fff;
+      }
+
+      .paycode-logo-preview img {
+        width: 100%;
+        height: 100%;
+      }
+
+      .paycode-logo-thumb {
+        width: 42px;
+        height: 42px;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+      }
+
+      .toast {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        background: #111;
+        color: #fff;
+        border-radius: 8px;
+        padding: 10px 14px;
+        z-index: 500;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+        opacity: 0;
+        transform: translateY(10px);
+        transition: 0.25s;
+        pointer-events: none;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: none;
+      }
+
+      .placeholder-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 22px;
+        box-shadow: var(--shadow);
+      }
+
+      .placeholder-card h2 {
+        margin-top: 0;
+      }
+
+      .setting-page {
+        max-width: 1180px;
+      }
+
+      .setting-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 14px;
+        padding: 14px 16px;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+      }
+
+      .setting-toolbar-title {
+        font-size: 14px;
+        font-weight: 900;
+        color: #344054;
+      }
+
+      .setting-toolbar-note {
+        margin-top: 4px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .publish-meta {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .publish-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 9px;
+        border-radius: 999px;
+        background: #eef8f0;
+        color: #16803d;
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .publish-badge.draft {
+        background: #fff7df;
+        color: #9a6700;
+      }
+
+      .setting-section {
+        margin-bottom: 14px;
+        overflow: hidden;
+      }
+
+      .setting-section-head {
+        padding: 16px 18px;
+        border-bottom: 1px solid var(--border);
+        background: #fbfdff;
+      }
+
+      .setting-section-head h2 {
+        margin: 0;
+        font-size: 17px;
+      }
+
+      .setting-section-head p {
+        margin: 5px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .setting-list {
+        background: #fff;
+      }
+
+      .setting-row {
+        display: grid;
+        grid-template-columns: minmax(220px, 1.2fr) minmax(300px, 2fr) 130px;
+        align-items: center;
+        gap: 18px;
+        min-height: 78px;
+        padding: 14px 18px;
+        border-bottom: 1px solid #edf0f3;
+      }
+
+      .setting-row:last-child {
+        border-bottom: 0;
+      }
+
+      .setting-name {
+        font-size: 14px;
+        font-weight: 900;
+        color: #1f2937;
+      }
+
+      .setting-desc {
+        margin-top: 5px;
+        font-size: 12px;
+        line-height: 1.55;
+        color: var(--muted);
+      }
+
+      .setting-desc.important {
+        color: #b54708;
+        font-weight: 700;
+      }
+
+      .setting-switch-wrap {
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .setting-extra {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+      }
+      .setting-extra[hidden] {
+        display: none !important;
+      }
+      .setting-extra-label {
+        color: #475467;
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+      .setting-number {
+        width: 120px;
+        height: 34px;
+        border: 1px solid #d6deeb;
+        border-radius: 6px;
+        padding: 0 10px;
+        background: #fff;
+        font-size: 13px;
+      }
+      .setting-number.small {
+        width: 82px;
+      }
+      .setting-unit {
+        color: #667085;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .setting-switch-label {
+        min-width: 54px;
+        font-size: 12px;
+        font-weight: 900;
+        color: #667085;
+      }
+
+      .setting-row.is-on .setting-switch-label {
+        color: var(--success);
+      }
+
+      .publish-footer {
+        position: sticky;
+        bottom: 0;
+        z-index: 20;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 14px;
+        padding: 12px 16px;
+        background: rgba(255, 255, 255, 0.96);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.06);
+        backdrop-filter: blur(6px);
+      }
+
+      @media (max-width: 760px) {
+        .setting-toolbar {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .setting-row {
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+
+        .setting-switch-wrap {
+          justify-content: flex-start;
+        }
+      }
+
+      @media (max-width: 1100px) {
+        .filter-grid {
+          grid-template-columns: repeat(2, minmax(160px, 1fr));
+        }
+
+        .clock {
+          display: none;
+        }
+      }
+
+      @media (max-width: 900px) {
+        .sidebar {
+          position: fixed;
+          left: -270px;
+          top: var(--header-h);
+          z-index: 80;
+          width: 260px;
+          flex-basis: 260px;
+          transition: left 0.2s;
+        }
+
+        .sidebar.open {
+          left: 0;
+        }
+
+        .tabs,
+        .user span {
+          display: none;
+        }
+
+        .filter-grid,
+        .modal-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .modal-field.full {
+          grid-column: auto;
+        }
+
+        .country-context {
+          margin-left: auto;
+        }
+      }
+
+      .send-msg-header,
+      .send-msg-controls,
+      .send-msg-option {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .send-msg-controls {
+        background: #f7faff;
+        border: 1px solid #dce7f5;
+        border-radius: 8px;
+        padding: 7px 12px;
+        gap: 18px;
+      }
+      .send-msg-controls strong {
+        font-size: 13px;
+        color: #344054;
+      }
+      .send-msg-option {
+        gap: 7px;
+        font-size: 13px;
+        cursor: pointer;
+      }
+      .send-msg-state {
+        font-size: 11px;
+        color: #667085;
+        min-width: 25px;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <button class="menu-toggle" id="menuToggle" type="button">☰</button>
+        <div class="logo">Aibet</div>
+      </div>
+      <div class="tabs" id="tabs"></div>
+      <div class="top-spacer"></div>
+      <div class="clock" id="clock"></div>
+      <div class="country-context">☰ All Functions</div>
+      <div class="user">
+        <span>Ai9_yark</span>
+        <div class="avatar"></div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar" id="sidebar">
+        <nav id="menu"></nav>
+      </aside>
+      <main class="content" id="content"></main>
+    </div>
+
+    <div class="modal-mask" id="merchantModalMask">
+      <div class="modal">
+        <div class="modal-head">
+          <h3 id="merchantModalTitle">Add Merchant</h3>
+          <button class="modal-close" id="merchantModalClose" type="button">
+            ×
+          </button>
+        </div>
+        <div class="modal-body" id="merchantModalBody"></div>
+        <div class="modal-foot">
+          <button class="btn light" id="merchantModalCancel" type="button">
+            Cancel
+          </button>
+          <button class="btn" id="merchantModalSave" type="button">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-mask" id="payCodeModalMask">
+      <div class="modal">
+        <div class="modal-head">
+          <h3 id="payCodeModalTitle">新增 PayCode</h3>
+          <button class="modal-close" id="payCodeModalClose" type="button">
+            ×
+          </button>
+        </div>
+        <div class="modal-body" id="payCodeModalBody"></div>
+        <div class="modal-foot">
+          <button class="btn light" id="payCodeModalCancel" type="button">
+            取消
+          </button>
+          <button class="btn" id="payCodeModalSave" type="button">保存</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-mask" id="confirmMask">
+      <div class="modal" style="width: min(420px, 100%)">
+        <div class="modal-head">
+          <h3 id="confirmTitle">确认删除</h3>
+          <button class="modal-close" id="confirmClose" type="button">×</button>
+        </div>
+        <div class="modal-body" id="confirmMessage">确认删除？</div>
+        <div class="modal-foot">
+          <button class="btn light" id="confirmCancel" type="button">
+            取消
+          </button>
+          <button class="btn danger" id="confirmOk" type="button">确认</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+      const menuData = [
+        {
+          title: "User Management",
+          icon: "◎",
+          children: [
+            "User List",
+            "User Detail",
+            "Balance History",
+            "BlackList",
+            "S-E Review",
+            "User Delete",
+          ],
+        },
+        {
+          title: "Record Query",
+          icon: "▦",
+          children: ["Sports Tickets", "Casino Tickets"],
+        },
+        {
+          title: "Fund Management",
+          icon: "▣",
+          children: [
+            "Withdrawals",
+            "Deposits",
+            "SubDeposit",
+            "Balance History",
+            "Fund Adjustment",
+          ],
+        },
+        {
+          title: "Casino Management",
+          icon: "🎲",
+          children: ["HomePage", "Merchant", "Lobby", "Tags", "GameList"],
+        },
+        { title: "Message Management", icon: "▱", children: ["Message"] },
+        { title: "OP Management", icon: "▱", children: ["Push", "Gift Code"] },
+        {
+          title: "Reporting",
+          icon: "▤",
+          children: [
+            "Reporting Generator",
+            "Reporting Summary",
+            "Promo Report",
+            "Event Report",
+            "Promo Cost Report",
+            "Liability Report",
+            "Jackpot Report",
+            "VIP Report",
+          ],
+        },
+        { title: "Promotion", icon: "✾", children: ["Promo-Mgt"] },
+        {
+          title: "Leaderboard",
+          icon: "♙",
+          children: [
+            "Casino Weekly",
+            "Casino Monthly",
+            "Sports Weekly",
+            "Sports Monthly",
+          ],
+        },
+        { title: "World Cup", icon: "◉", children: [] },
+        {
+          title: "System Management",
+          icon: "☷",
+          children: ["Login Record", "Roles", "Account"],
+        },
+        {
+          title: "Finance Management",
+          icon: "☷",
+          children: ["Merchant", "PayCode"],
+        },
+        {
+          title: "Daily Operations",
+          icon: "▭",
+          children: [
+            {
+              title: "BRA",
+              children: [
+                "Banner",
+                "Promotions",
+                "Match Pinned",
+                "Sports Events",
+                "Registration Image",
+              ],
+            },
+          ],
+        },
+        { title: "Offering Management", icon: "▣", children: [] },
+      ];
+
+      const $ = (selector) => document.querySelector(selector);
+      const menu = $("#menu");
+      const content = $("#content");
+      const tabsEl = $("#tabs");
+      const sidebar = $("#sidebar");
+
+      const state = {
+        activeTab: "Home",
+        tabs: [{ title: "Home", closable: false }],
+      };
+
+      const STORE_MERCHANT = "aibet_finance_merchant_v1";
+      const STORE_PAYCODE = "aibet_finance_paycode_v1";
+      const STORE_USER_LIST = "megwin_user_list_demo_v1";
+      function loadState(key, fallback) {
+        try {
+          const raw = localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : fallback;
+        } catch (error) {
+          return fallback;
+        }
+      }
+
+      function saveState(key, value) {
+        localStorage.setItem(key, JSON.stringify(value));
+      }
+
+      function nowText() {
+        const d = new Date();
+        const z = (n) => String(n).padStart(2, "0");
+        return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}:${z(d.getSeconds())}`;
+      }
+
+      let merchantRows = loadState(STORE_MERCHANT, [
+        {
+          id: 1,
+          name: "epay",
+          merchant: "xpet",
+          merchantId: "2717",
+          apiKey: "0a8b14df0549e1896d678a0f29709ae7",
+          appId: "1901",
+          url: "https://order.5kj.one/payApi/PayApi",
+          withdrawCallbackUrl:
+            "http://payment-api.helix.city/v1/epay/payout/notice",
+          status: "Enabled",
+          supportedCurrency: "BRL",
+          notice: "epay的商户配置",
+          createdBy: "-",
+          createdAt: "2025-12-06 10:31:21",
+          updatedBy: "-",
+          updatedAt: "2026-03-06 06:48:06",
+        },
+        {
+          id: 3,
+          name: "test",
+          merchant: "test",
+          merchantId: "test",
+          apiKey: "test",
+          appId: "test",
+          url: "http://localhost:3001/finance/merchant/list",
+          withdrawCallbackUrl: "http://localhost:3001/finance/merchant/list",
+          status: "Disabled",
+          supportedCurrency: "USD",
+          notice: "",
+          createdBy: "-",
+          createdAt: "2026-01-19 18:09:48",
+          updatedBy: "-",
+          updatedAt: "2026-03-04 15:48:45",
+        },
+        {
+          id: 4,
+          name: "epayMexico",
+          merchant: "ugobet",
+          merchantId: "2717",
+          apiKey: "0a8b14df0549e1896d678a0f29709ae7",
+          appId: "2151",
+          url: "https://order.5kj.one/payApi/PayApi",
+          withdrawCallbackUrl:
+            "http://payment-api.helix.city/v1/epay/payout/notice",
+          status: "Enabled",
+          supportedCurrency: "MXN",
+          notice: "",
+          createdBy: "-",
+          createdAt: "2026-02-06 20:09:19",
+          updatedBy: "-",
+          updatedAt: "2026-04-13 21:49:07",
+        },
+        {
+          id: 10,
+          name: "BR PAY",
+          merchant: "BR PAY",
+          merchantId: "BR PAY",
+          apiKey: "BR PAY",
+          appId: "BR PAY",
+          url: "http://ffsad.com:3001/finance/merchant/list",
+          withdrawCallbackUrl: "http://ffsad.com:3001/finance/merchant/list",
+          status: "Disabled",
+          supportedCurrency: "MXN",
+          notice: "",
+          createdBy: "-",
+          createdAt: "2026-03-04 15:17:00",
+          updatedBy: "-",
+          updatedAt: "2026-03-04 15:17:30",
+        },
+      ]).map(({ depositCallbackUrl, ...row }) => row);
+
+      let editingMerchantId = null;
+
+      let payCodeRows = loadState(STORE_PAYCODE, [
+        {
+          id: 2,
+          payCodeName: "PIX Withdraw",
+          accountType: "PIX",
+          bankCode: "PIX",
+          payCode: "PIX",
+          kycLimit: "10000.00",
+          logoBefore: "",
+          logoAfter: "",
+          merchant: "ZPay",
+          currency: "BRL",
+          type: "withdraw",
+          status: "Enabled",
+          createdBy: "Admin",
+          createdDate: "2026-09-01 09:15:00",
+          updatedBy: "Admin",
+          updatedAt: "2026-09-01 09:15:00",
+        },
+        {
+          id: 3,
+          payCodeName: "CLABE Withdraw",
+          accountType: "CLABE",
+          bankCode: "STP",
+          payCode: "CLABE",
+          kycLimit: "15000.00",
+          logoBefore: "",
+          logoAfter: "",
+          merchant: "ZPay",
+          currency: "MXN",
+          type: "withdraw",
+          status: "Enabled",
+          createdBy: "Admin",
+          createdDate: "2026-09-01 09:20:00",
+          updatedBy: "Admin",
+          updatedAt: "2026-09-01 09:20:00",
+        },
+      ])
+        .filter((row) => !row.type || row.type === "withdraw")
+        .map(({ type, ...row }) => row);
+
+      const initialUserRows = Array.from({ length: 20 }, (_, index) => {
+        const number = index + 1;
+        const suffix = String(number).padStart(2, "0");
+        const balance = [12450.5, 0, 85, 0][index] ?? (number % 5) * 125.75;
+        return {
+          id: `USR-${String(number).padStart(6, "0")}`,
+          username: `demo_user_${suffix}`,
+          email: `member${suffix}@example.com`,
+          phone: `+52 000 000 ${String(100 + number).padStart(4, "0")}`,
+          status: "Enabled",
+          kycStatus: number % 4 === 0 ? "Pending" : "Verified",
+          userGroup: number % 4 === 1 ? "VIP" : "New/Regular",
+          vip: `VIP ${number % 5}`,
+          affiliate: `AFF-${String((number % 4) + 1).padStart(3, "0")}`,
+          balance,
+          regTime: `2026-10-${String(28 - (number % 20)).padStart(2, "0")} ${String(8 + (number % 12)).padStart(2, "0")}:15:00`,
+          registerIp: `203.0.113.${number}`,
+          registerDevice: ["Web", "Android", "iOS"][index % 3],
+          depAmount: number * 125,
+          wtdAmount: number * 35,
+          stake: number * 240,
+          payout: number * 210,
+          customerProfit: number * -30,
+          rtp: `${(80 + ((number * 7) % 35)).toFixed(2)}%`,
+          accountType: "Cash",
+        };
+      });
+      initialUserRows[0].userGroup = "VIP";
+      initialUserRows[2].userGroup = "New/Regular";
+      initialUserRows[3].userGroup = "VIP";
+      let userRows = loadState(STORE_USER_LIST, initialUserRows);
+      let userListFilter = {
+        search: "",
+        group: "",
+        status: "",
+        registerIp: "",
+        affiliate: "",
+        from: "",
+        to: "",
+        minBalance: "",
+        maxBalance: "",
+      };
+      let selectedUserInfoId = userRows[0]?.id || "";
+
+      const STORE_USER_DELETE = "megwin_user_delete_requests_v1";
+      const initialUserDeleteRows = [
+        {
+          id: "UD-20261111-0001",
+          userId: "USR-000001",
+          submitTime: "2026-11-11T09:18",
+          submitCode: "DEL-8F2A91",
+          email: "member01@example.com",
+          phone: "+52 000 000 0101",
+          kycStatus: "Verified",
+          userGroup: "VIP",
+          vip: "VIP 3",
+          balance: 12450.5,
+          reason: "I no longer use this account.",
+          notice: "No active withdrawal",
+        },
+        {
+          id: "UD-20261111-0002",
+          userId: "USR-000002",
+          submitTime: "2026-11-11T08:42",
+          submitCode: "DEL-71C4B0",
+          email: "member02@example.com",
+          phone: "+52 000 000 0102",
+          kycStatus: "Pending",
+          userGroup: "New/Regular",
+          vip: "VIP 0",
+          balance: 0,
+          reason: "Please close my account.",
+          notice: "KYC review required",
+        },
+        {
+          id: "UD-20261110-0003",
+          userId: "USR-000003",
+          submitTime: "2026-11-10T17:05",
+          submitCode: "DEL-3D9E52",
+          email: "member03@example.com",
+          phone: "+52 000 000 0103",
+          kycStatus: "Verified",
+          userGroup: "New/Regular",
+          vip: "VIP 1",
+          balance: 85,
+          reason: "I created another account.",
+          notice: "Balance must be cleared",
+        },
+        {
+          id: "UD-20261110-0004",
+          userId: "USR-000004",
+          submitTime: "2026-11-10T12:36",
+          submitCode: "DEL-A6B318",
+          email: "member04@example.com",
+          phone: "+52 000 000 0104",
+          kycStatus: "Verified",
+          userGroup: "VIP",
+          vip: "VIP 2",
+          balance: 0,
+          reason: "Account closure requested by user.",
+          notice: "Ready for review",
+        },
+      ];
+      let userDeleteRows = loadState(
+        STORE_USER_DELETE,
+        initialUserDeleteRows,
+      );
+      userDeleteRows.forEach((request) => {
+        const user =
+          userRows.find((item) => item.id === request.userId) ||
+          userRows.find((item) => item.email === request.email);
+        if (!user) return;
+        request.userId = user.id;
+        request.balance = user.balance;
+        if (request.reviewStatus === "Approved") user.status = "Deleted";
+      });
+      let userDeleteFilter = {
+        from: "",
+        to: "",
+        email: "",
+        phone: "",
+        submitCode: "",
+      };
+
+      let editingPayCodeId = null;
+      let confirmCallback = null;
+      function renderMenu() {
+        menu.innerHTML = menuData
+          .map((item, index) => sectionHtml(item, index))
+          .join("");
+      }
+
+      function sectionHtml(item, index) {
+        const hasChildren = item.children && item.children.length;
+        return `
+                <div class="menu-section ${item.title === "User Management" ? "open" : ""}" data-path="${index}">
+                    <div class="menu-item" data-page="${hasChildren ? "" : item.title}">
+                        <span class="menu-icon">${item.icon}</span>
+                        <span class="menu-label">${item.title}</span>
+                        ${hasChildren ? '<span class="chev">⌄</span>' : ""}
+                    </div>
+                    ${hasChildren ? `<div class="submenu">${childrenHtml(item.children, index)}</div>` : ""}
+                </div>
+            `;
+      }
+
+      function childrenHtml(children, parentPath) {
+        return children
+          .map((child, index) => {
+            const path = `${parentPath}-${index}`;
+            if (typeof child === "string") {
+              return `
+                        <div class="sub" data-page="${child}" data-path="${path}">
+                            <span class="dot"></span>
+                            <span class="sub-label">${child}</span>
+                        </div>
+                    `;
+            }
+
+            return `
+                    <div class="sub parent" data-path="${path}">
+                        <span class="dot"></span>
+                        <span class="sub-label">${child.title}</span>
+                        <span class="chev">⌄</span>
+                    </div>
+                    <div class="nested">${childrenHtml(child.children || [], path)}</div>
+                `;
+          })
+          .join("");
+      }
+
+      function renderTabs() {
+        tabsEl.innerHTML = state.tabs
+          .map(
+            (tab) => `
+                <div class="tab ${tab.title === state.activeTab ? "active" : ""}" data-tab="${tab.title}">
+                    <span>${tab.title}</span>
+                    ${tab.closable ? `<span class="close" data-close="${tab.title}">×</span>` : ""}
+                </div>
+            `,
+          )
+          .join("");
+      }
+
+      function addTab(title) {
+        if (!state.tabs.some((tab) => tab.title === title)) {
+          state.tabs.push({ title, closable: title !== "Home" });
+        }
+        activateTab(title);
+      }
+
+      function activateTab(title) {
+        state.activeTab = title;
+        renderTabs();
+        renderContent(title);
+        setActiveMenu(title);
+      }
+
+      function closeTab(title) {
+        if (title === "Home") return;
+        const index = state.tabs.findIndex((tab) => tab.title === title);
+        if (index < 0) return;
+
+        state.tabs.splice(index, 1);
+
+        if (state.activeTab === title) {
+          state.activeTab = state.tabs[Math.max(0, index - 1)]?.title || "Home";
+        }
+
+        renderTabs();
+        renderContent(state.activeTab);
+        setActiveMenu(state.activeTab);
+      }
+
+      function setActiveMenu(title) {
+        document
+          .querySelectorAll(".sub.active")
+          .forEach((el) => el.classList.remove("active"));
+
+        let sub = null;
+
+        // Merchant 在 Casino Management 与 Finance Management 都存在。
+        // Finance Management 的 Merchant 页面需明确选中 Finance Management 下的菜单项，
+        // 避免因为找到前面的 Casino Merchant 而没有正确显示选中色。
+        if (title === "Merchant") {
+          const financeSection = [
+            ...document.querySelectorAll(".menu-section"),
+          ].find((section) => {
+            const label = section.querySelector(
+              ":scope > .menu-item .menu-label",
+            );
+            return label && label.textContent.trim() === "Finance Management";
+          });
+
+          sub = financeSection
+            ? financeSection.querySelector('.sub[data-page="Merchant"]')
+            : null;
+        }
+
+        if (!sub) {
+          sub = [...document.querySelectorAll(".sub[data-page]")].find(
+            (el) => el.dataset.page === title,
+          );
+        }
+
+        if (sub) {
+          sub.classList.add("active");
+
+          let parent = sub.parentElement;
+
+          while (parent) {
+            if (parent.classList?.contains("submenu")) {
+              parent.closest(".menu-section")?.classList.add("open");
+            }
+
+            if (parent.classList?.contains("nested")) {
+              parent.classList.add("open");
+              parent.previousElementSibling?.classList.add("open");
+            }
+
+            parent = parent.parentElement;
+          }
+        }
+      }
+
+      function homeHtml() {
+        return `
+                <div class="breadcrumb">Home</div>
+                <h1 class="page-title">Welcome to Ai.bet V1.0!</h1>
+                <div class="placeholder-card">
+                    <h2>Admin Framework</h2>
+                    <p>请从左侧进入 <b>Finance Management → PayCode</b>。</p>
+                </div>
+            `;
+      }
+
+      // Send msg switches are configuration-only in this standalone prototype.
+      const SEND_MSG_KEY = "megwin_merchant_send_msg_v1";
+      let sendMsgSettings = loadState(SEND_MSG_KEY, {
+        email: false,
+        sms: false,
+      });
+      function sendMsgControls() {
+        return `<div class="send-msg-controls"><strong>Send msg</strong>${[
+          ["email", "EMail"],
+          ["sms", "SMS"],
+        ]
+          .map(
+            ([key, label]) =>
+              `<label class="send-msg-option"><span>${label}</span><span class="status-switch"><input type="checkbox" data-send-msg="${key}" ${sendMsgSettings[key] ? "checked" : ""}><span class="status-slider"></span></span><span class="send-msg-state">${sendMsgSettings[key] ? "ON" : "OFF"}</span></label>`,
+          )
+          .join("")}</div>`;
+      }
+      content.addEventListener("change", (event) => {
+        const toggle = event.target.closest("[data-send-msg]");
+        if (!toggle) return;
+        sendMsgSettings[toggle.dataset.sendMsg] = toggle.checked;
+        saveState(SEND_MSG_KEY, sendMsgSettings);
+        const stateText = toggle
+          .closest(".send-msg-option")
+          ?.querySelector(".send-msg-state");
+        if (stateText) stateText.textContent = toggle.checked ? "ON" : "OFF";
+        toast(
+          `${toggle.dataset.sendMsg === "email" ? "EMail" : "SMS"} Send msg ${toggle.checked ? "enabled" : "disabled"} (Demo)`,
+        );
+      });
+
+      function merchantHtml(rows = merchantRows) {
+        return `
+                <div class="breadcrumb">Home / Finance Management / Merchant</div>
+                <h1 class="page-title">Merchant</h1>
+
+                <div class="filter-box">
+                    <div class="filter-grid">
+                        <div class="form-field">
+                            <label>Name</label>
+                            <input id="merchantNameFilter" placeholder="Please enter">
+                        </div>
+                        <div class="form-field">
+                            <label>Merchant</label>
+                            <input id="merchantMerchantFilter" placeholder="Please enter">
+                        </div>
+                        <div class="form-field">
+                            <label>URL</label>
+                            <input id="merchantUrlFilter" placeholder="Please enter">
+                        </div>
+                    </div>
+                    <div class="action-row">
+                        <button class="btn light" id="merchantResetBtn" type="button">Reset</button>
+                        <button class="btn" id="merchantQueryBtn" type="button">Query</button>
+                        <button class="btn" id="merchantAddBtn" type="button">+ Add Merchant</button>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <h2>Merchant List</h2>
+                        <div class="send-msg-header"><span style="font-size:12px;color:#667085">Total: ${rows.length}</span>${sendMsgControls()}</div>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="table" style="min-width:2050px">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Merchant</th>
+                                    <th>Merchant ID</th>
+                                    <th>API Key</th>
+                                    <th>App ID</th>
+                                    <th>URL</th>
+                                    <th>Withdraw Callback URL</th>
+                                    <th>Status</th>
+                                    <th>Supported Currency</th>
+                                    <th>Created By</th>
+                                    <th>Created At</th>
+                                    <th>Updated By</th>
+                                    <th>Updated At</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${
+                                  rows.length
+                                    ? rows
+                                        .map((row) => merchantRowHtml(row))
+                                        .join("")
+                                    : `
+                                    <tr><td colspan="15" class="empty">No data available</td></tr>
+                                `
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+      }
+
+      function merchantRowHtml(row) {
+        return `
+                <tr data-merchant-id="${row.id}">
+                    <td>${row.id}</td>
+                    <td>${escapeHtml(row.name)}</td>
+                    <td>${escapeHtml(row.merchant)}</td>
+                    <td>${escapeHtml(row.merchantId)}</td>
+                    <td>${escapeHtml(row.apiKey)}</td>
+                    <td>${escapeHtml(row.appId || "-")}</td>
+                    <td>${escapeHtml(row.url)}</td>
+                    <td>${escapeHtml(row.withdrawCallbackUrl || "-")}</td>
+                    <td>
+                        <label class="status-switch">
+                            <input
+                                type="checkbox"
+                                data-merchant-status="${row.id}"
+                                ${row.status === "Enabled" ? "checked" : ""}
+                            >
+                            <span class="status-slider"></span>
+                            <span class="status-switch-text">
+                                ${row.status === "Enabled" ? "启动" : "关闭"}
+                            </span>
+                        </label>
+                    </td>
+                    <td>${escapeHtml(row.supportedCurrency)}</td>
+                    <td>${escapeHtml(row.createdBy)}</td>
+                    <td>${escapeHtml(row.createdAt)}</td>
+                    <td>${escapeHtml(row.updatedBy)}</td>
+                    <td>${escapeHtml(row.updatedAt)}</td>
+                    <td>
+                        <button class="link-action" data-merchant-action="edit" type="button">Edit</button>
+                        <button class="link-action remove" data-merchant-action="remove" type="button">Remove</button>
+                    </td>
+                </tr>
+            `;
+      }
+
+      function getMerchantById(id) {
+        return merchantRows.find((row) => String(row.id) === String(id));
+      }
+
+      function openMerchantModal(mode = "add", row = null) {
+        $("#merchantModalSave").onclick = null;
+        $("#merchantModalSave").style.display = "";
+        editingMerchantId = row?.id || null;
+        const data = row || {
+          status: "Enabled",
+          name: "",
+          merchant: "",
+          merchantId: "",
+          apiKey: "",
+          appId: "",
+          url: "",
+          supportedCurrency: "",
+          withdrawCallbackUrl: "",
+          notice: "",
+        };
+
+        $("#merchantModalTitle").textContent =
+          mode === "edit" ? "Edit Merchant" : "Add Merchant";
+        $("#merchantModalBody").innerHTML = `
+                <div class="modal-grid">
+                    <div class="modal-field full">
+                        <label><span class="required">*</span> Status</label>
+                        <div style="display:flex;align-items:center;height:40px">
+                            <label class="status-switch">
+                                <input
+                                    id="merchantStatusInput"
+                                    type="checkbox"
+                                    ${data.status === "Enabled" ? "checked" : ""}
+                                >
+                                <span class="status-slider"></span>
+                                <span class="status-switch-text" id="merchantStatusText">
+                                    ${data.status === "Enabled" ? "Enabled" : "Disabled"}
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                    ${merchantInputHtml("Name", "merchantNameInput", data.name, true)}
+                    ${merchantInputHtml("Merchant", "merchantMerchantInput", data.merchant, true)}
+                    ${merchantInputHtml("Merchant ID", "merchantIdInput", data.merchantId, true)}
+                    ${merchantInputHtml("API Key", "merchantApiKeyInput", data.apiKey, true)}
+                    ${merchantInputHtml("App ID", "merchantAppIdInput", data.appId, false)}
+                    ${merchantInputHtml("URL", "merchantUrlInput", data.url, true)}
+                    <div class="modal-field">
+                        <label><span class="required">*</span> Supported Currency</label>
+                        <select id="merchantCurrencyInput">
+                            <option value="">Please select</option>
+                            <option value="BRL" ${data.supportedCurrency === "BRL" ? "selected" : ""}>BRL</option>
+                            <option value="MXN" ${data.supportedCurrency === "MXN" ? "selected" : ""}>MXN</option>
+                            <option value="USD" ${data.supportedCurrency === "USD" ? "selected" : ""}>USD</option>
+                        </select>
+                    </div>
+                    ${merchantInputHtml("Withdraw Callback URL", "merchantWithdrawCallbackInput", data.withdrawCallbackUrl, false)}
+                    <div class="modal-field full">
+                        <label>Notice</label>
+                        <textarea id="merchantNoticeInput" style="min-height:90px;border:1px solid #d6deeb;border-radius:7px;padding:10px;resize:vertical">${escapeHtml(data.notice || "")}</textarea>
+                    </div>
+                </div>
+            `;
+        $("#merchantModalMask").classList.add("open");
+      }
+
+      function merchantInputHtml(label, id, value, required) {
+        return `
+                <div class="modal-field">
+                    <label>${required ? '<span class="required">*</span> ' : ""}${label}</label>
+                    <input id="${id}" value="${escapeHtml(value || "")}" placeholder="Please enter">
+                </div>
+            `;
+      }
+
+      function closeMerchantModal() {
+        $("#merchantModalMask").classList.remove("open");
+        editingMerchantId = null;
+      }
+
+      function saveMerchantModal() {
+        const status = $("#merchantStatusInput").checked
+          ? "Enabled"
+          : "Disabled";
+        const name = $("#merchantNameInput").value.trim();
+        const merchant = $("#merchantMerchantInput").value.trim();
+        const merchantId = $("#merchantIdInput").value.trim();
+        const apiKey = $("#merchantApiKeyInput").value.trim();
+        const appId = $("#merchantAppIdInput").value.trim();
+        const url = $("#merchantUrlInput").value.trim();
+        const supportedCurrency = $("#merchantCurrencyInput").value;
+        const withdrawCallbackUrl = $(
+          "#merchantWithdrawCallbackInput",
+        ).value.trim();
+        const notice = $("#merchantNoticeInput").value.trim();
+
+        if (
+          !name ||
+          !merchant ||
+          !merchantId ||
+          !apiKey ||
+          !url ||
+          !supportedCurrency
+        ) {
+          toast("请填写所有必填栏位");
+          return;
+        }
+
+        const current = editingMerchantId
+          ? getMerchantById(editingMerchantId)
+          : null;
+        const timestamp = nowText();
+        const data = {
+          id: current
+            ? current.id
+            : Math.max(0, ...merchantRows.map((row) => Number(row.id))) + 1,
+          status,
+          name,
+          merchant,
+          merchantId,
+          apiKey,
+          appId,
+          url,
+          supportedCurrency,
+          withdrawCallbackUrl,
+          notice,
+          createdBy: current?.createdBy || "Admin",
+          createdAt: current?.createdAt || timestamp,
+          updatedBy: "Admin",
+          updatedAt: timestamp,
+        };
+
+        if (current) Object.assign(current, data);
+        else merchantRows.unshift(data);
+
+        saveState(STORE_MERCHANT, merchantRows);
+        closeMerchantModal();
+        renderContent("Merchant");
+        toast(current ? "Merchant updated" : "Merchant added");
+      }
+
+      function applyMerchantFilter() {
+        const name = ($("#merchantNameFilter")?.value || "")
+          .trim()
+          .toLowerCase();
+        const merchant = ($("#merchantMerchantFilter")?.value || "")
+          .trim()
+          .toLowerCase();
+        const url = ($("#merchantUrlFilter")?.value || "").trim().toLowerCase();
+
+        const rows = merchantRows.filter(
+          (row) =>
+            (!name || row.name.toLowerCase().includes(name)) &&
+            (!merchant || row.merchant.toLowerCase().includes(merchant)) &&
+            (!url || row.url.toLowerCase().includes(url)),
+        );
+
+        content.innerHTML = merchantHtml(rows);
+        $("#merchantNameFilter").value = name;
+        $("#merchantMerchantFilter").value = merchant;
+        $("#merchantUrlFilter").value = url;
+      }
+
+      function genericPageHtml(title) {
+        return `
+                <div class="breadcrumb">Home / ${title}</div>
+                <h1 class="page-title">${title}</h1>
+                <div class="placeholder-card">
+                    <h2>${title}</h2>
+                    <p>此页面沿用后台框架菜单结构，当前 Demo 重点为 Finance Management → PayCode。</p>
+                </div>
+            `;
+      }
+
+      function renderContent(title) {
+        if (title === "Home") {
+          content.innerHTML = homeHtml();
+          return;
+        }
+
+        if (title === "User Delete") {
+          content.innerHTML = userDeleteHtml();
+          return;
+        }
+        if (title === "User List") {
+          content.innerHTML = userListHtml();
+          return;
+        }
+        if (title === "User Info") {
+          content.innerHTML = userInfoHtml();
+          return;
+        }
+        if (title === "PayCode") {
+          content.innerHTML = payCodePageHtml();
+          return;
+        }
+
+        if (title === "Merchant") {
+          content.innerHTML = merchantHtml();
+          return;
+        }
+
+        content.innerHTML = genericPageHtml(title);
+      }
+
+      function userListHtml() {
+        const includes = (value, query) =>
+          !query || String(value || "").toLowerCase().includes(query.toLowerCase());
+        const rows = userRows.filter((user) => {
+          const regTime = user.regTime || "";
+          const balance = Number(user.balance) || 0;
+          return (
+            includes(user.email, userListFilter.search) ||
+            includes(user.phone, userListFilter.search) ||
+            includes(user.id, userListFilter.search) ||
+            includes(user.username, userListFilter.search)
+          ) && (
+            !userListFilter.group || user.userGroup === userListFilter.group
+          ) && (
+            !userListFilter.status || user.status === userListFilter.status
+          ) && includes(user.registerIp, userListFilter.registerIp) &&
+            includes(user.affiliate, userListFilter.affiliate) &&
+            (!userListFilter.from || regTime >= userListFilter.from.replace("T", " ")) &&
+            (!userListFilter.to || regTime <= userListFilter.to.replace("T", " ")) &&
+            (userListFilter.minBalance === "" || balance >= Number(userListFilter.minBalance)) &&
+            (userListFilter.maxBalance === "" || balance <= Number(userListFilter.maxBalance));
+        });
+        const money = (value) =>
+          "$" +
+          Number(value || 0).toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+        const options = (values, chosen) =>
+          values
+            .map(
+              (value) =>
+                `<option value="${escapeHtml(value)}" ${chosen === value ? "selected" : ""}>${escapeHtml(value || "All")}</option>`,
+            )
+            .join("");
+
+        return `
+          <div class="breadcrumb">Home / User Management / User List</div>
+          <h1 class="page-title">User List</h1>
+          <div class="filter-box">
+            <div class="filter-grid">
+              <div class="form-field">
+                <label for="ulFrom">Register Time From</label>
+                <input id="ulFrom" type="datetime-local" value="${escapeHtml(userListFilter.from)}">
+              </div>
+              <div class="form-field">
+                <label for="ulTo">Register Time To</label>
+                <input id="ulTo" type="datetime-local" value="${escapeHtml(userListFilter.to)}">
+              </div>
+              <div class="form-field">
+                <label for="ulGroup">User Group</label>
+                <select id="ulGroup">${options(["", "New/Regular", "VIP"], userListFilter.group)}</select>
+              </div>
+              <div class="form-field">
+                <label for="ulSearch">Email / Phone / SR User ID</label>
+                <input id="ulSearch" placeholder="Please enter" value="${escapeHtml(userListFilter.search)}">
+              </div>
+              <div class="form-field">
+                <label for="ulRegisterIp">Register IP</label>
+                <input id="ulRegisterIp" placeholder="Register IP" value="${escapeHtml(userListFilter.registerIp)}">
+              </div>
+              <div class="form-field">
+                <label for="ulStatus">Status</label>
+                <select id="ulStatus">${options(["", "Enabled", "Deleted"], userListFilter.status)}</select>
+              </div>
+              <div class="form-field">
+                <label for="ulAffiliate">Affiliate ID</label>
+                <input id="ulAffiliate" placeholder="Affiliate ID" value="${escapeHtml(userListFilter.affiliate)}">
+              </div>
+              <div class="form-field">
+                <label>Balance Amount</label>
+                <div class="ud-time-range">
+                  <input id="ulMinBalance" type="number" min="0" placeholder="From" value="${escapeHtml(userListFilter.minBalance)}">
+                  <input id="ulMaxBalance" type="number" min="0" placeholder="To" value="${escapeHtml(userListFilter.maxBalance)}">
+                </div>
+              </div>
+            </div>
+            <div class="action-row">
+              <button class="btn" type="button" data-user-list-action="search">⌕ Search</button>
+              <button class="btn reset" type="button" data-user-list-action="reset">↺ Reset</button>
+              <span class="ud-status">Total User: ${rows.length}</span>
+              <span class="ud-status">Total Balance: ${money(rows.reduce((total, user) => total + Number(user.balance || 0), 0))}</span>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <h2>User List</h2>
+              <span style="font-size:12px;color:#667085">Showing ${rows.length} demo records (first 20)</span>
+            </div>
+            <div class="table-wrap">
+              <table class="table" style="min-width:1700px">
+                <thead>
+                  <tr>
+                    <th>User</th><th>Status</th><th>User Group</th><th>VIP</th>
+                    <th>Affiliate</th><th>Balance</th><th>Reg Time</th>
+                    <th>Register IP</th><th>Register Device</th><th>Dep Amount</th>
+                    <th>Wtd Amount</th><th>Stake</th><th>Payout</th>
+                    <th>Customer Profit</th><th>RTP</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${
+                    rows.length
+                      ? rows
+                          .map(
+                            (user) => `
+                              <tr>
+                                <td><button class="user-link" type="button" data-user-info-id="${escapeHtml(user.id)}">${escapeHtml(user.email)}</button><br><span style="color:#667085">${escapeHtml(user.phone)}</span></td>
+                                <td><span class="ud-status ${user.status === "Deleted" ? "rejected" : "approved"}">${escapeHtml(user.status)}</span></td>
+                                <td>${escapeHtml(user.userGroup)}</td>
+                                <td>${escapeHtml(user.vip)}</td>
+                                <td>${escapeHtml(user.affiliate)}</td>
+                                <td>${escapeHtml(money(user.balance))}</td>
+                                <td>${escapeHtml(user.regTime)}</td>
+                                <td>${escapeHtml(user.registerIp)}</td>
+                                <td>${escapeHtml(user.registerDevice)}</td>
+                                <td>${escapeHtml(money(user.depAmount))}</td>
+                                <td>${escapeHtml(money(user.wtdAmount))}</td>
+                                <td>${escapeHtml(money(user.stake))}</td>
+                                <td>${escapeHtml(money(user.payout))}</td>
+                                <td>${escapeHtml(money(user.customerProfit))}</td>
+                                <td>${escapeHtml(user.rtp)}</td>
+                              </tr>
+                            `,
+                          )
+                          .join("")
+                      : '<tr><td colspan="15" class="empty">No matching users</td></tr>'
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <p class="form-note">Prototype only · All 20 listed accounts are synthetic examples; no live member data is included.</p>
+        `;
+      }
+
+      function userInfoHtml() {
+        const user = userRows.find((item) => item.id === selectedUserInfoId);
+        if (!user) return genericPageHtml("User Info");
+        const money = (value) =>
+          "$" +
+          Number(value || 0).toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+        const fields = [
+          ["User Name", user.username || "-"],
+          ["User Group", user.userGroup || "-"],
+          ["Telephone", user.phone || "-"],
+          ["E-mail", user.email || "-"],
+          ["State", user.status || "-"],
+          ["Address", user.address || "-"],
+          ["Bookmaker ID", user.bookmakerId || user.id],
+          ["KYC", user.kycStatus || "-"],
+          ["VIP Level", user.vip || "VIP 0"],
+          ["Agent", user.agent || "0"],
+          ["KYC Document Type", user.kycDocumentType || "-"],
+          ["Last Login Time", user.lastLoginTime || user.regTime || "-"],
+          ["Registration Time", user.regTime || "-"],
+          ["Last Termination", user.lastTermination || "(-)"],
+          ["Registration IP", user.registerIp || "-"],
+          ["Full Name", user.fullName || "-"],
+          ["Last Login IP", user.lastLoginIp || user.registerIp || "-"],
+          ["Register Device", user.registerDevice || "-"],
+        ];
+        const metrics = [
+          ["Cash Balance", money(user.balance)],
+          ["Total Deposit", money(user.depAmount)],
+          ["Total Withdrawal", money(user.wtdAmount), `Pending ${money(user.pendingWithdrawal)}`],
+          ["Total Winnings", money(user.totalWinnings ?? Math.max(0, Number(user.customerProfit) || 0))],
+          ["Total Outstanding Stake", money(user.stake)],
+        ];
+        return `
+          <div class="breadcrumb">Home / User Management / <button class="user-link" type="button" data-user-list-action="back">User List</button> / User Info</div>
+          <div class="user-info-heading">
+            <h1>${escapeHtml(user.email)}</h1>
+            <span class="ud-status ${user.status === "Deleted" ? "rejected" : "approved"}">${escapeHtml(user.status || "Enabled")}</span>
+            <span class="ud-status">${escapeHtml(user.userGroup || "New/Regular")}</span>
+          </div>
+          <div class="user-info-tabs" aria-label="User information sections">
+            <span class="active">Overview</span>
+            <span>Setting</span>
+            <span>Betting History</span>
+            <span>Deposit History</span>
+            <span>Withdrawal History</span>
+            <span>Balance History</span>
+            <span>VIP</span>
+            <span>Bonus History</span>
+            <span>Operation</span>
+            <span>User Activity Overview</span>
+            <button type="button" data-user-info-action="refresh">Refresh</button>
+          </div>
+          <div class="panel user-info-panel">
+            <h2>▤ Basic Info</h2>
+            <div class="user-info-metrics">
+              ${metrics
+                .map(
+                  ([label, value, note]) => `<div class="user-info-metric"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}${note ? `<small>${escapeHtml(note)}</small>` : ""}</strong></div>`,
+                )
+                .join("")}
+            </div>
+            <div class="user-info-grid">
+              ${fields
+                .map(
+                  ([label, value]) => `<div class="user-info-field"><strong>${escapeHtml(label)}</strong><span>${escapeHtml(value)}</span></div>`,
+                )
+                .join("")}
+            </div>
+          </div>
+          <p class="form-note">Demo User Info · Account status and financial figures are synthetic and do not update a live account.</p>
+        `;
+      }
+
+      function userDeleteHtml() {
+        const includes = (value, query) =>
+          !query || String(value || "").toLowerCase().includes(query.toLowerCase());
+        const rows = userDeleteRows.filter((row) => {
+          const submitTime = row.submitTime || "";
+          return (
+            (!userDeleteFilter.from ||
+              submitTime >= userDeleteFilter.from) &&
+            (!userDeleteFilter.to || submitTime <= userDeleteFilter.to) &&
+            includes(row.email, userDeleteFilter.email) &&
+            includes(row.phone, userDeleteFilter.phone) &&
+            includes(row.submitCode, userDeleteFilter.submitCode)
+          );
+        });
+        const money = (value) =>
+          "$" +
+          Number(value || 0).toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+        return `
+          <div class="breadcrumb">Home / User Management / User Delete</div>
+          <h1 class="page-title">User Delete</h1>
+          <div class="filter-box">
+            <div class="filter-grid">
+              <div class="form-field">
+                <label for="udSubmitFrom">Submit time from</label>
+                <input id="udSubmitFrom" type="datetime-local" value="${escapeHtml(userDeleteFilter.from)}">
+              </div>
+              <div class="form-field">
+                <label for="udSubmitTo">Submit time to</label>
+                <input id="udSubmitTo" type="datetime-local" value="${escapeHtml(userDeleteFilter.to)}">
+              </div>
+              <div class="form-field">
+                <label for="udEmail">EMail</label>
+                <input id="udEmail" type="email" placeholder="Please enter" value="${escapeHtml(userDeleteFilter.email)}">
+              </div>
+              <div class="form-field">
+                <label for="udPhone">Phone</label>
+                <input id="udPhone" type="tel" placeholder="Please enter" value="${escapeHtml(userDeleteFilter.phone)}">
+              </div>
+              <div class="form-field">
+                <label for="udSubmitCode">Submit Code</label>
+                <input id="udSubmitCode" placeholder="Please enter" value="${escapeHtml(userDeleteFilter.submitCode)}">
+              </div>
+            </div>
+            <div class="action-row">
+              <button class="btn light" type="button" data-user-delete-action="reset">Reset</button>
+              <button class="btn" type="button" data-user-delete-action="search">Query</button>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <h2>User Delete List</h2>
+              <span style="font-size:12px;color:#667085">Total: ${rows.length}</span>
+            </div>
+            <div class="table-wrap">
+              <table class="table" style="min-width:1250px">
+                <thead>
+                  <tr>
+                    <th>SubmitCode</th>
+                    <th>User</th>
+                    <th>KYC status</th>
+                    <th>User Group</th>
+                    <th>VIP</th>
+                    <th>Balance</th>
+                    <th>Reason</th>
+                    <th>Notice</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${
+                    rows.length
+                      ? rows
+                          .map(
+                            (row) => `
+                              <tr>
+                                <td>${escapeHtml(row.submitCode)}</td>
+                                <td><button class="user-link" type="button" data-user-info-id="${escapeHtml(row.userId || "")}">${escapeHtml(row.email)}</button><br><span style="color:#667085">${escapeHtml(row.phone)}</span></td>
+                                <td>${escapeHtml(row.kycStatus)}</td>
+                                <td>${escapeHtml(row.userGroup)}</td>
+                                <td>${escapeHtml(row.vip)}</td>
+                                <td>${escapeHtml(money(row.balance))}</td>
+                                <td>${escapeHtml(row.reason)}</td>
+                                <td>${escapeHtml(row.notice || "-")}</td>
+                                <td>
+                                  ${
+                                    row.reviewStatus
+                                      ? `<div class="ud-actions"><span class="ud-status ${row.reviewStatus.toLowerCase()}">${escapeHtml(row.reviewStatus)}</span>
+                                          ${row.reviewStatus === "Approved" && Number(row.balance) > 0 && !row.refundStatus ? `<button class="btn" type="button" data-user-delete-action="refund" data-id="${escapeHtml(row.id)}">Refund ${escapeHtml(money(row.balance))}</button>` : ""}
+                                          ${row.refundStatus ? `<span class="ud-status approved">Refunded ${escapeHtml(money(row.refundedAmount))}</span>` : ""}
+                                        </div>`
+                                      : `<div class="ud-actions">
+                                          <button class="btn" type="button" data-user-delete-action="approve" data-id="${escapeHtml(row.id)}">Approve</button>
+                                          <button class="btn danger" type="button" data-user-delete-action="reject" data-id="${escapeHtml(row.id)}">Reject</button>
+                                        </div>`
+                                  }
+                                </td>
+                              </tr>
+                            `,
+                          )
+                          .join("")
+                      : '<tr><td colspan="9" class="empty">No matching requests</td></tr>'
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <p class="form-note">Prototype only · Example requests and review results are stored in this browser; no live account is changed.</p>
+        `;
+      }
+
+      function payCodePageHtml(rows = payCodeRows) {
+        return `
+                <div class="breadcrumb">Home / Finance Management / PayCode</div>
+                <h1 class="page-title">Merchant PayCode</h1>
+
+                <div class="filter-box">
+                    <div class="filter-grid">
+                        <div class="form-field">
+                            <label>Merchant</label>
+                            <select id="payCodeMerchantFilter">
+                                <option value="">All</option>
+                                <option value="ZPay">ZPay</option>
+                            </select>
+                        </div>
+
+                        <div class="form-field">
+                            <label>Currency</label>
+                            <select id="payCodeCurrencyFilter">
+                                <option value="">All</option>
+                                <option value="BRL">BRL</option>
+                                <option value="MXN">MXN</option>
+                                <option value="USD">USD</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="action-row">
+                        <button class="btn" id="payCodeQueryBtn" type="button">查询</button>
+                        <button class="btn reset" id="payCodeResetBtn" type="button">重置</button>
+                        <button class="btn" id="payCodeAddBtn" type="button">+ 新增</button>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <h2>Merchant PayCode</h2>
+                        <span style="font-size:12px;color:#667085">Total: ${rows.length}</span>
+                    </div>
+
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>PayCodeName</th>
+                                    <th>AccountType</th>
+                                    <th>BankCode</th>
+                                    <th>PayCode</th>
+                                    <th>点击前 Logo</th>
+                                    <th>点击后 Logo</th>
+                                    <th>Merchant</th>
+                                    <th>Currency</th>
+                                    <th>Status</th>
+                                    <th>Created By</th>
+                                    <th>Created Date</th>
+                                    <th>Updated By</th>
+                                    <th>Updated At</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${
+                                  rows.length
+                                    ? rows
+                                        .map((row) => payCodeRowHtml(row))
+                                        .join("")
+                                    : `
+                                    <tr>
+                                        <td colspan="15" class="empty">No data available</td>
+                                    </tr>
+                                `
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+      }
+
+      function payCodeRowHtml(row) {
+        const enabled = row.status === "Enabled";
+
+        return `
+                <tr data-paycode-id="${row.id}">
+                    <td>${row.id}</td>
+                    <td>${escapeHtml(row.payCodeName)}</td>
+                    <td>${escapeHtml(row.accountType || "-")}</td>
+                    <td>${escapeHtml(row.bankCode || "-")}</td>
+                    <td>${escapeHtml(row.payCode)}</td>
+                    <td>${payCodeLogoCellHtml(row.logoBefore)}</td>
+                    <td>${payCodeLogoCellHtml(row.logoAfter)}</td>
+                    <td>${escapeHtml(row.merchant)}</td>
+                    <td>${escapeHtml(row.currency)}</td>
+                    <td>
+                        <label class="status-switch">
+                            <input type="checkbox" data-paycode-status="${row.id}" ${enabled ? "checked" : ""}>
+                            <span class="status-slider"></span>
+                            <span class="status-switch-text">${enabled ? "启动" : "关闭"}</span>
+                        </label>
+                    </td>
+                    <td>${escapeHtml(row.createdBy)}</td>
+                    <td>${escapeHtml(row.createdDate)}</td>
+                    <td>${escapeHtml(row.updatedBy)}</td>
+                    <td>${escapeHtml(row.updatedAt)}</td>
+                    <td>
+                        <button class="link-action" data-paycode-action="edit" type="button">Edit</button>
+                        <button class="link-action remove" data-paycode-action="delete" type="button">Delete</button>
+                    </td>
+                </tr>
+            `;
+      }
+
+      function payCodeLogoCellHtml(src) {
+        return src
+          ? `<img class="paycode-logo-thumb" src="${escapeHtml(src)}" alt="PayCode Logo">`
+          : '<span style="color:#98a2b3">-</span>';
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? "").replace(
+          /[&<>'"]/g,
+          (char) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              "'": "&#39;",
+              '"': "&quot;",
+            })[char],
+        );
+      }
+
+      function getPayCodeById(id) {
+        return payCodeRows.find((row) => String(row.id) === String(id));
+      }
+
+      function openPayCodeModal(mode = "add", row = null) {
+        editingPayCodeId = row?.id || null;
+
+        const data = row || {
+          payCodeName: "",
+          merchant: "ZPay",
+          currency: "BRL",
+          type: "withdraw",
+          accountType: "",
+          bankCode: "",
+          payCode: "",
+          kycLimit: "",
+          logoBefore: "",
+          logoAfter: "",
+          status: "Enabled",
+        };
+
+        $("#payCodeModalTitle").textContent =
+          mode === "edit" ? "修改 PayCode" : "新增 PayCode";
+
+        $("#payCodeModalBody").innerHTML = `
+                <div class="modal-grid">
+                    <div class="modal-field">
+                        <label>PayCode名称 <span class="required">*</span></label>
+                        <input id="payCodeNameInput" value="${escapeHtml(data.payCodeName)}" placeholder="请输入 PayCode 名称">
+                    </div>
+
+                    <div class="modal-field">
+                        <label>Merchant ID <span class="required">*</span></label>
+                        <select id="payCodeMerchantInput">
+                            <option value="ZPay" selected>ZPay</option>
+                        </select>
+                        <div class="form-note">Merchant 暂时固定为 ZPay。</div>
+                    </div>
+
+                    <div class="modal-field">
+                        <label>Currency ID <span class="required">*</span></label>
+                        <select id="payCodeCurrencyInput">
+                            <option value="BRL" ${data.currency === "BRL" ? "selected" : ""}>BRL</option>
+                            <option value="MXN" ${data.currency === "MXN" ? "selected" : ""}>MXN</option>
+                            <option value="USD" ${data.currency === "USD" ? "selected" : ""}>USD</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-field">
+                        <label>AccountType <span class="required">*</span></label>
+                        <select id="payCodeAccountTypeInput">
+                            <option value="">Please select</option>
+                            <option value="CPF" ${data.accountType === "CPF" ? "selected" : ""}>CPF</option>
+                            <option value="PIX" ${data.accountType === "PIX" ? "selected" : ""}>PIX</option>
+                            <option value="CLABE" ${data.accountType === "CLABE" ? "selected" : ""}>CLABE</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-field">
+                        <label>Bank Code <span class="required">*</span></label>
+                        <select id="payCodeBankCodeInput">
+                            <option value="">Please select</option>
+                            <option value="PIX" ${data.bankCode === "PIX" ? "selected" : ""}>PIX</option>
+                            <option value="STP" ${data.bankCode === "STP" ? "selected" : ""}>STP</option>
+                            <option value="OXXO" ${data.bankCode === "OXXO" ? "selected" : ""}>OXXO</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-field full">
+                        <label>点击前 Logo <span class="required">*</span></label>
+                        ${payCodeLogoUploadHtml("payCodeLogoBeforeInput", "payCodeLogoBeforePreview", data.logoBefore)}
+                        <div class="form-note">PayCode 尚未点击 / 选中时显示。</div>
+                    </div>
+
+                    <div class="modal-field full">
+                        <label>点击后 Logo <span class="required">*</span></label>
+                        ${payCodeLogoUploadHtml("payCodeLogoAfterInput", "payCodeLogoAfterPreview", data.logoAfter)}
+                        <div class="form-note">PayCode 点击 / 选中后显示。</div>
+                    </div>
+
+                    <div class="modal-field">
+                        <label>Pay Code <span class="required">*</span></label>
+                        <select id="payCodeValueInput"></select>
+                        <div class="form-note">
+                            Pay Code 会依 Currency 自动提供可选项目。
+                        </div>
+                    </div>
+                    </div>
+            `;
+
+        syncPayCodeOptions(data.payCode);
+        $("#payCodeModalMask").classList.add("open");
+      }
+
+      function payCodeLogoUploadHtml(inputId, previewId, value = "") {
+        return `
+                <div class="paycode-logo-upload">
+                    <div class="paycode-logo-preview" id="${previewId}">
+                        ${value ? `<img src="${escapeHtml(value)}" alt="Logo Preview">` : "No Image"}
+                    </div>
+                    <input id="${inputId}" type="file" accept="image/*">
+                    <input id="${inputId}Value" type="hidden" value="${escapeHtml(value || "")}">
+                </div>
+            `;
+      }
+
+      function handlePayCodeLogoUpload(inputId, previewId) {
+        const input = document.getElementById(inputId);
+        const preview = document.getElementById(previewId);
+        const valueInput = document.getElementById(`${inputId}Value`);
+        const file = input?.files?.[0];
+
+        if (!file || !preview || !valueInput) return;
+        if (!file.type.startsWith("image/")) {
+          toast("请选择图片文件");
+          input.value = "";
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          const dataUrl = String(reader.result || "");
+          valueInput.value = dataUrl;
+          preview.innerHTML = `<img src="${dataUrl}" alt="Logo Preview">`;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function closePayCodeModal() {
+        $("#payCodeModalMask").classList.remove("open");
+        editingPayCodeId = null;
+      }
+
+      function getPayCodeOptions(currency) {
+        const mapping = {
+          BRL: ["PIX"],
+          MXN: ["STP"],
+          USD: ["GooglePay"],
+        };
+
+        return mapping[currency] || [];
+      }
+
+      function syncPayCodeOptions(preferredValue = "") {
+        const currency = $("#payCodeCurrencyInput")?.value || "";
+        const select = $("#payCodeValueInput");
+
+        if (!select) return;
+
+        const options = getPayCodeOptions(currency);
+        const selectedValue = options.includes(preferredValue)
+          ? preferredValue
+          : options[0] || "";
+
+        select.innerHTML = options
+          .map(
+            (value) => `
+                <option value="${escapeHtml(value)}" ${value === selectedValue ? "selected" : ""}>
+                    ${escapeHtml(value)}
+                </option>
+            `,
+          )
+          .join("");
+      }
+
+      function savePayCodeModal() {
+        const payCodeName = $("#payCodeNameInput").value.trim();
+        const merchant = $("#payCodeMerchantInput").value;
+        const currency = $("#payCodeCurrencyInput").value;
+        const payCode = $("#payCodeValueInput").value;
+        const logoBefore = $("#payCodeLogoBeforeInputValue")?.value || "";
+        const logoAfter = $("#payCodeLogoAfterInputValue")?.value || "";
+        const currentRow = editingPayCodeId
+          ? getPayCodeById(editingPayCodeId)
+          : null;
+        const status = currentRow?.status || "Enabled";
+
+        const accountType = $("#payCodeAccountTypeInput").value;
+        const bankCode = $("#payCodeBankCodeInput").value;
+
+        if (!payCodeName) {
+          toast("请输入 PayCode 名称");
+          return;
+        }
+
+        if (!payCode) {
+          toast("请输入 Pay Code");
+          return;
+        }
+
+        if (!logoBefore) {
+          toast("请上传点击前 Logo");
+          return;
+        }
+
+        if (!logoAfter) {
+          toast("请上传点击后 Logo");
+          return;
+        }
+
+        if (!accountType) {
+          toast("Withdraw 请先选择 AccountType");
+          return;
+        }
+
+        if (!bankCode) {
+          toast("Withdraw 请先选择 Bank Code");
+          return;
+        }
+
+        const current = editingPayCodeId
+          ? getPayCodeById(editingPayCodeId)
+          : null;
+        const timestamp = nowText();
+
+        const data = {
+          id: current
+            ? current.id
+            : Math.max(0, ...payCodeRows.map((row) => Number(row.id))) + 1,
+          payCodeName,
+          accountType,
+          bankCode,
+          payCode,
+          logoBefore,
+          logoAfter,
+          merchant,
+          currency,
+          status,
+          createdBy: current?.createdBy || "Admin",
+          createdDate: current?.createdDate || timestamp,
+          updatedBy: "Admin",
+          updatedAt: timestamp,
+        };
+
+        if (current) {
+          Object.assign(current, data);
+        } else {
+          payCodeRows.unshift(data);
+        }
+
+        saveState(STORE_PAYCODE, payCodeRows);
+        closePayCodeModal();
+        renderContent("PayCode");
+        toast("PayCode saved");
+      }
+
+      function applyPayCodeFilter() {
+        const merchant = $("#payCodeMerchantFilter")?.value || "";
+        const currency = $("#payCodeCurrencyFilter")?.value || "";
+
+        const rows = payCodeRows.filter((row) => {
+          return (
+            (!merchant || row.merchant === merchant) &&
+            (!currency || row.currency === currency)
+          );
+        });
+
+        content.innerHTML = payCodePageHtml(rows);
+
+        if ($("#payCodeMerchantFilter"))
+          $("#payCodeMerchantFilter").value = merchant;
+        if ($("#payCodeCurrencyFilter"))
+          $("#payCodeCurrencyFilter").value = currency;
+      }
+
+      function confirmAction(message, callback, title = "确认删除") {
+        confirmCallback = callback;
+        $("#confirmTitle").textContent = title;
+        $("#confirmMessage").textContent = message;
+        $("#confirmMask").classList.add("open");
+      }
+
+      function closeConfirm() {
+        $("#confirmMask").classList.remove("open");
+        confirmCallback = null;
+      }
+
+      function toast(message) {
+        const el = $("#toast");
+        el.textContent = message;
+        el.classList.add("show");
+        clearTimeout(el.timer);
+        el.timer = setTimeout(() => el.classList.remove("show"), 1600);
+      }
+
+      menu.addEventListener("click", (event) => {
+        const item = event.target.closest(".menu-item");
+        const sub = event.target.closest(".sub");
+
+        if (item) {
+          const section = item.closest(".menu-section");
+          const submenu = section.querySelector(".submenu");
+
+          if (submenu) {
+            section.classList.toggle("open");
+          } else if (item.dataset.page) {
+            addTab(item.dataset.page);
+          }
+
+          return;
+        }
+
+        if (sub) {
+          if (sub.classList.contains("parent")) {
+            sub.classList.toggle("open");
+            sub.nextElementSibling?.classList.toggle("open");
+            return;
+          }
+
+          addTab(sub.dataset.page);
+        }
+      });
+
+      tabsEl.addEventListener("click", (event) => {
+        const close = event.target.closest("[data-close]");
+
+        if (close) {
+          event.stopPropagation();
+          closeTab(close.dataset.close);
+          return;
+        }
+
+        const tab = event.target.closest("[data-tab]");
+        if (tab) activateTab(tab.dataset.tab);
+      });
+
+      content.addEventListener("click", (event) => {
+        if (event.target.closest("[data-user-info-action='refresh']")) {
+          renderContent("User Info");
+          toast("User Info refreshed");
+          return;
+        }
+
+        const userInfoLink = event.target.closest("[data-user-info-id]");
+        if (userInfoLink) {
+          selectedUserInfoId = userInfoLink.dataset.userInfoId;
+          addTab("User Info");
+          return;
+        }
+
+        const userListAction = event.target.closest("[data-user-list-action]");
+        if (userListAction) {
+          const action = userListAction.dataset.userListAction;
+          if (action === "back") {
+            addTab("User List");
+            return;
+          }
+          if (action === "reset") {
+            userListFilter = {
+              search: "",
+              group: "",
+              status: "",
+              registerIp: "",
+              affiliate: "",
+              from: "",
+              to: "",
+              minBalance: "",
+              maxBalance: "",
+            };
+            renderContent("User List");
+            return;
+          }
+          if (action === "search") {
+            const from = $("#ulFrom").value;
+            const to = $("#ulTo").value;
+            const minBalance = $("#ulMinBalance").value.trim();
+            const maxBalance = $("#ulMaxBalance").value.trim();
+            if (from && to && from > to) {
+              toast("Register time from must be before Register time to");
+              return;
+            }
+            if (
+              minBalance !== "" &&
+              maxBalance !== "" &&
+              Number(minBalance) > Number(maxBalance)
+            ) {
+              toast("Balance from must be less than or equal to Balance to");
+              return;
+            }
+            userListFilter = {
+              search: $("#ulSearch").value.trim(),
+              group: $("#ulGroup").value,
+              status: $("#ulStatus").value,
+              registerIp: $("#ulRegisterIp").value.trim(),
+              affiliate: $("#ulAffiliate").value.trim(),
+              from,
+              to,
+              minBalance,
+              maxBalance,
+            };
+            renderContent("User List");
+            return;
+          }
+        }
+
+        const userDeleteAction = event.target.closest(
+          "[data-user-delete-action]",
+        );
+        if (userDeleteAction) {
+          const action = userDeleteAction.dataset.userDeleteAction;
+          if (action === "reset") {
+            userDeleteFilter = {
+              from: "",
+              to: "",
+              email: "",
+              phone: "",
+              submitCode: "",
+            };
+            renderContent("User Delete");
+            return;
+          }
+
+          if (action === "search") {
+            const from = $("#udSubmitFrom").value;
+            const to = $("#udSubmitTo").value;
+            if (from && to && from > to) {
+              toast("Submit time from must be before Submit time to");
+              return;
+            }
+            userDeleteFilter = {
+              from,
+              to,
+              email: $("#udEmail").value.trim(),
+              phone: $("#udPhone").value.trim(),
+              submitCode: $("#udSubmitCode").value.trim(),
+            };
+            renderContent("User Delete");
+            return;
+          }
+
+          if (action === "refund") {
+            const row = userDeleteRows.find(
+              (item) => item.id === userDeleteAction.dataset.id,
+            );
+            const user = row && userRows.find((item) => item.id === row.userId);
+            if (
+              !row ||
+              !user ||
+              row.reviewStatus !== "Approved" ||
+              row.refundStatus ||
+              Number(row.balance) <= 0
+            ) {
+              toast("This request is not eligible for refund");
+              return;
+            }
+            const amount = Number(row.balance);
+            confirmAction(
+              `Refund $${amount.toFixed(2)} to ${row.submitCode}? This demo will record the refund locally only.`,
+              () => {
+                row.refundedAmount = amount;
+                row.refundStatus = "Refunded";
+                row.balance = 0;
+                user.balance = 0;
+                row.refundedAt = nowText();
+                saveState(STORE_USER_DELETE, userDeleteRows);
+                saveState(STORE_USER_LIST, userRows);
+                renderContent("User Delete");
+                toast("Refund recorded (Demo)");
+              },
+              "Confirm refund",
+            );
+            return;
+          }
+
+          if (action === "approve" || action === "reject") {
+            const row = userDeleteRows.find(
+              (item) => item.id === userDeleteAction.dataset.id,
+            );
+            if (!row || row.reviewStatus) return;
+            const approved = action === "approve";
+            const user = userRows.find((item) => item.id === row.userId);
+            confirmAction(
+              approved
+                ? `Approve request ${row.submitCode}? The user's status will become Deleted; the account record will be kept. Any remaining balance can be refunded afterward.`
+                : `Reject user deletion request ${row.submitCode}?`,
+              () => {
+                row.reviewStatus = approved ? "Approved" : "Rejected";
+                row.reviewedAt = nowText();
+                if (approved && user) user.status = "Deleted";
+                saveState(STORE_USER_DELETE, userDeleteRows);
+                if (approved) saveState(STORE_USER_LIST, userRows);
+                renderContent("User Delete");
+                toast(
+                  approved
+                    ? "User status marked Deleted; account retained (Demo)"
+                    : "Request rejected (Demo)",
+                );
+              },
+              "Review user deletion request",
+            );
+            return;
+          }
+        }
+
+        if (event.target.closest("#merchantAddBtn")) {
+          openMerchantModal("add");
+          return;
+        }
+
+        if (event.target.closest("#merchantResetBtn")) {
+          renderContent("Merchant");
+          return;
+        }
+
+        if (event.target.closest("#merchantQueryBtn")) {
+          applyMerchantFilter();
+          return;
+        }
+
+        const merchantAction = event.target.closest("[data-merchant-action]");
+        if (merchantAction) {
+          const row = getMerchantById(
+            merchantAction.closest("tr").dataset.merchantId,
+          );
+          if (merchantAction.dataset.merchantAction === "edit") {
+            openMerchantModal("edit", row);
+          } else if (merchantAction.dataset.merchantAction === "remove") {
+            confirmAction(
+              `确认移除 Merchant「${row.name}」？删除后将从列表中移除。`,
+              () => {
+                merchantRows = merchantRows.filter(
+                  (item) => String(item.id) !== String(row.id),
+                );
+                saveState(STORE_MERCHANT, merchantRows);
+                renderContent("Merchant");
+                toast("Merchant removed");
+              },
+            );
+          }
+          return;
+        }
+
+        if (event.target.closest("#payCodeAddBtn")) {
+          openPayCodeModal("add");
+          return;
+        }
+
+        if (event.target.closest("#payCodeResetBtn")) {
+          renderContent("PayCode");
+          return;
+        }
+
+        if (event.target.closest("#payCodeQueryBtn")) {
+          applyPayCodeFilter();
+          return;
+        }
+
+        const action = event.target.closest("[data-paycode-action]");
+
+        if (action) {
+          const row = getPayCodeById(action.closest("tr").dataset.paycodeId);
+
+          if (action.dataset.paycodeAction === "edit") {
+            openPayCodeModal("edit", row);
+          }
+
+          if (action.dataset.paycodeAction === "delete") {
+            confirmAction(`确认删除 PayCode「${row.payCodeName}」？`, () => {
+              payCodeRows = payCodeRows.filter(
+                (item) => String(item.id) !== String(row.id),
+              );
+              saveState(STORE_PAYCODE, payCodeRows);
+              renderContent("PayCode");
+              toast("PayCode deleted");
+            });
+          }
+        }
+      });
+
+      content.addEventListener("change", (event) => {
+        const merchantStatus = event.target.closest("[data-merchant-status]");
+
+        if (merchantStatus) {
+          const row = getMerchantById(merchantStatus.dataset.merchantStatus);
+
+          if (row) {
+            row.status = merchantStatus.checked ? "Enabled" : "Disabled";
+            row.updatedBy = "Admin";
+            row.updatedAt = nowText();
+            saveState(STORE_MERCHANT, merchantRows);
+
+            const text = merchantStatus
+              .closest(".status-switch")
+              ?.querySelector(".status-switch-text");
+
+            if (text) {
+              text.textContent = merchantStatus.checked ? "启动" : "关闭";
+            }
+
+            toast(
+              merchantStatus.checked
+                ? "Merchant status enabled"
+                : "Merchant status disabled",
+            );
+          }
+
+          return;
+        }
+
+        const status = event.target.closest("[data-paycode-status]");
+
+        if (!status) return;
+
+        const row = getPayCodeById(status.dataset.paycodeStatus);
+
+        if (row) {
+          row.status = status.checked ? "Enabled" : "Disabled";
+          row.updatedBy = "Admin";
+          row.updatedAt = nowText();
+          saveState(STORE_PAYCODE, payCodeRows);
+
+          const text = status
+            .closest(".status-switch")
+            ?.querySelector(".status-switch-text");
+          if (text) text.textContent = status.checked ? "启动" : "关闭";
+
+          toast(status.checked ? "Status enabled" : "Status disabled");
+        }
+      });
+
+      $("#merchantModalClose").addEventListener("click", closeMerchantModal);
+      $("#merchantModalCancel").addEventListener("click", closeMerchantModal);
+      $("#merchantModalSave").addEventListener("click", () => {
+        if ($("#merchantModalSave").onclick) return;
+        saveMerchantModal();
+      });
+      $("#merchantModalMask").addEventListener("click", (event) => {
+        if (event.target === $("#merchantModalMask")) closeMerchantModal();
+      });
+
+      $("#merchantModalBody").addEventListener("change", (event) => {
+        if (event.target.id !== "merchantStatusInput") return;
+
+        const text = $("#merchantStatusText");
+        if (text) {
+          text.textContent = event.target.checked ? "Enabled" : "Disabled";
+        }
+      });
+
+      $("#payCodeModalClose").addEventListener("click", closePayCodeModal);
+      $("#payCodeModalCancel").addEventListener("click", closePayCodeModal);
+      $("#payCodeModalSave").addEventListener("click", savePayCodeModal);
+      $("#payCodeModalMask").addEventListener("click", (event) => {
+        if (event.target === $("#payCodeModalMask")) closePayCodeModal();
+      });
+
+      $("#payCodeModalBody").addEventListener("change", (event) => {
+        if (event.target.id === "payCodeLogoBeforeInput") {
+          handlePayCodeLogoUpload(
+            "payCodeLogoBeforeInput",
+            "payCodeLogoBeforePreview",
+          );
+          return;
+        }
+
+        if (event.target.id === "payCodeLogoAfterInput") {
+          handlePayCodeLogoUpload(
+            "payCodeLogoAfterInput",
+            "payCodeLogoAfterPreview",
+          );
+          return;
+        }
+
+        if (event.target.id === "payCodeCurrencyInput") {
+          syncPayCodeOptions();
+        }
+      });
+      $("#confirmClose").addEventListener("click", closeConfirm);
+      $("#confirmCancel").addEventListener("click", closeConfirm);
+      $("#confirmMask").addEventListener("click", (event) => {
+        if (event.target === $("#confirmMask")) closeConfirm();
+      });
+      $("#confirmOk").addEventListener("click", () => {
+        const callback = confirmCallback;
+        closeConfirm();
+        if (callback) callback();
+      });
+
+      $("#menuToggle").addEventListener("click", () => {
+        if (window.innerWidth <= 900) {
+          sidebar.classList.toggle("open");
+        } else {
+          document.body.classList.toggle("collapsed");
+        }
+      });
+
+      function tick() {
+        const d = new Date();
+        const z = (n) => String(n).padStart(2, "0");
+        $("#clock").textContent =
+          `Local ${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}:${z(d.getSeconds())} (+08:00)`;
+      }
+
+      renderMenu();
+      renderTabs();
+      renderContent("Home");
+      tick();
+      setInterval(tick, 1000);
+
+      addTab("User Delete");
+    </script>
+  </body>
+</html>
