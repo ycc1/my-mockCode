@@ -9,8 +9,38 @@
   <style>
     :root{color-scheme:dark;--bg:#0b0b0c;--surface:#1a1a1b;--raised:#242527;--line:#323437;--text:#ededed;--muted:#a8a8aa;--brand:#2dd4bf;--danger:#ff9a94;--danger-bg:#30201f;--radius:12px;--font:Poppins,"Segoe UI",Arial,sans-serif}
     *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.6 var(--font)}button,input,select,textarea{font:inherit}button,a,input,select,textarea{outline-offset:4px} :focus-visible{outline:2px solid var(--brand)}a{color:var(--brand);text-underline-offset:4px}button{cursor:pointer}button:disabled{cursor:wait;opacity:.55}[hidden]{display:none!important}
+    .account-input{display:flex;gap:10px;align-items:stretch}.account-input input{flex:1;min-width:0}.login-button{flex:0 0 auto;min-height:48px;padding:0 18px;border:0;border-radius:8px;background:#ff4355;color:#fff;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}.login-button:hover{background:#e93649}
+    .login-modal{width:min(480px,calc(100% - 32px));max-width:none;min-height:500px;padding:0 32px 24px;border:1px solid #2b2b2b;border-radius:4px;background:#111;color:#f5f5f5;box-shadow:0 24px 80px #000b}.login-modal::backdrop{background:#000b}.login-modal-head{display:flex;align-items:center;justify-content:space-between;margin:0 -8px 20px}.login-modal-head h2{margin:0;font-size:26px;font-weight:700}.login-close{border:0;background:transparent;color:#aaa;font-size:30px;line-height:1;padding:4px 8px}.login-form{min-height:400px;display:flex;flex-direction:column}.login-field{position:relative;margin:0 0 8px}.login-modal .login-field input{width:100%;height:58px;padding:12px 42px;border:0;border-bottom:1px solid #454545;border-radius:0;background:transparent;color:#f5f5f5;font-size:18px}.login-modal .login-field input:focus{outline:0;border-bottom-color:var(--brand)}.login-field-icon{position:absolute;left:2px;top:17px;color:var(--brand);font-size:20px}.password-toggle{position:absolute;right:0;top:12px;border:0;background:transparent;color:#aaa;font-size:19px;padding:8px}.forgot-link{align-self:flex-start;margin-top:8px;color:#c7c7c7;text-decoration:none}.login-submit{width:100%;min-height:56px;margin-top:auto;border:0;border-radius:5px;background:#ff4355;color:#fff;font-size:18px;font-weight:600}.login-submit:hover{background:#e93649}.google-login{width:50px;height:50px;align-self:center;margin-top:28px;border:1px solid #383838;border-radius:50%;background:#151515;color:#4285f4;font-size:25px;font-weight:700;background:linear-gradient(90deg,#4285f4 0 25%,#34a853 25% 50%,#fbbc05 50% 75%,#ea4335 75%);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent}.login-message{min-height:36px;margin:12px 0 0;color:#e5bd84;font-size:12px}
+    .login-field-icon{width:24px;height:24px}
+    .login-modal{width:min(800px,calc(100% - 32px));height:min(650px,calc(100dvh - 24px));min-height:0;max-width:none;padding:0;overflow:hidden;border:1px solid #252525;border-radius:5px;background:#111;box-shadow:0 24px 80px #000b}
+    .login-modal[open]{display:grid;grid-template-columns:minmax(245px,37%) minmax(0,1fr)}
+    .login-promo{position:relative;overflow:hidden;min-height:0;padding:48px 32px;background:radial-gradient(ellipse at 70% 12%,#9b26c9 0,transparent 38%),linear-gradient(155deg,#30005f 0%,#4b0787 52%,#111f7b 100%);display:flex;flex-direction:column;justify-content:space-between}
+    .login-promo:before,.login-promo:after{content:"";position:absolute;border:1px solid #ffffff20;border-radius:50%;pointer-events:none}
+    .login-promo:before{width:360px;height:360px;right:-190px;top:17%;box-shadow:0 0 0 22px #ffffff08,0 0 0 54px #ffffff06}
+    .login-promo:after{width:220px;height:220px;left:-125px;bottom:-45px;background:radial-gradient(circle at 35% 35%,#36d5dd55,transparent 65%)}
+    .login-promo-brand{position:relative;z-index:1;font-size:30px;font-weight:900;font-style:italic;letter-spacing:-1.5px;color:#fff}
+    .login-promo-brand span{color:#ff4355}
+    .login-promo-copy{position:relative;z-index:2;margin:auto 0 170px;font-size:clamp(23px,3vw,34px);line-height:1.04;font-weight:900;letter-spacing:-.7px;color:#fff}
+    .login-promo-art{position:absolute;z-index:1;left:8%;right:5%;bottom:3%;height:30%;border-radius:48% 52% 12px 12px;background:radial-gradient(circle at 22% 30%,#fff 0 8%,#dce7ff 9% 12%,transparent 13%),radial-gradient(circle at 79% 26%,#ef4e59 0 7%,#b71e4a 8% 11%,transparent 12%),radial-gradient(ellipse at 54% 76%,#13bad4 0 15%,#143caa 38%,transparent 40%),linear-gradient(145deg,#8b2fd044,#10176b99);filter:drop-shadow(0 15px 20px #08051c99);transform:rotate(-7deg)}
+    .login-content{position:relative;display:flex;flex-direction:column;min-width:0;padding:38px 44px 24px;background:#111}
+    .login-close{position:absolute;top:10px;right:12px;z-index:2}
+    .login-modal-head{min-height:44px;margin:0 0 24px;gap:12px}
+    .login-modal-head h2{font-size:27px}
+    .login-help{margin-right:28px;padding:7px 12px;border:1px solid #393939;border-radius:22px;color:#ddd;text-decoration:none;font-size:11px;line-height:1.1;text-align:center}
+    .login-form{min-height:0;flex:1;justify-content:space-between}
+    .login-modal .login-field{margin:0 0 6px}
+    .login-modal .login-field input{height:59px;padding:12px 38px;border:0;border-bottom:1px solid #404040;border-radius:0;background:transparent;color:#f5f5f5;font-size:17px}
+    .login-field-icon{top:18px}
+    .password-toggle{top:11px}
+    .forgot-link{margin-top:8px;font-size:13px}
+    .login-submit{margin-top:24px}
+    .google-login{margin-top:28px}
+    .login-message{min-height:18px;text-align:center}
     header{height:80px;border-bottom:1px solid var(--line);background:var(--surface)}.header-inner{max-width:1120px;height:100%;padding:0 28px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{font-size:25px;font-weight:800;letter-spacing:-1px;font-style:italic}.brand span{color:var(--brand)}.header-note{font-size:12px;color:var(--muted)}
     main{max-width:1040px;margin:48px auto 56px;padding:0 24px}.eyebrow{font-size:12px;color:var(--brand);letter-spacing:1.8px;text-transform:uppercase;font-weight:600}h1{font-size:32px;line-height:1.25;font-weight:600;letter-spacing:-.7px;margin:12px 0}h2{font-size:18px;line-height:1.4;font-weight:600;margin:0 0 12px}h3{font-size:14px;margin:0 0 6px;font-weight:600}p{margin:0 0 16px}.intro{color:var(--muted);max-width:670px}.layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:24px;margin-top:28px;align-items:start}.card{background:var(--surface);border-radius:var(--radius);padding:24px}.card+.card{margin-top:16px}.section-label{border-bottom:1px solid var(--line);margin-bottom:24px}.section-label span{display:inline-block;padding:0 0 12px;border-bottom:4px solid var(--brand);font-weight:600}.muted,.help{color:var(--muted)}.help{font-size:12px;margin:6px 0 0}.warning{padding:16px;border:1px solid #61403c;border-radius:8px;background:var(--danger-bg);margin-bottom:24px}.warning strong{display:block;color:var(--danger);margin-bottom:4px}.warning p{margin:0;font-size:12px;color:#e3bfbc}.field{margin-bottom:20px}label{display:block;margin-bottom:8px;font-size:14px}input:not([type=checkbox]),select,textarea{width:100%;background:var(--raised);border:1px solid var(--line);border-radius:8px;color:var(--text);padding:12px;min-height:48px}input::placeholder,textarea::placeholder{color:var(--muted)}textarea{resize:vertical;min-height:88px}.optional{color:var(--muted);font-size:12px}.check{display:flex;align-items:flex-start;gap:10px;font-size:12px;cursor:pointer;margin:24px 0}.check input{accent-color:var(--brand);width:18px;height:18px;flex-shrink:0;margin:2px 0}.primary,.secondary{min-height:44px;border-radius:8px;padding:12px 20px;border:0;font-weight:600}.primary{color:#111;background:#fff}.primary:hover{background:#dedede}.secondary{color:var(--text);background:var(--raised);border:1px solid var(--line)}.wide{width:100%}.submit-note{text-align:center;font-size:12px;color:var(--muted);margin:12px 0 0}.steps{list-style:none;padding:0;margin:20px 0 0;counter-reset:step}.steps li{position:relative;padding-left:40px;margin-bottom:24px;counter-increment:step}.steps li:last-child{margin-bottom:0}.steps li:before{content:counter(step);position:absolute;left:0;top:0;background:var(--raised);border:1px solid var(--line);width:26px;height:26px;border-radius:50%;text-align:center;line-height:24px;color:var(--brand);font-size:12px}.steps p{font-size:12px;color:var(--muted);margin:0}.data-block{padding:16px 0;border-bottom:1px solid var(--line)}.data-block:last-child{border:0;padding-bottom:0}.data-block p{font-size:12px;color:var(--muted);margin:0}.tag{font-size:10px;letter-spacing:1px;color:var(--brand);display:block;margin-bottom:6px}.tag.retained{color:#e5bd84}.faq{margin-top:24px}details{border-bottom:1px solid var(--line);padding:16px 0}summary{cursor:pointer;font-size:14px}details p{font-size:12px;color:var(--muted);margin:12px 0 0}.preview{padding:10px 16px;background:var(--raised);border-bottom:1px solid var(--line);text-align:center;font-size:12px;color:#e5bd84}footer{max-width:1040px;padding:24px;margin:auto;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;color:var(--muted);font-size:12px}.status{margin:16px 0 0;color:var(--danger);font-size:13px;overflow-wrap:anywhere}dialog{max-width:460px;width:calc(100% - 32px);padding:28px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--text)}dialog::backdrop{background:#000b}dialog p{color:var(--muted);font-size:13px}.dialog-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:24px}.summary-value{color:var(--text);overflow-wrap:anywhere}.result-mark{width:48px;height:48px;border:1px solid var(--brand);color:var(--brand);border-radius:50%;display:grid;place-items:center;font-size:24px;margin-bottom:20px}
+    @media(max-width:420px){.account-input{flex-direction:column}.login-button{width:100%}}
+    @media(max-width:600px){.login-modal{height:min(620px,calc(100dvh - 24px))}.login-modal[open]{grid-template-columns:minmax(0,1fr)}.login-promo{display:none}.login-content{padding:42px 24px 22px}}
+    @media(max-height:560px){.login-modal{height:calc(100dvh - 16px);max-height:calc(100dvh - 16px);overflow:auto}.login-content{padding-top:28px}.login-form{min-height:360px}}
     @media(max-width:720px){header{height:64px}.header-inner{padding:0 20px}.brand{font-size:22px}.header-note{font-size:11px}main{margin:28px auto 32px;padding:0 16px}h1{font-size:26px}.layout{grid-template-columns:1fr;gap:16px;margin-top:24px}.card{padding:20px}.intro{font-size:13px}.faq{margin-top:16px}footer{margin:0 16px;padding:20px 0;flex-direction:column;gap:4px}.dialog-actions{flex-direction:column-reverse}.dialog-actions button{width:100%}}
   </style>
 </head>
@@ -28,7 +58,7 @@
           <div class="warning"><strong>La eliminación de tu cuenta es permanente</strong><p>Una vez eliminada tu cuenta, no podrás recuperar tu perfil ni volver a acceder a ella. Desinstalar la app no elimina tu cuenta.</p></div>
           <p class="help" style="margin-bottom:20px">Si tienes saldo o transacciones pendientes, puedes enviar tu solicitud ahora. Antes de completar la eliminación, procesaremos el saldo disponible y las transacciones pendientes conforme a los términos de la plataforma.</p>
           <form id="deletion-form">
-            <div class="field"><label for="account">Nombre de usuario, ID o correo vinculado a MEGWIN</label><input id="account" name="account" autocomplete="username" placeholder="Ingresa tu nombre de usuario, ID o correo" required maxlength="100"><p class="help">Usa un nombre de usuario, ID o correo registrado en MEGWIN. Verificaremos que la cuenta exista antes de continuar.</p></div>
+            <div class="field"><label for="account">Nombre de usuario, ID o correo vinculado a MEGWIN</label><div class="account-input"><input id="account" name="account" autocomplete="username" placeholder="Ingresa tu nombre de usuario, ID o correo" required maxlength="100"><button class="login-button" id="open-login" type="button" aria-haspopup="dialog" aria-controls="login-dialog">Iniciar Sesión</button></div><p class="help">¿No recuerdas los datos de tu cuenta? Usa el inicio de sesión para identificar tu cuenta.</p></div>
             <div class="field"><label for="email">Correo electrónico de contacto</label><input id="email" name="email" type="email" autocomplete="email" placeholder="Ingresa tu correo electrónico" required maxlength="254"><p class="help">Te contactaremos para verificar que la cuenta te pertenece. Si es posible, usa el correo vinculado a tu cuenta.</p></div>
             <div class="field">
               <label for="reason">Motivo de la eliminación <span class="optional">(opcional)</span></label>
@@ -86,6 +116,25 @@
   </main>
   <footer><span>© MEGWIN · Eliminación de cuenta</span><span id="support-copy">Para solicitar la eliminación o consultar su estado: <a href="mailto:customerservice@megwin.mx?subject=Solicitud%20de%20eliminaci%C3%B3n%20de%20cuenta%20MEGWIN">customerservice@megwin.mx</a></span></footer>
   <dialog id="confirmation" aria-labelledby="confirm-heading" aria-describedby="confirm-copy"><h2 id="confirm-heading">Confirma tu solicitud de eliminación</h2><p id="confirm-copy">Estás solicitando la eliminación permanente de la siguiente cuenta de MEGWIN y los datos personales asociados.</p><p>Cuenta<br><strong class="summary-value" id="confirm-account"></strong></p><p>Correo electrónico de contacto<br><strong class="summary-value" id="confirm-email"></strong></p><div class="warning" id="balance-warning" hidden><strong>Saldo o transacciones pendientes</strong><p>Tu cuenta tiene saldo o transacciones que aún no se han completado. Puedes enviar tu solicitud de eliminación ahora. Antes de completar la eliminación de la cuenta, deberemos procesar el saldo disponible y las transacciones pendientes conforme a los términos de la plataforma.</p></div><p>Al enviar la solicitud, se inicia la verificación de titularidad. Tu cuenta no se eliminará de inmediato.</p><div class="dialog-actions"><button class="secondary" id="cancel" type="button">Regresar</button><button class="primary" id="confirm" type="button">Enviar solicitud de eliminación</button></div></dialog>
+  <dialog class="login-modal" id="login-dialog" aria-labelledby="login-heading">
+    <aside class="login-promo" aria-label="MEGWIN">
+      <div class="login-promo-brand">MEG<span>WIN</span></div>
+      <p class="login-promo-copy">VIVE EL JUEGO<br> A TU MANERA</p>
+      <div class="login-promo-art" aria-hidden="true"></div>
+    </aside>
+    <section class="login-content">
+      <button class="login-close" id="close-login" type="button" aria-label="Cerrar">×</button>
+      <div class="login-modal-head"><h2 id="login-heading">Iniciar Sesión</h2><a class="login-help" href="https://megwin.mx/" target="_blank" rel="noopener noreferrer">¿Necesitas<br>ayuda?</a></div>
+      <form class="login-form" id="login-form">
+        <div>
+          <div class="login-field"><svg class="login-field-icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5" fill="currentColor" stroke="none"></circle><path d="M4.5 20a7.5 7.5 0 0 1 15 0" fill="currentColor" stroke="none"></path></svg><input id="login-identity" name="identity" autocomplete="username" placeholder="Correo electrónico / Número de teléfono" aria-label="Correo electrónico o número de teléfono" required></div>
+          <div class="login-field"><svg class="login-field-icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2" fill="currentColor" stroke="none"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.5"></path><circle cx="12" cy="15.5" r="1.2" fill="#111" stroke="none"></circle></svg><input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Contraseña" aria-label="Contraseña" required><button class="password-toggle" id="toggle-password" type="button" aria-label="Mostrar contraseña" aria-pressed="false">◉</button></div>
+          <a class="forgot-link" href="https://megwin.mx/" target="_blank" rel="noopener noreferrer">¿Olvidaste tu contraseña?</a>
+        </div>
+        <div><button class="login-submit" type="submit">Iniciar Sesión</button><button class="google-login" id="google-login" type="button" aria-label="Iniciar sesión con Google">G</button><p class="login-message" id="login-message" role="status" aria-live="polite"></p></div>
+      </form>
+    </section>
+  </dialog>
   <script>
     // Production integration: supply a same-origin HTTPS endpoint with ownership
     // verification, rate limiting, CSRF protection and server-side validation.
@@ -96,8 +145,33 @@
     const STORE_USER_DELETE = 'megwin_user_delete_requests_v1';
     const form = document.getElementById('deletion-form');
     const modal = document.getElementById('confirmation');
+    const loginDialog = document.getElementById('login-dialog');
     const confirmButton = document.getElementById('confirm');
     const status = document.getElementById('status');
+    document.getElementById('open-login').addEventListener('click', () => {
+      document.getElementById('login-message').textContent = '';
+      loginDialog.showModal();
+      document.getElementById('login-identity').focus();
+    });
+    document.getElementById('close-login').addEventListener('click', () => loginDialog.close());
+    loginDialog.addEventListener('click', event => {
+      if (event.target === loginDialog) loginDialog.close();
+    });
+    document.getElementById('toggle-password').addEventListener('click', event => {
+      const password = document.getElementById('login-password');
+      const visible = password.type === 'password';
+      password.type = visible ? 'text' : 'password';
+      event.currentTarget.setAttribute('aria-pressed', String(visible));
+      event.currentTarget.setAttribute('aria-label', visible ? 'Ocultar contraseña' : 'Mostrar contraseña');
+    });
+    document.getElementById('login-form').addEventListener('submit', event => {
+      event.preventDefault();
+      document.getElementById('login-message').textContent = 'El inicio de sesión seguro aún no está conectado. No se enviaron ni guardaron tus credenciales.';
+      document.getElementById('login-password').value = '';
+    });
+    document.getElementById('google-login').addEventListener('click', () => {
+      document.getElementById('login-message').textContent = 'El inicio de sesión con Google aún no está conectado.';
+    });
     document.getElementById('result-understood').addEventListener('click', () => {
       document.getElementById('result-details').hidden = true;
       document.getElementById('result-understood').hidden = true;
