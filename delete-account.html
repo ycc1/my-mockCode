@@ -15,7 +15,7 @@
   </style>
 </head>
 <body>
-  <div class="preview" id="preview-banner">Modo de demostración · El formulario usa una API simulada. No envía solicitudes ni correos. Para una solicitud real, escribe a customerservice@megwin.mx.</div>
+  <div class="preview" id="preview-banner">Modo de demostración · Las solicitudes se guardan en este navegador y aparecen en User Delete del panel administrativo. No se envían correos ni se modifican cuentas reales.</div>
   <header><div class="header-inner"><div class="brand" aria-label="MEGWIN">MEG<span>WIN</span></div><span class="header-note">Cuenta y privacidad</span></div></header>
   <main>
     <div class="eyebrow">Tu cuenta. Tú tienes el control.</div>
@@ -28,7 +28,7 @@
           <div class="warning"><strong>La eliminación de tu cuenta es permanente</strong><p>Una vez eliminada tu cuenta, no podrás recuperar tu perfil ni volver a acceder a ella. Desinstalar la app no elimina tu cuenta.</p></div>
           <p class="help" style="margin-bottom:20px">Si tienes saldo o transacciones pendientes, puedes enviar tu solicitud ahora. Antes de completar la eliminación, procesaremos el saldo disponible y las transacciones pendientes conforme a los términos de la plataforma.</p>
           <form id="deletion-form">
-            <div class="field"><label for="account">Nombre de usuario o ID de MEGWIN</label><input id="account" name="account" autocomplete="username" placeholder="Ingresa tu nombre de usuario o ID" required maxlength="100"><p class="help">Usa los datos de la cuenta que aparecen en tu perfil de MEGWIN.</p></div>
+            <div class="field"><label for="account">Nombre de usuario, ID o correo vinculado a MEGWIN</label><input id="account" name="account" autocomplete="username" placeholder="Ingresa tu nombre de usuario, ID o correo" required maxlength="100"><p class="help">Usa un nombre de usuario, ID o correo registrado en MEGWIN. Verificaremos que la cuenta exista antes de continuar.</p></div>
             <div class="field"><label for="email">Correo electrónico de contacto</label><input id="email" name="email" type="email" autocomplete="email" placeholder="Ingresa tu correo electrónico" required maxlength="254"><p class="help">Te contactaremos para verificar que la cuenta te pertenece. Si es posible, usa el correo vinculado a tu cuenta.</p></div>
             <div class="field">
               <label for="reason">Motivo de la eliminación <span class="optional">(opcional)</span></label>
@@ -54,7 +54,7 @@
           <div class="result-mark" aria-hidden="true">✓</div>
           <h2 id="result-heading">¡Tu solicitud se envió correctamente!</h2>
           <p class="muted">Registramos tu solicitud de eliminación de tu cuenta de MEGWIN.</p>
-          <p class="help" id="result-demo" hidden>Demostración: este registro es simulado. No se envió ninguna solicitud ni correo, no se movió dinero y tu cuenta no se modificó.</p>
+          <p class="help" id="result-demo" hidden>Demostración: la solicitud se guardó en este navegador y aparece en el panel administrativo. No se envió ningún correo, no se movió dinero y la cuenta no se modificó en ningún sistema real.</p>
           <dl style="padding:16px;background:var(--raised);border-radius:8px;margin:20px 0">
             <dt>Folio de solicitud:</dt><dd id="receipt" class="summary-value" style="margin:0 0 12px;font-weight:600"></dd>
             <dt>Fecha de solicitud:</dt><dd id="request-date" style="margin:0 0 12px;font-weight:600"></dd>
@@ -92,6 +92,8 @@
     // Success contract: HTTP 2xx JSON { accepted: true, requestId: "..." }.
     // Never mark a request as accepted until the server confirms it.
     const CONFIG = Object.freeze({ mock: true, endpoint: '', supportEmail: 'customerservice@megwin.mx', retentionText: '', processingText: '' });
+    const STORE_USER_LIST = 'megwin_user_list_demo_v1';
+    const STORE_USER_DELETE = 'megwin_user_delete_requests_v1';
     const form = document.getElementById('deletion-form');
     const modal = document.getElementById('confirmation');
     const confirmButton = document.getElementById('confirm');
@@ -103,6 +105,31 @@
       document.getElementById('result').focus();
     });
     let pending = false;
+    let matchedAccount = null;
+    function readStoredRows(key) {
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+      const rows = JSON.parse(raw);
+      if (!Array.isArray(rows)) throw new Error('invalid-storage');
+      return rows;
+    }
+
+    function findAccount(accountValue) {
+      const users = readStoredRows(STORE_USER_LIST);
+      if (!users) throw new Error('accounts-unavailable');
+      const query = accountValue.trim().toLowerCase();
+      return users.find(user =>
+        [user.id, user.username, user.email].some(value =>
+          String(value || '').trim().toLowerCase() === query
+        )
+      ) || null;
+    }
+
+    function showStatus(message) {
+      status.textContent = message;
+      status.hidden = false;
+    }
+
     const productionReady = Boolean(!CONFIG.mock && CONFIG.endpoint && CONFIG.supportEmail && CONFIG.retentionText);
     if (productionReady) {
       document.getElementById('preview-banner').hidden = true;
@@ -122,10 +149,25 @@
       }
       if (!form.reportValidity()) return;
       status.hidden = true;
+      if (CONFIG.mock) {
+        try {
+          matchedAccount = findAccount(form.elements.account.value);
+        } catch (error) {
+          showStatus('No pudimos verificar la cuenta en este navegador. Abre primero el panel administrativo e inténtalo de nuevo.');
+          return;
+        }
+        if (!matchedAccount) {
+          showStatus('No encontramos una cuenta de MEGWIN con esos datos. Verifícalos e inténtalo de nuevo.');
+          return;
+        }
+        if (matchedAccount.status !== 'Enabled') {
+          showStatus(`La cuenta existe, pero su estado actual es ${matchedAccount.status || 'no disponible'} y no puede enviar otra solicitud.`);
+          return;
+        }
+      }
       document.getElementById('confirm-account').textContent = form.elements.account.value;
       document.getElementById('confirm-email').textContent = form.elements.email.value;
-      // The demo account has a balance or pending transactions. It can still apply.
-      document.getElementById('balance-warning').hidden = !CONFIG.mock;
+      document.getElementById('balance-warning').hidden = !(CONFIG.mock && Number(matchedAccount?.balance) > 0);
       modal.showModal();
       document.getElementById('cancel').focus();
     });
@@ -147,9 +189,53 @@
         const payload = { account: form.elements.account.value, email: form.elements.email.value, reason: form.elements.reason.value, consent: true };
         let data;
         if (CONFIG.mock) {
-          // In-memory mock: no network calls, email delivery or personal data storage.
           await new Promise(resolve => setTimeout(resolve, 700));
-          data = { accepted: true, requestId: 'MW-DEL-' + crypto.randomUUID().replaceAll('-', '').slice(0, 8).toUpperCase(), submittedAt: new Date().toISOString(), hasBalanceOrPendingTransactions: true, mock: true };
+          const users = readStoredRows(STORE_USER_LIST);
+          const requests = readStoredRows(STORE_USER_DELETE) || [];
+          const account = users?.find(user =>
+            [user.id, user.username, user.email].some(value =>
+              String(value || '').trim().toLowerCase() === payload.account.trim().toLowerCase()
+            )
+          );
+          if (!account || account.status !== 'Enabled') throw new Error('account-unavailable');
+          const submittedAt = new Date();
+          const pad = value => String(value).padStart(2, '0');
+          const localSubmitTime = `${submittedAt.getFullYear()}-${pad(submittedAt.getMonth() + 1)}-${pad(submittedAt.getDate())}T${pad(submittedAt.getHours())}:${pad(submittedAt.getMinutes())}`;
+          const requestId = 'DEL-' + crypto.randomUUID().replaceAll('-', '').slice(0, 6).toUpperCase();
+          const request = {
+            id: 'UD-' + crypto.randomUUID().replaceAll('-', '').slice(0, 12).toUpperCase(),
+            userId: account.id,
+            account: payload.account,
+            accountEmail: account.email,
+            submitTime: localSubmitTime,
+            submitCode: requestId,
+            email: payload.email,
+            contactEmail: payload.email,
+            phone: account.phone || '',
+            kycStatus: account.kycStatus || 'Unknown',
+            userGroup: account.userGroup || 'New/Regular',
+            vip: account.vip || 'VIP 0',
+            balance: Number(account.balance) || 0,
+            reason: payload.reason || 'Not specified',
+            notice: '',
+            noticeHistory: [],
+          };
+          const previousRequests = localStorage.getItem(STORE_USER_DELETE);
+          const previousUsers = localStorage.getItem(STORE_USER_LIST);
+          try {
+            requests.unshift(request);
+            account.status = 'Deleting';
+            localStorage.setItem(STORE_USER_DELETE, JSON.stringify(requests));
+            localStorage.setItem(STORE_USER_LIST, JSON.stringify(users));
+          } catch (error) {
+            if (previousRequests === null) localStorage.removeItem(STORE_USER_DELETE);
+            else localStorage.setItem(STORE_USER_DELETE, previousRequests);
+            if (previousUsers === null) localStorage.removeItem(STORE_USER_LIST);
+            else localStorage.setItem(STORE_USER_LIST, previousUsers);
+            throw new Error('storage');
+          }
+          matchedAccount = account;
+          data = { accepted: true, requestId, submittedAt: submittedAt.toISOString(), hasBalanceOrPendingTransactions: Number(account.balance) > 0, mock: true };
         } else {
           const endpoint = new URL(CONFIG.endpoint, location.href);
           if (endpoint.origin !== location.origin || endpoint.protocol !== 'https:') throw new Error('configuration');
@@ -169,8 +255,9 @@
         const result = document.getElementById('result'); result.hidden = false; result.focus();
       } catch (error) {
         modal.close();
-        status.textContent = 'No pudimos confirmar la recepción de tu solicitud. Si se interrumpió la conexión, contacta a soporte antes de volver a intentarlo.';
-        status.hidden = false;
+        showStatus(error.message === 'account-unavailable'
+          ? 'La cuenta ya no está disponible para enviar otra solicitud. Verifica el estado con nuestro equipo de atención.'
+          : 'No pudimos guardar tu solicitud en este navegador. Revisa el espacio disponible e inténtalo de nuevo.');
       } finally {
         pending = false; confirmButton.disabled = false;
         document.getElementById('cancel').disabled = false;

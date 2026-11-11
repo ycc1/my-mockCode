@@ -490,6 +490,12 @@
       .ud-actions {
         display: flex;
         gap: 6px;
+        flex-wrap: wrap;
+      }
+
+      .ud-notice {
+        min-width: 180px;
+        white-space: pre-line;
       }
 
       .ud-actions .btn {
@@ -1280,6 +1286,20 @@
       </div>
     </div>
 
+    <div class="modal-mask" id="userDeleteNoticeMask">
+      <div class="modal" style="width: min(560px, 100%)">
+        <div class="modal-head">
+          <h3>Add Notice</h3>
+          <button class="modal-close" id="userDeleteNoticeClose" type="button">×</button>
+        </div>
+        <div class="modal-body" id="userDeleteNoticeBody"></div>
+        <div class="modal-foot">
+          <button class="btn light" id="userDeleteNoticeCancel" type="button">Cancel</button>
+          <button class="btn" id="userDeleteNoticeSave" type="button">Append Notice</button>
+        </div>
+      </div>
+    </div>
+
     <div class="toast" id="toast"></div>
 
     <script>
@@ -1630,21 +1650,36 @@
         STORE_USER_DELETE,
         initialUserDeleteRows,
       );
-      userDeleteRows.forEach((request) => {
-        const user =
-          userRows.find((item) => item.id === request.userId) ||
-          userRows.find((item) => item.email === request.email);
-        if (!user) return;
-        request.userId = user.id;
-        request.balance = user.balance;
-        if (request.reviewStatus === "Approved") {
-          if (!request.restoredAt) user.status = "Deleted";
-        } else if (request.reviewStatus === "Rejected") {
-          user.status = "Enabled";
-        } else {
-          user.status = "Deleting";
-        }
-      });
+      function syncUserDeleteStatuses() {
+        const latestByUser = new Map();
+        userDeleteRows.forEach((request) => {
+          const user =
+            userRows.find((item) => item.id === request.userId) ||
+            userRows.find((item) => item.email === request.email);
+          if (!user) return;
+          request.userId = user.id;
+          request.balance = user.balance;
+          const submittedAt = Date.parse(request.submitTime || "") || 0;
+          const latest = latestByUser.get(user.id);
+          if (!latest || submittedAt > latest.submittedAt) {
+            latestByUser.set(user.id, { request, submittedAt });
+          }
+        });
+        latestByUser.forEach(({ request }, userId) => {
+          const user = userRows.find((item) => item.id === userId);
+          if (!user) return;
+          if (request.reviewStatus === "Approved") {
+            user.status = request.restoredAt ? "Enabled" : "Deleted";
+          } else if (request.reviewStatus === "Rejected") {
+            user.status = "Enabled";
+          } else {
+            user.status = "Deleting";
+          }
+        });
+      }
+      syncUserDeleteStatuses();
+      saveState(STORE_USER_LIST, userRows);
+      saveState(STORE_USER_DELETE, userDeleteRows);
       let userDeleteFilter = {
         from: "",
         to: "",
@@ -1654,6 +1689,7 @@
       };
 
       let editingPayCodeId = null;
+      let editingUserDeleteNoticeId = null;
       let confirmCallback = null;
       function renderMenu() {
         menu.innerHTML = menuData
@@ -2448,23 +2484,26 @@
                                 <td>${escapeHtml(row.userGroup)}</td>
                                 <td>${escapeHtml(row.vip)}</td>
                                 <td>${escapeHtml(money(row.balance))}</td>
-                                <td>${escapeHtml(row.reason)}</td>
-                                <td>${escapeHtml(row.notice || "-")}</td>
+                                <td>${escapeHtml(row.reason || "-")}</td>
+                                <td class="ud-notice">${escapeHtml((row.noticeHistory || []).map((entry) => entry.text).filter(Boolean).join("\n") || row.notice || "-")}</td>
                                 <td>
+                                  <div class="ud-actions">
+                                    <button class="btn light" type="button" data-user-delete-action="add-notice" data-id="${escapeHtml(row.id)}">Add Notice</button>
                                   ${
                                     row.reviewStatus === "Approved"
-                                      ? `<div class="ud-actions"><span class="ud-status approved">${escapeHtml(row.reviewStatus)}</span>
+                                      ? `<span class="ud-status approved">${escapeHtml(row.reviewStatus)}</span>
                                           <button class="btn danger" type="button" data-user-delete-action="cancel" data-id="${escapeHtml(row.id)}">Cancel</button>
                                           ${Number(row.balance) > 0 && !row.refundStatus ? `<button class="btn" type="button" data-user-delete-action="refund" data-id="${escapeHtml(row.id)}">Refund ${escapeHtml(money(row.balance))}</button>` : ""}
                                           ${row.refundStatus ? `<span class="ud-status approved">Refunded ${escapeHtml(money(row.refundedAmount))}</span>` : ""}
-                                        </div>`
+                                        `
                                       : row.reviewStatus && row.reviewStatus !== "Pending"
-                                        ? `<div class="ud-actions"><span class="ud-status ${row.reviewStatus.toLowerCase()}">${escapeHtml(row.reviewStatus)}</span></div>`
-                                        : `<div class="ud-actions">
+                                        ? `<span class="ud-status ${row.reviewStatus.toLowerCase()}">${escapeHtml(row.reviewStatus)}</span>`
+                                        : `
                                           <button class="btn" type="button" data-user-delete-action="approve" data-id="${escapeHtml(row.id)}">Approve</button>
                                           <button class="btn danger" type="button" data-user-delete-action="reject" data-id="${escapeHtml(row.id)}">Reject</button>
-                                        </div>`
+                                        `
                                   }
+                                  </div>
                                 </td>
                               </tr>
                             `,
@@ -2884,6 +2923,63 @@
         $("#confirmMask").classList.add("open");
       }
 
+      function userDeleteNoticeEntries(row) {
+        if (Array.isArray(row.noticeHistory)) return row.noticeHistory;
+        return row.notice ? [{ text: row.notice, addedAt: "" }] : [];
+      }
+
+      function openUserDeleteNotice(id) {
+        const row = userDeleteRows.find((item) => item.id === id);
+        if (!row) {
+          toast("User deletion request not found");
+          return;
+        }
+        editingUserDeleteNoticeId = id;
+        const entries = userDeleteNoticeEntries(row);
+        $("#userDeleteNoticeBody").innerHTML = `
+          <div class="modal-field full">
+            <label>Existing Notice history</label>
+            <div class="ud-notice">${entries.length
+              ? entries.map((entry) => `${entry.addedAt ? `[${escapeHtml(entry.addedAt)}] ` : ""}${escapeHtml(entry.text)}`).join("\n")
+              : "No notice yet"}</div>
+          </div>
+          <div class="modal-field full" style="margin-top:16px">
+            <label for="userDeleteNoticeInput">Append a notice</label>
+            <textarea id="userDeleteNoticeInput" maxlength="1000" rows="4" style="width:100%;border:1px solid #d6deeb;border-radius:7px;padding:10px;resize:vertical" placeholder="Enter an internal review note"></textarea>
+          </div>`;
+        $("#userDeleteNoticeMask").classList.add("open");
+        $("#userDeleteNoticeInput").focus();
+      }
+
+      function closeUserDeleteNotice() {
+        $("#userDeleteNoticeMask").classList.remove("open");
+        editingUserDeleteNoticeId = null;
+      }
+
+      function appendUserDeleteNotice() {
+        const text = $("#userDeleteNoticeInput").value.trim();
+        if (!text) {
+          toast("Please enter a notice");
+          return;
+        }
+        const row = userDeleteRows.find(
+          (item) => item.id === editingUserDeleteNoticeId,
+        );
+        if (!row) {
+          closeUserDeleteNotice();
+          toast("User deletion request not found");
+          return;
+        }
+        const entries = userDeleteNoticeEntries(row);
+        entries.push({ text, addedAt: nowText(), addedBy: "Admin" });
+        row.noticeHistory = entries;
+        row.notice = entries.map((entry) => entry.text).join("\n");
+        saveState(STORE_USER_DELETE, userDeleteRows);
+        closeUserDeleteNotice();
+        renderContent("User Delete");
+        toast("Notice appended");
+      }
+
       function closeConfirm() {
         $("#confirmMask").classList.remove("open");
         confirmCallback = null;
@@ -3041,6 +3137,10 @@
         );
         if (userDeleteAction) {
           const action = userDeleteAction.dataset.userDeleteAction;
+          if (action === "add-notice") {
+            openUserDeleteNotice(userDeleteAction.dataset.id);
+            return;
+          }
           if (action === "reset") {
             userDeleteFilter = {
               from: "",
@@ -3344,6 +3444,48 @@
         const callback = confirmCallback;
         closeConfirm();
         if (callback) callback();
+      });
+      $("#userDeleteNoticeClose").addEventListener(
+        "click",
+        closeUserDeleteNotice,
+      );
+      $("#userDeleteNoticeCancel").addEventListener(
+        "click",
+        closeUserDeleteNotice,
+      );
+      $("#userDeleteNoticeSave").addEventListener(
+        "click",
+        appendUserDeleteNotice,
+      );
+      $("#userDeleteNoticeMask").addEventListener("click", (event) => {
+        if (event.target === $("#userDeleteNoticeMask"))
+          closeUserDeleteNotice();
+      });
+
+      window.addEventListener("storage", (event) => {
+        if (
+          event.key !== STORE_USER_LIST &&
+          event.key !== STORE_USER_DELETE
+        ) {
+          return;
+        }
+        try {
+          if (event.key === STORE_USER_LIST) {
+            const rows = JSON.parse(event.newValue || "[]");
+            if (!Array.isArray(rows)) throw new Error("Invalid user list");
+            userRows = rows;
+          } else {
+            const rows = JSON.parse(event.newValue || "[]");
+            if (!Array.isArray(rows)) throw new Error("Invalid deletion requests");
+            userDeleteRows = rows;
+          }
+          syncUserDeleteStatuses();
+          if (["User Delete", "User List", "User Info"].includes(state.activeTab)) {
+            renderContent(state.activeTab);
+          }
+        } catch (error) {
+          toast("Unable to refresh shared user deletion data");
+        }
       });
 
       $("#menuToggle").addEventListener("click", () => {
