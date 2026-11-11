@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Solicita la eliminación de tu cuenta de MEGWIN y los datos personales asociados.">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Eliminar cuenta | MEGWIN</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0b0b0c;--surface:#1a1a1b;--raised:#242527;--line:#323437;--text:#ededed;--muted:#a8a8aa;--brand:#2dd4bf;--danger:#ff9a94;--danger-bg:#30201f;--radius:12px;--font:Poppins,"Segoe UI",Arial,sans-serif}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.6 var(--font)}button,input,select,textarea{font:inherit}button,a,input,select,textarea{outline-offset:4px} :focus-visible{outline:2px solid var(--brand)}a{color:var(--brand);text-underline-offset:4px}button{cursor:pointer}button:disabled{cursor:wait;opacity:.55}[hidden]{display:none!important}
+    header{height:80px;border-bottom:1px solid var(--line);background:var(--surface)}.header-inner{max-width:1120px;height:100%;padding:0 28px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{font-size:25px;font-weight:800;letter-spacing:-1px;font-style:italic}.brand span{color:var(--brand)}.header-note{font-size:12px;color:var(--muted)}
+    main{max-width:1040px;margin:48px auto 56px;padding:0 24px}.eyebrow{font-size:12px;color:var(--brand);letter-spacing:1.8px;text-transform:uppercase;font-weight:600}h1{font-size:32px;line-height:1.25;font-weight:600;letter-spacing:-.7px;margin:12px 0}h2{font-size:18px;line-height:1.4;font-weight:600;margin:0 0 12px}h3{font-size:14px;margin:0 0 6px;font-weight:600}p{margin:0 0 16px}.intro{color:var(--muted);max-width:670px}.layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:24px;margin-top:28px;align-items:start}.card{background:var(--surface);border-radius:var(--radius);padding:24px}.card+.card{margin-top:16px}.section-label{border-bottom:1px solid var(--line);margin-bottom:24px}.section-label span{display:inline-block;padding:0 0 12px;border-bottom:4px solid var(--brand);font-weight:600}.muted,.help{color:var(--muted)}.help{font-size:12px;margin:6px 0 0}.warning{padding:16px;border:1px solid #61403c;border-radius:8px;background:var(--danger-bg);margin-bottom:24px}.warning strong{display:block;color:var(--danger);margin-bottom:4px}.warning p{margin:0;font-size:12px;color:#e3bfbc}.field{margin-bottom:20px}label{display:block;margin-bottom:8px;font-size:14px}input:not([type=checkbox]),select,textarea{width:100%;background:var(--raised);border:1px solid var(--line);border-radius:8px;color:var(--text);padding:12px;min-height:48px}input::placeholder,textarea::placeholder{color:var(--muted)}textarea{resize:vertical;min-height:88px}.optional{color:var(--muted);font-size:12px}.check{display:flex;align-items:flex-start;gap:10px;font-size:12px;cursor:pointer;margin:24px 0}.check input{accent-color:var(--brand);width:18px;height:18px;flex-shrink:0;margin:2px 0}.primary,.secondary{min-height:44px;border-radius:8px;padding:12px 20px;border:0;font-weight:600}.primary{color:#111;background:#fff}.primary:hover{background:#dedede}.secondary{color:var(--text);background:var(--raised);border:1px solid var(--line)}.wide{width:100%}.submit-note{text-align:center;font-size:12px;color:var(--muted);margin:12px 0 0}.steps{list-style:none;padding:0;margin:20px 0 0;counter-reset:step}.steps li{position:relative;padding-left:40px;margin-bottom:24px;counter-increment:step}.steps li:last-child{margin-bottom:0}.steps li:before{content:counter(step);position:absolute;left:0;top:0;background:var(--raised);border:1px solid var(--line);width:26px;height:26px;border-radius:50%;text-align:center;line-height:24px;color:var(--brand);font-size:12px}.steps p{font-size:12px;color:var(--muted);margin:0}.data-block{padding:16px 0;border-bottom:1px solid var(--line)}.data-block:last-child{border:0;padding-bottom:0}.data-block p{font-size:12px;color:var(--muted);margin:0}.tag{font-size:10px;letter-spacing:1px;color:var(--brand);display:block;margin-bottom:6px}.tag.retained{color:#e5bd84}.faq{margin-top:24px}details{border-bottom:1px solid var(--line);padding:16px 0}summary{cursor:pointer;font-size:14px}details p{font-size:12px;color:var(--muted);margin:12px 0 0}.preview{padding:10px 16px;background:var(--raised);border-bottom:1px solid var(--line);text-align:center;font-size:12px;color:#e5bd84}footer{max-width:1040px;padding:24px;margin:auto;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;color:var(--muted);font-size:12px}.status{margin:16px 0 0;color:var(--danger);font-size:13px;overflow-wrap:anywhere}dialog{max-width:460px;width:calc(100% - 32px);padding:28px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--text)}dialog::backdrop{background:#000b}dialog p{color:var(--muted);font-size:13px}.dialog-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:24px}.summary-value{color:var(--text);overflow-wrap:anywhere}.result-mark{width:48px;height:48px;border:1px solid var(--brand);color:var(--brand);border-radius:50%;display:grid;place-items:center;font-size:24px;margin-bottom:20px}
+    @media(max-width:720px){header{height:64px}.header-inner{padding:0 20px}.brand{font-size:22px}.header-note{font-size:11px}main{margin:28px auto 32px;padding:0 16px}h1{font-size:26px}.layout{grid-template-columns:1fr;gap:16px;margin-top:24px}.card{padding:20px}.intro{font-size:13px}.faq{margin-top:16px}footer{margin:0 16px;padding:20px 0;flex-direction:column;gap:4px}.dialog-actions{flex-direction:column-reverse}.dialog-actions button{width:100%}}
+  </style>
+</head>
+<body>
+  <div class="preview" id="preview-banner">Vista previa · Las solicitudes no se envían ni se procesan.</div>
+  <header><div class="header-inner"><div class="brand" aria-label="MEGWIN">MEG<span>WIN</span></div><span class="header-note">Cuenta y privacidad</span></div></header>
+  <main>
+    <div class="eyebrow">Tu cuenta. Tú tienes el control.</div>
+    <h1>Elimina tu cuenta de MEGWIN</h1>
+    <p class="intro">Solicita la eliminación permanente de tu cuenta y los datos personales asociados. Puedes iniciar el proceso aquí sin instalar ni abrir la app.</p>
+    <div class="layout">
+      <section class="card" aria-labelledby="request-heading">
+        <div class="section-label"><span id="request-heading">Solicitud de eliminación de cuenta</span></div>
+        <div id="form-content">
+          <div class="warning"><strong>La eliminación de tu cuenta es permanente</strong><p>Una vez eliminada tu cuenta, no podrás recuperar tu perfil ni volver a acceder a ella. Desinstalar la app no elimina tu cuenta.</p></div>
+          <form id="deletion-form">
+            <div class="field"><label for="account">Nombre de usuario o ID de MEGWIN</label><input id="account" name="account" autocomplete="username" placeholder="Ingresa tu nombre de usuario o ID" required maxlength="100"><p class="help">Usa los datos de la cuenta que aparecen en tu perfil de MEGWIN.</p></div>
+            <div class="field"><label for="email">Correo electrónico de contacto</label><input id="email" name="email" type="email" autocomplete="email" placeholder="Ingresa tu correo electrónico" required maxlength="254"><p class="help">Te contactaremos para verificar que la cuenta te pertenece. Si es posible, usa el correo vinculado a tu cuenta.</p></div>
+            <div class="field"><label for="reason">Motivo de la eliminación <span class="optional">(opcional)</span></label><select id="reason" name="reason"><option value="">Selecciona un motivo</option><option value="Privacy concerns">Me preocupa la privacidad</option><option value="I no longer use MEGWIN">Ya no uso MEGWIN</option><option value="I want to stop playing">Quiero dejar de jugar</option><option value="Other">Otro</option><option value="Prefer not to say">Prefiero no decirlo</option></select></div>
+            <label class="check"><input id="acknowledge" type="checkbox" required><span>Solicito la eliminación de mi cuenta de MEGWIN y los datos personales asociados. Entiendo que, una vez completada, la eliminación no se puede deshacer. He leído la información sobre el tratamiento de datos en esta página.</span></label>
+            <button class="primary wide" type="submit">Continuar a la confirmación</button>
+            <p class="submit-note">No necesitas proporcionar tu contraseña ni un documento de identidad en este formulario.</p>
+          </form>
+          <p id="status" class="status" role="status" aria-live="polite" hidden></p>
+        </div>
+        <div id="result" hidden tabindex="-1"><div class="result-mark" aria-hidden="true">✓</div><h2>Recibimos tu solicitud de eliminación</h2><p class="muted">Tu cuenta aún no se ha eliminado. Sigue las instrucciones de verificación que enviamos a tu correo de contacto.</p><p id="receipt" class="help"></p></div>
+      </section>
+      <aside>
+        <section class="card" aria-labelledby="next-heading"><h2 id="next-heading">¿Qué sigue?</h2><ol class="steps"><li><h3>Envía tu solicitud</h3><p>Proporciona tu nombre de usuario o ID y un correo donde podamos contactarte.</p></li><li><h3>Verifica que la cuenta te pertenece</h3><p>Sigue las instrucciones de verificación. Solo la persona titular de la cuenta puede autorizar su eliminación.</p></li><li><h3>Recibe la confirmación</h3><p>Te confirmaremos la eliminación por correo y te explicaremos qué datos deben conservarse.</p></li></ol></section>
+        <section class="card" aria-labelledby="data-heading"><h2 id="data-heading">Tu cuenta y tus datos</h2><div class="data-block"><span class="tag">SE ELIMINAN</span><h3>Cuenta y perfil personal</h3><p>Se eliminarán tu acceso, los datos de tu perfil, tu información de contacto y tus preferencias, salvo los registros necesarios para los fines indicados abajo.</p></div><div class="data-block"><span class="tag retained">CONSERVACIÓN LIMITADA</span><h3>Registros que podríamos conservar</h3><p>Es posible que debamos conservar ciertos registros de transacciones, verificación de identidad, prevención de fraude o cumplimiento legal. Su uso se limitará al fin que justifica su conservación.</p><p id="retention-copy" style="margin-top:8px">Vista previa: antes de publicar, se deben confirmar las categorías de datos conservados, el fundamento legal y los plazos exactos de conservación.</p></div></section>
+      </aside>
+    </div>
+    <section class="card faq" aria-labelledby="faq-heading"><h2 id="faq-heading">Antes de solicitar la eliminación</h2><details open><summary>¿Qué pasa si tengo saldo u operaciones pendientes?</summary><p>Los retiros, las apuestas o las disputas pendientes pueden requerir resolución. Aun así, puedes iniciar tu solicitud aquí. Después de verificar que la cuenta te pertenece, nuestro equipo de soporte te explicará los pasos pendientes y cómo se manejará tu saldo.</p></details><details><summary>¿Necesito acceso a la app o a mi correo registrado?</summary><p>No necesitas la app para iniciar una solicitud. Si no tienes acceso a tu correo registrado, proporciona otro donde podamos contactarte. Podríamos requerir verificaciones adicionales de titularidad antes de eliminar la cuenta o sus datos.</p></details><details><summary>¿Cuánto tarda la eliminación?</summary><p id="timing-copy">Vista previa: se debe confirmar el plazo de atención antes de publicar. La página final debe indicar cuándo comienza el plazo, el tiempo estimado de resolución y las excepciones aplicables.</p></details><details><summary>¿Eliminar mi cuenta es lo mismo que tomar un descanso?</summary><p>No. La eliminación borra de forma permanente tu cuenta y los datos asociados, salvo aquellos que deban conservarse. La restricción temporal de la cuenta y la autoexclusión son acciones distintas.</p></details></section>
+  </main>
+  <footer><span>© MEGWIN · Eliminación de cuenta</span><span id="support-copy">Podrás recibir ayuda con tu solicitud a través del contacto de soporte que se publique.</span></footer>
+  <dialog id="confirmation" aria-labelledby="confirm-heading" aria-describedby="confirm-copy"><h2 id="confirm-heading">Confirma tu solicitud de eliminación</h2><p id="confirm-copy">Estás solicitando la eliminación permanente de la siguiente cuenta de MEGWIN y los datos personales asociados.</p><p>Cuenta<br><strong class="summary-value" id="confirm-account"></strong></p><p>Correo electrónico de contacto<br><strong class="summary-value" id="confirm-email"></strong></p><p>Al enviar la solicitud, se inicia la verificación de titularidad. Tu cuenta no se eliminará de inmediato.</p><div class="dialog-actions"><button class="secondary" id="cancel" type="button">Regresar</button><button class="primary" id="confirm" type="button">Enviar solicitud de eliminación</button></div></dialog>
+  <script>
+    // Production integration: supply a same-origin HTTPS endpoint with ownership
+    // verification, rate limiting, CSRF protection and server-side validation.
+    // Success contract: HTTP 2xx JSON { accepted: true, requestId: "..." }.
+    // Never mark a request as accepted until the server confirms it.
+    const CONFIG = Object.freeze({ endpoint: '', supportEmail: '', retentionText: '', processingText: '' });
+    const form = document.getElementById('deletion-form');
+    const modal = document.getElementById('confirmation');
+    const confirmButton = document.getElementById('confirm');
+    const status = document.getElementById('status');
+    let pending = false;
+    const productionReady = Boolean(CONFIG.endpoint && CONFIG.supportEmail && CONFIG.retentionText && CONFIG.processingText);
+    if (productionReady) {
+      document.getElementById('preview-banner').hidden = true;
+      document.getElementById('retention-copy').textContent = CONFIG.retentionText;
+      document.getElementById('timing-copy').textContent = CONFIG.processingText;
+      const link = document.createElement('a');
+      link.href = 'mailto:' + CONFIG.supportEmail;
+      link.textContent = 'Contactar a soporte';
+      document.getElementById('support-copy').replaceChildren(link);
+    }
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      if (!form.reportValidity()) return;
+      for (const id of ['account', 'email']) {
+        const input = document.getElementById(id);
+        input.value = input.value.trim();
+      }
+      if (!form.reportValidity()) return;
+      status.hidden = true;
+      document.getElementById('confirm-account').textContent = form.elements.account.value;
+      document.getElementById('confirm-email').textContent = form.elements.email.value;
+      modal.showModal();
+      document.getElementById('cancel').focus();
+    });
+    document.getElementById('cancel').addEventListener('click', () => modal.close());
+    modal.addEventListener('cancel', event => { if (pending) event.preventDefault(); });
+    confirmButton.addEventListener('click', async () => {
+      if (pending) return;
+      if (!productionReady) {
+        modal.close();
+        status.textContent = 'Vista previa completada. No se envió ninguna solicitud ni se eliminó ninguna cuenta. Antes del lanzamiento, se debe conectar el servicio de eliminación y completar la información de las políticas.';
+        status.hidden = false;
+        return;
+      }
+      pending = true;
+      confirmButton.disabled = true;
+      document.getElementById('cancel').disabled = true;
+      confirmButton.textContent = 'Enviando…';
+      try {
+        const endpoint = new URL(CONFIG.endpoint, location.href);
+        if (endpoint.origin !== location.origin || endpoint.protocol !== 'https:') throw new Error('configuration');
+        const response = await fetch(endpoint.href, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, signal: AbortSignal.timeout(20000), body: JSON.stringify({ account: form.elements.account.value, email: form.elements.email.value, reason: form.elements.reason.value, consent: true }) });
+        if (!response.ok) throw new Error('request');
+        const data = await response.json();
+        if (data.accepted !== true || typeof data.requestId !== 'string' || !data.requestId.trim()) throw new Error('response');
+        modal.close();
+        document.getElementById('form-content').hidden = true;
+        document.getElementById('receipt').textContent = 'Folio de solicitud: ' + data.requestId;
+        form.reset();
+        const result = document.getElementById('result'); result.hidden = false; result.focus();
+      } catch (error) {
+        modal.close();
+        status.textContent = 'No pudimos confirmar la recepción de tu solicitud. Si se interrumpió la conexión, contacta a soporte antes de volver a intentarlo.';
+        status.hidden = false;
+      } finally {
+        pending = false; confirmButton.disabled = false;
+        document.getElementById('cancel').disabled = false;
+        confirmButton.textContent = 'Enviar solicitud de eliminación';
+      }
+    });
+  </script>
+</body>
+</html>
