@@ -482,6 +482,11 @@
         color: #c2413b;
       }
 
+      .ud-status.deleting {
+        background: #fff7e6;
+        color: #b54708;
+      }
+
       .ud-actions {
         display: flex;
         gap: 6px;
@@ -1632,8 +1637,13 @@
         if (!user) return;
         request.userId = user.id;
         request.balance = user.balance;
-        if (request.reviewStatus === "Approved" && !request.restoredAt)
-          user.status = "Deleted";
+        if (request.reviewStatus === "Approved") {
+          if (!request.restoredAt) user.status = "Deleted";
+        } else if (request.reviewStatus === "Rejected") {
+          user.status = "Enabled";
+        } else {
+          user.status = "Deleting";
+        }
       });
       let userDeleteFilter = {
         from: "",
@@ -2414,6 +2424,7 @@
                   <tr>
                     <th>SubmitCode</th>
                     <th>User</th>
+                    <th>Status</th>
                     <th>KYC status</th>
                     <th>User Group</th>
                     <th>VIP</th>
@@ -2432,6 +2443,7 @@
                               <tr>
                                 <td>${escapeHtml(row.submitCode)}</td>
                                 <td><button class="user-link" type="button" data-user-info-id="${escapeHtml(row.userId || "")}">${escapeHtml(row.email)}</button><br><span style="color:#667085">${escapeHtml(row.phone)}</span></td>
+                                <td><span class="ud-status ${(userRows.find((user) => user.id === row.userId)?.status || "Deleting").toLowerCase()}">${escapeHtml(userRows.find((user) => user.id === row.userId)?.status || "Deleting")}</span></td>
                                 <td>${escapeHtml(row.kycStatus)}</td>
                                 <td>${escapeHtml(row.userGroup)}</td>
                                 <td>${escapeHtml(row.vip)}</td>
@@ -2440,12 +2452,15 @@
                                 <td>${escapeHtml(row.notice || "-")}</td>
                                 <td>
                                   ${
-                                    row.reviewStatus
-                                      ? `<div class="ud-actions"><span class="ud-status ${row.reviewStatus.toLowerCase()}">${escapeHtml(row.reviewStatus)}</span>
-                                          ${row.reviewStatus === "Approved" && Number(row.balance) > 0 && !row.refundStatus ? `<button class="btn" type="button" data-user-delete-action="refund" data-id="${escapeHtml(row.id)}">Refund ${escapeHtml(money(row.balance))}</button>` : ""}
+                                    row.reviewStatus === "Approved"
+                                      ? `<div class="ud-actions"><span class="ud-status approved">${escapeHtml(row.reviewStatus)}</span>
+                                          <button class="btn danger" type="button" data-user-delete-action="cancel" data-id="${escapeHtml(row.id)}">Cancel</button>
+                                          ${Number(row.balance) > 0 && !row.refundStatus ? `<button class="btn" type="button" data-user-delete-action="refund" data-id="${escapeHtml(row.id)}">Refund ${escapeHtml(money(row.balance))}</button>` : ""}
                                           ${row.refundStatus ? `<span class="ud-status approved">Refunded ${escapeHtml(money(row.refundedAmount))}</span>` : ""}
                                         </div>`
-                                      : `<div class="ud-actions">
+                                      : row.reviewStatus && row.reviewStatus !== "Pending"
+                                        ? `<div class="ud-actions"><span class="ud-status ${row.reviewStatus.toLowerCase()}">${escapeHtml(row.reviewStatus)}</span></div>`
+                                        : `<div class="ud-actions">
                                           <button class="btn" type="button" data-user-delete-action="approve" data-id="${escapeHtml(row.id)}">Approve</button>
                                           <button class="btn danger" type="button" data-user-delete-action="reject" data-id="${escapeHtml(row.id)}">Reject</button>
                                         </div>`
@@ -2455,7 +2470,7 @@
                             `,
                           )
                           .join("")
-                      : '<tr><td colspan="9" class="empty">No matching requests</td></tr>'
+                      : '<tr><td colspan="10" class="empty">No matching requests</td></tr>'
                   }
                 </tbody>
               </table>
@@ -3090,6 +3105,33 @@
             return;
           }
 
+          if (action === "cancel") {
+            const row = userDeleteRows.find(
+              (item) => item.id === userDeleteAction.dataset.id,
+            );
+            const user = row && userRows.find((item) => item.id === row.userId);
+            if (!row || !user || row.reviewStatus !== "Approved") {
+              toast("Only approved requests can be cancelled");
+              return;
+            }
+            confirmAction(
+              `Cancel approval for ${row.submitCode}? The user's account status will return to Deleting and this request will be pending review again.`,
+              () => {
+                row.reviewStatus = "Pending";
+                row.reviewedAt = "";
+                row.cancelledAt = nowText();
+                delete row.restoredAt;
+                user.status = "Deleting";
+                saveState(STORE_USER_DELETE, userDeleteRows);
+                saveState(STORE_USER_LIST, userRows);
+                renderContent("User Delete");
+                toast("Approval cancelled; user status returned to Deleting");
+              },
+              "Cancel approval",
+            );
+            return;
+          }
+
           if (action === "approve" || action === "reject") {
             const row = userDeleteRows.find(
               (item) => item.id === userDeleteAction.dataset.id,
@@ -3104,7 +3146,7 @@
               () => {
                 row.reviewStatus = approved ? "Approved" : "Rejected";
                 row.reviewedAt = nowText();
-                if (approved && user) user.status = "Deleted";
+                if (user) user.status = approved ? "Deleted" : "Enabled";
                 saveState(STORE_USER_DELETE, userDeleteRows);
                 if (approved) saveState(STORE_USER_LIST, userRows);
                 renderContent("User Delete");
