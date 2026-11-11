@@ -1632,7 +1632,8 @@
         if (!user) return;
         request.userId = user.id;
         request.balance = user.balance;
-        if (request.reviewStatus === "Approved") user.status = "Deleted";
+        if (request.reviewStatus === "Approved" && !request.restoredAt)
+          user.status = "Deleted";
       });
       let userDeleteFilter = {
         from: "",
@@ -2315,6 +2316,7 @@
             <h1>${escapeHtml(user.email)}</h1>
             <span class="ud-status ${user.status === "Deleted" ? "rejected" : "approved"}">${escapeHtml(user.status || "Enabled")}</span>
             <span class="ud-status">${escapeHtml(user.userGroup || "New/Regular")}</span>
+            ${user.status === "Deleted" ? '<button class="btn" type="button" data-user-info-action="restore">Restore Account</button>' : ""}
           </div>
           <div class="user-info-tabs" aria-label="User information sections">
             <span class="active">Overview</span>
@@ -2922,6 +2924,35 @@
       });
 
       content.addEventListener("click", (event) => {
+        if (event.target.closest("[data-user-info-action='restore']")) {
+          const user = userRows.find((item) => item.id === selectedUserInfoId);
+          if (!user || user.status !== "Deleted") {
+            toast("Only Deleted accounts can be restored");
+            return;
+          }
+          confirmAction(
+            `Restore ${user.email}'s account status from Deleted to Enabled? The user record and deletion request will be kept.`,
+            () => {
+              const restoredAt = nowText();
+              user.status = "Enabled";
+              userDeleteRows.forEach((request) => {
+                if (
+                  request.userId === user.id &&
+                  request.reviewStatus === "Approved"
+                ) {
+                  request.restoredAt = restoredAt;
+                }
+              });
+              saveState(STORE_USER_LIST, userRows);
+              saveState(STORE_USER_DELETE, userDeleteRows);
+              renderContent("User Info");
+              toast("Account status restored (Demo)");
+            },
+            "Restore account status",
+          );
+          return;
+        }
+
         if (event.target.closest("[data-user-info-action='refresh']")) {
           renderContent("User Info");
           toast("User Info refreshed");
