@@ -15,7 +15,7 @@
   </style>
 </head>
 <body>
-  <div class="preview" id="preview-banner">Vista previa · Las solicitudes no se envían ni se procesan.</div>
+  <div class="preview" id="preview-banner">Modo de demostración · El formulario usa una API simulada. No envía solicitudes ni correos. Para una solicitud real, escribe a customerservice@megwin.mx.</div>
   <header><div class="header-inner"><div class="brand" aria-label="MEGWIN">MEG<span>WIN</span></div><span class="header-note">Cuenta y privacidad</span></div></header>
   <main>
     <div class="eyebrow">Tu cuenta. Tú tienes el control.</div>
@@ -26,43 +26,88 @@
         <div class="section-label"><span id="request-heading">Solicitud de eliminación de cuenta</span></div>
         <div id="form-content">
           <div class="warning"><strong>La eliminación de tu cuenta es permanente</strong><p>Una vez eliminada tu cuenta, no podrás recuperar tu perfil ni volver a acceder a ella. Desinstalar la app no elimina tu cuenta.</p></div>
+          <p class="help" style="margin-bottom:20px">Si tienes saldo o transacciones pendientes, puedes enviar tu solicitud ahora. Antes de completar la eliminación, procesaremos el saldo disponible y las transacciones pendientes conforme a los términos de la plataforma.</p>
           <form id="deletion-form">
             <div class="field"><label for="account">Nombre de usuario o ID de MEGWIN</label><input id="account" name="account" autocomplete="username" placeholder="Ingresa tu nombre de usuario o ID" required maxlength="100"><p class="help">Usa los datos de la cuenta que aparecen en tu perfil de MEGWIN.</p></div>
             <div class="field"><label for="email">Correo electrónico de contacto</label><input id="email" name="email" type="email" autocomplete="email" placeholder="Ingresa tu correo electrónico" required maxlength="254"><p class="help">Te contactaremos para verificar que la cuenta te pertenece. Si es posible, usa el correo vinculado a tu cuenta.</p></div>
-            <div class="field"><label for="reason">Motivo de la eliminación <span class="optional">(opcional)</span></label><select id="reason" name="reason"><option value="">Selecciona un motivo</option><option value="Privacy concerns">Me preocupa la privacidad</option><option value="I no longer use MEGWIN">Ya no uso MEGWIN</option><option value="I want to stop playing">Quiero dejar de jugar</option><option value="Other">Otro</option><option value="Prefer not to say">Prefiero no decirlo</option></select></div>
+            <div class="field">
+              <label for="reason">Motivo de la eliminación <span class="optional">(opcional)</span></label>
+              <select id="reason" name="reason">
+                <option value="">Selecciona un motivo</option>
+                <option value="I no longer use MEGWIN">Ya no quiero usar MEGWIN</option>
+                <option value="I want to stop playing">Quiero dejar de apostar o tomar un descanso</option>
+                <option value="Unsatisfactory experience">No estoy satisfecho con la experiencia</option>
+                <option value="Deposit or withdrawal issues">Tuve problemas con depósitos o retiros</option>
+                <option value="Technical issues">Tuve problemas técnicos</option>
+                <option value="Privacy concerns">Me preocupa la privacidad de mis datos</option>
+                <option value="Other">Otro motivo</option>
+                <option value="Prefer not to say">Prefiero no responder</option>
+              </select>
+            </div>
             <label class="check"><input id="acknowledge" type="checkbox" required><span>Solicito la eliminación de mi cuenta de MEGWIN y los datos personales asociados. Entiendo que, una vez completada, la eliminación no se puede deshacer. He leído la información sobre el tratamiento de datos en esta página.</span></label>
             <button class="primary wide" type="submit">Continuar a la confirmación</button>
             <p class="submit-note">No necesitas proporcionar tu contraseña ni un documento de identidad en este formulario.</p>
           </form>
           <p id="status" class="status" role="status" aria-live="polite" hidden></p>
         </div>
-        <div id="result" hidden tabindex="-1"><div class="result-mark" aria-hidden="true">✓</div><h2>Recibimos tu solicitud de eliminación</h2><p class="muted">Tu cuenta aún no se ha eliminado. Sigue las instrucciones de verificación que enviamos a tu correo de contacto.</p><p id="receipt" class="help"></p></div>
+        <div id="result" hidden tabindex="-1">
+          <div class="result-mark" aria-hidden="true">✓</div>
+          <h2 id="result-heading">¡Tu solicitud se envió correctamente!</h2>
+          <p class="muted">Registramos tu solicitud de eliminación de tu cuenta de MEGWIN.</p>
+          <p class="help" id="result-demo" hidden>Demostración: este registro es simulado. No se envió ninguna solicitud ni correo, no se movió dinero y tu cuenta no se modificó.</p>
+          <dl style="padding:16px;background:var(--raised);border-radius:8px;margin:20px 0">
+            <dt>Folio de solicitud:</dt><dd id="receipt" class="summary-value" style="margin:0 0 12px;font-weight:600"></dd>
+            <dt>Fecha de solicitud:</dt><dd id="request-date" style="margin:0 0 12px;font-weight:600"></dd>
+            <dt>Estado actual:</dt><dd style="margin:0;color:var(--brand)">Solicitud enviada</dd>
+          </dl>
+          <div id="result-details">
+            <h2>¿Cómo procesaremos tu solicitud?</h2>
+            <ol style="padding-left:20px;color:var(--muted)">
+              <li style="margin-bottom:12px">Revisaremos el estado de tu cuenta y realizaremos las verificaciones de identidad y seguridad necesarias.</li>
+              <li style="margin-bottom:12px">Si tu cuenta aún tiene saldo disponible, retiros pendientes o apuestas sin liquidar, te indicaremos los pasos necesarios para procesar los fondos o las transacciones.</li>
+              <li style="margin-bottom:12px">Una vez completados estos pasos, eliminaremos tu cuenta y los datos asociados que no deban conservarse por obligaciones legales o regulatorias.</li>
+              <li>Te notificaremos por correo electrónico cuando se haya completado la eliminación de tu cuenta.</li>
+            </ol>
+            <h3>Tiempo estimado de atención</h3>
+            <p class="muted">Una vez que hayamos revisado el estado de tu cuenta, te informaremos el tiempo estimado de atención de esta solicitud.</p>
+          </div>
+          <h3>¿Necesitas ayuda o consultar el estado de tu solicitud?</h3>
+          <p class="muted">Contacta a nuestro equipo de atención a clientes y proporciona tu folio de solicitud.</p>
+          <p>Correo de atención a clientes: <a href="mailto:customerservice@megwin.mx">customerservice@megwin.mx</a></p>
+          <button class="primary wide" id="result-understood" type="button" aria-controls="result-details" aria-expanded="true">Entendido</button>
+        </div>
       </section>
       <aside>
         <section class="card" aria-labelledby="next-heading"><h2 id="next-heading">¿Qué sigue?</h2><ol class="steps"><li><h3>Envía tu solicitud</h3><p>Proporciona tu nombre de usuario o ID y un correo donde podamos contactarte.</p></li><li><h3>Verifica que la cuenta te pertenece</h3><p>Sigue las instrucciones de verificación. Solo la persona titular de la cuenta puede autorizar su eliminación.</p></li><li><h3>Recibe la confirmación</h3><p>Te confirmaremos la eliminación por correo y te explicaremos qué datos deben conservarse.</p></li></ol></section>
         <section class="card" aria-labelledby="data-heading"><h2 id="data-heading">Tu cuenta y tus datos</h2><div class="data-block"><span class="tag">SE ELIMINAN</span><h3>Cuenta y perfil personal</h3><p>Se eliminarán tu acceso, los datos de tu perfil, tu información de contacto y tus preferencias, salvo los registros necesarios para los fines indicados abajo.</p></div><div class="data-block"><span class="tag retained">CONSERVACIÓN LIMITADA</span><h3>Registros que podríamos conservar</h3><p>Es posible que debamos conservar ciertos registros de transacciones, verificación de identidad, prevención de fraude o cumplimiento legal. Su uso se limitará al fin que justifica su conservación.</p><p id="retention-copy" style="margin-top:8px">Vista previa: antes de publicar, se deben confirmar las categorías de datos conservados, el fundamento legal y los plazos exactos de conservación.</p></div></section>
       </aside>
     </div>
-    <section class="card faq" aria-labelledby="faq-heading"><h2 id="faq-heading">Antes de solicitar la eliminación</h2><details open><summary>¿Qué pasa si tengo saldo u operaciones pendientes?</summary><p>Los retiros, las apuestas o las disputas pendientes pueden requerir resolución. Aun así, puedes iniciar tu solicitud aquí. Después de verificar que la cuenta te pertenece, nuestro equipo de soporte te explicará los pasos pendientes y cómo se manejará tu saldo.</p></details><details><summary>¿Necesito acceso a la app o a mi correo registrado?</summary><p>No necesitas la app para iniciar una solicitud. Si no tienes acceso a tu correo registrado, proporciona otro donde podamos contactarte. Podríamos requerir verificaciones adicionales de titularidad antes de eliminar la cuenta o sus datos.</p></details><details><summary>¿Cuánto tarda la eliminación?</summary><p id="timing-copy">Vista previa: se debe confirmar el plazo de atención antes de publicar. La página final debe indicar cuándo comienza el plazo, el tiempo estimado de resolución y las excepciones aplicables.</p></details><details><summary>¿Eliminar mi cuenta es lo mismo que tomar un descanso?</summary><p>No. La eliminación borra de forma permanente tu cuenta y los datos asociados, salvo aquellos que deban conservarse. La restricción temporal de la cuenta y la autoexclusión son acciones distintas.</p></details></section>
+    <section class="card faq" aria-labelledby="faq-heading"><h2 id="faq-heading">Antes de solicitar la eliminación</h2><details open><summary>¿Qué pasa si tengo saldo u operaciones pendientes?</summary><p>Los retiros, las apuestas o las disputas pendientes pueden requerir resolución. Aun así, puedes iniciar tu solicitud aquí. Después de verificar que la cuenta te pertenece, nuestro equipo de soporte te explicará los pasos pendientes y cómo se manejará tu saldo.</p></details><details><summary>¿Necesito acceso a la app o a mi correo registrado?</summary><p>No necesitas la app para iniciar una solicitud. Si no tienes acceso a tu correo registrado, proporciona otro donde podamos contactarte. Podríamos requerir verificaciones adicionales de titularidad antes de eliminar la cuenta o sus datos.</p></details><details><summary>¿Cuánto tarda la eliminación?</summary><p id="timing-copy">Una vez que hayamos revisado el estado de tu cuenta, te informaremos el tiempo estimado de atención de esta solicitud. Puedes consultar su estado escribiendo a customerservice@megwin.mx e indicando tu folio de solicitud.</p></details><details><summary>¿Eliminar mi cuenta es lo mismo que tomar un descanso?</summary><p>No. La eliminación borra de forma permanente tu cuenta y los datos asociados, salvo aquellos que deban conservarse. La restricción temporal de la cuenta y la autoexclusión son acciones distintas.</p></details></section>
   </main>
-  <footer><span>© MEGWIN · Eliminación de cuenta</span><span id="support-copy">Podrás recibir ayuda con tu solicitud a través del contacto de soporte que se publique.</span></footer>
-  <dialog id="confirmation" aria-labelledby="confirm-heading" aria-describedby="confirm-copy"><h2 id="confirm-heading">Confirma tu solicitud de eliminación</h2><p id="confirm-copy">Estás solicitando la eliminación permanente de la siguiente cuenta de MEGWIN y los datos personales asociados.</p><p>Cuenta<br><strong class="summary-value" id="confirm-account"></strong></p><p>Correo electrónico de contacto<br><strong class="summary-value" id="confirm-email"></strong></p><p>Al enviar la solicitud, se inicia la verificación de titularidad. Tu cuenta no se eliminará de inmediato.</p><div class="dialog-actions"><button class="secondary" id="cancel" type="button">Regresar</button><button class="primary" id="confirm" type="button">Enviar solicitud de eliminación</button></div></dialog>
+  <footer><span>© MEGWIN · Eliminación de cuenta</span><span id="support-copy">Para solicitar la eliminación o consultar su estado: <a href="mailto:customerservice@megwin.mx?subject=Solicitud%20de%20eliminaci%C3%B3n%20de%20cuenta%20MEGWIN">customerservice@megwin.mx</a></span></footer>
+  <dialog id="confirmation" aria-labelledby="confirm-heading" aria-describedby="confirm-copy"><h2 id="confirm-heading">Confirma tu solicitud de eliminación</h2><p id="confirm-copy">Estás solicitando la eliminación permanente de la siguiente cuenta de MEGWIN y los datos personales asociados.</p><p>Cuenta<br><strong class="summary-value" id="confirm-account"></strong></p><p>Correo electrónico de contacto<br><strong class="summary-value" id="confirm-email"></strong></p><div class="warning" id="balance-warning" hidden><strong>Saldo o transacciones pendientes</strong><p>Tu cuenta tiene saldo o transacciones que aún no se han completado. Puedes enviar tu solicitud de eliminación ahora. Antes de completar la eliminación de la cuenta, deberemos procesar el saldo disponible y las transacciones pendientes conforme a los términos de la plataforma.</p></div><p>Al enviar la solicitud, se inicia la verificación de titularidad. Tu cuenta no se eliminará de inmediato.</p><div class="dialog-actions"><button class="secondary" id="cancel" type="button">Regresar</button><button class="primary" id="confirm" type="button">Enviar solicitud de eliminación</button></div></dialog>
   <script>
     // Production integration: supply a same-origin HTTPS endpoint with ownership
     // verification, rate limiting, CSRF protection and server-side validation.
     // Success contract: HTTP 2xx JSON { accepted: true, requestId: "..." }.
     // Never mark a request as accepted until the server confirms it.
-    const CONFIG = Object.freeze({ endpoint: '', supportEmail: '', retentionText: '', processingText: '' });
+    const CONFIG = Object.freeze({ mock: true, endpoint: '', supportEmail: 'customerservice@megwin.mx', retentionText: '', processingText: '' });
     const form = document.getElementById('deletion-form');
     const modal = document.getElementById('confirmation');
     const confirmButton = document.getElementById('confirm');
     const status = document.getElementById('status');
+    document.getElementById('result-understood').addEventListener('click', () => {
+      document.getElementById('result-details').hidden = true;
+      document.getElementById('result-understood').hidden = true;
+      document.getElementById('result-understood').setAttribute('aria-expanded', 'false');
+      document.getElementById('result').focus();
+    });
     let pending = false;
-    const productionReady = Boolean(CONFIG.endpoint && CONFIG.supportEmail && CONFIG.retentionText && CONFIG.processingText);
+    const productionReady = Boolean(!CONFIG.mock && CONFIG.endpoint && CONFIG.supportEmail && CONFIG.retentionText);
     if (productionReady) {
       document.getElementById('preview-banner').hidden = true;
       document.getElementById('retention-copy').textContent = CONFIG.retentionText;
-      document.getElementById('timing-copy').textContent = CONFIG.processingText;
+      if (CONFIG.processingText) document.getElementById('timing-copy').textContent = CONFIG.processingText;
       const link = document.createElement('a');
       link.href = 'mailto:' + CONFIG.supportEmail;
       link.textContent = 'Contactar a soporte';
@@ -79,6 +124,8 @@
       status.hidden = true;
       document.getElementById('confirm-account').textContent = form.elements.account.value;
       document.getElementById('confirm-email').textContent = form.elements.email.value;
+      // The demo account has a balance or pending transactions. It can still apply.
+      document.getElementById('balance-warning').hidden = !CONFIG.mock;
       modal.showModal();
       document.getElementById('cancel').focus();
     });
@@ -86,7 +133,7 @@
     modal.addEventListener('cancel', event => { if (pending) event.preventDefault(); });
     confirmButton.addEventListener('click', async () => {
       if (pending) return;
-      if (!productionReady) {
+      if (!CONFIG.mock && !productionReady) {
         modal.close();
         status.textContent = 'Vista previa completada. No se envió ninguna solicitud ni se eliminó ninguna cuenta. Antes del lanzamiento, se debe conectar el servicio de eliminación y completar la información de las políticas.';
         status.hidden = false;
@@ -97,15 +144,27 @@
       document.getElementById('cancel').disabled = true;
       confirmButton.textContent = 'Enviando…';
       try {
-        const endpoint = new URL(CONFIG.endpoint, location.href);
-        if (endpoint.origin !== location.origin || endpoint.protocol !== 'https:') throw new Error('configuration');
-        const response = await fetch(endpoint.href, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, signal: AbortSignal.timeout(20000), body: JSON.stringify({ account: form.elements.account.value, email: form.elements.email.value, reason: form.elements.reason.value, consent: true }) });
-        if (!response.ok) throw new Error('request');
-        const data = await response.json();
+        const payload = { account: form.elements.account.value, email: form.elements.email.value, reason: form.elements.reason.value, consent: true };
+        let data;
+        if (CONFIG.mock) {
+          // In-memory mock: no network calls, email delivery or personal data storage.
+          await new Promise(resolve => setTimeout(resolve, 700));
+          data = { accepted: true, requestId: 'MW-DEL-' + crypto.randomUUID().replaceAll('-', '').slice(0, 8).toUpperCase(), submittedAt: new Date().toISOString(), hasBalanceOrPendingTransactions: true, mock: true };
+        } else {
+          const endpoint = new URL(CONFIG.endpoint, location.href);
+          if (endpoint.origin !== location.origin || endpoint.protocol !== 'https:') throw new Error('configuration');
+          const response = await fetch(endpoint.href, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, signal: AbortSignal.timeout(20000), body: JSON.stringify(payload) });
+          if (!response.ok) throw new Error('request');
+          data = await response.json();
+        }
         if (data.accepted !== true || typeof data.requestId !== 'string' || !data.requestId.trim()) throw new Error('response');
         modal.close();
+        document.getElementById('balance-warning').hidden = true;
         document.getElementById('form-content').hidden = true;
-        document.getElementById('receipt').textContent = 'Folio de solicitud: ' + data.requestId;
+        document.getElementById('result-demo').hidden = !CONFIG.mock;
+        document.getElementById('receipt').textContent = data.requestId;
+        const submittedAt = data.submittedAt ? new Date(data.submittedAt) : new Date();
+        document.getElementById('request-date').textContent = new Intl.DateTimeFormat('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'America/Mexico_City' }).format(submittedAt);
         form.reset();
         const result = document.getElementById('result'); result.hidden = false; result.focus();
       } catch (error) {
