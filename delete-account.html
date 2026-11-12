@@ -8,7 +8,7 @@
   <title>Eliminar cuenta | MEGWIN</title>
   <style>
     :root{color-scheme:dark;--bg:#0b0b0c;--surface:#1a1a1b;--raised:#242527;--line:#323437;--text:#ededed;--muted:#a8a8aa;--brand:#2dd4bf;--danger:#ff9a94;--danger-bg:#30201f;--radius:12px;--font:Poppins,"Segoe UI",Arial,sans-serif}
-    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.6 var(--font)}button,input,select,textarea{font:inherit}button,a,input,select,textarea{outline-offset:4px} :focus-visible{outline:2px solid var(--brand)}a{color:var(--brand);text-underline-offset:4px}button{cursor:pointer}button:disabled{cursor:wait;opacity:.55}[hidden]{display:none!important}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.6 var(--font)}button,input,select,textarea{font:inherit}button,a,input,select,textarea{outline-offset:4px} :focus-visible{outline:2px solid var(--brand)}a{color:var(--brand);text-underline-offset:4px}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.45}[hidden]{display:none!important}
     .account-input{display:flex;gap:10px;align-items:stretch}.account-input input{flex:1;min-width:0}.login-button{flex:0 0 auto;min-height:48px;padding:0 18px;border:0;border-radius:8px;background:#ff4355;color:#fff;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}.login-button:hover{background:#e93649}
     .login-modal{width:min(480px,calc(100% - 32px));max-width:none;min-height:500px;padding:0 32px 24px;border:1px solid #2b2b2b;border-radius:4px;background:#111;color:#f5f5f5;box-shadow:0 24px 80px #000b}.login-modal::backdrop{background:#000b}.login-modal-head{display:flex;align-items:center;justify-content:space-between;margin:0 -8px 20px}.login-modal-head h2{margin:0;font-size:26px;font-weight:700}.login-close{border:0;background:transparent;color:#aaa;font-size:30px;line-height:1;padding:4px 8px}.login-form{min-height:400px;display:flex;flex-direction:column}.login-field{position:relative;margin:0 0 8px}.login-modal .login-field input{width:100%;height:58px;padding:12px 42px;border:0;border-bottom:1px solid #454545;border-radius:0;background:transparent;color:#f5f5f5;font-size:18px}.login-modal .login-field input:focus{outline:0;border-bottom-color:var(--brand)}.login-field-icon{position:absolute;left:2px;top:17px;color:var(--brand);font-size:20px}.password-toggle{position:absolute;right:0;top:12px;border:0;background:transparent;color:#aaa;font-size:19px;padding:8px}.forgot-link{align-self:flex-start;margin-top:8px;color:#c7c7c7;text-decoration:none}.login-submit{width:100%;min-height:56px;margin-top:auto;border:0;border-radius:5px;background:#ff4355;color:#fff;font-size:18px;font-weight:600}.login-submit:hover{background:#e93649}.google-login{width:50px;height:50px;align-self:center;margin-top:28px;border:1px solid #383838;border-radius:50%;background:#151515;color:#4285f4;font-size:25px;font-weight:700;background:linear-gradient(90deg,#4285f4 0 25%,#34a853 25% 50%,#fbbc05 50% 75%,#ea4335 75%);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent}.login-message{min-height:36px;margin:12px 0 0;color:#e5bd84;font-size:12px}
     .login-field-icon{width:24px;height:24px}
@@ -78,7 +78,7 @@
               </select>
             </div>
             <label class="check"><input id="acknowledge" type="checkbox" required><span>Solicito la eliminación de mi cuenta de MEGWIN y los datos personales asociados. Entiendo que, una vez completada, la eliminación no se puede deshacer. He leído la información sobre el tratamiento de datos en esta página.</span></label>
-            <button class="primary wide" type="submit">Continuar a la confirmación</button>
+            <button class="primary wide" type="submit" disabled>Continuar a la confirmación</button>
             <p class="submit-note">No necesitas proporcionar tu contraseña ni un documento de identidad en este formulario.</p>
           </form>
           <p id="status" class="status" role="status" aria-live="polite" hidden></p>
@@ -149,6 +149,7 @@
     const STORE_USER_DELETE = 'megwin_user_delete_requests_v1';
     const STORE_KYC_PUBLISHED = 'aibet_validator_kyc_setting_published_v1';
     const form = document.getElementById('deletion-form');
+    const submitButton = form.querySelector('button[type="submit"]');
     const modal = document.getElementById('confirmation');
     const loginDialog = document.getElementById('login-dialog');
     const confirmButton = document.getElementById('confirm');
@@ -187,6 +188,7 @@
       document.getElementById('account').value = '';
       document.getElementById('email').value = '';
       updateBalanceNotice(null);
+      syncDeleteAccountRequestAvailability();
       const identity = document.getElementById('login-identity').value.trim();
       const password = document.getElementById('login-password').value;
       const message = document.getElementById('login-message');
@@ -282,7 +284,21 @@
 
     function syncDeleteAccountRequestAvailability() {
       const availability = getDeleteAccountRequestAvailability();
-      form.querySelector('button[type="submit"]').disabled = !availability.enabled;
+      const balance = updateBalanceNotice(loginAccount);
+      const accountStatus = String(loginAccount?.status || '').trim().toLowerCase();
+      const accountVerified = Boolean(
+        loginAccount &&
+        accountStatus === 'enabled' &&
+        String(loginAccount.id) === document.getElementById('account').value
+      );
+      const requiredFieldsValid = [...form.querySelectorAll(':required')]
+        .every(field => field.validity.valid);
+      submitButton.disabled = !(
+        availability.enabled &&
+        accountVerified &&
+        balance <= 0 &&
+        requiredFieldsValid
+      );
       if (!availability.enabled) {
         showStatus(availability.error
           ? 'No pudimos verificar si las solicitudes de eliminación están disponibles. Inténtalo más tarde.'
@@ -296,6 +312,9 @@
     }
 
     syncDeleteAccountRequestAvailability();
+
+    form.addEventListener('input', syncDeleteAccountRequestAvailability);
+    form.addEventListener('change', syncDeleteAccountRequestAvailability);
 
     const productionReady = Boolean(!CONFIG.mock && CONFIG.endpoint && CONFIG.supportEmail && CONFIG.retentionText);
     if (productionReady) {
@@ -465,7 +484,22 @@
       }
     });
     window.addEventListener('storage', event => {
-      if (event.key === STORE_KYC_PUBLISHED) syncDeleteAccountRequestAvailability();
+      if (event.key === STORE_KYC_PUBLISHED) {
+        syncDeleteAccountRequestAvailability();
+      } else if (event.key === STORE_USER_LIST && loginAccount) {
+        try {
+          const users = readStoredRows(STORE_USER_LIST) || [];
+          loginAccount = users.find(user => String(user.id) === String(loginAccount.id)) || null;
+          if (!loginAccount) document.getElementById('account').value = '';
+          syncDeleteAccountRequestAvailability();
+        } catch (error) {
+          loginAccount = null;
+          document.getElementById('account').value = '';
+          updateBalanceNotice(null);
+          showStatus('No pudimos actualizar el estado de tu cuenta. Inténtalo más tarde.');
+          syncDeleteAccountRequestAvailability();
+        }
+      }
     });
   </script>
 </body>
