@@ -147,6 +147,7 @@
     const CONFIG = Object.freeze({ mock: true, endpoint: '', supportEmail: 'customerservice@megwin.mx', retentionText: '', processingText: '' });
     const STORE_USER_LIST = 'megwin_user_list_demo_v1';
     const STORE_USER_DELETE = 'megwin_user_delete_requests_v1';
+    const STORE_KYC_PUBLISHED = 'aibet_validator_kyc_setting_published_v1';
     const form = document.getElementById('deletion-form');
     const modal = document.getElementById('confirmation');
     const loginDialog = document.getElementById('login-dialog');
@@ -228,7 +229,7 @@
       updateBalanceNotice(user);
       document.getElementById('login-password').value = '';
       loginDialog.close();
-      status.hidden = true;
+      syncDeleteAccountRequestAvailability();
     });
     document.getElementById('google-login').addEventListener('click', () => {
       document.getElementById('login-message').textContent = 'El inicio de sesión con Google aún no está conectado.';
@@ -265,6 +266,37 @@
       status.hidden = false;
     }
 
+    function getDeleteAccountRequestAvailability() {
+      try {
+        const raw = localStorage.getItem(STORE_KYC_PUBLISHED);
+        if (!raw) return { enabled: true, error: false };
+        const settings = JSON.parse(raw);
+        if (!settings || typeof settings !== 'object' || Array.isArray(settings)) {
+          throw new Error('invalid-settings');
+        }
+        return { enabled: settings.deleteAccountRequest !== false, error: false };
+      } catch (error) {
+        return { enabled: false, error: true };
+      }
+    }
+
+    function syncDeleteAccountRequestAvailability() {
+      const availability = getDeleteAccountRequestAvailability();
+      form.querySelector('button[type="submit"]').disabled = !availability.enabled;
+      if (!availability.enabled) {
+        showStatus(availability.error
+          ? 'No pudimos verificar si las solicitudes de eliminación están disponibles. Inténtalo más tarde.'
+          : 'Las solicitudes de eliminación de cuenta están temporalmente desactivadas.');
+        status.dataset.featureAvailability = 'true';
+      } else if (status.dataset.featureAvailability) {
+        status.hidden = true;
+        delete status.dataset.featureAvailability;
+      }
+      return availability;
+    }
+
+    syncDeleteAccountRequestAvailability();
+
     const productionReady = Boolean(!CONFIG.mock && CONFIG.endpoint && CONFIG.supportEmail && CONFIG.retentionText);
     if (productionReady) {
       document.getElementById('preview-banner').hidden = true;
@@ -277,6 +309,7 @@
     }
     form.addEventListener('submit', event => {
       event.preventDefault();
+      if (!syncDeleteAccountRequestAvailability().enabled) return;
       if (!form.reportValidity()) return;
       for (const id of ['account', 'email']) {
         const input = document.getElementById(id);
@@ -323,6 +356,11 @@
     modal.addEventListener('cancel', event => { if (pending) event.preventDefault(); });
     confirmButton.addEventListener('click', async () => {
       if (pending) return;
+      const availability = syncDeleteAccountRequestAvailability();
+      if (!availability.enabled) {
+        modal.close();
+        return;
+      }
       if (!CONFIG.mock && !productionReady) {
         modal.close();
         status.textContent = 'Vista previa completada. No se envió ninguna solicitud ni se eliminó ninguna cuenta. Antes del lanzamiento, se debe conectar el servicio de eliminación y completar la información de las políticas.';
@@ -338,6 +376,10 @@
         let data;
         if (CONFIG.mock) {
           await new Promise(resolve => setTimeout(resolve, 700));
+          const currentAvailability = getDeleteAccountRequestAvailability();
+          if (!currentAvailability.enabled) {
+            throw new Error(currentAvailability.error ? 'feature-config-unavailable' : 'requests-disabled');
+          }
           const users = readStoredRows(STORE_USER_LIST);
           const requests = readStoredRows(STORE_USER_DELETE) || [];
           const account = users?.find(user =>
@@ -386,6 +428,10 @@
           matchedAccount = account;
           data = { accepted: true, requestId, submittedAt: submittedAt.toISOString(), hasBalanceOrPendingTransactions: Number(account.balance) > 0, mock: true };
         } else {
+          const currentAvailability = getDeleteAccountRequestAvailability();
+          if (!currentAvailability.enabled) {
+            throw new Error(currentAvailability.error ? 'feature-config-unavailable' : 'requests-disabled');
+          }
           const endpoint = new URL(CONFIG.endpoint, location.href);
           if (endpoint.origin !== location.origin || endpoint.protocol !== 'https:') throw new Error('configuration');
           const response = await fetch(endpoint.href, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, signal: AbortSignal.timeout(20000), body: JSON.stringify(payload) });
@@ -405,6 +451,8 @@
         modal.close();
         if (error.message === 'balance-not-cleared') {
           showStatus('No puedes continuar con la solicitud hasta dejar el saldo de tu cuenta en cero.');
+        } else if (error.message === 'requests-disabled' || error.message === 'feature-config-unavailable') {
+          syncDeleteAccountRequestAvailability();
         } else {
           showStatus(error.message === 'account-unavailable'
             ? 'La cuenta ya no está disponible para enviar otra solicitud. Verifica el estado con nuestro equipo de atención.'
@@ -415,6 +463,9 @@
         document.getElementById('cancel').disabled = false;
         confirmButton.textContent = 'Enviar solicitud de eliminación';
       }
+    });
+    window.addEventListener('storage', event => {
+      if (event.key === STORE_KYC_PUBLISHED) syncDeleteAccountRequestAvailability();
     });
   </script>
 </body>

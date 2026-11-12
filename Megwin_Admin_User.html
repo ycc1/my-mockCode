@@ -1368,7 +1368,12 @@
         {
           title: "System Management",
           icon: "☷",
-          children: ["Login Record", "Roles", "Account"],
+          children: [
+            "Login Record",
+            "Roles",
+            "Account",
+            "Validator and KYC Setting",
+          ],
         },
         {
           title: "Finance Management",
@@ -1408,6 +1413,35 @@
       const STORE_MERCHANT = "aibet_finance_merchant_v1";
       const STORE_PAYCODE = "aibet_finance_paycode_v1";
       const STORE_USER_LIST = "megwin_user_list_demo_v1";
+      const STORE_KYC_DRAFT = "aibet_validator_kyc_setting_draft_v1";
+      const STORE_KYC_PUBLISHED = "aibet_validator_kyc_setting_published_v1";
+      const STORE_KYC_PUBLISHED_AT = "aibet_validator_kyc_setting_published_at_v1";
+      const validatorKycDefaults = {
+        kycLogin: true,
+        kycRegister: true,
+        kycBet: true,
+        kycDeposit: true,
+        kycDepositCumulativeTime: "",
+        kycDepositLimit: "",
+        kycDepositMessage:
+          "Para continuar con tu depósito, completa la verificación de identidad.",
+        kycWithdraw: true,
+        kycWithdrawCumulativeTime: "",
+        kycWithdrawLimit: "",
+        kycWithdrawMessage:
+          "Para continuar con tu retiro, completa la verificación de identidad.",
+        kycProfileCenter: true,
+        loginGraphicOtp: false,
+        longTimeLogin: false,
+        longTimeLoginHour: "",
+        longTimeLoginMinute: "",
+        longTimeLoginSecond: "",
+        multiAreaLogin: false,
+        multiAreaLoginAreaCount: "",
+        multiAreaLoginIpCount: "",
+        deleteAccountRequest: true,
+      };
+
       function loadState(key, fallback) {
         try {
           const raw = localStorage.getItem(key);
@@ -1420,6 +1454,23 @@
       function saveState(key, value) {
         localStorage.setItem(key, JSON.stringify(value));
       }
+
+      let validatorKycDraft = loadState(STORE_KYC_DRAFT, {
+        ...validatorKycDefaults,
+      });
+      let validatorKycPublished = loadState(STORE_KYC_PUBLISHED, {
+        ...validatorKycDefaults,
+      });
+      let validatorKycPublishedAt =
+        localStorage.getItem(STORE_KYC_PUBLISHED_AT) || "-";
+
+      [validatorKycDraft, validatorKycPublished].forEach((setting) => {
+        Object.entries(validatorKycDefaults).forEach(([key, fallback]) => {
+          if (setting[key] == null) setting[key] = fallback;
+        });
+      });
+      saveState(STORE_KYC_DRAFT, validatorKycDraft);
+      saveState(STORE_KYC_PUBLISHED, validatorKycPublished);
 
       function nowText() {
         const d = new Date();
@@ -2153,6 +2204,248 @@
             `;
       }
 
+      function validatorKycSettingHtml() {
+        const hasDraftChange =
+          JSON.stringify(validatorKycDraft) !==
+          JSON.stringify(validatorKycPublished);
+        const items = [
+          {
+            key: "kycLogin",
+            name: "Login",
+            section: "KYC Trigger",
+            description:
+              "Show the KYC prompt and require the user to enter the KYC flow.",
+          },
+          {
+            key: "kycRegister",
+            name: "Registration",
+            section: "KYC Trigger",
+            description:
+              "Collect user information; users under 18 cannot complete registration.",
+          },
+          {
+            key: "kycBet",
+            name: "Betting",
+            section: "KYC Trigger",
+            description:
+              "Show the KYC prompt and require the user to enter the KYC flow.",
+          },
+          {
+            key: "kycDeposit",
+            name: "Deposit",
+            section: "KYC Trigger",
+            description:
+              "Show the KYC prompt when cumulative deposits reach the threshold.",
+          },
+          {
+            key: "kycWithdraw",
+            name: "Withdrawal",
+            section: "KYC Trigger",
+            description:
+              "Show the KYC prompt when cumulative withdrawals reach the threshold.",
+          },
+          {
+            key: "kycProfileCenter",
+            name: "Profile Center",
+            section: "KYC Trigger",
+            description:
+              "Show the KYC prompt and require the user to enter the KYC flow.",
+          },
+          {
+            key: "loginGraphicOtp",
+            name: "OTP verification",
+            section: "Validator",
+            description:
+              "When enabled, users must complete OTP verification during login.",
+          },
+          {
+            key: "longTimeLogin",
+            name: "Long time login",
+            section: "Validator",
+            description:
+              "Trigger verification when a user logs in after the configured period of inactivity.",
+          },
+          {
+            key: "multiAreaLogin",
+            name: "Multi area login",
+            section: "Validator",
+            description:
+              "Trigger verification when login is detected from a different area or device.",
+          },
+          {
+            key: "deleteAccountRequest",
+            name: "Delete Account Request",
+            section: "Validator",
+            description:
+              "Allow users to submit account deletion requests from the public deletion page.",
+          },
+        ];
+        const renderRows = (section) =>
+          items
+            .filter((item) => item.section === section)
+            .map((item) => validatorKycRowHtml(item))
+            .join("");
+
+        return `
+          <div class="setting-page">
+            <div class="breadcrumb">Home / System Management / Validator and KYC Setting</div>
+            <h1 class="page-title">Validator and KYC Setting</h1>
+            <div class="setting-toolbar" style="align-items:flex-start">
+              <div style="flex:1;min-width:360px">
+                <div class="setting-toolbar-title">Frontend validation and KYC trigger configuration</div>
+                <div class="setting-toolbar-note" style="margin-top:8px">Changes are saved as drafts automatically. Click <b>Save &amp; Publish</b> to publish the configuration.</div>
+              </div>
+              <div class="publish-meta">
+                <span class="publish-badge ${hasDraftChange ? "draft" : ""}">${hasDraftChange ? "● Unpublished Changes" : "● Published"}</span>
+                <span style="font-size:12px;color:#667085">Last Published: ${escapeHtml(validatorKycPublishedAt)}</span>
+              </div>
+            </div>
+            <div class="panel setting-section">
+              <div class="setting-section-head"><h2>KYC Setting</h2><p>Control whether specific user actions trigger the KYC flow in the frontend.</p></div>
+              <div class="setting-list">${renderRows("KYC Trigger")}</div>
+            </div>
+            <div class="panel setting-section">
+              <div class="setting-section-head"><h2>Validator</h2><p>Control additional verification conditions for login and risk scenarios.</p></div>
+              <div class="setting-list">${renderRows("Validator")}</div>
+            </div>
+            <div class="publish-footer">
+              <button class="btn light" id="kycResetDraftBtn" type="button">Reset Draft</button>
+              <button class="btn" id="kycSavePublishBtn" type="button">Save &amp; Publish</button>
+            </div>
+          </div>`;
+      }
+
+      function validatorKycRowHtml(item) {
+        const checked = !!validatorKycDraft[item.key];
+        const important = item.section !== "Validator";
+        return `<div class="setting-row ${checked ? "is-on" : ""}" data-kyc-row="${item.key}"><div><div class="setting-name">${escapeHtml(item.name)}</div>${validatorKycExtraHtml(item.key, checked)}</div><div class="setting-desc ${important ? "important" : ""}">${escapeHtml(item.description)}</div><div class="setting-switch-wrap"><label class="status-switch"><input type="checkbox" data-kyc-setting="${item.key}" ${checked ? "checked" : ""}><span class="status-slider"></span><span class="setting-switch-label">${checked ? "Enabled" : "Disabled"}</span></label></div></div>`;
+      }
+
+      function validatorKycExtraHtml(key, checked) {
+        const prefix = key.startsWith("kyc") ? "kyc" : "";
+        const base = prefix ? key.slice(prefix.length) : key;
+        const lowerBase = base.charAt(0).toLowerCase() + base.slice(1);
+        if (lowerBase === "deposit" || lowerBase === "withdraw") {
+          const cap = lowerBase.charAt(0).toUpperCase() + lowerBase.slice(1);
+          const timeKey = prefix + cap + "CumulativeTime";
+          const limitKey = prefix + cap + "Limit";
+          const messageKey = prefix + cap + "Message";
+          return `<div class="setting-extra" data-kyc-extra="${key}" ${checked ? "" : "hidden"}><span class="setting-extra-label">Cumulative period (months)</span><input class="setting-number" type="text" inputmode="numeric" data-kyc-number="${timeKey}" value="${escapeHtml(validatorKycDraft[timeKey] ?? "")}" placeholder="0"></div><div class="setting-extra" data-kyc-extra="${key}" ${checked ? "" : "hidden"}><span class="setting-extra-label">Limit (≥)</span><input class="setting-number" type="text" inputmode="numeric" data-kyc-number="${limitKey}" value="${escapeHtml(validatorKycDraft[limitKey] ?? "")}" placeholder="0"></div><div class="setting-extra" data-kyc-extra="${key}" ${checked ? "" : "hidden"}><span class="setting-extra-label">Prompt message</span><input class="setting-number" style="width:320px" type="text" maxlength="200" data-kyc-text="${messageKey}" value="${escapeHtml(validatorKycDraft[messageKey] ?? "")}" placeholder="Message shown to the user"></div>`;
+        }
+        if (key === "longTimeLogin") {
+          return `<div class="setting-extra" data-kyc-extra="longTimeLogin" ${checked ? "" : "hidden"}><span class="setting-extra-label">&gt;= 超时未登入</span><input class="setting-number small" type="text" inputmode="numeric" data-kyc-number="longTimeLoginHour" value="${escapeHtml(validatorKycDraft.longTimeLoginHour ?? "")}" placeholder="0"><span class="setting-unit">时</span><input class="setting-number small" type="text" inputmode="numeric" data-kyc-number="longTimeLoginMinute" value="${escapeHtml(validatorKycDraft.longTimeLoginMinute ?? "")}" placeholder="0"><span class="setting-unit">分</span><input class="setting-number small" type="text" inputmode="numeric" data-kyc-number="longTimeLoginSecond" value="${escapeHtml(validatorKycDraft.longTimeLoginSecond ?? "")}" placeholder="0"><span class="setting-unit">秒</span></div>`;
+        }
+        if (key === "multiAreaLogin") {
+          return `<div class="setting-extra" data-kyc-extra="multiAreaLogin" ${checked ? "" : "hidden"}><span class="setting-extra-label">&gt;=</span><input class="setting-number small" type="text" inputmode="numeric" data-kyc-number="multiAreaLoginAreaCount" value="${escapeHtml(validatorKycDraft.multiAreaLoginAreaCount ?? "")}" placeholder="0"><span class="setting-unit">areas</span><span class="setting-extra-label" style="margin-left:10px">or &gt;=</span><input class="setting-number small" type="text" inputmode="numeric" data-kyc-number="multiAreaLoginIpCount" value="${escapeHtml(validatorKycDraft.multiAreaLoginIpCount ?? "")}" placeholder="0"><span class="setting-unit">IPs</span></div>`;
+        }
+        return "";
+      }
+
+      function updateKycDraftSetting(key, enabled) {
+        validatorKycDraft[key] = enabled;
+        saveState(STORE_KYC_DRAFT, validatorKycDraft);
+        const row = document.querySelector(`[data-kyc-row="${key}"]`);
+        if (row) {
+          row.classList.toggle("is-on", enabled);
+          const label = row.querySelector(".setting-switch-label");
+          if (label) label.textContent = enabled ? "Enabled" : "Disabled";
+          row
+            .querySelectorAll(`[data-kyc-extra="${key}"]`)
+            .forEach((extra) => {
+              extra.hidden = !enabled;
+            });
+        }
+        markKycDraftChanged();
+      }
+
+      function markKycDraftChanged() {
+        const badge = document.querySelector(".publish-badge");
+        if (badge) {
+          badge.classList.add("draft");
+          badge.textContent = "● Unpublished Changes";
+        }
+      }
+
+      function updateKycNumericSetting(key, value) {
+        const numericValue = String(value ?? "").replace(/\D/g, "");
+        validatorKycDraft[key] = numericValue;
+        saveState(STORE_KYC_DRAFT, validatorKycDraft);
+        markKycDraftChanged();
+        return numericValue;
+      }
+
+      function publishValidatorKycSetting() {
+        if (
+          validatorKycDraft.kycDeposit &&
+          !String(validatorKycDraft.kycDepositMessage || "").trim()
+        ) {
+          toast("Deposit: please enter the prompt message");
+          return;
+        }
+        if (
+          validatorKycDraft.kycWithdraw &&
+          !String(validatorKycDraft.kycWithdrawMessage || "").trim()
+        ) {
+          toast("Withdrawal: please enter the prompt message");
+          return;
+        }
+        for (const [action, timeKey, limitKey] of [
+          [
+            "Deposit",
+            "kycDepositCumulativeTime",
+            "kycDepositLimit",
+          ],
+          [
+            "Withdrawal",
+            "kycWithdrawCumulativeTime",
+            "kycWithdrawLimit",
+          ],
+        ]) {
+          const enabled =
+            action === "Deposit"
+              ? validatorKycDraft.kycDeposit
+              : validatorKycDraft.kycWithdraw;
+          if (enabled && !validatorKycDraft[timeKey]) {
+            toast(`${action}: please enter the cumulative period (months)`);
+            return;
+          }
+          if (enabled && !validatorKycDraft[limitKey]) {
+            toast(`${action}: please enter the limit`);
+            return;
+          }
+        }
+        if (
+          validatorKycDraft.longTimeLogin &&
+          !validatorKycDraft.longTimeLoginHour &&
+          !validatorKycDraft.longTimeLoginMinute &&
+          !validatorKycDraft.longTimeLoginSecond
+        ) {
+          toast("Long time login: please enter hours, minutes or seconds");
+          return;
+        }
+        if (
+          validatorKycDraft.multiAreaLogin &&
+          !validatorKycDraft.multiAreaLoginAreaCount &&
+          !validatorKycDraft.multiAreaLoginIpCount
+        ) {
+          toast("Multi area login: please enter the area count or IP count");
+          return;
+        }
+        validatorKycPublished = { ...validatorKycDraft };
+        saveState(STORE_KYC_PUBLISHED, validatorKycPublished);
+        validatorKycPublishedAt = nowText();
+        localStorage.setItem(STORE_KYC_PUBLISHED_AT, validatorKycPublishedAt);
+        renderContent("Validator and KYC Setting");
+        toast("Validator and KYC Setting published");
+      }
+
+      function resetValidatorKycDraft() {
+        validatorKycDraft = { ...validatorKycPublished };
+        saveState(STORE_KYC_DRAFT, validatorKycDraft);
+        renderContent("Validator and KYC Setting");
+        toast("Draft reset to published settings");
+      }
+
       function renderContent(title) {
         if (title === "Home") {
           content.innerHTML = homeHtml();
@@ -2173,6 +2466,11 @@
         }
         if (title === "PayCode") {
           content.innerHTML = payCodePageHtml();
+          return;
+        }
+
+        if (title === "Validator and KYC Setting") {
+          content.innerHTML = validatorKycSettingHtml();
           return;
         }
 
@@ -3033,6 +3331,16 @@
       });
 
       content.addEventListener("click", (event) => {
+        if (event.target.closest("#kycSavePublishBtn")) {
+          publishValidatorKycSetting();
+          return;
+        }
+
+        if (event.target.closest("#kycResetDraftBtn")) {
+          resetValidatorKycDraft();
+          return;
+        }
+
         if (event.target.closest("[data-user-info-action='restore']")) {
           const user = userRows.find((item) => item.id === selectedUserInfoId);
           if (!user || user.status !== "Deleted") {
@@ -3302,6 +3610,15 @@
       });
 
       content.addEventListener("change", (event) => {
+        const kycSetting = event.target.closest("[data-kyc-setting]");
+        if (kycSetting) {
+          updateKycDraftSetting(
+            kycSetting.dataset.kycSetting,
+            kycSetting.checked,
+          );
+          return;
+        }
+
         const merchantStatus = event.target.closest("[data-merchant-status]");
 
         if (merchantStatus) {
@@ -3350,6 +3667,24 @@
 
           toast(status.checked ? "Status enabled" : "Status disabled");
         }
+      });
+
+      content.addEventListener("input", (event) => {
+        const textInput = event.target.closest("[data-kyc-text]");
+        if (textInput) {
+          validatorKycDraft[textInput.dataset.kycText] = textInput.value;
+          saveState(STORE_KYC_DRAFT, validatorKycDraft);
+          markKycDraftChanged();
+          return;
+        }
+
+        const numericInput = event.target.closest("[data-kyc-number]");
+        if (!numericInput) return;
+        const cleaned = updateKycNumericSetting(
+          numericInput.dataset.kycNumber,
+          numericInput.value,
+        );
+        if (numericInput.value !== cleaned) numericInput.value = cleaned;
       });
 
       $("#merchantModalClose").addEventListener("click", closeMerchantModal);
