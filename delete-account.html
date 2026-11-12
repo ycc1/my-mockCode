@@ -62,8 +62,8 @@
             <div class="field"><label for="account">Nombre de usuario, ID o correo vinculado a MEGWIN</label><div class="account-input"><input id="account" name="account" autocomplete="username" placeholder="Inicia sesión para cargar el ID de tu cuenta" required maxlength="100" readonly aria-readonly="true"><button class="login-button" id="open-login" type="button" aria-haspopup="dialog" aria-controls="login-dialog">Iniciar Sesión</button></div><p class="help">Inicia sesión para completar automáticamente el ID de tu cuenta. El ID no se puede editar.</p></div>
             <div class="field"><label for="email">Correo electrónico de contacto</label><input id="email" name="email" type="email" autocomplete="email" placeholder="Ingresa tu correo electrónico" required aria-required="true" maxlength="254"><p class="help">Este correo es obligatorio y lo usaremos para enviarte notificaciones sobre tu solicitud. Si tu cuenta no tiene un correo asociado, ingresa uno vigente.</p></div>
             <div class="field">
-              <label for="reason">Motivo de la eliminación <span class="optional">(opcional)</span></label>
-              <select id="reason" name="reason">
+              <label for="reason">Motivo de la eliminación</label>
+              <select id="reason" name="reason" required aria-required="true">
                 <option value="">Selecciona un motivo</option>
                 <option value="I no longer use MEGWIN">Ya no quiero usar MEGWIN</option>
                 <option value="I want to stop playing">Quiero dejar de apostar o tomar un descanso</option>
