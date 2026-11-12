@@ -36,6 +36,7 @@
     .login-submit{margin-top:24px}
     .google-login{margin-top:28px}
     .login-message{min-height:18px;text-align:center}
+    .balance-notice{margin:0 0 20px}
     .login-demo-note{margin:0 0 12px;color:#d0d0d0;font-size:12px}
     header{height:80px;border-bottom:1px solid var(--line);background:var(--surface)}.header-inner{max-width:1120px;height:100%;padding:0 28px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{font-size:25px;font-weight:800;letter-spacing:-1px;font-style:italic}.brand span{color:var(--brand)}.header-note{font-size:12px;color:var(--muted)}
     main{max-width:1040px;margin:48px auto 56px;padding:0 24px}.eyebrow{font-size:12px;color:var(--brand);letter-spacing:1.8px;text-transform:uppercase;font-weight:600}h1{font-size:32px;line-height:1.25;font-weight:600;letter-spacing:-.7px;margin:12px 0}h2{font-size:18px;line-height:1.4;font-weight:600;margin:0 0 12px}h3{font-size:14px;margin:0 0 6px;font-weight:600}p{margin:0 0 16px}.intro{color:var(--muted);max-width:670px}.layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:24px;margin-top:28px;align-items:start}.card{background:var(--surface);border-radius:var(--radius);padding:24px}.card+.card{margin-top:16px}.section-label{border-bottom:1px solid var(--line);margin-bottom:24px}.section-label span{display:inline-block;padding:0 0 12px;border-bottom:4px solid var(--brand);font-weight:600}.muted,.help{color:var(--muted)}.help{font-size:12px;margin:6px 0 0}.warning{padding:16px;border:1px solid #61403c;border-radius:8px;background:var(--danger-bg);margin-bottom:24px}.warning strong{display:block;color:var(--danger);margin-bottom:4px}.warning p{margin:0;font-size:12px;color:#e3bfbc}.field{margin-bottom:20px}label{display:block;margin-bottom:8px;font-size:14px}input:not([type=checkbox]),select,textarea{width:100%;background:var(--raised);border:1px solid var(--line);border-radius:8px;color:var(--text);padding:12px;min-height:48px}input::placeholder,textarea::placeholder{color:var(--muted)}textarea{resize:vertical;min-height:88px}.optional{color:var(--muted);font-size:12px}.check{display:flex;align-items:flex-start;gap:10px;font-size:12px;cursor:pointer;margin:24px 0}.check input{accent-color:var(--brand);width:18px;height:18px;flex-shrink:0;margin:2px 0}.primary,.secondary{min-height:44px;border-radius:8px;padding:12px 20px;border:0;font-weight:600}.primary{color:#111;background:#fff}.primary:hover{background:#dedede}.secondary{color:var(--text);background:var(--raised);border:1px solid var(--line)}.wide{width:100%}.submit-note{text-align:center;font-size:12px;color:var(--muted);margin:12px 0 0}.steps{list-style:none;padding:0;margin:20px 0 0;counter-reset:step}.steps li{position:relative;padding-left:40px;margin-bottom:24px;counter-increment:step}.steps li:last-child{margin-bottom:0}.steps li:before{content:counter(step);position:absolute;left:0;top:0;background:var(--raised);border:1px solid var(--line);width:26px;height:26px;border-radius:50%;text-align:center;line-height:24px;color:var(--brand);font-size:12px}.steps p{font-size:12px;color:var(--muted);margin:0}.data-block{padding:16px 0;border-bottom:1px solid var(--line)}.data-block:last-child{border:0;padding-bottom:0}.data-block p{font-size:12px;color:var(--muted);margin:0}.tag{font-size:10px;letter-spacing:1px;color:var(--brand);display:block;margin-bottom:6px}.tag.retained{color:#e5bd84}.faq{margin-top:24px}details{border-bottom:1px solid var(--line);padding:16px 0}summary{cursor:pointer;font-size:14px}details p{font-size:12px;color:var(--muted);margin:12px 0 0}.preview{padding:10px 16px;background:var(--raised);border-bottom:1px solid var(--line);text-align:center;font-size:12px;color:#e5bd84}footer{max-width:1040px;padding:24px;margin:auto;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;color:var(--muted);font-size:12px}.status{margin:16px 0 0;color:var(--danger);font-size:13px;overflow-wrap:anywhere}dialog{max-width:460px;width:calc(100% - 32px);padding:28px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--text)}dialog::backdrop{background:#000b}dialog p{color:var(--muted);font-size:13px}.dialog-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:24px}.summary-value{color:var(--text);overflow-wrap:anywhere}.result-mark{width:48px;height:48px;border:1px solid var(--brand);color:var(--brand);border-radius:50%;display:grid;place-items:center;font-size:24px;margin-bottom:20px}
@@ -57,9 +58,10 @@
         <div class="section-label"><span id="request-heading">Solicitud de eliminación de cuenta</span></div>
         <div id="form-content">
           <div class="warning"><strong>La eliminación de tu cuenta es permanente</strong><p>Una vez eliminada tu cuenta, no podrás recuperar tu perfil ni volver a acceder a ella. Desinstalar la app no elimina tu cuenta.</p></div>
-          <p class="help" style="margin-bottom:20px">Si tienes saldo o transacciones pendientes, puedes enviar tu solicitud ahora. Antes de completar la eliminación, procesaremos el saldo disponible y las transacciones pendientes conforme a los términos de la plataforma.</p>
+          <p class="help" style="margin-bottom:20px">Si tu cuenta tiene saldo disponible, primero debes dejarlo en cero para poder enviar la solicitud. Las transacciones pendientes podrían requerir una revisión adicional antes de completar la eliminación.</p>
           <form id="deletion-form">
             <div class="field"><label for="account">Nombre de usuario, ID o correo vinculado a MEGWIN</label><div class="account-input"><input id="account" name="account" autocomplete="username" placeholder="Inicia sesión para cargar el ID de tu cuenta" required maxlength="100" readonly aria-readonly="true"><button class="login-button" id="open-login" type="button" aria-haspopup="dialog" aria-controls="login-dialog">Iniciar Sesión</button></div><p class="help">Inicia sesión para completar automáticamente el ID de tu cuenta. El ID no se puede editar.</p></div>
+            <div class="warning balance-notice" id="balance-notice" role="status" aria-live="polite" hidden><strong>Saldo pendiente: <span id="balance-amount"></span></strong><p>Debes dejar el saldo en cero antes de poder solicitar la eliminación de tu cuenta.</p></div>
             <div class="field"><label for="email">Correo electrónico de contacto</label><input id="email" name="email" type="email" autocomplete="email" placeholder="Ingresa tu correo electrónico" required aria-required="true" maxlength="254"><p class="help">Este correo es obligatorio y lo usaremos para enviarte notificaciones sobre tu solicitud. Si tu cuenta no tiene un correo asociado, ingresa uno vigente.</p></div>
             <div class="field">
               <label for="reason">Motivo de la eliminación</label>
@@ -95,7 +97,7 @@
             <h2>¿Cómo procesaremos tu solicitud?</h2>
             <ol style="padding-left:20px;color:var(--muted)">
               <li style="margin-bottom:12px">Revisaremos el estado de tu cuenta y realizaremos las verificaciones de identidad y seguridad necesarias.</li>
-              <li style="margin-bottom:12px">Si tu cuenta aún tiene saldo disponible, retiros pendientes o apuestas sin liquidar, te indicaremos los pasos necesarios para procesar los fondos o las transacciones.</li>
+              <li style="margin-bottom:12px">Si tu cuenta tiene saldo disponible, debes dejarlo en cero antes de enviar la solicitud. Los retiros pendientes o las apuestas sin liquidar podrían requerir pasos adicionales.</li>
               <li style="margin-bottom:12px">Una vez completados estos pasos, eliminaremos tu cuenta y los datos asociados que no deban conservarse por obligaciones legales o regulatorias.</li>
               <li>Te notificaremos por correo electrónico cuando se haya completado la eliminación de tu cuenta.</li>
             </ol>
@@ -113,10 +115,10 @@
         <section class="card" aria-labelledby="data-heading"><h2 id="data-heading">Tu cuenta y tus datos</h2><div class="data-block"><span class="tag">SE ELIMINAN</span><h3>Cuenta y perfil personal</h3><p>Se eliminarán tu acceso, los datos de tu perfil, tu información de contacto y tus preferencias, salvo los registros necesarios para los fines indicados abajo.</p></div><div class="data-block"><span class="tag retained">CONSERVACIÓN LIMITADA</span><h3>Registros que podríamos conservar</h3><p>Es posible que debamos conservar ciertos registros de transacciones, verificación de identidad, prevención de fraude o cumplimiento legal. Su uso se limitará al fin que justifica su conservación.</p><p id="retention-copy" style="margin-top:8px">Vista previa: antes de publicar, se deben confirmar las categorías de datos conservados, el fundamento legal y los plazos exactos de conservación.</p></div></section>
       </aside>
     </div>
-    <section class="card faq" aria-labelledby="faq-heading"><h2 id="faq-heading">Antes de solicitar la eliminación</h2><details open><summary>¿Qué pasa si tengo saldo u operaciones pendientes?</summary><p>Los retiros, las apuestas o las disputas pendientes pueden requerir resolución. Aun así, puedes iniciar tu solicitud aquí. Después de verificar que la cuenta te pertenece, nuestro equipo de soporte te explicará los pasos pendientes y cómo se manejará tu saldo.</p></details><details><summary>¿Necesito acceso a la app o a mi correo registrado?</summary><p>No necesitas la app para iniciar una solicitud. Si no tienes acceso a tu correo registrado, proporciona otro donde podamos contactarte. Podríamos requerir verificaciones adicionales de titularidad antes de eliminar la cuenta o sus datos.</p></details><details><summary>¿Cuánto tarda la eliminación?</summary><p id="timing-copy">Una vez que hayamos revisado el estado de tu cuenta, te informaremos el tiempo estimado de atención de esta solicitud. Puedes consultar su estado escribiendo a customerservice@megwin.mx e indicando tu folio de solicitud.</p></details><details><summary>¿Eliminar mi cuenta es lo mismo que tomar un descanso?</summary><p>No. La eliminación borra de forma permanente tu cuenta y los datos asociados, salvo aquellos que deban conservarse. La restricción temporal de la cuenta y la autoexclusión son acciones distintas.</p></details></section>
+    <section class="card faq" aria-labelledby="faq-heading"><h2 id="faq-heading">Antes de solicitar la eliminación</h2><details open><summary>¿Qué pasa si tengo saldo u operaciones pendientes?</summary><p>Debes dejar el saldo de tu cuenta en cero antes de enviar la solicitud. Los retiros, las apuestas o las disputas pendientes podrían requerir resolución antes de completar la eliminación; nuestro equipo de soporte te explicará los pasos necesarios.</p></details><details><summary>¿Necesito acceso a la app o a mi correo registrado?</summary><p>No necesitas la app para iniciar una solicitud. Si no tienes acceso a tu correo registrado, proporciona otro donde podamos contactarte. Podríamos requerir verificaciones adicionales de titularidad antes de eliminar la cuenta o sus datos.</p></details><details><summary>¿Cuánto tarda la eliminación?</summary><p id="timing-copy">Una vez que hayamos revisado el estado de tu cuenta, te informaremos el tiempo estimado de atención de esta solicitud. Puedes consultar su estado escribiendo a customerservice@megwin.mx e indicando tu folio de solicitud.</p></details><details><summary>¿Eliminar mi cuenta es lo mismo que tomar un descanso?</summary><p>No. La eliminación borra de forma permanente tu cuenta y los datos asociados, salvo aquellos que deban conservarse. La restricción temporal de la cuenta y la autoexclusión son acciones distintas.</p></details></section>
   </main>
   <footer><span>© MEGWIN · Eliminación de cuenta</span><span id="support-copy">Para solicitar la eliminación o consultar su estado: <a href="mailto:customerservice@megwin.mx?subject=Solicitud%20de%20eliminaci%C3%B3n%20de%20cuenta%20MEGWIN">customerservice@megwin.mx</a></span></footer>
-  <dialog id="confirmation" aria-labelledby="confirm-heading" aria-describedby="confirm-copy"><h2 id="confirm-heading">Confirma tu solicitud de eliminación</h2><p id="confirm-copy">Estás solicitando la eliminación permanente de la siguiente cuenta de MEGWIN y los datos personales asociados.</p><p>Cuenta<br><strong class="summary-value" id="confirm-account"></strong></p><p>Correo electrónico de contacto<br><strong class="summary-value" id="confirm-email"></strong></p><div class="warning" id="balance-warning" hidden><strong>Saldo o transacciones pendientes</strong><p>Tu cuenta tiene saldo o transacciones que aún no se han completado. Puedes enviar tu solicitud de eliminación ahora. Antes de completar la eliminación de la cuenta, deberemos procesar el saldo disponible y las transacciones pendientes conforme a los términos de la plataforma.</p></div><p>Al enviar la solicitud, se inicia la verificación de titularidad. Tu cuenta no se eliminará de inmediato.</p><div class="dialog-actions"><button class="secondary" id="cancel" type="button">Regresar</button><button class="primary" id="confirm" type="button">Enviar solicitud de eliminación</button></div></dialog>
+  <dialog id="confirmation" aria-labelledby="confirm-heading" aria-describedby="confirm-copy"><h2 id="confirm-heading">Confirma tu solicitud de eliminación</h2><p id="confirm-copy">Estás solicitando la eliminación permanente de la siguiente cuenta de MEGWIN y los datos personales asociados.</p><p>Cuenta<br><strong class="summary-value" id="confirm-account"></strong></p><p>Correo electrónico de contacto<br><strong class="summary-value" id="confirm-email"></strong></p><p>Al enviar la solicitud, se inicia la verificación de titularidad. Tu cuenta no se eliminará de inmediato.</p><div class="dialog-actions"><button class="secondary" id="cancel" type="button">Regresar</button><button class="primary" id="confirm" type="button">Enviar solicitud de eliminación</button></div></dialog>
   <dialog class="login-modal" id="login-dialog" aria-labelledby="login-heading">
     <aside class="login-promo" aria-label="MEGWIN">
       <div class="login-promo-brand">MEG<span>WIN</span></div>
@@ -151,6 +153,17 @@
     const confirmButton = document.getElementById('confirm');
     const status = document.getElementById('status');
     let loginAccount = null;
+    function updateBalanceNotice(user) {
+      const notice = document.getElementById('balance-notice');
+      const amount = Number(user?.balance) || 0;
+      notice.hidden = amount <= 0;
+      document.getElementById('balance-amount').textContent = '$' + amount.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+      return amount;
+    }
+
     document.getElementById('open-login').addEventListener('click', () => {
       document.getElementById('login-message').textContent = '';
       loginDialog.showModal();
@@ -171,6 +184,8 @@
       event.preventDefault();
       loginAccount = null;
       document.getElementById('account').value = '';
+      document.getElementById('email').value = '';
+      updateBalanceNotice(null);
       const identity = document.getElementById('login-identity').value.trim();
       const password = document.getElementById('login-password').value;
       const message = document.getElementById('login-message');
@@ -210,6 +225,7 @@
       loginAccount = user;
       document.getElementById('account').value = user.id;
       document.getElementById('email').value = user.email || '';
+      updateBalanceNotice(user);
       document.getElementById('login-password').value = '';
       loginDialog.close();
       status.hidden = true;
@@ -293,10 +309,13 @@
           showStatus(`La cuenta existe, pero su estado actual es ${matchedAccount.status || 'no disponible'} y no puede enviar otra solicitud.`);
           return;
         }
+        if (updateBalanceNotice(matchedAccount) > 0) {
+          showStatus('No puedes continuar con la solicitud hasta dejar el saldo de tu cuenta en cero.');
+          return;
+        }
       }
       document.getElementById('confirm-account').textContent = form.elements.account.value;
       document.getElementById('confirm-email').textContent = form.elements.email.value;
-      document.getElementById('balance-warning').hidden = !(CONFIG.mock && Number(matchedAccount?.balance) > 0);
       modal.showModal();
       document.getElementById('cancel').focus();
     });
@@ -327,6 +346,7 @@
             )
           );
           if (!account || account.status !== 'Enabled') throw new Error('account-unavailable');
+          if (updateBalanceNotice(account) > 0) throw new Error('balance-not-cleared');
           const submittedAt = new Date();
           const pad = value => String(value).padStart(2, '0');
           const localSubmitTime = `${submittedAt.getFullYear()}-${pad(submittedAt.getMonth() + 1)}-${pad(submittedAt.getDate())}T${pad(submittedAt.getHours())}:${pad(submittedAt.getMinutes())}`;
@@ -374,7 +394,6 @@
         }
         if (data.accepted !== true || typeof data.requestId !== 'string' || !data.requestId.trim()) throw new Error('response');
         modal.close();
-        document.getElementById('balance-warning').hidden = true;
         document.getElementById('form-content').hidden = true;
         document.getElementById('result-demo').hidden = !CONFIG.mock;
         document.getElementById('receipt').textContent = data.requestId;
@@ -384,9 +403,13 @@
         const result = document.getElementById('result'); result.hidden = false; result.focus();
       } catch (error) {
         modal.close();
-        showStatus(error.message === 'account-unavailable'
-          ? 'La cuenta ya no está disponible para enviar otra solicitud. Verifica el estado con nuestro equipo de atención.'
-          : 'No pudimos guardar tu solicitud en este navegador. Revisa el espacio disponible e inténtalo de nuevo.');
+        if (error.message === 'balance-not-cleared') {
+          showStatus('No puedes continuar con la solicitud hasta dejar el saldo de tu cuenta en cero.');
+        } else {
+          showStatus(error.message === 'account-unavailable'
+            ? 'La cuenta ya no está disponible para enviar otra solicitud. Verifica el estado con nuestro equipo de atención.'
+            : 'No pudimos guardar tu solicitud en este navegador. Revisa el espacio disponible e inténtalo de nuevo.');
+        }
       } finally {
         pending = false; confirmButton.disabled = false;
         document.getElementById('cancel').disabled = false;

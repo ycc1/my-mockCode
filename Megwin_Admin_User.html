@@ -2493,8 +2493,6 @@
                                     row.reviewStatus === "Approved"
                                       ? `<span class="ud-status approved">${escapeHtml(row.reviewStatus)}</span>
                                           <button class="btn danger" type="button" data-user-delete-action="cancel" data-id="${escapeHtml(row.id)}">Cancel</button>
-                                          ${Number(row.balance) > 0 && !row.refundStatus ? `<button class="btn" type="button" data-user-delete-action="refund" data-id="${escapeHtml(row.id)}">Refund ${escapeHtml(money(row.balance))}</button>` : ""}
-                                          ${row.refundStatus ? `<span class="ud-status approved">Refunded ${escapeHtml(money(row.refundedAmount))}</span>` : ""}
                                         `
                                       : row.reviewStatus && row.reviewStatus !== "Pending"
                                         ? `<span class="ud-status ${row.reviewStatus.toLowerCase()}">${escapeHtml(row.reviewStatus)}</span>`
@@ -3171,40 +3169,6 @@
             return;
           }
 
-          if (action === "refund") {
-            const row = userDeleteRows.find(
-              (item) => item.id === userDeleteAction.dataset.id,
-            );
-            const user = row && userRows.find((item) => item.id === row.userId);
-            if (
-              !row ||
-              !user ||
-              row.reviewStatus !== "Approved" ||
-              row.refundStatus ||
-              Number(row.balance) <= 0
-            ) {
-              toast("This request is not eligible for refund");
-              return;
-            }
-            const amount = Number(row.balance);
-            confirmAction(
-              `Refund $${amount.toFixed(2)} to ${row.submitCode}? This demo will record the refund locally only.`,
-              () => {
-                row.refundedAmount = amount;
-                row.refundStatus = "Refunded";
-                row.balance = 0;
-                user.balance = 0;
-                row.refundedAt = nowText();
-                saveState(STORE_USER_DELETE, userDeleteRows);
-                saveState(STORE_USER_LIST, userRows);
-                renderContent("User Delete");
-                toast("Refund recorded (Demo)");
-              },
-              "Confirm refund",
-            );
-            return;
-          }
-
           if (action === "cancel") {
             const row = userDeleteRows.find(
               (item) => item.id === userDeleteAction.dataset.id,
@@ -3241,7 +3205,7 @@
             const user = userRows.find((item) => item.id === row.userId);
             confirmAction(
               approved
-                ? `Approve request ${row.submitCode}? The user's status will become Deleted; the account record will be kept. Any remaining balance can be refunded afterward.`
+                ? `Approve request ${row.submitCode}? The user's status will become Deleted; the account record and any remaining balance will be kept unchanged.`
                 : `Reject user deletion request ${row.submitCode}?`,
               () => {
                 row.reviewStatus = approved ? "Approved" : "Rejected";
