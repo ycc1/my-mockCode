@@ -36,6 +36,7 @@
     .login-submit{margin-top:24px}
     .google-login{margin-top:28px}
     .login-message{min-height:18px;text-align:center}
+    .login-demo-note{margin:0 0 12px;color:#d0d0d0;font-size:12px}
     header{height:80px;border-bottom:1px solid var(--line);background:var(--surface)}.header-inner{max-width:1120px;height:100%;padding:0 28px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{font-size:25px;font-weight:800;letter-spacing:-1px;font-style:italic}.brand span{color:var(--brand)}.header-note{font-size:12px;color:var(--muted)}
     main{max-width:1040px;margin:48px auto 56px;padding:0 24px}.eyebrow{font-size:12px;color:var(--brand);letter-spacing:1.8px;text-transform:uppercase;font-weight:600}h1{font-size:32px;line-height:1.25;font-weight:600;letter-spacing:-.7px;margin:12px 0}h2{font-size:18px;line-height:1.4;font-weight:600;margin:0 0 12px}h3{font-size:14px;margin:0 0 6px;font-weight:600}p{margin:0 0 16px}.intro{color:var(--muted);max-width:670px}.layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:24px;margin-top:28px;align-items:start}.card{background:var(--surface);border-radius:var(--radius);padding:24px}.card+.card{margin-top:16px}.section-label{border-bottom:1px solid var(--line);margin-bottom:24px}.section-label span{display:inline-block;padding:0 0 12px;border-bottom:4px solid var(--brand);font-weight:600}.muted,.help{color:var(--muted)}.help{font-size:12px;margin:6px 0 0}.warning{padding:16px;border:1px solid #61403c;border-radius:8px;background:var(--danger-bg);margin-bottom:24px}.warning strong{display:block;color:var(--danger);margin-bottom:4px}.warning p{margin:0;font-size:12px;color:#e3bfbc}.field{margin-bottom:20px}label{display:block;margin-bottom:8px;font-size:14px}input:not([type=checkbox]),select,textarea{width:100%;background:var(--raised);border:1px solid var(--line);border-radius:8px;color:var(--text);padding:12px;min-height:48px}input::placeholder,textarea::placeholder{color:var(--muted)}textarea{resize:vertical;min-height:88px}.optional{color:var(--muted);font-size:12px}.check{display:flex;align-items:flex-start;gap:10px;font-size:12px;cursor:pointer;margin:24px 0}.check input{accent-color:var(--brand);width:18px;height:18px;flex-shrink:0;margin:2px 0}.primary,.secondary{min-height:44px;border-radius:8px;padding:12px 20px;border:0;font-weight:600}.primary{color:#111;background:#fff}.primary:hover{background:#dedede}.secondary{color:var(--text);background:var(--raised);border:1px solid var(--line)}.wide{width:100%}.submit-note{text-align:center;font-size:12px;color:var(--muted);margin:12px 0 0}.steps{list-style:none;padding:0;margin:20px 0 0;counter-reset:step}.steps li{position:relative;padding-left:40px;margin-bottom:24px;counter-increment:step}.steps li:last-child{margin-bottom:0}.steps li:before{content:counter(step);position:absolute;left:0;top:0;background:var(--raised);border:1px solid var(--line);width:26px;height:26px;border-radius:50%;text-align:center;line-height:24px;color:var(--brand);font-size:12px}.steps p{font-size:12px;color:var(--muted);margin:0}.data-block{padding:16px 0;border-bottom:1px solid var(--line)}.data-block:last-child{border:0;padding-bottom:0}.data-block p{font-size:12px;color:var(--muted);margin:0}.tag{font-size:10px;letter-spacing:1px;color:var(--brand);display:block;margin-bottom:6px}.tag.retained{color:#e5bd84}.faq{margin-top:24px}details{border-bottom:1px solid var(--line);padding:16px 0}summary{cursor:pointer;font-size:14px}details p{font-size:12px;color:var(--muted);margin:12px 0 0}.preview{padding:10px 16px;background:var(--raised);border-bottom:1px solid var(--line);text-align:center;font-size:12px;color:#e5bd84}footer{max-width:1040px;padding:24px;margin:auto;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;color:var(--muted);font-size:12px}.status{margin:16px 0 0;color:var(--danger);font-size:13px;overflow-wrap:anywhere}dialog{max-width:460px;width:calc(100% - 32px);padding:28px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--text)}dialog::backdrop{background:#000b}dialog p{color:var(--muted);font-size:13px}.dialog-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:24px}.summary-value{color:var(--text);overflow-wrap:anywhere}.result-mark{width:48px;height:48px;border:1px solid var(--brand);color:var(--brand);border-radius:50%;display:grid;place-items:center;font-size:24px;margin-bottom:20px}
     @media(max-width:420px){.account-input{flex-direction:column}.login-button{width:100%}}
@@ -58,8 +59,8 @@
           <div class="warning"><strong>La eliminación de tu cuenta es permanente</strong><p>Una vez eliminada tu cuenta, no podrás recuperar tu perfil ni volver a acceder a ella. Desinstalar la app no elimina tu cuenta.</p></div>
           <p class="help" style="margin-bottom:20px">Si tienes saldo o transacciones pendientes, puedes enviar tu solicitud ahora. Antes de completar la eliminación, procesaremos el saldo disponible y las transacciones pendientes conforme a los términos de la plataforma.</p>
           <form id="deletion-form">
-            <div class="field"><label for="account">Nombre de usuario, ID o correo vinculado a MEGWIN</label><div class="account-input"><input id="account" name="account" autocomplete="username" placeholder="Ingresa tu nombre de usuario, ID o correo" required maxlength="100"><button class="login-button" id="open-login" type="button" aria-haspopup="dialog" aria-controls="login-dialog">Iniciar Sesión</button></div><p class="help">¿No recuerdas los datos de tu cuenta? Usa el inicio de sesión para identificar tu cuenta.</p></div>
-            <div class="field"><label for="email">Correo electrónico de contacto</label><input id="email" name="email" type="email" autocomplete="email" placeholder="Ingresa tu correo electrónico" required maxlength="254"><p class="help">Te contactaremos para verificar que la cuenta te pertenece. Si es posible, usa el correo vinculado a tu cuenta.</p></div>
+            <div class="field"><label for="account">Nombre de usuario, ID o correo vinculado a MEGWIN</label><div class="account-input"><input id="account" name="account" autocomplete="username" placeholder="Inicia sesión para cargar el ID de tu cuenta" required maxlength="100" readonly aria-readonly="true"><button class="login-button" id="open-login" type="button" aria-haspopup="dialog" aria-controls="login-dialog">Iniciar Sesión</button></div><p class="help">Inicia sesión para completar automáticamente el ID de tu cuenta. El ID no se puede editar.</p></div>
+            <div class="field"><label for="email">Correo electrónico de contacto</label><input id="email" name="email" type="email" autocomplete="email" placeholder="Ingresa tu correo electrónico" required aria-required="true" maxlength="254"><p class="help">Este correo es obligatorio y lo usaremos para enviarte notificaciones sobre tu solicitud. Si tu cuenta no tiene un correo asociado, ingresa uno vigente.</p></div>
             <div class="field">
               <label for="reason">Motivo de la eliminación <span class="optional">(opcional)</span></label>
               <select id="reason" name="reason">
@@ -126,6 +127,7 @@
       <button class="login-close" id="close-login" type="button" aria-label="Cerrar">×</button>
       <div class="login-modal-head"><h2 id="login-heading">Iniciar Sesión</h2><a class="login-help" href="https://megwin.mx/" target="_blank" rel="noopener noreferrer">¿Necesitas<br>ayuda?</a></div>
       <form class="login-form" id="login-form">
+        <p class="login-demo-note">Modo demostración: cualquier contraseña no vacía será aceptada. No uses tu contraseña real.</p>
         <div>
           <div class="login-field"><svg class="login-field-icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5" fill="currentColor" stroke="none"></circle><path d="M4.5 20a7.5 7.5 0 0 1 15 0" fill="currentColor" stroke="none"></path></svg><input id="login-identity" name="identity" autocomplete="username" placeholder="Correo electrónico / Número de teléfono" aria-label="Correo electrónico o número de teléfono" required></div>
           <div class="login-field"><svg class="login-field-icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2" fill="currentColor" stroke="none"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.5"></path><circle cx="12" cy="15.5" r="1.2" fill="#111" stroke="none"></circle></svg><input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Contraseña" aria-label="Contraseña" required><button class="password-toggle" id="toggle-password" type="button" aria-label="Mostrar contraseña" aria-pressed="false">◉</button></div>
@@ -148,6 +150,7 @@
     const loginDialog = document.getElementById('login-dialog');
     const confirmButton = document.getElementById('confirm');
     const status = document.getElementById('status');
+    let loginAccount = null;
     document.getElementById('open-login').addEventListener('click', () => {
       document.getElementById('login-message').textContent = '';
       loginDialog.showModal();
@@ -166,8 +169,50 @@
     });
     document.getElementById('login-form').addEventListener('submit', event => {
       event.preventDefault();
-      document.getElementById('login-message').textContent = 'El inicio de sesión seguro aún no está conectado. No se enviaron ni guardaron tus credenciales.';
+      loginAccount = null;
+      document.getElementById('account').value = '';
+      const identity = document.getElementById('login-identity').value.trim();
+      const password = document.getElementById('login-password').value;
+      const message = document.getElementById('login-message');
+      if (!identity || !password) {
+        message.textContent = 'Ingresa tu correo electrónico o teléfono y una contraseña para continuar.';
+        return;
+      }
+      let users;
+      try {
+        users = readStoredRows(STORE_USER_LIST);
+      } catch (error) {
+        message.textContent = 'No pudimos consultar las cuentas de demostración.';
+        return;
+      }
+      if (!users) {
+        message.textContent = 'No hay cuentas de demostración disponibles en este navegador.';
+        return;
+      }
+      const normalizedIdentity = identity.toLowerCase();
+      const phoneDigits = identity.replace(/\D/g, '');
+      const user = users.find(candidate =>
+        String(candidate.email || '').trim().toLowerCase() === normalizedIdentity ||
+        (phoneDigits.length > 0 &&
+          String(candidate.phone || '').replace(/\D/g, '') === phoneDigits)
+      );
+      if (!user) {
+        message.textContent = 'No encontramos una cuenta con ese correo electrónico o teléfono.';
+        document.getElementById('login-password').value = '';
+        return;
+      }
+      const accountStatus = String(user.status || '').trim().toLowerCase();
+      if (accountStatus === 'deleting' || accountStatus === 'deleted') {
+        message.textContent = 'Esta cuenta no puede iniciar sesión porque su estado actual es ' + user.status + '.';
+        document.getElementById('login-password').value = '';
+        return;
+      }
+      loginAccount = user;
+      document.getElementById('account').value = user.id;
+      document.getElementById('email').value = user.email || '';
       document.getElementById('login-password').value = '';
+      loginDialog.close();
+      status.hidden = true;
     });
     document.getElementById('google-login').addEventListener('click', () => {
       document.getElementById('login-message').textContent = 'El inicio de sesión con Google aún no está conectado.';
@@ -224,13 +269,23 @@
       if (!form.reportValidity()) return;
       status.hidden = true;
       if (CONFIG.mock) {
+        if (!loginAccount) {
+          showStatus('Inicia sesión para cargar y verificar el ID de tu cuenta antes de continuar.');
+          return;
+        }
         try {
           matchedAccount = findAccount(form.elements.account.value);
         } catch (error) {
           showStatus('No pudimos verificar la cuenta en este navegador. Abre primero el panel administrativo e inténtalo de nuevo.');
           return;
         }
-        if (!matchedAccount) {
+        const accountStatus = String(matchedAccount?.status || '').trim().toLowerCase();
+        if (
+          !matchedAccount ||
+          matchedAccount.id !== loginAccount.id ||
+          accountStatus === 'deleting' ||
+          accountStatus === 'deleted'
+        ) {
           showStatus('No encontramos una cuenta de MEGWIN con esos datos. Verifícalos e inténtalo de nuevo.');
           return;
         }
