@@ -1,0 +1,1851 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aibet Admin</title>
+    <style>
+      :root {
+        --blue: #2d7fd8;
+        --blue-dark: #256ec0;
+        --blue-soft: #eef6ff;
+        --border: #dfe4ea;
+        --text: #111827;
+        --header-h: 52px;
+        --sidebar-w: 260px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        font-family: Arial, "Microsoft JhengHei", sans-serif;
+        color: var(--text);
+        font-size: 14px;
+        background: #fff;
+      }
+
+      .topbar {
+        height: var(--header-h);
+        background: var(--blue);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+      }
+
+      .brand {
+        width: var(--sidebar-w);
+        flex: 0 0 var(--sidebar-w);
+        height: 100%;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0 12px;
+      }
+
+      .menu-toggle {
+        border: 0;
+        background: transparent;
+        color: #fff;
+        font-size: 20px;
+        cursor: pointer;
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+      }
+
+      .logo {
+        font-size: 30px;
+        line-height: 1;
+        font-style: italic;
+        font-weight: 900;
+        letter-spacing: -2px;
+      }
+
+      .tabs {
+        height: 40px;
+        display: flex;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.06);
+        overflow-x: auto;
+        max-width: min(860px, 48vw);
+        scrollbar-width: none;
+      }
+
+      .tabs::-webkit-scrollbar {
+        display: none;
+      }
+
+      .tab {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 0 14px;
+        background: #2b77cf;
+        color: #fff;
+        border-left: 1px solid rgba(255, 255, 255, 0.06);
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .tab.active {
+        background: var(--blue-dark);
+        font-weight: 800;
+      }
+
+      .tab .close {
+        width: 18px;
+        height: 18px;
+        display: grid;
+        place-items: center;
+        border-radius: 3px;
+        font-size: 16px;
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .top-spacer {
+        flex: 1;
+      }
+
+      .clock {
+        font-size: 13px;
+        margin-right: 14px;
+        white-space: nowrap;
+      }
+
+      .country-context,
+      .user {
+        display: flex;
+        align-items: center;
+        margin-right: 10px;
+      }
+
+      .country-context {
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 7px;
+        background: rgba(255, 255, 255, 0.14);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .user {
+        gap: 8px;
+        font-size: 13px;
+      }
+
+      .avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #2b4f87, #9bb5d7);
+      }
+
+      .layout {
+        display: flex;
+        min-height: calc(100vh - var(--header-h));
+      }
+
+      .sidebar {
+        width: var(--sidebar-w);
+        flex: 0 0 var(--sidebar-w);
+        background: #fff;
+        border-right: 1px solid var(--border);
+        overflow-y: auto;
+        height: calc(100vh - var(--header-h));
+        position: sticky;
+        top: var(--header-h);
+        transition:
+          0.2s width,
+          0.2s flex-basis;
+      }
+
+      .content {
+        flex: 1;
+        min-width: 0;
+        height: calc(100vh - var(--header-h));
+        background: #f3f7fd;
+      }
+
+      .menu-section {
+        border-bottom: 1px solid var(--border);
+      }
+
+      .menu-item {
+        height: 44px;
+        display: flex;
+        align-items: center;
+        padding: 0 16px 0 12px;
+        gap: 10px;
+        cursor: pointer;
+        position: relative;
+        background: #fff;
+      }
+
+      .menu-item:hover,
+      .menu-item.active {
+        background: var(--blue-soft);
+      }
+
+      .menu-icon {
+        width: 22px;
+        height: 22px;
+        display: grid;
+        place-items: center;
+        color: var(--blue);
+        font-size: 18px;
+        flex: 0 0 22px;
+      }
+
+      .chev {
+        margin-left: auto;
+        color: #777;
+        transition: 0.2s transform;
+      }
+
+      .menu-section.open > .menu-item .chev,
+      .sub.parent.open .chev {
+        transform: rotate(180deg);
+      }
+
+      .submenu,
+      .nested {
+        display: none;
+        padding: 4px 0 8px;
+        background: #fff;
+      }
+
+      .menu-section.open > .submenu,
+      .nested.open {
+        display: block;
+      }
+
+      .submenu .sub {
+        height: 40px;
+        display: flex;
+        align-items: center;
+        padding-left: 38px;
+        gap: 10px;
+        cursor: pointer;
+      }
+
+      .submenu .sub:hover,
+      .submenu .sub.active {
+        background: var(--blue-soft);
+      }
+
+      .submenu .sub.active {
+        color: var(--blue);
+        font-weight: 800;
+        border-left: 3px solid var(--blue);
+        padding-left: 35px;
+      }
+
+      .nested .sub {
+        padding-left: 56px;
+      }
+
+      .nested .sub.active {
+        padding-left: 53px;
+      }
+
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #bfc1c4;
+      }
+
+      .sub.active .dot {
+        background: var(--blue);
+      }
+
+      .nested {
+        padding: 0;
+      }
+
+      .content {
+        padding: 20px;
+        overflow: auto;
+      }
+
+      .page-header,
+      .panel-header,
+      .form-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .page-header {
+        margin-bottom: 16px;
+      }
+
+      .page-header h1 {
+        margin: 0;
+        font-size: 22px;
+      }
+
+      .breadcrumb {
+        color: #667085;
+        font-size: 12px;
+        margin-bottom: 8px;
+      }
+
+      .btn {
+        border: 0;
+        border-radius: 6px;
+        background: var(--blue);
+        color: #fff;
+        padding: 9px 14px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .btn.light {
+        background: #eef2f6;
+        color: #344054;
+      }
+
+      .panel {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        margin-bottom: 16px;
+      }
+
+      .panel-header {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .panel-header h2 {
+        font-size: 16px;
+        margin: 0;
+      }
+
+      .table-wrap {
+        overflow: auto;
+      }
+
+      .data-table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 1100px;
+      }
+
+      .data-table th,
+      .data-table td {
+        border-bottom: 1px solid #e8edf3;
+        padding: 10px 12px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      .data-table th {
+        background: #f8fafc;
+        color: #475467;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+
+      .data-table td {
+        max-width: 260px;
+        overflow-wrap: anywhere;
+      }
+
+      .link-button {
+        border: 0;
+        background: transparent;
+        color: var(--blue-dark);
+        cursor: pointer;
+        font-weight: 700;
+        padding: 2px 6px;
+      }
+
+      .link-button.danger-link {
+        color: #dc2626;
+      }
+
+      .status-switch {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .status-switch input {
+        appearance: none;
+        width: 34px;
+        height: 19px;
+        margin: 0;
+        border-radius: 99px;
+        position: relative;
+        background: #cbd5e1;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+
+      .status-switch input::before {
+        content: "";
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        background: #fff;
+        transition: transform 0.15s;
+      }
+
+      .status-switch input:checked {
+        background: var(--blue);
+      }
+
+      .status-switch input:checked::before {
+        transform: translateX(15px);
+      }
+
+      .empty-state {
+        padding: 36px;
+        color: #667085;
+        text-align: center;
+      }
+
+      .modal-mask {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        background: rgba(15, 23, 42, 0.48);
+      }
+
+      .modal-mask.open {
+        display: flex;
+      }
+
+      #deleteConfirm {
+        z-index: 110;
+      }
+
+      .modal {
+        width: min(940px, 100%);
+        max-height: 92vh;
+        overflow: auto;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25);
+      }
+
+      .modal-header,
+      .modal-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .modal-header h2 {
+        margin: 0;
+        font-size: 18px;
+      }
+
+      .modal-footer {
+        justify-content: flex-end;
+        border-top: 1px solid var(--border);
+        border-bottom: 0;
+      }
+
+      .confirm-message {
+        padding: 20px 18px;
+        line-height: 1.6;
+      }
+
+      .modal-close {
+        border: 0;
+        background: transparent;
+        color: #667085;
+        cursor: pointer;
+        font-size: 24px;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        padding: 18px;
+      }
+
+      .form-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 0;
+      }
+
+      .form-field.full {
+        grid-column: 1 / -1;
+      }
+
+      .form-field > label,
+      .field-label {
+        color: #344054;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .form-field input:not([type="checkbox"]),
+      .form-field select,
+      .form-field textarea {
+        width: 100%;
+        min-height: 38px;
+        border: 1px solid #d0d5dd;
+        border-radius: 6px;
+        padding: 8px 10px;
+        background: #fff;
+        font: inherit;
+      }
+
+      .form-field textarea {
+        min-height: 74px;
+        resize: vertical;
+      }
+
+      .form-field select[multiple] {
+        min-height: 110px;
+      }
+
+      .game-picker {
+        position: relative;
+      }
+
+      .game-picker summary {
+        min-height: 38px;
+        padding: 9px 10px;
+        border: 1px solid #d0d5dd;
+        border-radius: 6px;
+        background: #fff;
+        cursor: pointer;
+      }
+
+      .game-picker-options {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        z-index: 3;
+        display: grid;
+        gap: 6px;
+        max-height: 180px;
+        overflow: auto;
+        padding: 10px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: #fff;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+      }
+
+      .game-picker-options label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .conditions {
+        grid-column: 1 / -1;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 14px;
+      }
+
+      .conditions h3 {
+        margin: 0 0 12px;
+        font-size: 15px;
+      }
+
+      .condition-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .condition-item {
+        display: grid;
+        grid-template-columns: minmax(180px, 1fr) 2fr;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        border-radius: 6px;
+        background: #f8fafc;
+      }
+
+      .condition-item label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .condition-controls {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .condition-controls input,
+      .condition-controls select {
+        min-width: 92px;
+        max-width: 170px;
+        height: 36px;
+        border: 1px solid #d0d5dd;
+        border-radius: 6px;
+        padding: 6px 8px;
+        background: #fff;
+        font: inherit;
+      }
+
+      .condition-controls input[type="text"] {
+        min-width: 220px;
+        max-width: 100%;
+        flex: 1;
+      }
+
+      .daily-deposit-control {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+
+      .daily-deposit-control select {
+        width: auto;
+        min-width: 130px;
+      }
+
+      .toast {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        z-index: 120;
+        padding: 10px 14px;
+        border-radius: 7px;
+        background: #111827;
+        color: #fff;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+      }
+
+      .toast.show {
+        opacity: 1;
+      }
+
+      body.collapsed .sidebar {
+        width: 0;
+        flex-basis: 0;
+        border: 0;
+        overflow: hidden;
+      }
+
+      @media (max-width: 900px) {
+        .brand {
+          width: auto;
+          flex-basis: auto;
+        }
+
+        .sidebar {
+          position: fixed;
+          left: 0;
+          top: var(--header-h);
+          z-index: 40;
+          transform: translateX(-100%);
+          transition: transform 0.2s;
+        }
+
+        .sidebar.open {
+          transform: translateX(0);
+        }
+
+        .clock,
+        .user span {
+          display: none;
+        }
+
+        .content {
+          padding: 12px;
+        }
+
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .form-field.full,
+        .conditions {
+          grid-column: auto;
+        }
+
+        .condition-item {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <button class="menu-toggle" id="menuToggle" type="button">☰</button>
+        <div class="logo">Aibet</div>
+      </div>
+      <div class="tabs" id="tabs"></div>
+      <div class="top-spacer"></div>
+      <div class="clock" id="clock"></div>
+      <div class="country-context">☰ All Functions</div>
+      <div class="user">
+        <span>Ai9_yark</span>
+        <div class="avatar"></div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar" id="sidebar">
+        <nav id="menu"></nav>
+      </aside>
+      <main class="content" id="content"></main>
+    </div>
+    <div class="modal-mask" id="settingModal">
+      <section
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modalTitle"
+      >
+        <form id="settingForm">
+          <div class="modal-header">
+            <h2 id="modalTitle"></h2>
+            <button
+              class="modal-close"
+              type="button"
+              data-close-modal
+              aria-label="Close"
+            >
+              ×
+            </button>
+          </div>
+          <div class="form-grid" id="formFields"></div>
+          <div class="modal-footer">
+            <button class="btn light" type="button" data-close-modal>
+              取消
+            </button>
+            <button class="btn" type="submit">保存</button>
+          </div>
+        </form>
+      </section>
+    </div>
+    <div class="modal-mask" id="deleteConfirm">
+      <section
+        class="modal confirm-modal"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="deleteConfirmTitle"
+      >
+        <div class="modal-header">
+          <h2 id="deleteConfirmTitle">确认删除</h2>
+          <button
+            class="modal-close"
+            type="button"
+            data-cancel-delete
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+        <div class="confirm-message" id="deleteConfirmMessage"></div>
+        <div class="modal-footer">
+          <button class="btn light" type="button" data-cancel-delete>
+            取消
+          </button>
+          <button class="btn" type="button" id="confirmDelete">确认删除</button>
+        </div>
+      </section>
+    </div>
+    <div class="toast" id="toast" role="status"></div>
+
+    <script>
+      const menuData = [
+        {
+          title: "User Management",
+          icon: "◎",
+          children: [
+            "User List",
+            "User Detail",
+            "Balance History",
+            "BlackList",
+            "S-E Review",
+          ],
+        },
+        {
+          title: "Record Query",
+          icon: "▦",
+          children: ["Sports Tickets", "Casino Tickets"],
+        },
+        {
+          title: "Fund Management",
+          icon: "▣",
+          children: [
+            "Withdrawals",
+            "Deposits",
+            "Balance History",
+            "Fund Adjustment",
+          ],
+        },
+        {
+          title: "Casino Management",
+          icon: "🎲",
+          children: ["HomePage", "Merchant", "Lobby", "Tags", "GameList"],
+        },
+        { title: "Message Management", icon: "▱", children: ["Message"] },
+        { title: "OP Management", icon: "▱", children: ["Push", "Gift Code"] },
+        {
+          title: "Reporting",
+          icon: "▤",
+          children: [
+            "Reporting Generator",
+            "Reporting Summary",
+            "Promo Report",
+            "Event Report",
+            "Promo Cost Report",
+            "Liability Report",
+            "Jackpot Report",
+            "VIP Report",
+          ],
+        },
+        { title: "Promotion", icon: "✾", children: ["Promo-Mgt"] },
+        {
+          title: "Marketing",
+          icon: "✾",
+          children: [
+            {
+              title: "Marketing Setting",
+              children: ["FreeSpin Setting", "Bonus Setting"],
+            },
+            "CIO Setting",
+          ],
+        },
+        {
+          title: "Leaderboard",
+          icon: "♙",
+          children: [
+            "Casino Weekly",
+            "Casino Monthly",
+            "Sports Weekly",
+            "Sports Monthly",
+          ],
+        },
+        { title: "World Cup", icon: "◉", children: [] },
+        {
+          title: "System Management",
+          icon: "☷",
+          children: ["Login Record", "Roles", "Account"],
+        },
+        {
+          title: "Finance Management",
+          icon: "☷",
+          children: ["Merchant", "PayCode"],
+        },
+        {
+          title: "Daily Operations",
+          icon: "▭",
+          children: [
+            {
+              title: "BRA",
+              children: [
+                "Banner",
+                "Promotions",
+                "Match Pinned",
+                "Sports Events",
+                "Registration Image",
+              ],
+            },
+          ],
+        },
+        { title: "Offering Management", icon: "▣", children: [] },
+      ];
+
+      const menu = document.querySelector("#menu");
+      const tabsEl = document.querySelector("#tabs");
+      const sidebar = document.querySelector("#sidebar");
+      const content = document.querySelector("#content");
+      const modal = document.querySelector("#settingModal");
+      const deleteConfirm = document.querySelector("#deleteConfirm");
+      const form = document.querySelector("#settingForm");
+      const formFields = document.querySelector("#formFields");
+      const toastEl = document.querySelector("#toast");
+      const STORE_KEY = "megwin_marketing_settings_v1";
+      const state = {
+        activeTab: "Home",
+        tabs: [{ title: "Home", closable: false }],
+        editing: null,
+        deletingIndex: null,
+      };
+
+      const sceneTypes = ["All", "Register", "FirstDeposit", "Deposit", "Bet"];
+      const bonusTypes = ["CasinoBonus", "SportBonus", "Cashback"];
+      const betTypes = ["All", "Sport", "Casino"];
+      const gameIds = [
+        "game_1001",
+        "game_1002",
+        "game_1003",
+        "game_1004",
+        "game_1005",
+        "game_1006",
+      ];
+
+      function loadSettings() {
+        try {
+          const value = JSON.parse(localStorage.getItem(STORE_KEY) || "{}");
+          return {
+            freeSpin: Array.isArray(value.freeSpin) ? value.freeSpin : [],
+            bonus: Array.isArray(value.bonus) ? value.bonus : [],
+            cio: Array.isArray(value.cio) ? value.cio : [],
+          };
+        } catch (error) {
+          console.error("Unable to load marketing settings.", error);
+          return { freeSpin: [], bonus: [], cio: [] };
+        }
+      }
+
+      let settings = loadSettings();
+      settings.freeSpin.forEach((row, index) => {
+        row.id ||= `freeSpin-${index + 1}`;
+      });
+      settings.bonus.forEach((row, index) => {
+        row.id ||= `bonus-${index + 1}`;
+      });
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, (char) => {
+          const entities = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;",
+          };
+          return entities[char];
+        });
+      }
+
+      function childrenHtml(children) {
+        return children
+          .map((child) => {
+            if (typeof child === "string") {
+              return `<div class="sub" data-page="${escapeHtml(child)}"><span class="dot"></span><span>${escapeHtml(child)}</span></div>`;
+            }
+
+            return `<div class="sub parent"><span class="dot"></span><span>${escapeHtml(child.title)}</span><span class="chev">⌄</span></div><div class="nested">${childrenHtml(child.children || [])}</div>`;
+          })
+          .join("");
+      }
+
+      function renderMenu() {
+        menu.innerHTML = menuData
+          .map((item) => {
+            const hasChildren = item.children.length > 0;
+            return `<div class="menu-section ${item.title === "Finance Management" ? "open" : ""}"><div class="menu-item" data-page="${hasChildren ? "" : escapeHtml(item.title)}"><span class="menu-icon">${item.icon}</span><span>${escapeHtml(item.title)}</span>${hasChildren ? '<span class="chev">⌄</span>' : ""}</div>${hasChildren ? `<div class="submenu">${childrenHtml(item.children)}</div>` : ""}</div>`;
+          })
+          .join("");
+      }
+
+      function renderTabs() {
+        tabsEl.innerHTML = state.tabs
+          .map(
+            (tab) =>
+              `<div class="tab ${tab.title === state.activeTab ? "active" : ""}" data-tab="${escapeHtml(tab.title)}"><span>${escapeHtml(tab.title)}</span>${tab.closable ? `<span class="close" data-close="${escapeHtml(tab.title)}">×</span>` : ""}</div>`,
+          )
+          .join("");
+      }
+
+      function activateTab(title) {
+        state.activeTab = title;
+        renderTabs();
+        renderPage(title);
+        menu
+          .querySelectorAll(".sub.active, .menu-item.active")
+          .forEach((item) => {
+            item.classList.remove("active");
+          });
+        const selected = [...menu.querySelectorAll("[data-page]")].find(
+          (item) => item.dataset.page === title,
+        );
+        if (selected) {
+          selected.classList.add("active");
+          let parent = selected.parentElement;
+          while (parent && parent !== menu) {
+            if (parent.classList.contains("menu-section")) {
+              parent.classList.add("open");
+            }
+            if (parent.classList.contains("nested")) {
+              parent.classList.add("open");
+              parent.previousElementSibling?.classList.add("open");
+            }
+            parent = parent.parentElement;
+          }
+        } else {
+          const root = [...menu.querySelectorAll(".menu-item")].find(
+            (item) => item.dataset.page === title,
+          );
+          root?.classList.add("active");
+        }
+      }
+
+      function addTab(title) {
+        if (!state.tabs.some((tab) => tab.title === title)) {
+          state.tabs.push({ title, closable: title !== "Home" });
+        }
+        activateTab(title);
+      }
+
+      function closeTab(title) {
+        if (title === "Home") return;
+        const index = state.tabs.findIndex((tab) => tab.title === title);
+        if (index < 0) return;
+        state.tabs.splice(index, 1);
+        if (state.activeTab === title) {
+          state.activeTab = state.tabs[Math.max(0, index - 1)].title;
+        }
+        activateTab(state.activeTab);
+      }
+
+      function renderPage(title) {
+        if (title === "FreeSpin Setting" || title === "Bonus Setting") {
+          renderSettingsList(
+            title === "FreeSpin Setting" ? "freeSpin" : "bonus",
+          );
+          return;
+        }
+        if (title === "CIO Setting") {
+          renderCioList();
+          return;
+        }
+        content.innerHTML = "";
+      }
+
+      function renderCioList() {
+        content.innerHTML = `
+          <div class="breadcrumb">Home / Marketing / CIO Setting</div>
+          <div class="page-header">
+            <h1>CIO Setting</h1>
+            <button class="btn" type="button" data-add-cio>+ 新增</button>
+          </div>
+          <section class="panel">
+            <div class="panel-header"><h2>CIO 上报列表</h2><span>Total: ${settings.cio.length}</span></div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Marketing Id</th><th>Name</th><th>Key</th><th>Value</th><th>ReportingFrequency(Min)</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody>
+                  ${settings.cio.length ? settings.cio.map((row, index) => cioRowHtml(row, index)).join("") : '<tr><td class="empty-state" colspan="7">No data available</td></tr>'}
+                </tbody>
+              </table>
+            </div>
+          </section>`;
+      }
+
+      function cioRowHtml(row, index) {
+        const statusText = row.status ? "开启（同步上报至 CIO）" : "关闭";
+        return `<tr>
+          <td>${escapeHtml(row.marketingId)}</td>
+          <td>${escapeHtml(row.marketingName)}</td>
+          <td>${escapeHtml(row.key)}</td>
+          <td>${escapeHtml(row.valueLabel || row.value)}</td>
+          <td>${escapeHtml(row.reportingFrequency)}</td>
+          <td><label class="status-switch"><input type="checkbox" data-status-setting="cio" data-setting-index="${index}" ${row.status ? "checked" : ""}><span>${statusText}</span></label></td>
+          <td><button class="link-button" type="button" data-edit-cio="${index}">修改</button><button class="link-button danger-link" type="button" data-delete-cio="${index}">删除</button></td>
+        </tr>`;
+      }
+
+      function marketingRewardOptions(selectedId = "") {
+        const rewards = [
+          ...settings.freeSpin.map((row, index) => ({
+            id: row.id || `freeSpin-${index + 1}`,
+            name: row.name,
+            type: "FreeSpin",
+          })),
+          ...settings.bonus.map((row, index) => ({
+            id: row.id || `bonus-${index + 1}`,
+            name: row.name,
+            type: "Bonus",
+          })),
+        ];
+        return rewards
+          .map((reward) => {
+            const label = `${reward.type} / ${reward.name}`;
+            return `<option value="${escapeHtml(reward.id)}" data-marketing-name="${escapeHtml(reward.name)}" ${selectedId === reward.id ? "selected" : ""}>${escapeHtml(label)}</option>`;
+          })
+          .join("");
+      }
+
+      function openCioModal(index = null) {
+        const current = index == null ? null : settings.cio[index];
+        state.editing = { type: "cio", index };
+        document.querySelector("#modalTitle").textContent =
+          `${current ? "修改" : "新增"} CIO 上报`;
+        const values = [
+          ["Deposit", "Deposit"],
+          ["Bet", "Bet"],
+          ["TotalBet", "TotalBet"],
+          ["TotalLose", "TotalLose"],
+          ["TotalWinMoney", "TotalWinMoney"],
+          ["BonusLeft", "BonusLeft（奖金余额）"],
+          ["Bool", "Bool"],
+        ];
+        formFields.innerHTML = `
+          <div class="form-field full">
+            <label>Marketing *</label>
+            <select name="marketingId" required>
+              <option value="">请选择 Marketing Reward Settings</option>
+              ${marketingRewardOptions(current?.marketingId || "")}
+            </select>
+            ${settings.freeSpin.length + settings.bonus.length ? "" : "<small>请先新增 FreeSpin Setting 或 Bonus Setting。</small>"}
+          </div>
+          ${fieldHtml("Key", "key", current?.key || "", { required: true })}
+          ${fieldHtml("ReportingFrequency（Min）", "reportingFrequency", current?.reportingFrequency ?? "", { required: true, type: "number", min: 1, step: "1" })}
+          ${fieldHtml("Value", "value", current?.value || "", { required: true, type: "select", values: values.map(([value]) => value) })}
+          <div class="form-field"><label>Status（开启后依据上报事件同步到 CIO）</label><label class="status-switch"><input type="checkbox" name="status" ${current?.status !== false ? "checked" : ""}><span>${current?.status !== false ? "开启（同步上报至 CIO）" : "关闭"}</span></label></div>`;
+        const valueSelect = formFields.querySelector('[name="value"]');
+        valueSelect.innerHTML = `<option value="">请选择</option>${values.map(([value, label]) => `<option value="${value}" ${current?.value === value ? "selected" : ""}>${label}</option>`).join("")}`;
+        modal.classList.add("open");
+      }
+
+      function saveCioSetting(formData, index) {
+        const marketingSelect = form.elements.namedItem("marketingId");
+        const selectedOption = marketingSelect.selectedOptions[0];
+        if (!selectedOption?.value) {
+          showToast("请先选择 Marketing Reward Settings");
+          return false;
+        }
+        const marketingId = selectedOption.value;
+        const marketingName = selectedOption.dataset.marketingName;
+        const reward = [
+          ...settings.freeSpin.map((row, rewardIndex) => ({
+            id: row.id || `freeSpin-${rewardIndex + 1}`,
+            name: row.name,
+          })),
+          ...settings.bonus.map((row, rewardIndex) => ({
+            id: row.id || `bonus-${rewardIndex + 1}`,
+            name: row.name,
+          })),
+        ].find((item) => item.id === marketingId);
+        const record = {
+          id: settings.cio[index]?.id || `CIO-${Date.now()}`,
+          marketingId,
+          marketingName: reward?.name || marketingName,
+          key: String(formData.get("key") || "").trim(),
+          value: formData.get("value"),
+          valueLabel: selectedValueLabel(form.elements.namedItem("value")),
+          reportingFrequency: formData.get("reportingFrequency"),
+          status: formData.get("status") === "on",
+        };
+        const previousSettings = JSON.stringify(settings);
+        if (index == null) settings.cio.push(record);
+        else settings.cio[index] = record;
+        if (!persistSettings("CIO 上报配置保存失败")) {
+          settings = JSON.parse(previousSettings);
+          return false;
+        }
+        closeSettingModal();
+        renderCioList();
+        showToast(index == null ? "新增成功" : "修改成功");
+        return true;
+      }
+
+      function selectedValueLabel(select) {
+        return select.selectedOptions[0]?.textContent || select.value;
+      }
+
+      function requestDeleteCio(index) {
+        state.deletingIndex = index;
+        const row = settings.cio[index];
+        document.querySelector("#deleteConfirmMessage").textContent =
+          `确定删除「${row.key}」的 CIO 上报配置吗？删除后将停止该上报。`;
+        deleteConfirm.classList.add("open");
+      }
+
+      function cancelDeleteCio() {
+        deleteConfirm.classList.remove("open");
+        state.deletingIndex = null;
+      }
+
+      function confirmDeleteCio() {
+        if (state.deletingIndex == null) return;
+        const previousSettings = JSON.stringify(settings);
+        settings.cio.splice(state.deletingIndex, 1);
+        if (!persistSettings("删除 CIO 上报配置失败")) {
+          settings = JSON.parse(previousSettings);
+          return;
+        }
+        cancelDeleteCio();
+        renderCioList();
+        showToast("CIO 上报已删除");
+      }
+
+      function persistSettings(errorMessage) {
+        try {
+          localStorage.setItem(STORE_KEY, JSON.stringify(settings));
+          return true;
+        } catch (error) {
+          console.error(errorMessage, error);
+          showToast(`${errorMessage}，请检查浏览器存储空间`);
+          return false;
+        }
+      }
+
+      function renderSettingsList(type) {
+        const isFreeSpin = type === "freeSpin";
+        const title = isFreeSpin ? "FreeSpin Setting" : "Bonus Setting";
+        const rows = settings[type];
+        const columns = isFreeSpin
+          ? [
+              "Name",
+              "Title",
+              "Content",
+              "scene_type",
+              "spin_amount",
+              "freespin_cnt",
+              "gameIds",
+              "recycle_days",
+              "payin_date range",
+              "status",
+            ]
+          : [
+              "Name",
+              "Title",
+              "Content",
+              "scene_type",
+              "Condition",
+              "BonusType",
+              "Bonus",
+              "max_cashout",
+              "valid_hours",
+              "wager_multiple",
+              "payin_date range",
+              "status",
+            ];
+        content.innerHTML = `
+          <div class="breadcrumb">Home / Marketing / Marketing Setting / ${title}</div>
+          <div class="page-header">
+            <h1>${title}</h1>
+            <button class="btn" type="button" data-add-setting="${type}">+ 新增</button>
+          </div>
+          <section class="panel">
+            <div class="panel-header"><h2>${title} 列表</h2><span>Total: ${rows.length}</span></div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr>${columns.map((column) => `<th>${escapeHtml(column)}</th>`).join("")}<th>Action</th></tr></thead>
+                <tbody>
+                  ${rows.length ? rows.map((row, index) => settingRowHtml(type, row, index)).join("") : `<tr><td class="empty-state" colspan="${columns.length + 1}">No data available</td></tr>`}
+                </tbody>
+              </table>
+            </div>
+          </section>`;
+      }
+
+      function settingRowHtml(type, row, index) {
+        const dates = `${escapeHtml(row.payin_date_start)} – ${escapeHtml(row.payin_date_end)}`;
+        const status = `<label class="status-switch"><input type="checkbox" data-status-setting="${type}" data-setting-index="${index}" ${row.status ? "checked" : ""}><span>${row.status ? "Enabled" : "Disabled"}</span></label>`;
+        const action = `<button class="link-button" type="button" data-edit-setting="${type}" data-setting-index="${index}">修改</button>`;
+        const common = [
+          escapeHtml(row.name),
+          escapeHtml(row.title),
+          escapeHtml(row.content),
+          escapeHtml(row.scene_type),
+        ];
+        const cells =
+          type === "freeSpin"
+            ? [
+                ...common,
+                escapeHtml(row.spin_amount),
+                escapeHtml(row.freespin_cnt),
+                escapeHtml((row.gameIds || []).join(", ")),
+                escapeHtml(row.recycle_days),
+                dates,
+                status,
+              ]
+            : [
+                ...common,
+                escapeHtml(conditionSummary(row.condition)),
+                escapeHtml(row.BonusType),
+                escapeHtml(row.Bonus),
+                escapeHtml(row.max_cashout),
+                escapeHtml(row.valid_hours),
+                escapeHtml(row.wager_multiple),
+                dates,
+                status,
+              ];
+        return `<tr>${cells.map((cell) => `<td>${cell || "-"}</td>`).join("")}<td>${action}</td></tr>`;
+      }
+
+      function conditionSummary(condition = {}) {
+        const entries = [];
+        const dailyEnabled = condition.dailyDeposit === "Enable";
+        if (dailyEnabled && condition.singleDeposit?.enabled) {
+          entries.push(
+            `单笔充值 ≥ ${condition.singleDeposit.amount}，奖励 ${condition.singleDeposit.rewards} 次`,
+          );
+        }
+        if (dailyEnabled && condition.cumulativeDeposit?.enabled) {
+          entries.push(
+            `累计充值 ≥ ${condition.cumulativeDeposit.amount}，奖励 ${condition.cumulativeDeposit.rewards} 次`,
+          );
+        }
+        if (condition.lossRanges?.enabled) {
+          entries.push(`当日亏损 ${condition.lossRanges.ranges}`);
+        }
+        if (condition.betCount?.enabled) {
+          entries.push(
+            `${condition.betCount.type} 当日投注次数 ≥ ${condition.betCount.count}`,
+          );
+        }
+        if (condition.betAmount?.enabled) {
+          entries.push(
+            `${condition.betAmount.type} 当日有效投注金额 ≥ ${condition.betAmount.amount}`,
+          );
+        }
+        if (condition.freespinCount?.enabled) {
+          entries.push(`freespin_cnt ≤ ${condition.freespinCount.value}`);
+        }
+        return entries.join("；") || "未设置";
+      }
+
+      function fieldHtml(label, name, value = "", options = {}) {
+        const fullClass = options.full ? " full" : "";
+        const required = options.required ? " required" : "";
+        const attrs = `name="${name}" value="${escapeHtml(value)}"${options.required ? " required" : ""}${options.min != null ? ` min="${options.min}"` : ""}${options.step ? ` step="${options.step}"` : ""}`;
+        let control;
+        if (options.type === "select") {
+          control = `<select name="${name}"${options.required ? " required" : ""}><option value="">请选择</option>${options.values.map((option) => `<option value="${escapeHtml(option)}" ${value === option ? "selected" : ""}>${escapeHtml(option)}</option>`).join("")}</select>`;
+        } else if (options.type === "multiselect") {
+          const selected = Array.isArray(value) ? value : [];
+          const summary = selected.length
+            ? `${selected.length} 个游戏已选择`
+            : "请选择游戏";
+          control = `<details class="game-picker"><summary data-game-summary>${summary}</summary><div class="game-picker-options">${options.values.map((option) => `<label><input type="checkbox" name="${name}" value="${escapeHtml(option)}" ${selected.includes(option) ? "checked" : ""}>${escapeHtml(option)}</label>`).join("")}</div></details>`;
+        } else if (options.type === "textarea") {
+          control = `<textarea name="${name}"${options.required ? " required" : ""}>${escapeHtml(value)}</textarea>`;
+        } else {
+          control = `<input type="${options.type || "text"}" ${attrs}>`;
+        }
+        return `<div class="form-field${fullClass}"><label class="${required.trim()}">${escapeHtml(label)}${options.required ? " *" : ""}</label>${control}</div>`;
+      }
+
+      function conditionDefaults(condition = {}) {
+        return {
+          dailyDeposit: condition.dailyDeposit || "Disable",
+          singleDeposit: condition.singleDeposit || {
+            enabled: false,
+            amount: "",
+            rewards: "",
+          },
+          cumulativeDeposit: condition.cumulativeDeposit || {
+            enabled: false,
+            amount: "",
+            rewards: "",
+          },
+          lossRanges: condition.lossRanges || { enabled: false, ranges: "" },
+          betCount: condition.betCount || {
+            enabled: false,
+            type: "All",
+            count: "",
+          },
+          betAmount: condition.betAmount || {
+            enabled: false,
+            type: "All",
+            amount: "",
+          },
+          freespinCount: condition.freespinCount || {
+            enabled: false,
+            value: "",
+          },
+        };
+      }
+
+      function conditionCheckbox(
+        key,
+        label,
+        checked,
+        controls,
+        dailyDeposit = false,
+      ) {
+        const dailyAttr = dailyDeposit ? " data-daily-deposit-condition" : "";
+        return `<div class="condition-item"${dailyAttr}><label><input type="checkbox" name="condition_${key}_enabled" data-condition-toggle ${checked ? "checked" : ""}><span>${label}</span></label><div class="condition-controls" data-condition-fields>${controls}</div></div>`;
+      }
+
+      function conditionFields(condition = {}) {
+        const value = conditionDefaults(condition);
+        return `
+          <div class="conditions">
+            <h3>Condition（先勾选必要条件）</h3>
+            <div class="daily-deposit-control">
+              <span class="field-label">当日充值</span>
+              <select name="dailyDeposit" data-daily-deposit>
+                <option value="Disable" ${value.dailyDeposit === "Disable" ? "selected" : ""}>Disable</option>
+                <option value="Enable" ${value.dailyDeposit === "Enable" ? "selected" : ""}>Enable</option>
+              </select>
+            </div>
+            <div class="condition-list">
+              ${conditionCheckbox("singleDeposit", "单笔充值金额 ≥ N，触发奖励次数 M", value.singleDeposit.enabled, `<span>金额 N</span><input type="number" name="singleDeposit_amount" min="0" step="0.01" value="${escapeHtml(value.singleDeposit.amount)}" placeholder="N"><span>奖励次数 M</span><input type="number" name="singleDeposit_rewards" min="1" step="1" value="${escapeHtml(value.singleDeposit.rewards)}" placeholder="M">`, true)}
+              ${conditionCheckbox("cumulativeDeposit", "累计充值金额 ≥ N，触发奖励次数 M", value.cumulativeDeposit.enabled, `<span>金额 N</span><input type="number" name="cumulativeDeposit_amount" min="0" step="0.01" value="${escapeHtml(value.cumulativeDeposit.amount)}" placeholder="N"><span>奖励次数 M</span><input type="number" name="cumulativeDeposit_rewards" min="1" step="1" value="${escapeHtml(value.cumulativeDeposit.rewards)}" placeholder="M">`, true)}
+              ${conditionCheckbox("lossRanges", "当日亏损范围 N ≤ 亏损 &lt; M", value.lossRanges.enabled, `<input type="text" name="lossRanges_ranges" value="${escapeHtml(value.lossRanges.ranges)}" placeholder="100&lt;=当日亏损&lt;200; 300&lt;=当日亏损&lt;500">`)}
+              ${conditionCheckbox("betCount", "当日投注累计次数 ≥ N", value.betCount.enabled, `<select name="betCount_type">${betTypes.map((option) => `<option ${value.betCount.type === option ? "selected" : ""}>${option}</option>`).join("")}</select><input type="number" name="betCount_count" min="1" step="1" value="${escapeHtml(value.betCount.count)}" placeholder="N">`)}
+              ${conditionCheckbox("betAmount", "当日投注累计金额 ≥ N（有效投注金额）", value.betAmount.enabled, `<select name="betAmount_type">${betTypes.map((option) => `<option ${value.betAmount.type === option ? "selected" : ""}>${option}</option>`).join("")}</select><input type="number" name="betAmount_amount" min="0" step="0.01" value="${escapeHtml(value.betAmount.amount)}" placeholder="N">`)}
+              ${conditionCheckbox("freespinCount", "freespin_cnt 值 ≤ N", value.freespinCount.enabled, `<input type="number" name="freespinCount_value" min="0" step="1" value="${escapeHtml(value.freespinCount.value)}" placeholder="N">`)}
+            </div>
+          </div>`;
+      }
+
+      function openSettingModal(type, index = null) {
+        const isFreeSpin = type === "freeSpin";
+        const current = index == null ? null : settings[type][index];
+        const data = current || {
+          name: "",
+          title: "",
+          content: "",
+          scene_type: "",
+          payin_date_start: "",
+          payin_date_end: "",
+          status: true,
+        };
+        state.editing = { type, index };
+        document.querySelector("#modalTitle").textContent =
+          `${current ? "修改" : "新增"}${isFreeSpin ? " FreeSpin" : " Bonus"}`;
+        const fields = [
+          fieldHtml("Name", "name", data.name, { required: true }),
+          fieldHtml("Title", "title", data.title, { required: true }),
+          fieldHtml("Content", "content", data.content, {
+            required: true,
+            type: "textarea",
+            full: true,
+          }),
+          fieldHtml("scene_type", "scene_type", data.scene_type, {
+            required: true,
+            type: "select",
+            values: sceneTypes,
+          }),
+        ];
+        if (isFreeSpin) {
+          fields.push(
+            fieldHtml(
+              "spin_amount（步长）",
+              "spin_amount",
+              data.spin_amount ?? "",
+              { required: true, type: "number", min: 0, step: "0.01" },
+            ),
+            fieldHtml(
+              "freespin_cnt（次数）",
+              "freespin_cnt",
+              data.freespin_cnt ?? "",
+              { required: true, type: "number", min: 0, step: "1" },
+            ),
+            fieldHtml("gameIds（下拉多选）", "gameIds", data.gameIds || [], {
+              type: "multiselect",
+              values: gameIds,
+              full: true,
+            }),
+            fieldHtml(
+              "recycle_days（可使用天数）",
+              "recycle_days",
+              data.recycle_days ?? "",
+              { required: true, type: "number", min: 1, step: "1" },
+            ),
+          );
+        } else {
+          fields.push(
+            fieldHtml("BonusType", "BonusType", data.BonusType || "", {
+              required: true,
+              type: "select",
+              values: bonusTypes,
+            }),
+            fieldHtml("Bonus（基础奖励金）", "Bonus", data.Bonus ?? "", {
+              required: true,
+              type: "number",
+              min: 0,
+              step: "0.01",
+            }),
+            fieldHtml(
+              "max_cashout（最高可领取奖励）",
+              "max_cashout",
+              data.max_cashout ?? "",
+              { required: true, type: "number", min: 0, step: "0.01" },
+            ),
+            fieldHtml("valid_hours", "valid_hours", data.valid_hours ?? "", {
+              required: true,
+              type: "number",
+              min: 1,
+              step: "1",
+            }),
+            fieldHtml(
+              "wager_multiple",
+              "wager_multiple",
+              data.wager_multiple ?? "",
+              { required: true, type: "number", min: 0, step: "0.01" },
+            ),
+          );
+        }
+        fields.push(
+          fieldHtml(
+            "payin_date_start（活动启始日期）",
+            "payin_date_start",
+            data.payin_date_start,
+            { required: true, type: "date" },
+          ),
+          fieldHtml(
+            "payin_date_end（活动结束日期）",
+            "payin_date_end",
+            data.payin_date_end,
+            { required: true, type: "date" },
+          ),
+          `<div class="form-field"><label>Status</label><label class="status-switch"><input type="checkbox" name="status" ${data.status !== false ? "checked" : ""}><span>${data.status !== false ? "Enabled" : "Disabled"}</span></label></div>`,
+          conditionFields(data.condition),
+        );
+        formFields.innerHTML = fields.join("");
+        syncConditionControls();
+        modal.classList.add("open");
+      }
+
+      function syncConditionControls() {
+        const dailyDepositEnabled =
+          form.elements.namedItem("dailyDeposit")?.value === "Enable";
+        form
+          .querySelectorAll("[data-daily-deposit-condition]")
+          .forEach((item) => {
+            const toggle = item.querySelector("[data-condition-toggle]");
+            const enabled = dailyDepositEnabled && toggle.checked;
+            toggle.disabled = !dailyDepositEnabled;
+            item
+              .querySelectorAll(
+                "[data-condition-fields] input, [data-condition-fields] select",
+              )
+              .forEach((input) => {
+                input.disabled = !enabled;
+                input.required = enabled;
+              });
+          });
+        form
+          .querySelectorAll(
+            ".condition-item:not([data-daily-deposit-condition])",
+          )
+          .forEach((item) => {
+            const toggle = item.querySelector("[data-condition-toggle]");
+            item
+              .querySelectorAll(
+                "[data-condition-fields] input, [data-condition-fields] select",
+              )
+              .forEach((input) => {
+                input.disabled = !toggle.checked;
+                input.required = toggle.checked;
+              });
+          });
+      }
+
+      function readCondition(formData) {
+        const enabled = (key) =>
+          formData.get(`condition_${key}_enabled`) === "on";
+        const dailyDeposit = formData.get("dailyDeposit");
+        return {
+          dailyDeposit,
+          singleDeposit: {
+            enabled: dailyDeposit === "Enable" && enabled("singleDeposit"),
+            amount: formData.get("singleDeposit_amount") || "",
+            rewards: formData.get("singleDeposit_rewards") || "",
+          },
+          cumulativeDeposit: {
+            enabled: dailyDeposit === "Enable" && enabled("cumulativeDeposit"),
+            amount: formData.get("cumulativeDeposit_amount") || "",
+            rewards: formData.get("cumulativeDeposit_rewards") || "",
+          },
+          lossRanges: {
+            enabled: enabled("lossRanges"),
+            ranges: formData.get("lossRanges_ranges") || "",
+          },
+          betCount: {
+            enabled: enabled("betCount"),
+            type: formData.get("betCount_type"),
+            count: formData.get("betCount_count") || "",
+          },
+          betAmount: {
+            enabled: enabled("betAmount"),
+            type: formData.get("betAmount_type"),
+            amount: formData.get("betAmount_amount") || "",
+          },
+          freespinCount: {
+            enabled: enabled("freespinCount"),
+            value: formData.get("freespinCount_value") || "",
+          },
+        };
+      }
+
+      function saveSetting(event) {
+        event.preventDefault();
+        if (!form.reportValidity()) return;
+        const { type, index } = state.editing || {};
+        if (!type) return;
+        const current = index == null ? null : settings[type][index];
+        const formData = new FormData(form);
+        if (type === "cio") {
+          saveCioSetting(formData, index);
+          return;
+        }
+        const start = formData.get("payin_date_start");
+        const end = formData.get("payin_date_end");
+        if (start > end) {
+          showToast("活动开始日期不能晚于结束日期");
+          return;
+        }
+        const condition = readCondition(formData);
+        const hasCondition = [
+          condition.singleDeposit.enabled,
+          condition.cumulativeDeposit.enabled,
+          condition.lossRanges.enabled,
+          condition.betCount.enabled,
+          condition.betAmount.enabled,
+          condition.freespinCount.enabled,
+        ].some(Boolean);
+        if (!hasCondition) {
+          showToast("请至少勾选一项必要条件");
+          return;
+        }
+        if (
+          condition.lossRanges.enabled &&
+          !validLossRanges(condition.lossRanges.ranges)
+        ) {
+          showToast("当日亏损范围格式错误，请使用 N<=亏损<M，多笔以分号分隔");
+          return;
+        }
+
+        const record = {
+          id: current?.id || `${type}-${Date.now()}`,
+          name: formData.get("name").trim(),
+          title: formData.get("title").trim(),
+          content: formData.get("content").trim(),
+          scene_type: formData.get("scene_type"),
+          payin_date_start: start,
+          payin_date_end: end,
+          status: formData.get("status") === "on",
+          condition,
+        };
+        if (type === "freeSpin") {
+          Object.assign(record, {
+            spin_amount: formData.get("spin_amount"),
+            freespin_cnt: formData.get("freespin_cnt"),
+            gameIds: formData.getAll("gameIds"),
+            recycle_days: formData.get("recycle_days"),
+          });
+        } else {
+          Object.assign(record, {
+            BonusType: formData.get("BonusType"),
+            Bonus: formData.get("Bonus"),
+            max_cashout: formData.get("max_cashout"),
+            valid_hours: formData.get("valid_hours"),
+            wager_multiple: formData.get("wager_multiple"),
+          });
+        }
+        const previousSettings = JSON.stringify(settings);
+        if (index == null) settings[type].push(record);
+        else settings[type][index] = record;
+        if (!persistSettings("营销活动配置保存失败")) {
+          settings = JSON.parse(previousSettings);
+          return;
+        }
+        closeSettingModal();
+        renderSettingsList(type);
+        showToast(index == null ? "新增成功" : "修改成功");
+      }
+
+      function validLossRanges(value) {
+        return value.split(";").every((range) => {
+          const match = range
+            .trim()
+            .match(
+              /^(\d+(?:\.\d+)?)\s*<=\s*(?:当日)?亏损\s*<\s*(\d+(?:\.\d+)?)$/,
+            );
+          return match && Number(match[1]) < Number(match[2]);
+        });
+      }
+
+      function closeSettingModal() {
+        modal.classList.remove("open");
+        form.reset();
+        state.editing = null;
+      }
+
+      function showToast(message) {
+        toastEl.textContent = message;
+        toastEl.classList.add("show");
+        clearTimeout(showToast.timeout);
+        showToast.timeout = setTimeout(
+          () => toastEl.classList.remove("show"),
+          2200,
+        );
+      }
+
+      menu.addEventListener("click", (event) => {
+        const item = event.target.closest(".menu-item");
+        const sub = event.target.closest(".sub");
+        if (item) {
+          const section = item.closest(".menu-section");
+          if (section.querySelector(":scope > .submenu")) {
+            section.classList.toggle("open");
+          } else {
+            addTab(item.dataset.page);
+          }
+          return;
+        }
+        if (sub?.classList.contains("parent")) {
+          sub.classList.toggle("open");
+          sub.nextElementSibling?.classList.toggle("open");
+        } else if (sub?.dataset.page) {
+          addTab(sub.dataset.page);
+        }
+      });
+
+      tabsEl.addEventListener("click", (event) => {
+        const close = event.target.closest("[data-close]");
+        if (close) {
+          event.stopPropagation();
+          closeTab(close.dataset.close);
+          return;
+        }
+        const tab = event.target.closest("[data-tab]");
+        if (tab) activateTab(tab.dataset.tab);
+      });
+
+      content.addEventListener("click", (event) => {
+        const addButton = event.target.closest("[data-add-setting]");
+        if (addButton) {
+          openSettingModal(addButton.dataset.addSetting);
+          return;
+        }
+        const editButton = event.target.closest("[data-edit-setting]");
+        if (editButton) {
+          openSettingModal(
+            editButton.dataset.editSetting,
+            Number(editButton.dataset.settingIndex),
+          );
+          return;
+        }
+        const statusInput = event.target.closest("[data-status-setting]");
+        if (statusInput) {
+          const { statusSetting: type, settingIndex } = statusInput.dataset;
+          const previousStatus = settings[type][Number(settingIndex)].status;
+          settings[type][Number(settingIndex)].status = statusInput.checked;
+          if (!persistSettings("状态更新失败")) {
+            settings[type][Number(settingIndex)].status = previousStatus;
+            statusInput.checked = !statusInput.checked;
+            return;
+          }
+          if (type === "cio") renderCioList();
+          else renderSettingsList(type);
+        }
+      });
+
+      form.addEventListener("change", (event) => {
+        if (
+          event.target.matches("[data-condition-toggle]") ||
+          event.target.matches("[data-daily-deposit]")
+        ) {
+          syncConditionControls();
+        }
+        if (event.target.name === "gameIds") {
+          updateGameSummary(event.target.closest(".game-picker"));
+        }
+        if (event.target.name === "status") {
+          const enabled = event.target.checked;
+          event.target.nextElementSibling.textContent =
+            state.editing?.type === "cio"
+              ? enabled
+                ? "开启（同步上报至 CIO）"
+                : "关闭"
+              : enabled
+                ? "Enabled"
+                : "Disabled";
+        }
+      });
+
+      function updateGameSummary(picker) {
+        if (!picker) return;
+        const selected = picker.querySelectorAll(
+          'input[name="gameIds"]:checked',
+        ).length;
+        picker.querySelector("[data-game-summary]").textContent = selected
+          ? `${selected} 个游戏已选择`
+          : "请选择游戏";
+      }
+      form.addEventListener("submit", saveSetting);
+      content.addEventListener("click", (event) => {
+        if (event.target.closest("[data-add-cio]")) {
+          openCioModal();
+          return;
+        }
+        const editButton = event.target.closest("[data-edit-cio]");
+        if (editButton) {
+          openCioModal(Number(editButton.dataset.editCio));
+          return;
+        }
+        const deleteButton = event.target.closest("[data-delete-cio]");
+        if (deleteButton)
+          requestDeleteCio(Number(deleteButton.dataset.deleteCio));
+      });
+      document.querySelectorAll("[data-cancel-delete]").forEach((button) => {
+        button.addEventListener("click", cancelDeleteCio);
+      });
+      deleteConfirm.addEventListener("click", (event) => {
+        if (event.target === deleteConfirm) cancelDeleteCio();
+      });
+      document
+        .querySelector("#confirmDelete")
+        .addEventListener("click", confirmDeleteCio);
+      modal.addEventListener("click", (event) => {
+        if (
+          event.target === modal ||
+          event.target.closest("[data-close-modal]")
+        ) {
+          closeSettingModal();
+        }
+      });
+
+      document.querySelector("#menuToggle").addEventListener("click", () => {
+        if (window.innerWidth <= 900) {
+          sidebar.classList.toggle("open");
+        } else {
+          document.body.classList.toggle("collapsed");
+        }
+      });
+
+      function tick() {
+        const now = new Date();
+        const pad = (value) => String(value).padStart(2, "0");
+        document.querySelector("#clock").textContent =
+          `Local ${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())} (+08:00)`;
+      }
+
+      renderMenu();
+      renderTabs();
+      tick();
+      setInterval(tick, 1000);
+    </script>
+  </body>
+</html>
