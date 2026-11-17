@@ -634,7 +634,8 @@
       }
 
       .condition-controls input,
-      .condition-controls select {
+      .condition-controls select,
+      .condition-controls textarea {
         min-width: 92px;
         max-width: 170px;
         height: 36px;
@@ -649,6 +650,15 @@
         min-width: 220px;
         max-width: 100%;
         flex: 1;
+      }
+
+      .condition-controls textarea {
+        min-width: min(320px, 100%);
+        max-width: 100%;
+        min-height: 76px;
+        height: auto;
+        resize: vertical;
+        font: inherit;
       }
 
       .daily-deposit-control {
@@ -941,6 +951,91 @@
         "game_1006",
       ];
 
+      function createFreeSpinSamples() {
+        const startDate = new Date();
+        const endDate = new Date(startDate);
+        endDate.setFullYear(endDate.getFullYear() + 1);
+        const formatDate = (date) => {
+          const pad = (value) => String(value).padStart(2, "0");
+          return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+        };
+        const sampleDates = {
+          payin_date_start: formatDate(startDate),
+          payin_date_end: formatDate(endDate),
+        };
+        const common = {
+          scene_type: "All",
+          spin_amount: "1",
+          gameIds: [],
+          recycle_days: "",
+          recycle_days_today: true,
+          send_immediately: true,
+          send_time: "",
+          status: true,
+          ...sampleDates,
+        };
+        const customCondition = (text) => ({
+          dailyDeposit: "Disable",
+          custom: { enabled: true, text },
+        });
+        return [
+          {
+            ...common,
+            id: "sample-freespin-loss-cashback",
+            name: "Sample - 亏损彩金",
+            title: "亏损彩金",
+            content:
+              "累计亏损奖励次数：10–49.99 MXN 为 10 次；50–99.99 MXN 为 10 次；100–199.99 MXN 为 20 次；200–499.99 MXN 为 20 次；500–999.99 MXN 为 40 次；≥1,000 MXN 封顶 50 次。累计次数按 a+b+c+d 计算。",
+            freespin_cnt: "50",
+            condition: customCondition(
+              "当日累计亏损 ≥ 10 MXN。每 30 分钟核算累计应得奖励，扣除当日已发金额后补发差额；达到封顶后停止。到账 30 分钟后仍未使用且未过期时，仅提醒一次。",
+            ),
+          },
+          {
+            ...common,
+            id: "sample-freespin-flexible-1",
+            name: "Sample - 灵活补发①",
+            title: "灵活补发①",
+            content: "符合条件后补发 FreeSpin，奖励 60 次。",
+            freespin_cnt: "60",
+            condition: customCondition(
+              "当日仅投注 1 次；FB < 10 转；最近一次投注后连续 30 分钟未再投注。",
+            ),
+          },
+          {
+            ...common,
+            id: "sample-freespin-flexible-3",
+            name: "Sample - 灵活补发③",
+            title: "灵活补发③",
+            content: "符合条件后补发 FreeSpin，奖励 60 次。",
+            freespin_cnt: "60",
+            condition: customCondition(
+              "当日投注次数 > 1 且 FB < 10 转；最近一次投注后连续 30 分钟未再投注。",
+            ),
+          },
+          {
+            ...common,
+            id: "sample-freespin-low-balance",
+            name: "Sample - 余额不足",
+            title: "余额不足补发",
+            content: "当前余额低于 10 MXN 时触发，每日发送一次，奖励 20 次。",
+            freespin_cnt: "20",
+            condition: customCondition("当前余额 < 10 MXN；每日最多发送一次。"),
+          },
+          {
+            ...common,
+            id: "sample-freespin-site-volume",
+            name: "Sample - 全站补量",
+            title: "全站补量",
+            content: "每日 18:00 定时发送，奖励 40 次。",
+            freespin_cnt: "40",
+            send_immediately: false,
+            send_time: "18:00",
+            condition: customCondition("D0 已首充且有投注，且未享彩金。"),
+          },
+        ];
+      }
+
       function loadSettings() {
         try {
           const value = JSON.parse(localStorage.getItem(STORE_KEY) || "{}");
@@ -956,6 +1051,10 @@
       }
 
       let settings = loadSettings();
+      if (settings.freeSpin.length === 0) {
+        settings.freeSpin = createFreeSpinSamples();
+        persistSettings("FreeSpin 示例资料初始化失败");
+      }
       settings.freeSpin.forEach((row, index) => {
         row.id ||= `freeSpin-${index + 1}`;
       });
@@ -1371,6 +1470,9 @@
           const label = type === "bonus" ? "Bonus 值" : "freespin_cnt";
           entries.push(`${label} ≤ ${rewardValueCondition.value}`);
         }
+        if (condition.custom?.enabled && condition.custom.text) {
+          entries.push(condition.custom.text);
+        }
         return entries.join("；") || "未设置";
       }
 
@@ -1432,9 +1534,10 @@
             (type === "bonus"
               ? condition.bonusValue || condition.freespinCount
               : condition.freespinCount) || {
-            enabled: false,
-            value: "",
-          },
+              enabled: false,
+              value: "",
+            },
+          custom: condition.custom || { enabled: false, text: "" },
         };
       }
 
@@ -1473,6 +1576,7 @@
               ${conditionCheckbox("betCount", "当日投注累计次数 ≥ N", value.betCount.enabled, `<select name="betCount_type">${betTypes.map((option) => `<option ${value.betCount.type === option ? "selected" : ""}>${option}</option>`).join("")}</select><input type="number" name="betCount_count" min="1" step="1" value="${escapeHtml(value.betCount.count)}" placeholder="N">`)}
               ${conditionCheckbox("betAmount", "当日投注累计金额 ≥ N（有效投注金额）", value.betAmount.enabled, `<select name="betAmount_type">${betTypes.map((option) => `<option ${value.betAmount.type === option ? "selected" : ""}>${option}</option>`).join("")}</select><input type="number" name="betAmount_amount" min="0" step="0.01" value="${escapeHtml(value.betAmount.amount)}" placeholder="N">`)}
               ${conditionCheckbox(rewardValueKey, rewardValueLabel, value.rewardValue.enabled, `<input type="number" name="${rewardValueKey}_value" min="0" step="${rewardValueStep}" value="${escapeHtml(value.rewardValue.value)}" placeholder="N">`)}
+              ${conditionCheckbox("custom", "自定义条件说明", value.custom.enabled, `<textarea name="custom_condition" rows="3" placeholder="补充无法用标准条件表达的触发规则">${escapeHtml(value.custom.text)}</textarea>`)}
             </div>
           </div>`;
       }
@@ -1615,7 +1719,7 @@
             toggle.disabled = !dailyDepositEnabled;
             item
               .querySelectorAll(
-                "[data-condition-fields] input, [data-condition-fields] select",
+                "[data-condition-fields] input, [data-condition-fields] select, [data-condition-fields] textarea",
               )
               .forEach((input) => {
                 input.disabled = !enabled;
@@ -1630,7 +1734,7 @@
             const toggle = item.querySelector("[data-condition-toggle]");
             item
               .querySelectorAll(
-                "[data-condition-fields] input, [data-condition-fields] select",
+                "[data-condition-fields] input, [data-condition-fields] select, [data-condition-fields] textarea",
               )
               .forEach((input) => {
                 input.disabled = !toggle.checked;
@@ -1675,6 +1779,10 @@
           enabled: enabled(rewardValueKey),
           value: formData.get(`${rewardValueKey}_value`) || "",
         };
+        condition.custom = {
+          enabled: enabled("custom"),
+          text: formData.get("custom_condition") || "",
+        };
         return condition;
       }
 
@@ -1705,6 +1813,7 @@
           condition.betCount.enabled,
           condition.betAmount.enabled,
           condition[rewardValueKey].enabled,
+          condition.custom.enabled,
         ].some(Boolean);
         if (!hasCondition) {
           showToast("请至少勾选一项必要条件");
