@@ -626,6 +626,13 @@
         gap: 8px;
       }
 
+      .legacy-condition {
+        padding: 10px;
+        border-radius: 6px;
+        background: #f8fafc;
+        white-space: pre-wrap;
+      }
+
       .condition-controls {
         display: flex;
         align-items: center;
@@ -993,9 +1000,10 @@
             title: "灵活补发①",
             content: "符合条件后补发 FreeSpin，奖励 60 次。",
             freespin_cnt: "60",
-            condition: customCondition(
-              "当日仅投注 1 次；FB < 10 转；最近一次投注后连续 30 分钟未再投注。",
-            ),
+            condition: {
+              ...customCondition("当日仅投注 1 次；FB < 10 转。"),
+              betInactivity: { enabled: true, minutes: "30" },
+            },
           },
           {
             ...common,
@@ -1005,9 +1013,10 @@
             title: "灵活补发③",
             content: "符合条件后补发 FreeSpin，奖励 60 次。",
             freespin_cnt: "60",
-            condition: customCondition(
-              "当日投注次数 > 1 且 FB < 10 转；最近一次投注后连续 30 分钟未再投注。",
-            ),
+            condition: {
+              ...customCondition("当日投注次数 > 1 且 FB < 10 转。"),
+              betInactivity: { enabled: true, minutes: "30" },
+            },
           },
           {
             ...common,
@@ -1044,9 +1053,10 @@
           { lower: 1000, upper: null, label: "≥1,000（封顶）", spins: 50 },
         ];
         return tiers.map((tier, index) => {
-          const range = tier.upper == null
-            ? "当日累计亏损 ≥ 1,000 MXN（封顶）"
-            : `当日累计亏损 ${tier.label} MXN`;
+          const range =
+            tier.upper == null
+              ? "当日累计亏损 ≥ 1,000 MXN（封顶）"
+              : `当日累计亏损 ${tier.label} MXN`;
           const rules = [
             range,
             "每 30 分钟核算累计应得奖励，扣除当日已发金额后补发差额；达到封顶后停止。",
@@ -1160,6 +1170,26 @@
         }
       });
       if (sampleScenesUpdated) persistSettings("示例场景更新失败");
+      const flexibleSampleConditions = {
+        "sample-freespin-flexible-1": "当日仅投注 1 次；FB < 10 转",
+        "sample-freespin-flexible-3": "当日投注次数 > 1 且 FB < 10 转",
+      };
+      let flexibleSamplesUpdated = false;
+      settings.freeSpin.forEach((row) => {
+        const prefix = flexibleSampleConditions[row.id];
+        if (
+          prefix &&
+          !row.condition?.betInactivity &&
+          row.condition?.custom?.enabled === true &&
+          row.condition.custom.text ===
+            `${prefix}；最近一次投注后连续 30 分钟未再投注。`
+        ) {
+          row.condition.custom.text = `${prefix}。`;
+          row.condition.betInactivity = { enabled: true, minutes: "30" };
+          flexibleSamplesUpdated = true;
+        }
+      });
+      if (flexibleSamplesUpdated) persistSettings("补发示例条件更新失败");
       settings.freeSpin.forEach((row, index) => {
         row.id ||= `freeSpin-${index + 1}`;
       });
@@ -1549,12 +1579,12 @@
         const dailyEnabled = condition.dailyDeposit === "Enable";
         if (dailyEnabled && condition.singleDeposit?.enabled) {
           entries.push(
-            `单笔充值 ≥ ${condition.singleDeposit.amount}，奖励 ${condition.singleDeposit.rewards} 次`,
+            `单笔充值 ≥ ${condition.singleDeposit.amount}，充值次数 ${condition.singleDeposit.rewards} 次`,
           );
         }
         if (dailyEnabled && condition.cumulativeDeposit?.enabled) {
           entries.push(
-            `累计充值 ≥ ${condition.cumulativeDeposit.amount}，奖励 ${condition.cumulativeDeposit.rewards} 次`,
+            `累计充值 ≥ ${condition.cumulativeDeposit.amount}，充值次数 ${condition.cumulativeDeposit.rewards} 次`,
           );
         }
         if (condition.lossRanges?.enabled) {
@@ -1568,6 +1598,11 @@
         if (condition.betAmount?.enabled) {
           entries.push(
             `${condition.betAmount.type} 当日有效投注金额 ≥ ${condition.betAmount.amount}`,
+          );
+        }
+        if (condition.betInactivity?.enabled) {
+          entries.push(
+            `最近一次投注后连续 ${condition.betInactivity.minutes} 分钟未再投注`,
           );
         }
         const rewardValueCondition =
@@ -1642,13 +1677,16 @@
             type: "All",
             amount: "",
           },
-          rewardValue:
-            (type === "bonus"
-              ? condition.bonusValue || condition.freespinCount
-              : condition.freespinCount) || {
-              enabled: false,
-              value: "",
-            },
+          betInactivity: condition.betInactivity || {
+            enabled: false,
+            minutes: "",
+          },
+          rewardValue: (type === "bonus"
+            ? condition.bonusValue || condition.freespinCount
+            : condition.freespinCount) || {
+            enabled: false,
+            value: "",
+          },
           custom: condition.custom || { enabled: false, text: "" },
         };
       }
@@ -1682,13 +1720,14 @@
               </select>
             </div>
             <div class="condition-list">
-              ${conditionCheckbox("singleDeposit", "单笔充值金额 ≥ N，触发奖励次数 M", value.singleDeposit.enabled, `<span>金额 N</span><input type="number" name="singleDeposit_amount" min="0" step="0.01" value="${escapeHtml(value.singleDeposit.amount)}" placeholder="N"><span>奖励次数 M</span><input type="number" name="singleDeposit_rewards" min="1" step="1" value="${escapeHtml(value.singleDeposit.rewards)}" placeholder="M">`, true)}
-              ${conditionCheckbox("cumulativeDeposit", "累计充值金额 ≥ N，触发奖励次数 M", value.cumulativeDeposit.enabled, `<span>金额 N</span><input type="number" name="cumulativeDeposit_amount" min="0" step="0.01" value="${escapeHtml(value.cumulativeDeposit.amount)}" placeholder="N"><span>奖励次数 M</span><input type="number" name="cumulativeDeposit_rewards" min="1" step="1" value="${escapeHtml(value.cumulativeDeposit.rewards)}" placeholder="M">`, true)}
+              ${conditionCheckbox("singleDeposit", "单笔充值金额 ≥ N，充值次数 M", value.singleDeposit.enabled, `<span>金额 N</span><input type="number" name="singleDeposit_amount" min="0" step="0.01" value="${escapeHtml(value.singleDeposit.amount)}" placeholder="N"><span>充值次数 M</span><input type="number" name="singleDeposit_rewards" min="1" step="1" value="${escapeHtml(value.singleDeposit.rewards)}" placeholder="M">`, true)}
+              ${conditionCheckbox("cumulativeDeposit", "累计充值金额 ≥ N，充值次数 M", value.cumulativeDeposit.enabled, `<span>金额 N</span><input type="number" name="cumulativeDeposit_amount" min="0" step="0.01" value="${escapeHtml(value.cumulativeDeposit.amount)}" placeholder="N"><span>充值次数 M</span><input type="number" name="cumulativeDeposit_rewards" min="1" step="1" value="${escapeHtml(value.cumulativeDeposit.rewards)}" placeholder="M">`, true)}
               ${conditionCheckbox("lossRanges", "当日亏损范围 N ≤ 亏损 &lt; M", value.lossRanges.enabled, `<input type="text" name="lossRanges_ranges" value="${escapeHtml(value.lossRanges.ranges)}" placeholder="100&lt;=当日亏损&lt;200; 300&lt;=当日亏损&lt;500">`)}
               ${conditionCheckbox("betCount", "当日投注累计次数 ≥ N", value.betCount.enabled, `<select name="betCount_type">${betTypes.map((option) => `<option ${value.betCount.type === option ? "selected" : ""}>${option}</option>`).join("")}</select><input type="number" name="betCount_count" min="1" step="1" value="${escapeHtml(value.betCount.count)}" placeholder="N">`)}
               ${conditionCheckbox("betAmount", "当日投注累计金额 ≥ N（有效投注金额）", value.betAmount.enabled, `<select name="betAmount_type">${betTypes.map((option) => `<option ${value.betAmount.type === option ? "selected" : ""}>${option}</option>`).join("")}</select><input type="number" name="betAmount_amount" min="0" step="0.01" value="${escapeHtml(value.betAmount.amount)}" placeholder="N">`)}
+              ${conditionCheckbox("betInactivity", "最近一次投注后连续 N 分钟未再投注", value.betInactivity.enabled, `<input type="number" name="betInactivity_minutes" min="1" step="1" value="${escapeHtml(value.betInactivity.minutes)}" placeholder="N"><span>分钟</span>`)}
               ${conditionCheckbox(rewardValueKey, rewardValueLabel, value.rewardValue.enabled, `<input type="number" name="${rewardValueKey}_value" min="0" step="${rewardValueStep}" value="${escapeHtml(value.rewardValue.value)}" placeholder="N">`)}
-              ${conditionCheckbox("custom", "自定义条件说明", value.custom.enabled, `<textarea name="custom_condition" rows="3" placeholder="补充无法用标准条件表达的触发规则">${escapeHtml(value.custom.text)}</textarea>`)}
+              ${type === "bonus" ? conditionCheckbox("custom", "自定义条件说明", value.custom.enabled, `<textarea name="custom_condition" rows="3" placeholder="补充无法用标准条件表达的触发规则">${escapeHtml(value.custom.text)}</textarea>`) : value.custom.enabled && value.custom.text ? `<div class="legacy-condition"><strong>原有规则（只读）</strong>\n${escapeHtml(value.custom.text)}</div>` : ""}
             </div>
           </div>`;
       }
@@ -1856,11 +1895,12 @@
           });
       }
 
-      function readCondition(formData, type) {
+      function readCondition(formData, type, currentCondition = {}) {
         const enabled = (key) =>
           formData.get(`condition_${key}_enabled`) === "on";
         const dailyDeposit = formData.get("dailyDeposit");
-        const rewardValueKey = type === "bonus" ? "bonusValue" : "freespinCount";
+        const rewardValueKey =
+          type === "bonus" ? "bonusValue" : "freespinCount";
         const condition = {
           dailyDeposit,
           singleDeposit: {
@@ -1887,15 +1927,22 @@
             type: formData.get("betAmount_type"),
             amount: formData.get("betAmount_amount") || "",
           },
+          betInactivity: {
+            enabled: enabled("betInactivity"),
+            minutes: formData.get("betInactivity_minutes") || "",
+          },
         };
         condition[rewardValueKey] = {
           enabled: enabled(rewardValueKey),
           value: formData.get(`${rewardValueKey}_value`) || "",
         };
-        condition.custom = {
-          enabled: enabled("custom"),
-          text: formData.get("custom_condition") || "",
-        };
+        condition.custom =
+          type === "bonus"
+            ? {
+                enabled: enabled("custom"),
+                text: formData.get("custom_condition") || "",
+              }
+            : currentCondition.custom || { enabled: false, text: "" };
         return condition;
       }
 
@@ -1916,7 +1963,7 @@
           showToast("活动开始日期不能晚于结束日期");
           return;
         }
-        const condition = readCondition(formData, type);
+        const condition = readCondition(formData, type, current?.condition);
         const rewardValueKey =
           type === "bonus" ? "bonusValue" : "freespinCount";
         const hasCondition = [
@@ -1925,6 +1972,7 @@
           condition.lossRanges.enabled,
           condition.betCount.enabled,
           condition.betAmount.enabled,
+          condition.betInactivity.enabled,
           condition[rewardValueKey].enabled,
           condition.custom.enabled,
         ].some(Boolean);
@@ -1962,9 +2010,7 @@
             spin_amount: formData.get("spin_amount"),
             freespin_cnt: formData.get("freespin_cnt"),
             gameIds: formData.getAll("gameIds"),
-            recycle_days: recycleDaysToday
-              ? ""
-              : formData.get("recycle_days"),
+            recycle_days: recycleDaysToday ? "" : formData.get("recycle_days"),
             recycle_days_today: recycleDaysToday,
           });
         } else {
