@@ -527,6 +527,32 @@
         resize: vertical;
       }
 
+      .duration-controls,
+      .schedule-controls {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .duration-controls > input,
+      .schedule-controls > input {
+        flex: 0 1 180px;
+      }
+
+      .inline-checkbox {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #475467;
+        white-space: nowrap;
+      }
+
+      .schedule-hint {
+        color: #667085;
+        font-size: 12px;
+      }
+
       .form-field select[multiple] {
         min-height: 110px;
       }
@@ -1228,6 +1254,7 @@
               "freespin_cnt",
               "gameIds",
               "recycle_days",
+              "send_time",
               "payin_date range",
               "status",
             ]
@@ -1242,6 +1269,7 @@
               "max_cashout",
               "valid_hours",
               "wager_multiple",
+              "send_time",
               "payin_date range",
               "status",
             ];
@@ -1281,7 +1309,12 @@
                 escapeHtml(row.spin_amount),
                 escapeHtml(row.freespin_cnt),
                 escapeHtml((row.gameIds || []).join(", ")),
-                escapeHtml(row.recycle_days),
+                row.recycle_days_today
+                  ? "当日使用"
+                  : escapeHtml(row.recycle_days),
+                escapeHtml(
+                  row.send_immediately ? "即时发送" : row.send_time || "-",
+                ),
                 dates,
                 status,
               ]
@@ -1291,8 +1324,13 @@
                 escapeHtml(row.BonusType),
                 escapeHtml(row.Bonus),
                 escapeHtml(row.max_cashout),
-                escapeHtml(row.valid_hours),
+                row.valid_hours_today
+                  ? "当日使用"
+                  : escapeHtml(row.valid_hours),
                 escapeHtml(row.wager_multiple),
+                escapeHtml(
+                  row.send_immediately ? "即时发送" : row.send_time || "-",
+                ),
                 dates,
                 status,
               ];
@@ -1350,6 +1388,15 @@
           control = `<input type="${options.type || "text"}" ${attrs}>`;
         }
         return `<div class="form-field${fullClass}"><label class="${required.trim()}">${escapeHtml(label)}${options.required ? " *" : ""}</label>${control}</div>`;
+      }
+
+      function durationFieldHtml(label, name, value, todayChecked) {
+        return `<div class="form-field duration-field"><label>${escapeHtml(label)}</label><div class="duration-controls"><input type="number" name="${name}" value="${escapeHtml(value ?? "")}" min="1" step="1" data-duration-value${todayChecked ? " disabled" : " required"}><label class="inline-checkbox"><input type="checkbox" name="${name}_today" data-duration-today ${todayChecked ? "checked" : ""}><span>当日使用</span></label></div></div>`;
+      }
+
+      function sendScheduleFieldHtml(data) {
+        const immediate = data.send_immediately === true;
+        return `<div class="form-field send-schedule-field"><label>send_time（发奖时间）</label><div class="schedule-controls"><label class="inline-checkbox"><input type="checkbox" name="send_immediately" data-send-immediately ${immediate ? "checked" : ""}><span>即时发送</span></label><span class="schedule-hint">未勾选时，按固定发送时间（排程检查时间）发送</span><input type="time" name="send_time" value="${escapeHtml(data.send_time ?? "")}" data-send-time${immediate ? " disabled" : " required"}></div></div>`;
       }
 
       function conditionDefaults(condition = {}) {
@@ -1465,11 +1512,11 @@
               values: gameIds,
               full: true,
             }),
-            fieldHtml(
+            durationFieldHtml(
               "recycle_days（可使用天数）",
               "recycle_days",
-              data.recycle_days ?? "",
-              { required: true, type: "number", min: 1, step: "1" },
+              data.recycle_days,
+              data.recycle_days_today === true,
             ),
           );
         } else {
@@ -1491,12 +1538,12 @@
               data.max_cashout ?? "",
               { required: true, type: "number", min: 0, step: "0.01" },
             ),
-            fieldHtml("valid_hours", "valid_hours", data.valid_hours ?? "", {
-              required: true,
-              type: "number",
-              min: 1,
-              step: "1",
-            }),
+            durationFieldHtml(
+              "valid_hours（可使用时间）",
+              "valid_hours",
+              data.valid_hours,
+              data.valid_hours_today === true,
+            ),
             fieldHtml(
               "wager_multiple",
               "wager_multiple",
@@ -1518,12 +1565,30 @@
             data.payin_date_end,
             { required: true, type: "date" },
           ),
+          sendScheduleFieldHtml(data),
           `<div class="form-field"><label>Status</label><label class="status-switch"><input type="checkbox" name="status" ${data.status !== false ? "checked" : ""}><span>${data.status !== false ? "Enabled" : "Disabled"}</span></label></div>`,
           conditionFields(data.condition),
         );
         formFields.innerHTML = fields.join("");
         syncConditionControls();
+        syncScheduleControls();
         modal.classList.add("open");
+      }
+
+      function syncScheduleControls() {
+        const immediate = form.elements.namedItem("send_immediately")?.checked;
+        const sendTime = form.elements.namedItem("send_time");
+        sendTime.disabled = immediate;
+        sendTime.required = !immediate;
+        formFields
+          .querySelectorAll("[data-duration-today]")
+          .forEach((toggle) => {
+            const value = toggle
+              .closest(".duration-controls")
+              .querySelector("[data-duration-value]");
+            value.disabled = toggle.checked;
+            value.required = !toggle.checked;
+          });
       }
 
       function syncConditionControls() {
@@ -1644,22 +1709,33 @@
           scene_type: formData.get("scene_type"),
           payin_date_start: start,
           payin_date_end: end,
+          send_immediately: formData.get("send_immediately") === "on",
+          send_time:
+            formData.get("send_immediately") === "on"
+              ? ""
+              : formData.get("send_time"),
           status: formData.get("status") === "on",
           condition,
         };
         if (type === "freeSpin") {
+          const recycleDaysToday = formData.get("recycle_days_today") === "on";
           Object.assign(record, {
             spin_amount: formData.get("spin_amount"),
             freespin_cnt: formData.get("freespin_cnt"),
             gameIds: formData.getAll("gameIds"),
-            recycle_days: formData.get("recycle_days"),
+            recycle_days: recycleDaysToday
+              ? ""
+              : formData.get("recycle_days"),
+            recycle_days_today: recycleDaysToday,
           });
         } else {
+          const validHoursToday = formData.get("valid_hours_today") === "on";
           Object.assign(record, {
             BonusType: formData.get("BonusType"),
             Bonus: formData.get("Bonus"),
             max_cashout: formData.get("max_cashout"),
-            valid_hours: formData.get("valid_hours"),
+            valid_hours: validHoursToday ? "" : formData.get("valid_hours"),
+            valid_hours_today: validHoursToday,
             wager_multiple: formData.get("wager_multiple"),
           });
         }
@@ -1768,6 +1844,12 @@
           event.target.matches("[data-daily-deposit]")
         ) {
           syncConditionControls();
+        }
+        if (
+          event.target.matches("[data-send-immediately]") ||
+          event.target.matches("[data-duration-today]")
+        ) {
+          syncScheduleControls();
         }
         if (event.target.name === "gameIds") {
           updateGameSummary(event.target.closest(".game-picker"));
