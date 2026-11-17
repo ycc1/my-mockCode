@@ -1320,7 +1320,7 @@
               ]
             : [
                 ...common,
-                escapeHtml(conditionSummary(row.condition)),
+                escapeHtml(conditionSummary(row.condition, type)),
                 escapeHtml(row.BonusType),
                 escapeHtml(row.Bonus),
                 escapeHtml(row.max_cashout),
@@ -1337,7 +1337,7 @@
         return `<tr>${cells.map((cell) => `<td>${cell || "-"}</td>`).join("")}<td>${action}</td></tr>`;
       }
 
-      function conditionSummary(condition = {}) {
+      function conditionSummary(condition = {}, type) {
         const entries = [];
         const dailyEnabled = condition.dailyDeposit === "Enable";
         if (dailyEnabled && condition.singleDeposit?.enabled) {
@@ -1363,8 +1363,13 @@
             `${condition.betAmount.type} 当日有效投注金额 ≥ ${condition.betAmount.amount}`,
           );
         }
-        if (condition.freespinCount?.enabled) {
-          entries.push(`freespin_cnt ≤ ${condition.freespinCount.value}`);
+        const rewardValueCondition =
+          type === "bonus"
+            ? condition.bonusValue || condition.freespinCount
+            : condition.freespinCount;
+        if (rewardValueCondition?.enabled) {
+          const label = type === "bonus" ? "Bonus 值" : "freespin_cnt";
+          entries.push(`${label} ≤ ${rewardValueCondition.value}`);
         }
         return entries.join("；") || "未设置";
       }
@@ -1399,7 +1404,7 @@
         return `<div class="form-field send-schedule-field"><label>send_time（发奖时间）</label><div class="schedule-controls"><label class="inline-checkbox"><input type="checkbox" name="send_immediately" data-send-immediately ${immediate ? "checked" : ""}><span>即时发送</span></label><span class="schedule-hint">未勾选时，按固定发送时间（排程检查时间）发送</span><input type="time" name="send_time" value="${escapeHtml(data.send_time ?? "")}" data-send-time${immediate ? " disabled" : " required"}></div></div>`;
       }
 
-      function conditionDefaults(condition = {}) {
+      function conditionDefaults(condition = {}, type) {
         return {
           dailyDeposit: condition.dailyDeposit || "Disable",
           singleDeposit: condition.singleDeposit || {
@@ -1423,7 +1428,10 @@
             type: "All",
             amount: "",
           },
-          freespinCount: condition.freespinCount || {
+          rewardValue:
+            (type === "bonus"
+              ? condition.bonusValue || condition.freespinCount
+              : condition.freespinCount) || {
             enabled: false,
             value: "",
           },
@@ -1441,8 +1449,13 @@
         return `<div class="condition-item"${dailyAttr}><label><input type="checkbox" name="condition_${key}_enabled" data-condition-toggle ${checked ? "checked" : ""}><span>${label}</span></label><div class="condition-controls" data-condition-fields>${controls}</div></div>`;
       }
 
-      function conditionFields(condition = {}) {
-        const value = conditionDefaults(condition);
+      function conditionFields(condition = {}, type) {
+        const value = conditionDefaults(condition, type);
+        const rewardValueKey =
+          type === "bonus" ? "bonusValue" : "freespinCount";
+        const rewardValueLabel =
+          type === "bonus" ? "Bonus 值 ≤ N" : "freespin_cnt 值 ≤ N";
+        const rewardValueStep = type === "bonus" ? "0.01" : "1";
         return `
           <div class="conditions">
             <h3>Condition（先勾选必要条件）</h3>
@@ -1459,7 +1472,7 @@
               ${conditionCheckbox("lossRanges", "当日亏损范围 N ≤ 亏损 &lt; M", value.lossRanges.enabled, `<input type="text" name="lossRanges_ranges" value="${escapeHtml(value.lossRanges.ranges)}" placeholder="100&lt;=当日亏损&lt;200; 300&lt;=当日亏损&lt;500">`)}
               ${conditionCheckbox("betCount", "当日投注累计次数 ≥ N", value.betCount.enabled, `<select name="betCount_type">${betTypes.map((option) => `<option ${value.betCount.type === option ? "selected" : ""}>${option}</option>`).join("")}</select><input type="number" name="betCount_count" min="1" step="1" value="${escapeHtml(value.betCount.count)}" placeholder="N">`)}
               ${conditionCheckbox("betAmount", "当日投注累计金额 ≥ N（有效投注金额）", value.betAmount.enabled, `<select name="betAmount_type">${betTypes.map((option) => `<option ${value.betAmount.type === option ? "selected" : ""}>${option}</option>`).join("")}</select><input type="number" name="betAmount_amount" min="0" step="0.01" value="${escapeHtml(value.betAmount.amount)}" placeholder="N">`)}
-              ${conditionCheckbox("freespinCount", "freespin_cnt 值 ≤ N", value.freespinCount.enabled, `<input type="number" name="freespinCount_value" min="0" step="1" value="${escapeHtml(value.freespinCount.value)}" placeholder="N">`)}
+              ${conditionCheckbox(rewardValueKey, rewardValueLabel, value.rewardValue.enabled, `<input type="number" name="${rewardValueKey}_value" min="0" step="${rewardValueStep}" value="${escapeHtml(value.rewardValue.value)}" placeholder="N">`)}
             </div>
           </div>`;
       }
@@ -1567,7 +1580,7 @@
           ),
           sendScheduleFieldHtml(data),
           `<div class="form-field"><label>Status</label><label class="status-switch"><input type="checkbox" name="status" ${data.status !== false ? "checked" : ""}><span>${data.status !== false ? "Enabled" : "Disabled"}</span></label></div>`,
-          conditionFields(data.condition),
+          conditionFields(data.condition, type),
         );
         formFields.innerHTML = fields.join("");
         syncConditionControls();
@@ -1626,11 +1639,12 @@
           });
       }
 
-      function readCondition(formData) {
+      function readCondition(formData, type) {
         const enabled = (key) =>
           formData.get(`condition_${key}_enabled`) === "on";
         const dailyDeposit = formData.get("dailyDeposit");
-        return {
+        const rewardValueKey = type === "bonus" ? "bonusValue" : "freespinCount";
+        const condition = {
           dailyDeposit,
           singleDeposit: {
             enabled: dailyDeposit === "Enable" && enabled("singleDeposit"),
@@ -1656,11 +1670,12 @@
             type: formData.get("betAmount_type"),
             amount: formData.get("betAmount_amount") || "",
           },
-          freespinCount: {
-            enabled: enabled("freespinCount"),
-            value: formData.get("freespinCount_value") || "",
-          },
         };
+        condition[rewardValueKey] = {
+          enabled: enabled(rewardValueKey),
+          value: formData.get(`${rewardValueKey}_value`) || "",
+        };
+        return condition;
       }
 
       function saveSetting(event) {
@@ -1680,14 +1695,16 @@
           showToast("活动开始日期不能晚于结束日期");
           return;
         }
-        const condition = readCondition(formData);
+        const condition = readCondition(formData, type);
+        const rewardValueKey =
+          type === "bonus" ? "bonusValue" : "freespinCount";
         const hasCondition = [
           condition.singleDeposit.enabled,
           condition.cumulativeDeposit.enabled,
           condition.lossRanges.enabled,
           condition.betCount.enabled,
           condition.betAmount.enabled,
-          condition.freespinCount.enabled,
+          condition[rewardValueKey].enabled,
         ].some(Boolean);
         if (!hasCondition) {
           showToast("请至少勾选一项必要条件");
