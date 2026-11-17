@@ -939,7 +939,13 @@
         deletingIndex: null,
       };
 
-      const sceneTypes = ["All", "Register", "FirstDeposit", "Deposit", "Bet"];
+      const sceneTypes = [
+        "亏损彩金",
+        "灵活补发①",
+        "灵活补发③",
+        "全站补量",
+        "余额不足",
+      ];
       const bonusTypes = ["CasinoBonus", "SportBonus", "Cashback"];
       const betTypes = ["All", "Sport", "Casino"];
       const gameIds = [
@@ -964,7 +970,6 @@
           payin_date_end: formatDate(endDate),
         };
         const common = {
-          scene_type: "All",
           spin_amount: "1",
           gameIds: [],
           recycle_days: "",
@@ -979,21 +984,11 @@
           custom: { enabled: true, text },
         });
         return [
-          {
-            ...common,
-            id: "sample-freespin-loss-cashback",
-            name: "Sample - 亏损彩金",
-            title: "亏损彩金",
-            content:
-              "累计亏损奖励次数：10–49.99 MXN 为 10 次；50–99.99 MXN 为 10 次；100–199.99 MXN 为 20 次；200–499.99 MXN 为 20 次；500–999.99 MXN 为 40 次；≥1,000 MXN 封顶 50 次。累计次数按 a+b+c+d 计算。",
-            freespin_cnt: "50",
-            condition: customCondition(
-              "当日累计亏损 ≥ 10 MXN。每 30 分钟核算累计应得奖励，扣除当日已发金额后补发差额；达到封顶后停止。到账 30 分钟后仍未使用且未过期时，仅提醒一次。",
-            ),
-          },
+          ...createLossCashbackSamples(common),
           {
             ...common,
             id: "sample-freespin-flexible-1",
+            scene_type: "灵活补发①",
             name: "Sample - 灵活补发①",
             title: "灵活补发①",
             content: "符合条件后补发 FreeSpin，奖励 60 次。",
@@ -1005,6 +1000,7 @@
           {
             ...common,
             id: "sample-freespin-flexible-3",
+            scene_type: "灵活补发③",
             name: "Sample - 灵活补发③",
             title: "灵活补发③",
             content: "符合条件后补发 FreeSpin，奖励 60 次。",
@@ -1016,6 +1012,7 @@
           {
             ...common,
             id: "sample-freespin-low-balance",
+            scene_type: "余额不足",
             name: "Sample - 余额不足",
             title: "余额不足补发",
             content: "当前余额低于 10 MXN 时触发，每日发送一次，奖励 20 次。",
@@ -1025,6 +1022,7 @@
           {
             ...common,
             id: "sample-freespin-site-volume",
+            scene_type: "全站补量",
             name: "Sample - 全站补量",
             title: "全站补量",
             content: "每日 18:00 定时发送，奖励 40 次。",
@@ -1034,6 +1032,51 @@
             condition: customCondition("D0 已首充且有投注，且未享彩金。"),
           },
         ];
+      }
+
+      function createLossCashbackSamples(common, keepLegacyId = true) {
+        const tiers = [
+          { lower: 10, upper: 50, label: "10–49.99", spins: 10 },
+          { lower: 50, upper: 100, label: "50–99.99", spins: 10 },
+          { lower: 100, upper: 200, label: "100–199.99", spins: 20 },
+          { lower: 200, upper: 500, label: "200–499.99", spins: 20 },
+          { lower: 500, upper: 1000, label: "500–999.99", spins: 40 },
+          { lower: 1000, upper: null, label: "≥1,000（封顶）", spins: 50 },
+        ];
+        return tiers.map((tier, index) => {
+          const range = tier.upper == null
+            ? "当日累计亏损 ≥ 1,000 MXN（封顶）"
+            : `当日累计亏损 ${tier.label} MXN`;
+          const rules = [
+            range,
+            "每 30 分钟核算累计应得奖励，扣除当日已发金额后补发差额；达到封顶后停止。",
+            "到账 30 分钟后仍未使用且未过期时，提醒一次。",
+          ].join("\n");
+          return {
+            ...common,
+            scene_type: "亏损彩金",
+            id:
+              index === 0 && keepLegacyId
+                ? "sample-freespin-loss-cashback"
+                : `sample-freespin-loss-cashback-${tier.lower}`,
+            name: `Sample - 亏损彩金 ${tier.label} MXN`,
+            title: "亏损彩金",
+            content: `${range}，FreeSpin ${tier.spins} 次。`,
+            freespin_cnt: String(tier.spins),
+            condition: {
+              dailyDeposit: "Disable",
+              ...(tier.upper == null
+                ? {}
+                : {
+                    lossRanges: {
+                      enabled: true,
+                      ranges: `${tier.lower}<=当日亏损<${tier.upper}`,
+                    },
+                  }),
+              custom: { enabled: true, text: rules },
+            },
+          };
+        });
       }
 
       function loadSettings() {
@@ -1055,6 +1098,68 @@
         settings.freeSpin = createFreeSpinSamples();
         persistSettings("FreeSpin 示例资料初始化失败");
       }
+      const lossCashbackIndex = settings.freeSpin.findIndex(
+        (row) => row.id === "sample-freespin-loss-cashback",
+      );
+      const hasLossTiers = settings.freeSpin.some(
+        (row) => row.id === "sample-freespin-loss-cashback-50",
+      );
+      if (lossCashbackIndex !== -1 && !hasLossTiers) {
+        const legacy = settings.freeSpin[lossCashbackIndex];
+        const originalTexts = [
+          "当日累计亏损 ≥ 10 MXN。每 30 分钟核算累计应得奖励，扣除当日已发金额后补发差额；达到封顶后停止。到账 30 分钟后仍未使用且未过期时，仅提醒一次。",
+          [
+            "当日累计亏损 ≥ 10 MXN：",
+            "亏损 10–49.99 MXN → FreeSpin 10 次",
+            "亏损 50–99.99 MXN → FreeSpin 10 次",
+            "亏损 100–199.99 MXN → FreeSpin 20 次",
+            "亏损 200–499.99 MXN → FreeSpin 20 次",
+            "亏损 500–999.99 MXN → FreeSpin 40 次",
+            "亏损 ≥ 1,000 MXN → FreeSpin 50 次（封顶）",
+            "每 30 分钟核算累计应得奖励，扣除当日已发金额后补发差额；达到封顶后停止。",
+            "到账 30 分钟后仍未使用且未过期时，提醒一次。",
+          ].join("\n"),
+        ];
+        const originalContents = [
+          "累计亏损奖励次数：10–49.99 MXN 为 10 次；50–99.99 MXN 为 10 次；100–199.99 MXN 为 20 次；200–499.99 MXN 为 20 次；500–999.99 MXN 为 40 次；≥1,000 MXN 封顶 50 次。累计次数按 a+b+c+d 计算。",
+          "按当日累计亏损区间发放 FreeSpin；每 30 分钟核算并补发差额，单日奖励封顶 50 次。",
+        ];
+        const unmodified =
+          legacy.name === "Sample - 亏损彩金" &&
+          legacy.title === "亏损彩金" &&
+          (legacy.scene_type === "All" || legacy.scene_type === "亏损彩金") &&
+          legacy.freespin_cnt === "50" &&
+          originalContents.includes(legacy.content) &&
+          legacy.condition?.custom?.enabled === true &&
+          originalTexts.includes(legacy.condition.custom.text) &&
+          !Object.entries(legacy.condition).some(
+            ([key, value]) => key !== "custom" && value?.enabled,
+          );
+        const tiers = createLossCashbackSamples(legacy, unmodified);
+        settings.freeSpin.splice(
+          lossCashbackIndex + (unmodified ? 0 : 1),
+          unmodified ? 1 : 0,
+          ...tiers,
+        );
+        persistSettings("亏损彩金示例更新失败");
+      }
+      const sampleSceneTypes = {
+        "sample-freespin-flexible-1": "灵活补发①",
+        "sample-freespin-flexible-3": "灵活补发③",
+        "sample-freespin-low-balance": "余额不足",
+        "sample-freespin-site-volume": "全站补量",
+      };
+      let sampleScenesUpdated = false;
+      settings.freeSpin.forEach((row) => {
+        const scene = row.id?.startsWith("sample-freespin-loss-cashback")
+          ? "亏损彩金"
+          : sampleSceneTypes[row.id];
+        if (scene && row.scene_type === "All") {
+          row.scene_type = scene;
+          sampleScenesUpdated = true;
+        }
+      });
+      if (sampleScenesUpdated) persistSettings("示例场景更新失败");
       settings.freeSpin.forEach((row, index) => {
         row.id ||= `freeSpin-${index + 1}`;
       });
@@ -1419,7 +1524,10 @@
               ]
             : [
                 ...common,
-                escapeHtml(conditionSummary(row.condition, type)),
+                escapeHtml(conditionSummary(row.condition, type)).replace(
+                  /\n/g,
+                  "<br>",
+                ),
                 escapeHtml(row.BonusType),
                 escapeHtml(row.Bonus),
                 escapeHtml(row.max_cashout),
@@ -1482,7 +1590,11 @@
         const attrs = `name="${name}" value="${escapeHtml(value)}"${options.required ? " required" : ""}${options.min != null ? ` min="${options.min}"` : ""}${options.step ? ` step="${options.step}"` : ""}`;
         let control;
         if (options.type === "select") {
-          control = `<select name="${name}"${options.required ? " required" : ""}><option value="">请选择</option>${options.values.map((option) => `<option value="${escapeHtml(option)}" ${value === option ? "selected" : ""}>${escapeHtml(option)}</option>`).join("")}</select>`;
+          const legacyOption =
+            options.preserveUnknown && value && !options.values.includes(value)
+              ? `<option value="${escapeHtml(value)}" selected>${escapeHtml(value)}（原值）</option>`
+              : "";
+          control = `<select name="${name}"${options.required ? " required" : ""}><option value="">请选择</option>${legacyOption}${options.values.map((option) => `<option value="${escapeHtml(option)}" ${value === option ? "selected" : ""}>${escapeHtml(option)}</option>`).join("")}</select>`;
         } else if (options.type === "multiselect") {
           const selected = Array.isArray(value) ? value : [];
           const summary = selected.length
@@ -1608,6 +1720,7 @@
             required: true,
             type: "select",
             values: sceneTypes,
+            preserveUnknown: true,
           }),
         ];
         if (isFreeSpin) {
