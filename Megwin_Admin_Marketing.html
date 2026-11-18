@@ -668,18 +668,6 @@
         font: inherit;
       }
 
-      .daily-deposit-control {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 12px;
-      }
-
-      .daily-deposit-control select {
-        width: auto;
-        min-width: 130px;
-      }
-
       .toast {
         position: fixed;
         right: 18px;
@@ -987,7 +975,6 @@
           ...sampleDates,
         };
         const customCondition = (text) => ({
-          dailyDeposit: "Disable",
           custom: { enabled: true, text },
         });
         return [
@@ -1001,7 +988,6 @@
             content: "符合条件后补发 FreeSpin，奖励 60 次。",
             freespin_cnt: "60",
             condition: {
-              dailyDeposit: "Disable",
               betCount: { enabled: true, type: "All", count: "1" },
               betInactivity: { enabled: true, minutes: "30" },
               freespinCount: { enabled: true, value: "0" },
@@ -1016,7 +1002,6 @@
             content: "符合条件后补发 FreeSpin，奖励 60 次。",
             freespin_cnt: "60",
             condition: {
-              dailyDeposit: "Disable",
               betCount: { enabled: true, type: "All", count: "1" },
               betInactivity: { enabled: true, minutes: "30" },
               freespinCount: { enabled: true, value: "0" },
@@ -1046,7 +1031,6 @@
             send_immediately: false,
             send_time: "18:00",
             condition: {
-              dailyDeposit: "Disable",
               firstDeposit: { enabled: true },
               betCount: { enabled: true, type: "All", count: "1" },
               freespinCount: { enabled: true, value: "0" },
@@ -1086,7 +1070,6 @@
             content: `${range}，FreeSpin ${tier.spins} 次。`,
             freespin_cnt: String(tier.spins),
             condition: {
-              dailyDeposit: "Disable",
               lossRanges: {
                 enabled: true,
                 ranges:
@@ -1686,16 +1669,15 @@
 
       function conditionSummary(condition = {}, type) {
         const entries = [];
-        const dailyEnabled = condition.dailyDeposit === "Enable";
         if (condition.firstDeposit?.enabled) {
           entries.push("首充");
         }
-        if (dailyEnabled && condition.singleDeposit?.enabled) {
+        if (condition.singleDeposit?.enabled) {
           entries.push(
             `单笔充值 ≥ ${condition.singleDeposit.amount}，充值次数 ${condition.singleDeposit.rewards} 次`,
           );
         }
-        if (dailyEnabled && condition.cumulativeDeposit?.enabled) {
+        if (condition.cumulativeDeposit?.enabled) {
           entries.push(
             `累计充值 ≥ ${condition.cumulativeDeposit.amount}，充值次数 ${condition.cumulativeDeposit.rewards} 次`,
           );
@@ -1772,7 +1754,6 @@
 
       function conditionDefaults(condition = {}, type) {
         return {
-          dailyDeposit: condition.dailyDeposit || "Disable",
           firstDeposit: condition.firstDeposit || { enabled: false },
           singleDeposit: condition.singleDeposit || {
             enabled: false,
@@ -1819,10 +1800,8 @@
         label,
         checked,
         controls,
-        dailyDeposit = false,
       ) {
-        const dailyAttr = dailyDeposit ? " data-daily-deposit-condition" : "";
-        return `<div class="condition-item"${dailyAttr}><label><input type="checkbox" name="condition_${key}_enabled" data-condition-toggle ${checked ? "checked" : ""}><span>${label}</span></label><div class="condition-controls" data-condition-fields>${controls}</div></div>`;
+        return `<div class="condition-item"><label><input type="checkbox" name="condition_${key}_enabled" data-condition-toggle ${checked ? "checked" : ""}><span>${label}</span></label><div class="condition-controls" data-condition-fields>${controls}</div></div>`;
       }
 
       function conditionFields(condition = {}, type) {
@@ -1835,17 +1814,10 @@
         return `
           <div class="conditions">
             <h3>Condition（先勾选必要条件）</h3>
-            <div class="daily-deposit-control">
-              <span class="field-label">当日充值</span>
-              <select name="dailyDeposit" data-daily-deposit>
-                <option value="Disable" ${value.dailyDeposit === "Disable" ? "selected" : ""}>Disable</option>
-                <option value="Enable" ${value.dailyDeposit === "Enable" ? "selected" : ""}>Enable</option>
-              </select>
-            </div>
             <div class="condition-list">
               ${conditionCheckbox("firstDeposit", "首充", value.firstDeposit.enabled, "")}
-              ${conditionCheckbox("singleDeposit", "单笔充值金额 ≥ N，充值次数 M", value.singleDeposit.enabled, `<span>金额 N</span><input type="number" name="singleDeposit_amount" min="0" step="0.01" value="${escapeHtml(value.singleDeposit.amount)}" placeholder="N"><span>充值次数 M</span><input type="number" name="singleDeposit_rewards" min="1" step="1" value="${escapeHtml(value.singleDeposit.rewards)}" placeholder="M">`, true)}
-              ${conditionCheckbox("cumulativeDeposit", "累计充值金额 ≥ N，充值次数 M", value.cumulativeDeposit.enabled, `<span>金额 N</span><input type="number" name="cumulativeDeposit_amount" min="0" step="0.01" value="${escapeHtml(value.cumulativeDeposit.amount)}" placeholder="N"><span>充值次数 M</span><input type="number" name="cumulativeDeposit_rewards" min="1" step="1" value="${escapeHtml(value.cumulativeDeposit.rewards)}" placeholder="M">`, true)}
+              ${conditionCheckbox("singleDeposit", "单笔充值金额 ≥ N，充值次数 M", value.singleDeposit.enabled, `<span>金额 N</span><input type="number" name="singleDeposit_amount" min="0" step="0.01" value="${escapeHtml(value.singleDeposit.amount)}" placeholder="N"><span>充值次数 M</span><input type="number" name="singleDeposit_rewards" min="1" step="1" value="${escapeHtml(value.singleDeposit.rewards)}" placeholder="M">`)}
+              ${conditionCheckbox("cumulativeDeposit", "累计充值金额 ≥ N，充值次数 M", value.cumulativeDeposit.enabled, `<span>金额 N</span><input type="number" name="cumulativeDeposit_amount" min="0" step="0.01" value="${escapeHtml(value.cumulativeDeposit.amount)}" placeholder="N"><span>充值次数 M</span><input type="number" name="cumulativeDeposit_rewards" min="1" step="1" value="${escapeHtml(value.cumulativeDeposit.rewards)}" placeholder="M">`)}
               ${conditionCheckbox("lossRanges", "当日累计亏损范围 N ≤ 当日累计亏损 &lt; M 或 ≥ N", value.lossRanges.enabled, `<input type="text" name="lossRanges_ranges" value="${escapeHtml(value.lossRanges.ranges)}" placeholder="100&lt;=当日累计亏损&lt;200; 当日累计亏损&gt;=1000">`)}
               ${conditionCheckbox("betCount", "当日投注累计次数 ≥ N", value.betCount.enabled, `<select name="betCount_type">${betTypes.map((option) => `<option ${value.betCount.type === option ? "selected" : ""}>${option}</option>`).join("")}</select><input type="number" name="betCount_count" min="1" step="1" value="${escapeHtml(value.betCount.count)}" placeholder="N">`)}
               ${conditionCheckbox("betAmount", "当日投注累计金额 ≥ N（有效投注金额）", value.betAmount.enabled, `<select name="betAmount_type">${betTypes.map((option) => `<option ${value.betAmount.type === option ? "selected" : ""}>${option}</option>`).join("")}</select><input type="number" name="betAmount_amount" min="0" step="0.01" value="${escapeHtml(value.betAmount.amount)}" placeholder="N">`)}
@@ -1986,56 +1958,33 @@
       }
 
       function syncConditionControls() {
-        const dailyDepositEnabled =
-          form.elements.namedItem("dailyDeposit")?.value === "Enable";
-        form
-          .querySelectorAll("[data-daily-deposit-condition]")
-          .forEach((item) => {
-            const toggle = item.querySelector("[data-condition-toggle]");
-            const enabled = dailyDepositEnabled && toggle.checked;
-            toggle.disabled = !dailyDepositEnabled;
-            item
-              .querySelectorAll(
-                "[data-condition-fields] input, [data-condition-fields] select, [data-condition-fields] textarea",
-              )
-              .forEach((input) => {
-                input.disabled = !enabled;
-                input.required = enabled;
-              });
-          });
-        form
-          .querySelectorAll(
-            ".condition-item:not([data-daily-deposit-condition])",
-          )
-          .forEach((item) => {
-            const toggle = item.querySelector("[data-condition-toggle]");
-            item
-              .querySelectorAll(
-                "[data-condition-fields] input, [data-condition-fields] select, [data-condition-fields] textarea",
-              )
-              .forEach((input) => {
-                input.disabled = !toggle.checked;
-                input.required = toggle.checked;
-              });
-          });
+        form.querySelectorAll(".condition-item").forEach((item) => {
+          const toggle = item.querySelector("[data-condition-toggle]");
+          item
+            .querySelectorAll(
+              "[data-condition-fields] input, [data-condition-fields] select, [data-condition-fields] textarea",
+            )
+            .forEach((input) => {
+              input.disabled = !toggle.checked;
+              input.required = toggle.checked;
+            });
+        });
       }
 
       function readCondition(formData, type, currentCondition = {}) {
         const enabled = (key) =>
           formData.get(`condition_${key}_enabled`) === "on";
-        const dailyDeposit = formData.get("dailyDeposit");
         const rewardValueKey =
           type === "bonus" ? "bonusValue" : "freespinCount";
         const condition = {
-          dailyDeposit,
           firstDeposit: { enabled: enabled("firstDeposit") },
           singleDeposit: {
-            enabled: dailyDeposit === "Enable" && enabled("singleDeposit"),
+            enabled: enabled("singleDeposit"),
             amount: formData.get("singleDeposit_amount") || "",
             rewards: formData.get("singleDeposit_rewards") || "",
           },
           cumulativeDeposit: {
-            enabled: dailyDeposit === "Enable" && enabled("cumulativeDeposit"),
+            enabled: enabled("cumulativeDeposit"),
             amount: formData.get("cumulativeDeposit_amount") || "",
             rewards: formData.get("cumulativeDeposit_rewards") || "",
           },
@@ -2255,10 +2204,7 @@
       });
 
       form.addEventListener("change", (event) => {
-        if (
-          event.target.matches("[data-condition-toggle]") ||
-          event.target.matches("[data-daily-deposit]")
-        ) {
+        if (event.target.matches("[data-condition-toggle]")) {
           syncConditionControls();
         }
         if (
