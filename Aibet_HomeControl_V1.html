@@ -2652,6 +2652,16 @@
         gap: 10px;
         flex-wrap: wrap;
       }
+      .game-bind-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .game-bind-actions #importTagGamesBtn {
+        border: 1px solid #2f88f5;
+        background: #fff;
+        color: #2f88f5;
+      }
       .game-bind-title h1 {
         font-size: 21px;
         margin: 0;
@@ -12594,6 +12604,7 @@
             id: g.id || master?.id || `LEGACY-${index + 1}`,
             provider: g.provider || master?.provider || g.vendor || "-",
             vendor: g.vendor || master?.vendor || g.provider || "-",
+            code: g.code || g.gameCode || master?.code || "",
             name: g.name || master?.name || "Game",
             type: g.type || master?.type || "SLOT",
             logo_url:
@@ -12650,7 +12661,11 @@
 								<h1>Tags: ${escapeHtml(row.name)}</h1><div class="game-bind-meta">Lobby: ${escapeHtml(row.lobbyName)} · Country: ${escapeHtml(row.country)}</div>
 							</div>
 						</div>
-						<button class="btn" id="openAddGamesBtn" type="button">+ Add games</button>
+						<div class="game-bind-actions">
+							<button class="btn" id="importTagGamesBtn" type="button">Import games</button>
+							<input id="importTagGamesFile" type="file" accept=".csv,text/csv" hidden>
+							<button class="btn" id="openAddGamesBtn" type="button">+ Add games</button>
+						</div>
 					</div>
 					<div class="game-bind-filter">
 						<div class="game-bind-field"><label>Game Name</label><input id="bindGameName" value="${escapeHtml(gameBindFilters.name)}" placeholder="Please enter"></div>
@@ -12873,6 +12888,170 @@
       if (code) return `code:${code}`;
       return `id:${String(g?.id || g?.gameId || "").trim()}`;
     }
+    function parseGameImportCsv(csv) {
+      const records = [];
+      let record = [];
+      let value = "";
+      let quoted = false;
+      for (let index = 0; index < csv.length; index += 1) {
+        const char = csv[index];
+        if (quoted) {
+          if (char === '"' && csv[index + 1] === '"') {
+            value += '"';
+            index += 1;
+          } else if (char === '"') {
+            quoted = false;
+          } else {
+            value += char;
+          }
+        } else if (char === '"' && value.length === 0) {
+          quoted = true;
+        } else if (char === ",") {
+          record.push(value.trim());
+          value = "";
+        } else if (char === "\n" || char === "\r") {
+          if (char === "\r" && csv[index + 1] === "\n") index += 1;
+          record.push(value.trim());
+          if (record.some((field) => field !== "")) records.push(record);
+          record = [];
+          value = "";
+        } else {
+          value += char;
+        }
+      }
+      if (quoted) throw new Error("CSV contains an unclosed quoted field.");
+      record.push(value.trim());
+      if (record.some((field) => field !== "")) records.push(record);
+      if (records.length < 2) throw new Error("CSV has no game rows.");
+
+      const headers = records[0].map((header) =>
+        header.replace(/^\uFEFF/, "").trim().toLowerCase(),
+      );
+      const requiredHeaders = [
+        "gameid",
+        "gamename",
+        "gamecode",
+        "provider",
+        "vendor",
+      ];
+      const columns = Object.fromEntries(
+        requiredHeaders.map((header) => [header, headers.indexOf(header)]),
+      );
+      const missingHeaders = requiredHeaders.filter(
+        (header) => columns[header] < 0,
+      );
+      if (missingHeaders.length)
+        throw new Error(`Missing columns: ${missingHeaders.join(", ")}.`);
+      return records.slice(1).map((fields, index) => ({
+        rowNumber: index + 2,
+        id: fields[columns.gameid] || "",
+        name: fields[columns.gamename] || "",
+        code: fields[columns.gamecode] || "",
+        provider: fields[columns.provider] || "",
+        vendor: fields[columns.vendor] || "",
+      }));
+    }
+    function findImportedGameMatch(row, imported) {
+      const id = imported.id.trim().toLowerCase();
+      const code = imported.code.trim().toLowerCase();
+      return (
+        row.games.find(
+          (game) =>
+            id &&
+            String(game.id || game.gameId || game.gameID || "")
+              .trim()
+              .toLowerCase() === id,
+        ) ||
+        row.games.find(
+          (game) =>
+            code &&
+            String(game.code || game.gameCode || "")
+              .trim()
+              .toLowerCase() === code,
+        )
+      );
+    }
+    async function importTagGames(file) {
+      const row = currentGameTag();
+      if (!row) {
+        toast("Tags data not found");
+        return;
+      }
+      let importedRows;
+      try {
+        importedRows = parseGameImportCsv(await file.text());
+      } catch (error) {
+        toast(`Import failed: ${error.message}`);
+        return;
+      }
+
+      let added = 0;
+      let updated = 0;
+      const invalidRows = [];
+      row.games = Array.isArray(row.games) ? row.games : [];
+      importedRows.forEach((imported) => {
+        if (!imported.id || !imported.name) {
+          invalidRows.push(
+            `row ${imported.rowNumber}: GameID and GameName are required`,
+          );
+          return;
+        }
+        const master = gameData.find(
+          (game) =>
+            String(game.id).trim().toLowerCase() ===
+              imported.id.trim().toLowerCase() ||
+            (imported.code &&
+              String(game.code || "").trim().toLowerCase() ===
+                imported.code.trim().toLowerCase()),
+        );
+        const existing = findImportedGameMatch(row, imported);
+        if (existing) {
+          existing.id = imported.id;
+          existing.name = imported.name;
+          existing.code = imported.code;
+          existing.provider = imported.provider || "-";
+          existing.vendor = imported.vendor || "-";
+          existing.type = existing.type || master?.type || "Slot";
+          existing.logo_url = existing.logo_url || master?.logo_url || "";
+          updated += 1;
+          return;
+        }
+        const maxSort = Math.max(
+          0,
+          ...row.games.map((game) => Number(game.sort) || 0),
+        );
+        row.games.push({
+          id: imported.id,
+          name: imported.name,
+          code: imported.code,
+          provider: imported.provider || "-",
+          vendor: imported.vendor || "-",
+          type: master?.type || "Slot",
+          logo_url: master?.logo_url || "",
+          sort: maxSort + 1,
+        });
+        added += 1;
+      });
+
+      if (!added && !updated) {
+        toast(
+          invalidRows.length
+            ? `Import failed: ${invalidRows[0]}`
+            : "No games were imported",
+        );
+        return;
+      }
+      normalizeTagGames(row);
+      saveBoundGames();
+      gameBindPage = 1;
+      rerenderGameBinding();
+      const skippedMessage = invalidRows.length
+        ? `; ${invalidRows.length} row(s) skipped`
+        : "";
+      toast(`Import complete: ${added} added, ${updated} updated${skippedMessage}`);
+      if (invalidRows.length)
+        console.warn("Skipped invalid imported game rows:", invalidRows);
+    }
     function dynamicGameValues(field) {
       return [
         ...new Set(
@@ -12995,6 +13174,10 @@
         openAddGames();
         return;
       }
+      if (e.target.closest("#importTagGamesBtn")) {
+        document.getElementById("importTagGamesFile")?.click();
+        return;
+      }
       const removeOne = e.target.closest("[data-remove-bound-game]");
       if (removeOne) {
         confirmRemoveBoundGames([removeOne.dataset.removeBoundGame]);
@@ -13029,6 +13212,19 @@
     });
     document.getElementById("adminContent").addEventListener("change", (e) => {
       if (!activeGameTagId) return;
+      if (e.target.id === "importTagGamesFile") {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        void importTagGames(file)
+          .catch((error) => {
+            console.error("Unable to import Tags games:", error);
+            toast(`Import failed: ${error.message || "Unable to process file"}`);
+          })
+          .finally(() => {
+            e.target.value = "";
+          });
+        return;
+      }
       if (e.target.id === "bindPageSize") {
         gameBindPageSize = Number(e.target.value) || 10;
         gameBindPage = 1;
