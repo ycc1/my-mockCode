@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="ETH/USDT 永續合約公開行情與技術指標展示" />
+    <title>ETH/USDT 行情中心</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">MEGWIN MARKET WATCH</p>
+          <h1>ETH <span>/ USDT</span></h1>
+          <p class="subtitle">Binance USDⓈ-M 永續合約・只讀公開行情</p>
+        </div>
+        <div class="hero-actions">
+          <span class="live" id="liveStatus"><i></i>資料載入中</span>
+          <button id="refreshButton" type="button">重新整理</button>
+        </div>
+      </header>
+
+      <section class="quote-card panel">
+        <div>
+          <p class="label">最新合約成交價</p>
+          <div class="price-line">
+            <strong id="price">—</strong>
+            <span>USDT</span>
+          </div>
+          <div class="quote-time" id="quoteTime">等待資料</div>
+        </div>
+        <div class="signal" id="signalCard">
+          <p class="label">規則方向</p>
+          <b id="direction">—</b>
+          <span id="score">非勝率分數 —</span>
+        </div>
+        <div class="change-grid">
+          <div><span>24H</span><b id="change24h">—</b></div>
+          <div><span>5M</span><b id="change5m">—</b></div>
+          <div><span>1M 量比</span><b id="volumeRatio">—</b></div>
+        </div>
+      </section>
+
+      <div class="notice" id="notice" hidden></div>
+
+      <section class="dashboard">
+        <article class="panel analysis-panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">MARKET STRUCTURE</p>
+              <h2>技術面概覽</h2>
+            </div>
+            <span class="muted">已收盤 K 線</span>
+          </div>
+          <div class="indicator-table" id="indicatorTable"></div>
+          <div class="level-grid">
+            <div><span>近 20 根 15M 支撐</span><b id="support">—</b></div>
+            <div><span>近 20 根 15M 阻力</span><b id="resistance">—</b></div>
+          </div>
+        </article>
+
+        <article class="panel flow-panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">DERIVATIVES FLOW</p>
+              <h2>合約與資金</h2>
+            </div>
+          </div>
+          <div class="metric-list">
+            <div><span>OI 名目</span><b id="oi">—</b></div>
+            <div><span>OI 1H 變化</span><b id="oiChange">—</b></div>
+            <div><span>多方帳戶</span><b id="longRatio">—</b></div>
+            <div><span>空方帳戶</span><b id="shortRatio">—</b></div>
+            <div><span>資金費率</span><b id="funding">—</b></div>
+            <div><span>下次資金費</span><b id="nextFunding">—</b></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="dashboard lower">
+        <article class="panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">ORDER FLOW</p>
+              <h2>主動買賣差</h2>
+            </div>
+          </div>
+          <div class="flow-bars">
+            <div>
+              <span>1H 期貨</span><b id="futures1h">—</b>
+              <i id="futures1hBar"></i>
+            </div>
+            <div>
+              <span>4H 期貨</span><b id="futures4h">—</b>
+              <i id="futures4hBar"></i>
+            </div>
+            <div>
+              <span>1H 現貨</span><b id="spot1h">—</b>
+              <i id="spot1hBar"></i>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel decision-panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">RULE CHECK</p>
+              <h2>交易參考</h2>
+            </div>
+          </div>
+          <p class="condition" id="condition">等待市場資料</p>
+          <div class="trade-levels">
+            <div><span>參考</span><b id="entry">—</b></div>
+            <div><span>止損</span><b id="stop">—</b></div>
+            <div><span>目標</span><b id="target">—</b></div>
+          </div>
+          <ul id="reasons"></ul>
+        </article>
+      </section>
+
+      <footer>
+        <span>每 15 秒更新一次・資料可能因交易所/API 延遲</span>
+        <strong>僅供行情觀察，不是自動交易或獲利保證。</strong>
+      </footer>
+    </main>
+    <script src="/app.js" defer></script>
+  </body>
+</html>

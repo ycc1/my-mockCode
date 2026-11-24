@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta content="width=device-width,initial-scale=1" name="viewport" />
-    <title>Aibet Content Center</title>
+    <title>Megwin Content Center</title>
     <style id="aibet-consolidated-style">
       /* =========================================================
 			Consolidated stylesheet section 1
@@ -424,6 +424,37 @@
       .preview img {
         max-width: 100%;
         max-height: 180px;
+      }
+      .casino-preview-item {
+        border: 1px solid #ddd;
+        padding: 10px 14px;
+        border-radius: 6px;
+        min-width: 120px;
+        background: #fff;
+        color: #18212f;
+        cursor: pointer;
+        transition: color 0.2s, border-color 0.2s, background 0.2s;
+      }
+      .casino-preview-item.is-selected {
+        color: #1769e0;
+        border-color: #1769e0;
+        background: #edf4ff;
+      }
+      .casino-preview-item img {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+        margin-bottom: 6px;
+      }
+      .casino-preview-item b {
+        display: block;
+      }
+      .casino-preview-result {
+        margin-bottom: 14px;
+        padding: 18px;
+        border: 1px solid #1769e0;
+        border-radius: 8px;
+        background: #edf4ff;
       }
       .toast {
         position: fixed;
@@ -1719,97 +1750,139 @@
       .lobby-filter {
         background: #fff;
         border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 16px 18px;
-        margin-bottom: 14px;
-        box-shadow: var(--shadow);
+        border-radius: 6px;
+        padding: 10px;
+        margin-bottom: 8px;
       }
       .lobby-filter-grid {
         display: flex;
         align-items: flex-end;
-        gap: 12px;
+        gap: 8px;
         flex-wrap: wrap;
       }
       .lobby-field {
         display: flex;
         flex-direction: column;
-        gap: 6px;
-        min-width: 220px;
+        gap: 4px;
+        min-width: 185px;
       }
       .lobby-field label {
-        font-size: 13px;
-        font-weight: 800;
+        font-size: 12px;
+        font-weight: 500;
         color: #344054;
       }
       .lobby-field input,
       .lobby-field select {
-        height: 38px;
+        height: 28px;
         border: 1px solid #d6deeb;
-        border-radius: 7px;
+        border-radius: 4px;
         background: #fff;
-        padding: 0 10px;
-        font-size: 14px;
+        padding: 0 8px;
+        font-size: 12px;
       }
       .lobby-filter-actions {
         display: flex;
-        gap: 8px;
+        align-items: center;
+        gap: 6px;
+        flex: 1 1 100%;
+      }
+      .lobby-filter-actions .btn {
+        padding: 6px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+      .lobby-filter-actions #lobbySearchBtn {
+        background: #2f88f5 !important;
+        border-color: #2f88f5 !important;
+      }
+      .lobby-filter-actions #lobbyResetBtn {
+        background: #f5b900 !important;
+        border-color: #f5b900 !important;
+        color: #fff !important;
+      }
+      .lobby-filter-actions #lobbyAddBtn {
         margin-left: auto;
+        background: #27c56b !important;
+        border-color: #27c56b !important;
       }
       .lobby-card {
         background: #fff;
         border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 16px 18px;
-        box-shadow: var(--shadow);
+        border-radius: 6px;
+        padding: 0 0 8px;
       }
       .lobby-card-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        margin-bottom: 14px;
+        display: none;
       }
       .lobby-card-head h2 {
-        font-size: 18px;
-        margin: 0;
+        display: none;
       }
       .lobby-table-wrap {
         overflow: auto;
       }
       .lobby-table {
         width: 100%;
-        min-width: 900px;
+        min-width: 720px;
+        table-layout: fixed;
         border-collapse: collapse;
-        font-size: 14px;
+        font-size: 12px;
       }
+      .lobby-table th:nth-child(1),
+      .lobby-table td:nth-child(1) { width: 5%; }
+      .lobby-table th:nth-child(2),
+      .lobby-table td:nth-child(2) { width: 25%; }
+      .lobby-table th:nth-child(3),
+      .lobby-table td:nth-child(3) { width: 18%; }
+      .lobby-table th:nth-child(4),
+      .lobby-table td:nth-child(4) { width: 8%; }
+      .lobby-table th:nth-child(5),
+      .lobby-table td:nth-child(5) { width: 44%; }
       .lobby-table th,
       .lobby-table td {
-        padding: 12px 12px;
-        border-bottom: 1px solid #edf0f3;
-        text-align: left;
+        height: 50px;
+        padding: 6px 8px;
+        border: 1px solid #dfe5ef;
+        text-align: center;
         white-space: nowrap;
       }
       .lobby-table th {
+        height: 44px;
+        background: #f8fafc;
+        color: #101828;
+        font-weight: 700;
+      }
+      .lobby-table td:nth-child(2) {
+        text-align: left;
+      }
+      .lobby-table tbody tr:nth-child(even) {
         background: #f8fbff;
-        color: #344054;
-        font-weight: 900;
+      }
+      .lobby-table .status-switch-text {
+        display: none;
       }
       .lobby-actions {
         display: flex;
-        gap: 12px;
+        justify-content: center;
+        gap: 7px;
         align-items: center;
       }
       .lobby-action {
-        border: 0;
-        background: transparent;
-        padding: 0;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        background: #d7e8ff;
+        padding: 6px 8px;
         color: #1677ff;
-        font-size: 13px;
-        font-weight: 800;
+        font-size: 11px;
+        font-weight: 500;
         cursor: pointer;
       }
+      .lobby-action[data-lobby-action="tags"] {
+        background: #2f88f5;
+        color: #fff;
+      }
       .lobby-action.delete {
-        color: #d92d20;
+        background: #ffeded;
+        color: #f04452;
       }
       .lobby-action:disabled {
         color: #98a2b3;
@@ -1848,27 +1921,27 @@
         display: flex;
       }
       .lobby-modal {
-        width: min(600px, 100%);
+        width: min(560px, 100%);
         max-height: 90vh;
         background: #fff;
-        border-radius: 12px;
+        border-radius: 6px;
         box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25);
         overflow: hidden;
         display: flex;
         flex-direction: column;
       }
       .lobby-modal-head {
-        height: 54px;
+        height: 40px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 18px;
+        padding: 0 14px;
         border-bottom: 1px solid var(--border);
         background: #fbfdff;
       }
       .lobby-modal-head h3 {
         margin: 0;
-        font-size: 18px;
+        font-size: 15px;
       }
       .lobby-modal-close {
         border: 0;
@@ -1878,7 +1951,7 @@
         cursor: pointer;
       }
       .lobby-modal-body {
-        padding: 18px;
+        padding: 14px;
         overflow: auto;
       }
       .lobby-form-grid {
@@ -1895,30 +1968,79 @@
         grid-column: 1/-1;
       }
       .lobby-form-field label {
-        font-size: 13px;
-        font-weight: 900;
+        font-size: 12px;
+        font-weight: 500;
         color: #344054;
       }
       .lobby-form-field input,
       .lobby-form-field select {
-        height: 40px;
+        height: 34px;
         border: 1px solid #d6deeb;
-        border-radius: 8px;
+        border-radius: 4px;
         background: #fff;
         padding: 0 10px;
-        font-size: 14px;
+        font-size: 12px;
       }
       .lobby-form-field input[readonly] {
-        background: #f5f7fa;
-        color: #667085;
+        background: #fff;
+        color: #344054;
+        border-style: dashed;
       }
       .lobby-modal-foot {
         display: flex;
         justify-content: flex-end;
         gap: 10px;
-        padding: 12px 18px;
+        padding: 8px 14px;
         border-top: 1px solid var(--border);
         background: #fbfdff;
+      }
+      .lobby-required {
+        color: #f04452;
+        font-weight: 700;
+      }
+      .lobby-pg-footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 8px 10px 0;
+        color: #101828;
+        font-size: 11px;
+        white-space: nowrap;
+      }
+      .lobby-pg-footer label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .lobby-pg-footer select,
+      .lobby-pg-footer input {
+        height: 27px;
+        border: 1px solid #d6deeb;
+        border-radius: 4px;
+        background: #fff;
+        padding: 0 7px;
+        font-size: 11px;
+      }
+      .lobby-pg-footer input {
+        width: 54px;
+      }
+      .lobby-pager {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .lobby-pager .pg-page {
+        min-width: 24px;
+        height: 26px;
+        border: 0;
+        border-radius: 3px;
+        color: #2f88f5;
+        font-size: 11px;
+      }
+      .lobby-pager .pg-page.active {
+        background: #2f88f5;
+        color: #fff;
       }
       .lobby-tags {
         display: flex;
@@ -1941,17 +2063,20 @@
       }
       @media (max-width: 700px) {
         .lobby-filter-grid {
-          align-items: stretch;
-          flex-direction: column;
+          align-items: flex-start;
         }
         .lobby-field {
-          min-width: 100%;
+          min-width: min(100%, 220px);
         }
         .lobby-filter-actions {
-          margin-left: 0;
+          flex-wrap: wrap;
         }
         .lobby-form-grid {
           grid-template-columns: 1fr;
+        }
+        .lobby-pg-footer {
+          justify-content: flex-start;
+          white-space: normal;
         }
       }
 
@@ -1959,104 +2084,222 @@
       .tags-filter {
         background: #fff;
         border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 16px 18px;
-        margin-bottom: 14px;
-        box-shadow: var(--shadow);
+        border-radius: 6px;
+        padding: 10px;
+        margin-bottom: 8px;
       }
       .tags-filter-grid {
-        display: flex;
-        align-items: flex-end;
-        gap: 12px;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(140px, 180px));
+        gap: 8px;
       }
       .tags-field {
         display: flex;
         flex-direction: column;
-        gap: 6px;
-        min-width: 190px;
+        gap: 4px;
+        min-width: 0;
       }
       .tags-field.wide {
-        min-width: 240px;
+        min-width: 0;
       }
       .tags-field label {
-        font-size: 13px;
-        font-weight: 800;
+        font-size: 12px;
+        font-weight: 500;
         color: #344054;
       }
       .tags-field input,
       .tags-field select {
-        height: 38px;
+        height: 27px;
         border: 1px solid #d6deeb;
-        border-radius: 7px;
+        border-radius: 4px;
         background: #fff;
-        padding: 0 10px;
-        font-size: 14px;
+        padding: 0 8px;
+        font-size: 12px;
       }
       .tags-filter-actions {
         display: flex;
-        gap: 8px;
-        margin-left: auto;
+        gap: 6px;
+        grid-column: 1 / -1;
+        align-items: center;
+      }
+      .tags-filter-actions .btn,
+      .tags-card-head .btn,
+      .game-bind-head > .btn {
+        padding: 6px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+      #tagsPageRoot > .page-title {
+        font-size: 18px;
+        margin-bottom: 8px;
+      }
+      .tags-filter-actions .tags-reset-btn,
+      .game-bind-filter-actions .tags-reset-btn {
+        background: #f5b900 !important;
+        border-color: #f5b900 !important;
+        color: #fff !important;
+      }
+      .tags-filter-actions #tagsSearchBtn,
+      .game-bind-filter-actions #bindGameSearch,
+      .game-bind-filter-actions #gameAddSearch,
+      .game-bind-head #openAddGamesBtn {
+        background: #2f88f5 !important;
+        border-color: #2f88f5 !important;
+        color: #fff !important;
+      }
+      .tags-card-head .btn {
+        background: #27c56b !important;
+        border-color: #27c56b !important;
+        color: #fff !important;
       }
       .tags-card {
         background: #fff;
         border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 16px 18px;
-        box-shadow: var(--shadow);
+        border-radius: 6px;
+        padding: 0 0 8px;
       }
       .tags-card-head {
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        justify-content: flex-end;
         gap: 12px;
-        margin-bottom: 14px;
+        margin: -38px 6px 6px 0;
+        height: 32px;
+        position: relative;
+        pointer-events: none;
       }
       .tags-card-head h2 {
-        font-size: 18px;
-        margin: 0;
+        display: none;
+      }
+      .tags-card-head .btn {
+        pointer-events: auto;
+        padding: 6px 10px;
+        font-size: 12px;
       }
       .tags-table-wrap {
         overflow: auto;
       }
       .tags-table {
         width: 100%;
-        min-width: 1120px;
+        min-width: 720px;
+        table-layout: fixed;
         border-collapse: collapse;
-        font-size: 14px;
+        font-size: 12px;
       }
+      .tags-table th:nth-child(1),
+      .tags-table td:nth-child(1) { width: 5%; }
+      .tags-table th:nth-child(2),
+      .tags-table td:nth-child(2) { width: 7%; }
+      .tags-table th:nth-child(3),
+      .tags-table td:nth-child(3) { width: 15%; }
+      .tags-table th:nth-child(4),
+      .tags-table td:nth-child(4) { width: 13%; }
+      .tags-table th:nth-child(5),
+      .tags-table td:nth-child(5) { width: 20%; }
+      .tags-table th:nth-child(6),
+      .tags-table td:nth-child(6) { width: 10%; }
+      .tags-table th:nth-child(7),
+      .tags-table td:nth-child(7) { width: 5%; }
+      .tags-table th:nth-child(8),
+      .tags-table td:nth-child(8) { width: 25%; }
       .tags-table th,
       .tags-table td {
-        padding: 12px;
-        border-bottom: 1px solid #edf0f3;
-        text-align: left;
+        height: 50px;
+        padding: 6px 8px;
+        border: 1px solid #dfe5ef;
+        text-align: center;
         white-space: nowrap;
       }
       .tags-table th {
+        height: 44px;
+        background: #f8fafc;
+        color: #101828;
+        font-weight: 700;
+      }
+      .tags-table td:nth-child(3),
+      .tags-table td:nth-child(4) {
+        text-align: left;
+      }
+      .tags-table tbody tr:nth-child(even) {
         background: #f8fbff;
-        color: #344054;
-        font-weight: 900;
       }
       .tags-actions {
         display: flex;
-        gap: 12px;
+        justify-content: center;
+        gap: 7px;
         align-items: center;
       }
       .tags-action {
-        border: 0;
-        background: transparent;
-        padding: 0;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        background: #d7e8ff;
+        padding: 5px 6px;
         color: #1677ff;
-        font-size: 13px;
-        font-weight: 800;
+        font-size: 10px;
+        font-weight: 500;
         cursor: pointer;
       }
+      .tags-action[data-tags-action="games"] {
+        background: #2f88f5;
+        color: #fff;
+      }
       .tags-action.delete {
-        color: #d92d20;
+        background: #ffeded;
+        color: #f04452;
+      }
+      .tags-action.delete {
+        border-color: #ffeded;
       }
       .tags-action:disabled {
         color: #98a2b3;
         cursor: not-allowed;
+      }
+      .tags-table .status-switch-text {
+        display: none;
+      }
+      .tags-pg-footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 8px 10px 0;
+        color: #101828;
+        font-size: 11px;
+        white-space: nowrap;
+      }
+      .tags-pg-footer label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .tags-pg-footer .pg-size,
+      .tags-goto {
+        height: 27px;
+        border: 1px solid #d6deeb;
+        border-radius: 4px;
+        background: #fff;
+        padding: 0 7px;
+        font-size: 11px;
+      }
+      .tags-pager {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .tags-pager .pg-page {
+        min-width: 24px;
+        height: 26px;
+        border: 0;
+        border-radius: 3px;
+        color: #2f88f5;
+        font-size: 11px;
+      }
+      .tags-pager .pg-page.active {
+        background: #2f88f5;
+        color: #fff;
+      }
+      .tags-goto {
+        width: 54px;
       }
       .tags-status {
         display: inline-flex;
@@ -2078,13 +2321,12 @@
         color: #c62828;
       }
       .tags-layout {
-        display: inline-flex;
-        border-radius: 6px;
-        background: #eef6ff;
-        color: #1677ff;
-        font-weight: 800;
-        font-size: 12px;
-        padding: 5px 8px;
+        display: inline;
+        background: transparent;
+        color: inherit;
+        font-weight: 400;
+        font-size: inherit;
+        padding: 0;
       }
       .tags-modal-mask {
         position: fixed;
@@ -2100,27 +2342,27 @@
         display: flex;
       }
       .tags-modal {
-        width: min(680px, 100%);
+        width: min(640px, 100%);
         max-height: 90vh;
         background: #fff;
-        border-radius: 12px;
+        border-radius: 6px;
         box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25);
         overflow: hidden;
         display: flex;
         flex-direction: column;
       }
       .tags-modal-head {
-        height: 54px;
+        height: 40px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 18px;
+        padding: 0 14px;
         border-bottom: 1px solid var(--border);
         background: #fbfdff;
       }
       .tags-modal-head h3 {
         margin: 0;
-        font-size: 18px;
+        font-size: 15px;
       }
       .tags-modal-close {
         border: 0;
@@ -2130,7 +2372,7 @@
         cursor: pointer;
       }
       .tags-modal-body {
-        padding: 18px;
+        padding: 14px;
         overflow: auto;
       }
       .tags-form-grid {
@@ -2147,30 +2389,52 @@
         grid-column: 1/-1;
       }
       .tags-form-field label {
-        font-size: 13px;
-        font-weight: 900;
+        font-size: 12px;
+        font-weight: 500;
         color: #344054;
       }
       .tags-form-field input,
-      .tags-form-field select {
-        height: 40px;
+      .tags-form-field select,
+      .tags-form-field textarea {
+        height: 34px;
         border: 1px solid #d6deeb;
-        border-radius: 8px;
+        border-radius: 4px;
         background: #fff;
         padding: 0 10px;
-        font-size: 14px;
+        font-size: 12px;
+      }
+      .tags-form-field textarea {
+        height: 56px;
+        padding: 8px 10px;
+        resize: vertical;
       }
       .tags-form-field input[readonly] {
-        background: #f5f7fa;
-        color: #667085;
+        background: #fff;
+        color: #344054;
+        border-style: dashed;
       }
       .tags-modal-foot {
         display: flex;
         justify-content: flex-end;
         gap: 10px;
-        padding: 12px 18px;
+        padding: 8px 14px;
         border-top: 1px solid var(--border);
         background: #fbfdff;
+      }
+      .tags-required {
+        color: #f04452;
+        font-weight: 700;
+      }
+      .tags-pending-note {
+        display: block;
+        margin-top: 3px;
+        color: #b54708;
+        font-size: 10px;
+        white-space: normal;
+      }
+      .tags-field-hint {
+        color: #667085;
+        font-size: 11px;
       }
       .tags-game-table {
         width: 100%;
@@ -2204,18 +2468,22 @@
       }
       @media (max-width: 760px) {
         .tags-filter-grid {
-          align-items: stretch;
-          flex-direction: column;
+          grid-template-columns: 1fr 1fr;
         }
         .tags-field,
         .tags-field.wide {
-          min-width: 100%;
+          min-width: 0;
         }
         .tags-filter-actions {
           margin-left: 0;
         }
         .tags-form-grid {
           grid-template-columns: 1fr;
+        }
+        .tags-card-head {
+          margin-top: 6px;
+          height: auto;
+          min-height: 32px;
         }
       }
 
@@ -2239,27 +2507,25 @@
         display: block;
       }
       .tags-icon-upload {
-        border: 1px dashed #b8c7dc;
-        border-radius: 10px;
-        background: #fafcff;
-        padding: 12px;
+        border-bottom: 1px solid #101828;
+        padding: 4px 0 10px;
         display: flex;
         align-items: center;
-        gap: 14px;
+        gap: 12px;
         flex-wrap: wrap;
       }
       .tags-icon-preview {
-        width: 96px;
-        height: 96px;
+        width: 64px;
+        height: 64px;
         border: 1px solid #d6deeb;
-        border-radius: 10px;
-        background: #f3f7fb;
+        border-radius: 6px;
+        background: #fff;
         display: grid;
         place-items: center;
         overflow: hidden;
         color: #98a2b3;
-        font-size: 13px;
-        flex: 0 0 96px;
+        font-size: 11px;
+        flex: 0 0 64px;
       }
       .tags-icon-preview img {
         width: 100%;
@@ -2270,21 +2536,30 @@
       .tags-icon-controls {
         display: flex;
         flex-direction: column;
-        gap: 8px;
-        min-width: 240px;
+        gap: 5px;
+        min-width: 180px;
         flex: 1;
       }
       .tags-icon-controls input[type="file"] {
+        width: 100%;
         height: auto;
-        border: 1px solid #d6deeb;
-        border-radius: 8px;
-        background: #fff;
-        padding: 8px;
-        font-size: 13px;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        padding: 0;
+        font-size: 12px;
+      }
+      .tags-icon-controls input[type="file"]::file-selector-button {
+        border: 0;
+        background: transparent;
+        color: #12b76a;
+        padding: 4px 0;
+        margin-right: 10px;
+        cursor: pointer;
       }
       .tags-icon-tip {
-        font-size: 12px;
-        color: #667085;
+        font-size: 10px;
+        color: #98a2b3;
         line-height: 1.5;
       }
       .tags-icon-buttons {
@@ -2293,22 +2568,23 @@
         flex-wrap: wrap;
       }
       .tags-icon-remove {
-        border: 1px solid #ffd4d4;
-        background: #fff1f1;
-        color: #d92d20;
-        border-radius: 7px;
-        padding: 7px 11px;
-        font-weight: 800;
+        border: 0;
+        background: transparent;
+        color: #f04452;
+        border-radius: 0;
+        padding: 0;
+        font-size: 12px;
+        font-weight: 500;
         cursor: pointer;
       }
 
       /* Tags Game Binding */
       .game-bind-page {
-        background: #fff;
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        box-shadow: var(--shadow);
-        padding: 16px;
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 0;
       }
       .game-bind-head {
         display: flex;
@@ -2329,12 +2605,13 @@
         margin: 0;
       }
       .game-back {
-        border: 1px solid #d6deeb;
-        background: #fff;
-        color: #344054;
-        border-radius: 7px;
+        border: 0;
+        background: #2f88f5;
+        color: #fff;
+        border-radius: 4px;
         padding: 7px 11px;
-        font-weight: 800;
+        font-size: 12px;
+        font-weight: 500;
         cursor: pointer;
       }
       .game-bind-meta {
@@ -2345,59 +2622,181 @@
       .game-bind-filter {
         display: flex;
         align-items: flex-end;
-        gap: 10px;
+        gap: 8px;
         flex-wrap: wrap;
-        padding: 12px;
-        background: #f8fbff;
-        border: 1px solid #e5edf7;
-        border-radius: 8px;
-        margin-bottom: 12px;
+        padding: 8px 6px;
+        background: #fff;
+        border: 0;
+        border-radius: 4px;
+        margin-bottom: 4px;
       }
       .game-bind-field {
         display: flex;
         flex-direction: column;
-        gap: 5px;
-        min-width: 180px;
+        gap: 4px;
+        min-width: 140px;
       }
       .game-bind-field label {
         font-size: 12px;
-        font-weight: 800;
+        font-weight: 500;
         color: #344054;
       }
       .game-bind-field input,
       .game-bind-field select {
-        height: 36px;
+        height: 28px;
         border: 1px solid #d6deeb;
-        border-radius: 7px;
+        border-radius: 4px;
         background: #fff;
         padding: 0 9px;
-        font-size: 13px;
+        font-size: 12px;
       }
       .game-bind-filter-actions {
         display: flex;
         gap: 8px;
-        margin-left: auto;
+        margin-left: 0;
       }
       .game-bind-table-wrap {
         overflow: auto;
       }
       .game-bind-table {
         width: 100%;
-        min-width: 780px;
+        min-width: 720px;
+        table-layout: fixed;
         border-collapse: collapse;
-        font-size: 14px;
+        font-size: 12px;
       }
+      .game-bind-table th:nth-child(1),
+      .game-bind-table td:nth-child(1) { width: 5%; }
+      .game-bind-table th:nth-child(2),
+      .game-bind-table td:nth-child(2) { width: 7%; }
+      .game-bind-table th:nth-child(3),
+      .game-bind-table td:nth-child(3) { width: 10%; }
+      .game-bind-table th:nth-child(4),
+      .game-bind-table td:nth-child(4) { width: 15%; }
+      .game-bind-table th:nth-child(5),
+      .game-bind-table td:nth-child(5) { width: 15%; }
+      .game-bind-table th:nth-child(6),
+      .game-bind-table td:nth-child(6) { width: 38%; }
+      .game-bind-table th:nth-child(7),
+      .game-bind-table td:nth-child(7) { width: 10%; }
       .game-bind-table th,
       .game-bind-table td {
-        padding: 11px 12px;
-        border-bottom: 1px solid #edf0f3;
-        text-align: left;
+        height: 47px;
+        padding: 6px 8px;
+        border: 1px solid #dfe5ef;
+        text-align: center;
         white-space: nowrap;
       }
       .game-bind-table th {
+        height: 44px;
+        background: #f8fafc;
+        font-weight: 700;
+        color: #101828;
+      }
+      .game-bind-table tbody tr:nth-child(even),
+      .game-add-table tbody tr:nth-child(even) {
         background: #f8fbff;
-        font-weight: 900;
-        color: #344054;
+      }
+      .game-bind-table th:nth-child(6),
+      .game-bind-table td:nth-child(6) {
+        text-align: left;
+      }
+      .game-bind-page .game-bind-head h1 {
+        font-size: 18px;
+        margin: 0;
+      }
+      .game-bind-page .game-bind-title {
+        flex-direction: column-reverse;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .game-bind-page .game-bind-meta {
+        display: none;
+      }
+      .game-bind-page .game-bind-head {
+        margin-bottom: 4px;
+        padding: 7px 0;
+        background: #eff5fc;
+      }
+      .game-bind-bulk {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 2px 6px 8px;
+      }
+      .game-bind-selected {
+        color: #475467;
+        font-size: 12px;
+      }
+      .game-remove-btn,
+      .game-row-remove {
+        border: 0;
+        border-radius: 4px;
+        background: #ffeded;
+        color: #f04452;
+        padding: 7px 10px;
+        font-size: 12px;
+        cursor: pointer;
+      }
+      .game-remove-btn:disabled {
+        opacity: .6;
+        cursor: not-allowed;
+      }
+      .game-bind-page .pg-footer {
+        justify-content: flex-end;
+        gap: 8px;
+        color: #101828;
+        font-size: 11px;
+      }
+      .game-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding: 8px 2px;
+        color: #101828;
+        font-size: 11px;
+      }
+      .game-pagination label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .game-pagination .pg-size,
+      .game-goto {
+        height: 27px;
+        border: 1px solid #d6deeb;
+        border-radius: 4px;
+        background: #fff;
+        padding: 0 7px;
+        font-size: 11px;
+      }
+      .game-pagination .pg-pager {
+        gap: 4px;
+      }
+      .game-pagination .pg-page {
+        min-width: 24px;
+        height: 26px;
+        border: 0;
+        border-radius: 3px;
+        color: #2f88f5;
+        font-size: 11px;
+      }
+      .game-pagination .pg-page.active {
+        background: #2f88f5;
+        color: #fff;
+      }
+      .game-goto {
+        width: 54px;
+      }
+      .game-sort-input {
+        width: 72px;
+        height: 28px;
+        border: 1px solid #d6deeb;
+        border-radius: 4px;
+        padding: 0 8px;
+        font-size: 12px;
       }
       .drag-handle {
         font-size: 20px;
@@ -2476,27 +2875,27 @@
         display: flex;
       }
       .game-add-dialog {
-        width: min(900px, 100%);
+        width: min(1000px, 100%);
         max-height: 90vh;
         background: #fff;
-        border-radius: 12px;
+        border-radius: 6px;
         box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25);
         overflow: hidden;
         display: flex;
         flex-direction: column;
       }
       .game-add-head {
-        height: 54px;
+        height: 40px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 18px;
+        padding: 0 14px;
         border-bottom: 1px solid var(--border);
         background: #fbfdff;
       }
       .game-add-head h3 {
         margin: 0;
-        font-size: 18px;
+        font-size: 15px;
       }
       .game-add-close {
         border: 0;
@@ -2506,7 +2905,7 @@
         cursor: pointer;
       }
       .game-add-body {
-        padding: 16px;
+        padding: 10px 14px;
         overflow: auto;
       }
       .game-add-toolbar {
@@ -2518,21 +2917,44 @@
       }
       .game-add-table {
         width: 100%;
-        min-width: 680px;
+        min-width: 700px;
+        table-layout: fixed;
         border-collapse: collapse;
-        font-size: 14px;
+        font-size: 12px;
       }
+      .game-add-table th:nth-child(1),
+      .game-add-table td:nth-child(1) { width: 5%; }
+      .game-add-table th:nth-child(2),
+      .game-add-table td:nth-child(2) { width: 5%; }
+      .game-add-table th:nth-child(3),
+      .game-add-table td:nth-child(3) { width: 25%; }
+      .game-add-table th:nth-child(4),
+      .game-add-table td:nth-child(4) { width: 40%; }
+      .game-add-table th:nth-child(5),
+      .game-add-table td:nth-child(5) { width: 25%; }
       .game-add-table th,
       .game-add-table td {
-        padding: 10px 12px;
-        border-bottom: 1px solid #edf0f3;
-        text-align: left;
+        height: 47px;
+        padding: 6px 10px;
+        border: 1px solid #dfe5ef;
+        text-align: center;
         white-space: nowrap;
       }
       .game-add-table th {
-        background: #f8fbff;
-        color: #344054;
-        font-weight: 900;
+        height: 44px;
+        background: #f8fafc;
+        color: #101828;
+        font-weight: 700;
+      }
+      .game-add-table td:nth-child(4) {
+        text-align: left;
+      }
+      .game-add-table-wrap {
+        max-height: min(52vh, 480px);
+        overflow: auto;
+      }
+      .game-add-toolbar .game-bind-field {
+        min-width: 140px;
       }
       .game-add-table input[type="checkbox"] {
         width: 16px;
@@ -2571,6 +2993,11 @@
         .game-add-dialog {
           height: 94vh;
           max-height: 94vh;
+        }
+        .tags-pg-footer,
+        .game-pagination {
+          justify-content: flex-start;
+          white-space: normal;
         }
       }
 
@@ -4119,7 +4546,7 @@
         <button class="admin-menu-toggle" id="adminMenuToggle" type="button">
           ☰
         </button>
-        <div class="admin-logo">Aibet</div>
+        <div class="admin-logo">Megwin</div>
       </div>
       <div class="admin-tabs" id="adminTabs"></div>
       <div class="admin-top-spacer"></div>
@@ -4542,15 +4969,27 @@
                 placeholder="请输入前台展示标题"
               />
             </div>
-            <div class="field full">
-              <label> Icon Upload (Optional) </label>
-              <input accept="image/*" id="homepageModuleIcon" type="file" />
-              <div class="preview" id="homepageModuleIconPreview">
-                No image selected
-              </div>
+            <div class="field">
+              <label> Icon Upload - Before Click / Dark Version (Optional) </label>
+              <input accept="image/*" id="homepageModuleIconBeforeDark" type="file" />
+              <div class="preview" id="homepageModuleIconBeforeDarkPreview">No image selected</div>
+            </div>
+            <div class="field">
+              <label> Icon Upload - Before Click / Light Version (Optional) </label>
+              <input accept="image/*" id="homepageModuleIconBeforeLight" type="file" />
+              <div class="preview" id="homepageModuleIconBeforeLightPreview">No image selected</div>
+            </div>
+            <div class="field">
+              <label> Icon Upload - After Click / Dark Version (Optional) </label>
+              <input accept="image/*" id="homepageModuleIconAfterDark" type="file" />
+              <div class="preview" id="homepageModuleIconAfterDarkPreview">No image selected</div>
+            </div>
+            <div class="field">
+              <label> Icon Upload - After Click / Light Version (Optional) </label>
+              <input accept="image/*" id="homepageModuleIconAfterLight" type="file" />
+              <div class="preview" id="homepageModuleIconAfterLightPreview">No image selected</div>
               <div class="aws-tip">
-                上传后由后端存入 AWS；记录值为 AWS URL。本 Demo
-                先以本地预览资料模拟。
+                上传后由后端存入 AWS；未上传的 Icon 前台不展示。
               </div>
             </div>
             <div
@@ -4742,7 +5181,7 @@
     <div class="game-add-mask" id="gameAddMask">
       <div class="game-add-dialog">
         <div class="game-add-head">
-          <h3>Add Games</h3>
+          <h3>Add games</h3>
           <button class="game-add-close" id="gameAddClose" type="button">
             ×
           </button>
@@ -4808,27 +5247,13 @@
         updateBy: "Admin",
       },
       {
-        id: 103,
-        key: "broadcastReceiver",
-        module: "broadcastReceiver",
-        name: "Casino Broadcast Receiver",
-        title: "BroadcastReceiver",
-        icon: "",
-        sort: 3,
-        on: true,
-        createAt: "2026/07/29 10:00:00",
-        createBy: "Admin",
-        updateAt: "2026/07/29 10:00:00",
-        updateBy: "Admin",
-      },
-      {
-        id: 104,
+        id: 110,
         key: "searchBar",
         module: "searchBar",
         name: "Casino Search",
         title: "Search Bar",
         icon: "",
-        sort: 4,
+        sort: 5,
         on: true,
         createAt: "2026/07/29 10:00:00",
         createBy: "Admin",
@@ -4842,7 +5267,7 @@
         name: "Casino Content",
         title: "Content",
         icon: "",
-        sort: 5,
+        sort: 6,
         on: true,
         createAt: "2026/07/29 10:00:00",
         createBy: "Admin",
@@ -4856,7 +5281,7 @@
         name: "Provider Navigation",
         title: "Provider Logo",
         icon: "",
-        sort: 6,
+        sort: 7,
         on: true,
         createAt: "2026/07/29 10:00:00",
         createBy: "Admin",
@@ -4870,7 +5295,7 @@
         name: "Casino Bottom",
         title: "Bottom",
         icon: "",
-        sort: 7,
+        sort: 8,
         on: true,
         createAt: "2026/07/29 10:00:00",
         createBy: "Admin",
@@ -4894,8 +5319,10 @@
           "Actions",
         ],
         fields: [
-          ["iconBefore", "Icon Upload - Before Click", "file"],
-          ["iconAfter", "Icon Upload - After Click", "file"],
+          ["iconBeforeDark", "Icon Upload - Before Click / Dark Version (Optional)", "file"],
+          ["iconBeforeLight", "Icon Upload - Before Click / Light Version (Optional)", "file"],
+          ["iconAfterDark", "Icon Upload - After Click / Dark Version (Optional)", "file"],
+          ["iconAfterLight", "Icon Upload - After Click / Light Version (Optional)", "file"],
           ["name", "Menu Name", "text"],
           ["position", "Position", "select", ["Up", "Down"]],
           ["parentMenu", "Parent Menu", "parent-select"],
@@ -4903,7 +5330,7 @@
             "linkType",
             "Link Type",
             "select",
-            ["Internal Page", "External URL", "Game Category", "Popup"],
+            ["Internal Page", "External URL", "Game Category", "Popup", "Lobby"],
           ],
           ["linkValue", "Link Value", "text"],
           ["device", "Device", "select", ["PC / H5", "PC", "H5"]],
@@ -4926,14 +5353,16 @@
           "Actions",
         ],
         fields: [
-          ["iconDark", "Logo Upload - Dark Version", "file"],
-          ["iconLight", "Logo Upload - Light Version", "file"],
+          ["iconBeforeDark", "Icon Upload - Before Click / Dark Version (Optional)", "file"],
+          ["iconBeforeLight", "Icon Upload - Before Click / Light Version (Optional)", "file"],
+          ["iconAfterDark", "Icon Upload - After Click / Dark Version (Optional)", "file"],
+          ["iconAfterLight", "Icon Upload - After Click / Light Version (Optional)", "file"],
           ["name", "Menu Name", "text"],
           [
             "linkType",
             "Link Type",
             "select",
-            ["Internal Page", "External URL", "Game Category", "Popup"],
+            ["Internal Page", "External URL", "Game Category", "Popup", "Lobby"],
           ],
           ["linkValue", "Link Value", "text"],
           ["device", "Device", "select", ["PC / H5", "PC", "H5"]],
@@ -4979,7 +5408,10 @@
           "Actions",
         ],
         fields: [
-          ["icon", "Icon Upload", "file"],
+          ["iconBeforeDark", "Icon Upload - Before Click / Dark Version (Optional)", "file"],
+          ["iconBeforeLight", "Icon Upload - Before Click / Light Version (Optional)", "file"],
+          ["iconAfterDark", "Icon Upload - After Click / Dark Version (Optional)", "file"],
+          ["iconAfterLight", "Icon Upload - After Click / Light Version (Optional)", "file"],
           ["name", "Title", "text"],
           ["content", "Content", "textarea"],
           ["link", "Link / Route", "text"],
@@ -5005,8 +5437,10 @@
           "Actions",
         ],
         fields: [
-          ["iconDark", "Icon Upload - Dark Version (Optional)", "file"],
-          ["iconLight", "Icon Upload - Light Version (Optional)", "file"],
+          ["iconBeforeDark", "Icon Upload - Before Click / Dark Version (Optional)", "file"],
+          ["iconBeforeLight", "Icon Upload - Before Click / Light Version (Optional)", "file"],
+          ["iconAfterDark", "Icon Upload - After Click / Dark Version (Optional)", "file"],
+          ["iconAfterLight", "Icon Upload - After Click / Light Version (Optional)", "file"],
           [
             "gameType",
             "Game Type",
@@ -5077,7 +5511,10 @@
           "Actions",
         ],
         fields: [
-          ["icon", "Section Icon", "file"],
+          ["iconBeforeDark", "Icon Upload - Before Click / Dark Version (Optional)", "file"],
+          ["iconBeforeLight", "Icon Upload - Before Click / Light Version (Optional)", "file"],
+          ["iconAfterDark", "Icon Upload - After Click / Dark Version (Optional)", "file"],
+          ["iconAfterLight", "Icon Upload - After Click / Light Version (Optional)", "file"],
           ["name", "Section Name", "text"],
           [
             "style",
@@ -5125,7 +5562,10 @@
           "Actions",
         ],
         fields: [
-          ["icon", "Section Icon", "file"],
+          ["iconBeforeDark", "Icon Upload - Before Click / Dark Version (Optional)", "file"],
+          ["iconBeforeLight", "Icon Upload - Before Click / Light Version (Optional)", "file"],
+          ["iconAfterDark", "Icon Upload - After Click / Dark Version (Optional)", "file"],
+          ["iconAfterLight", "Icon Upload - After Click / Light Version (Optional)", "file"],
           ["name", "Section Name", "text"],
           [
             "style",
@@ -5259,7 +5699,7 @@
             "linkType",
             "Link Type",
             "select",
-            ["Internal Page", "External URL", "Game Category", "Popup"],
+            ["Internal Page", "External URL", "Game Category", "Popup", "Lobby"],
           ],
           ["linkValue", "Link Value", "text"],
           ["loginRequired", "Login Required", "toggle"],
@@ -6101,7 +6541,6 @@
       "banner",
       "recentWin",
       "marquee",
-      "broadcastReceiver",
       "searchBar",
       "content",
       "contentFunction",
@@ -6137,7 +6576,15 @@
             `${moduleLabelMap[moduleKey] || "Module"} Configuration`,
           title:
             item.title || moduleLabelMap[moduleKey] || item.name || "Module",
-          icon: item.icon || "",
+          icon:
+            item.iconBeforeDark ||
+            item.iconBeforeLight ||
+            item.icon ||
+            "",
+          iconBeforeDark: item.iconBeforeDark || item.icon || "",
+          iconBeforeLight: item.iconBeforeLight || item.icon || "",
+          iconAfterDark: item.iconAfterDark || item.icon || "",
+          iconAfterLight: item.iconAfterLight || item.icon || "",
           sort: item.sort || index + 1,
           on: item.on !== false,
           createAt: item.createAt || nowText(),
@@ -6151,7 +6598,7 @@
     state.modules = state.modules.filter(
       (item) => item.module !== "popularGame",
     );
-    const MODULE_PRESET_VERSION = "casino_broadcast_configuration_v3";
+    const MODULE_PRESET_VERSION = "casino_without_promotion_v5";
     if (state.modulePresetVersion !== MODULE_PRESET_VERSION) {
       const existingKeys = new Set(
         state.modules.map((item) => item.module || item.key),
@@ -6315,7 +6762,7 @@
       }
       if (!Array.isArray(rows) || !rows.length) {
         rows = [
-          { id: 1001, name: "Aibet Main Lobby", status: "Active", sort: 1 },
+          { id: 1001, name: "Megwin Main Lobby", status: "Active", sort: 1 },
           { id: 1002, name: "Brazil Casino", status: "Active", sort: 2 },
           { id: 1003, name: "Brazil Slots", status: "Disabled", sort: 3 },
           { id: 1004, name: "Mexico Casino", status: "Active", sort: 4 },
@@ -6326,6 +6773,59 @@
         .slice()
         .sort((a, b) => (Number(a.sort) || 0) - (Number(b.sort) || 0));
     }
+
+    function applyDueTagChanges(rows) {
+      let changed = false;
+      const now = Date.now();
+      const activated = [];
+      (Array.isArray(rows) ? rows : []).forEach((tag) => {
+        const effectiveAt = Date.parse(tag?.pendingEffectiveAt || "");
+        if (!tag?.pendingChanges || !Number.isFinite(effectiveAt) || effectiveAt > now)
+          return;
+        Object.assign(tag, tag.pendingChanges);
+        delete tag.pendingChanges;
+        delete tag.pendingEffectiveAt;
+        activated.push(tag);
+        changed = true;
+      });
+      if (changed) {
+        localStorage.setItem("aibet_tags_rows_v1", JSON.stringify(rows));
+        const syncRows = (configRows) => {
+          if (!Array.isArray(configRows)) return;
+          configRows.forEach((configRow) => {
+            const tag = activated.find(
+              (item) => String(item.id) === String(configRow.sourceTagId),
+            );
+            if (!tag) return;
+            Object.assign(configRow, {
+              name: tag.name || "Unnamed Tags",
+              tags: tag.name || "",
+              style: tag.layout || tag.layoutStyle || "",
+              showGameTagName: tag.showGameTagName !== false,
+              statisticsDays: tag.statisticsDays || "",
+              lobbyId: tag.lobbyId,
+              lobbyName: tag.lobbyName || "",
+              country: tag.country || "All",
+              currency: tag.currency || "",
+              status: ["active", "enabled", "on", "true", "1"].includes(
+                String(tag.status || "").toLowerCase(),
+              )
+                ? "Enabled"
+                : "Disabled",
+              gameCount: Array.isArray(tag.games) ? tag.games.length : 0,
+              icon: tag.icon || "",
+            });
+          });
+        };
+        Object.values(state.lobbyHomepageConfigs || {}).forEach((config) =>
+          Object.values(config.moduleConfigs || {}).forEach(syncRows),
+        );
+        syncRows(Object.values(state.moduleConfigs || {}).flat());
+        localStorage.setItem(KEY, JSON.stringify(state));
+      }
+      return Array.isArray(rows) ? rows : [];
+    }
+    window.applyDueTagChanges = applyDueTagChanges;
 
     function readTagsForHomepageLobby(lobbyId) {
       let rows = [];
@@ -6344,7 +6844,8 @@
         } catch (e) {}
       }
 
-      return (Array.isArray(rows) ? rows : [])
+      rows = applyDueTagChanges(rows);
+      return rows
         .filter(
           (tag) =>
             tag &&
@@ -6365,6 +6866,8 @@
         name: tag.name || "Unnamed Tags",
         tags: tag.name || "",
         style: tag.layout || tag.layoutStyle || "",
+        showGameTagName: tag.showGameTagName !== false,
+        statisticsDays: tag.statisticsDays || "",
         lobbyId: lobbyId,
         lobbyName: tag.lobbyName || lobby?.name || "",
         country: tag.country || lobby?.country || "All",
@@ -6412,7 +6915,10 @@
         state.lobbyHomepageConfigs[key] = makeDefaultLobbyHomepageConfig(lobbyId);
       }
       const config = state.lobbyHomepageConfigs[key];
-      state.modules = clone(config.modules || defaultModules);
+      state.modules = clone(config.modules || defaultModules).filter(
+        (moduleRow) =>
+          !["broadcastReceiver", "promotion"].includes(moduleRow.module),
+      );
       state.moduleConfigs = clone(config.moduleConfigs || {});
       state.modules.forEach((moduleRow) => {
         const configKey = String(moduleRow.id);
@@ -6455,6 +6961,17 @@
         if (!state.lobbyHomepageConfigs[key]) {
           state.lobbyHomepageConfigs[key] = makeDefaultLobbyHomepageConfig(lobby.id);
         }
+      });
+
+      Object.values(state.lobbyHomepageConfigs).forEach((config) => {
+        if (!Array.isArray(config.modules)) return;
+        config.modules = config.modules.filter(
+          (moduleRow) =>
+            !["broadcastReceiver", "promotion"].includes(moduleRow.module),
+        );
+        config.modules.forEach(
+          (moduleRow, index) => (moduleRow.sort = index + 1),
+        );
       });
 
       selectedHomepageLobbyId = preferredId;
@@ -6544,7 +7061,7 @@
       );
     }
     let homepageModuleEditingId = null,
-      homepageModuleIconValue = "",
+      homepageModuleIconValues = {},
       selectedHomepageModuleId = state.modules[0]?.id || null;
     function getActiveConfigurationRows() {
       // Broadcast Receiver is managed by its independent Casino HomePage submenu.
@@ -6797,7 +7314,12 @@
     function openHomepageModuleForm(id = null) {
       homepageModuleEditingId = id;
       const row = id ? state.modules.find((x) => x.id === id) : null;
-      homepageModuleIconValue = row?.icon || "";
+      homepageModuleIconValues = {
+        iconBeforeDark: row?.iconBeforeDark || row?.icon || "",
+        iconBeforeLight: row?.iconBeforeLight || row?.icon || "",
+        iconAfterDark: row?.iconAfterDark || row?.icon || "",
+        iconAfterLight: row?.iconAfterLight || row?.icon || "",
+      };
       document.getElementById("homepageModuleModalTitle").textContent = id
         ? "Edit Homepage Module"
         : "Create Homepage Module";
@@ -6828,11 +7350,17 @@
       sw.classList.toggle("on", row ? row.on : true);
       document.getElementById("homepageModuleStatusText").textContent =
         sw.classList.contains("on") ? "Enabled" : "Disabled";
-      document.getElementById("homepageModuleIcon").value = "";
-      document.getElementById("homepageModuleIconPreview").innerHTML =
-        homepageModuleIconValue
-          ? `<img src="${homepageModuleIconValue}" alt="Icon preview">`
-          : "No image selected";
+      Object.entries(homepageModuleIconValues).forEach(([key, value]) => {
+        const suffix = key.slice(4);
+        const input = document.getElementById(`homepageModuleIcon${suffix}`);
+        const preview = document.getElementById(`homepageModuleIcon${suffix}Preview`);
+        if (input) input.value = "";
+        if (preview) {
+          preview.innerHTML = value
+            ? `<img src="${value}" alt="Icon preview">`
+            : "No image selected";
+        }
+      });
       document.getElementById("homepageModuleMask").classList.add("show");
     }
     function closeHomepageModuleForm() {
@@ -7227,6 +7755,21 @@
 
       // Dual-tone image compatibility: existing single-tone images are used as
       // the initial Dark/Light preview until the operator uploads replacements.
+      const hasFourStateIcons = [
+        "mainMenu",
+        "floatMenu",
+        "marquee",
+        "broadcastReceiver",
+        "content",
+        "contentFunction",
+        "bottom",
+      ].includes(active);
+      if (hasFourStateIcons) {
+        row.iconBeforeDark = row.iconBeforeDark || row.iconBefore || row.iconDark || row.icon || "";
+        row.iconBeforeLight = row.iconBeforeLight || row.iconBefore || row.iconLight || row.icon || "";
+        row.iconAfterDark = row.iconAfterDark || row.iconAfter || row.iconDark || row.icon || "";
+        row.iconAfterLight = row.iconAfterLight || row.iconAfter || row.iconLight || row.icon || "";
+      }
       if (active === "providerLogo") {
         row.imageDark = row.imageDark || row.image || "";
         row.imageLight = row.imageLight || row.image || "";
@@ -7330,8 +7873,12 @@
 
 
       if (active === "mainMenu") {
-        grid.querySelector('[data-key="iconBefore"]')?.closest(".field")?.classList.add("mainmenu-icon-upload", "before-click");
-        grid.querySelector('[data-key="iconAfter"]')?.closest(".field")?.classList.add("mainmenu-icon-upload", "after-click");
+        ["iconBeforeDark", "iconBeforeLight"].forEach((key) =>
+          grid.querySelector(`[data-key="${key}"]`)?.closest(".field")?.classList.add("mainmenu-icon-upload", "before-click")
+        );
+        ["iconAfterDark", "iconAfterLight"].forEach((key) =>
+          grid.querySelector(`[data-key="${key}"]`)?.closest(".field")?.classList.add("mainmenu-icon-upload", "after-click")
+        );
       }
 
       // Casino Main Menu modal defaults / presentation.
@@ -7379,6 +7926,11 @@
           ["Deposit", "Deposit"],
           ["ChatRoom", "ChatRoom"],
         ];
+        const getLobbyOptions = () =>
+          readHomepageLobbies().map((lobby) => [
+            lobby.name || `Lobby ${lobby.id}`,
+            String(lobby.id),
+          ]);
 
         const getCasinoTagOptions = () => {
           let tags = [];
@@ -7396,6 +7948,7 @@
               }
             } catch (e) {}
           }
+          tags = applyDueTagChanges(tags);
 
           const seen = new Set();
           return (Array.isArray(tags) ? tags : [])
@@ -7462,6 +8015,12 @@
               currentValue,
               "Please select Popup"
             );
+          } else if (type === "Lobby") {
+            nextControl = makeLinkedSelect(
+              getLobbyOptions(),
+              currentValue,
+              "Please select Lobby"
+            );
           } else {
             nextControl = makeLinkedSelect(
               internalPageOptions,
@@ -7522,6 +8081,11 @@
           ["Deposit", "Deposit"],
           ["ChatRoom", "ChatRoom"],
         ];
+        const getLobbyOptions = () =>
+          readHomepageLobbies().map((lobby) => [
+            lobby.name || `Lobby ${lobby.id}`,
+            String(lobby.id),
+          ]);
 
         const getGameCategoryOptions = () => {
           const tags = readTagsForHomepageLobby(selectedHomepageLobbyId);
@@ -7575,6 +8139,12 @@
               popupOptions,
               currentValue,
               "Please select Popup"
+            );
+          } else if (type === "Lobby") {
+            nextControl = makeSelect(
+              getLobbyOptions(),
+              currentValue,
+              "Please select Lobby"
             );
           } else {
             nextControl = makeSelect(
@@ -7664,12 +8234,18 @@
       });
       // Keep legacy preview fields populated while persisting both tone versions.
       if (active === "providerLogo") obj.image = obj.imageDark || obj.imageLight || obj.image || "";
-      if (active === "floatMenu" || active === "broadcastReceiver")
-        obj.icon = obj.iconDark || obj.iconLight || obj.icon || "";
-      if (active === "bottom") {
-        obj.iconBefore = obj.iconBeforeDark || obj.iconBeforeLight || obj.iconBefore || "";
-        obj.iconAfter = obj.iconAfterDark || obj.iconAfterLight || obj.iconAfter || "";
-        obj.icon = obj.iconBefore;
+      if ([
+        "mainMenu",
+        "floatMenu",
+        "marquee",
+        "broadcastReceiver",
+        "content",
+        "contentFunction",
+        "bottom",
+      ].includes(active)) {
+        obj.iconBefore = obj.iconBeforeDark || obj.iconBeforeLight || "";
+        obj.iconAfter = obj.iconAfterDark || obj.iconAfterLight || "";
+        obj.icon = obj.iconBefore || obj.iconAfter || "";
       }
 
       if (["mainMenu", "floatMenu"].includes(active)) {
@@ -7760,7 +8336,8 @@
         obj.status = obj.status || "Enabled";
         obj.iconDark = obj.iconDark || obj.icon || "";
         obj.iconLight = obj.iconLight || obj.icon || "";
-        obj.icon = obj.iconDark || obj.iconLight || "";
+        obj.icon = obj.iconBeforeDark || obj.iconBeforeLight ||
+          obj.iconAfterDark || obj.iconAfterLight || "";
         obj.updateAt = new Date().toLocaleString("zh-TW", { hour12: false });
         obj.updateBy = "Admin";
         const supportedTokens = [
@@ -8081,13 +8658,66 @@
             rows
               .slice(0, 10)
               .map(
-                (x) =>
-                  `<div style="border:1px solid #ddd;padding:10px;border-radius:6px;min-width:120px">${x.image || x.icon ? `<img src="${x.image || x.icon}" style="width:50px;height:50px;object-fit:cover"><br>` : ""}<b>${esc(x.name || x.vendor || x.placeholder || "Item")}</b></div>`,
+                (x) => {
+                  const beforeIcon =
+                    x.iconBeforeLight || x.iconBeforeDark || x.icon || x.image || "";
+                  const afterIcon =
+                    x.iconAfterLight || x.iconAfterDark || beforeIcon;
+                  return `<button type="button" class="casino-preview-item"
+                    data-link-type="${esc(x.linkType || "")}"
+                    data-link-value="${esc(x.linkValue || "")}"
+                    data-before-icon="${esc(beforeIcon)}"
+                    data-after-icon="${esc(afterIcon)}">
+                    ${beforeIcon ? `<img src="${esc(beforeIcon)}" alt="">` : ""}
+                    <b>${esc(x.name || x.vendor || x.placeholder || "Item")}</b>
+                  </button>`;
+                },
               )
               .join("") || '<span style="color:#999">No enabled items</span>'
-          }</div></div>`;
+          }</div></div>`
         })
         .join("");
+      b.insertAdjacentHTML(
+        "afterbegin",
+        '<div class="casino-preview-result" id="casinoPreviewResult">点击项目预览前台效果</div>',
+      );
+      b.querySelectorAll(".casino-preview-item").forEach((item) => {
+        item.addEventListener("click", () => {
+          b.querySelectorAll(".casino-preview-item.is-selected").forEach(
+            (other) => {
+              if (other === item) return;
+              other.classList.remove("is-selected");
+              const otherImage = other.querySelector("img");
+              if (otherImage && other.dataset.beforeIcon) {
+                otherImage.src = other.dataset.beforeIcon;
+              }
+            },
+          );
+          item.classList.add("is-selected");
+          const image = item.querySelector("img");
+          if (image && item.dataset.afterIcon) image.src = item.dataset.afterIcon;
+
+          const result = document.getElementById("casinoPreviewResult");
+          const type = item.dataset.linkType || "";
+          const value = item.dataset.linkValue || "";
+          if (!result) return;
+          if (type === "Popup" && value === "Deposit") {
+            result.innerHTML = "<h3>Deposit</h3><p>Deposit 弹框已打开</p>";
+          } else if (type === "Popup" && value === "ChatRoom") {
+            result.innerHTML = "<h3>ChatRoom</h3><p>聊天室弹框已打开</p>";
+          } else if (type === "Lobby") {
+            const lobby = readHomepageLobbies().find(
+              (row) => String(row.id) === String(value),
+            );
+            result.innerHTML = lobby
+              ? `<h3>${esc(lobby.name || "Lobby")}</h3><p>前台已显示该 Lobby。</p>`
+              : "<h3>Lobby</h3><p>找不到已选择的 Lobby。</p>";
+          } else {
+            result.textContent =
+              value ? `前台前往：${value}` : "已切换点击后样式";
+          }
+        });
+      });
       document.getElementById("previewMask").classList.add("show");
     };
     document.getElementById("previewClose").onclick = () =>
@@ -9048,19 +9678,22 @@
         document.getElementById("homepageModuleStatusText").textContent =
           e.currentTarget.classList.contains("on") ? "Enabled" : "Disabled";
       });
-    document
-      .getElementById("homepageModuleIcon")
-      ?.addEventListener("change", (e) => {
+    ["iconBeforeDark", "iconBeforeLight", "iconAfterDark", "iconAfterLight"].forEach((key) => {
+      const suffix = key.slice(4);
+      document
+        .getElementById(`homepageModuleIcon${suffix}`)
+        ?.addEventListener("change", (e) => {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
         reader.onload = () => {
-          homepageModuleIconValue = reader.result;
-          document.getElementById("homepageModuleIconPreview").innerHTML =
+          homepageModuleIconValues[key] = reader.result;
+          document.getElementById(`homepageModuleIcon${suffix}Preview`).innerHTML =
             `<img src="${reader.result}" alt="Icon preview">`;
         };
         reader.readAsDataURL(file);
       });
+    });
     document
       .getElementById("homepageModuleSave")
       ?.addEventListener("click", () => {
@@ -9106,7 +9739,10 @@
         } else {
           delete row.layout;
         }
-        row.icon = homepageModuleIconValue;
+        Object.assign(row, homepageModuleIconValues);
+        row.icon =
+          row.iconBeforeDark || row.iconBeforeLight || row.iconAfterDark ||
+          row.iconAfterLight || "";
         row.on = enabled;
         if (moduleType === "broadcastReceiver") {
           row.gameJumpLink = document.getElementById("homepageModuleGameJumpLink")?.classList.contains("on") ? "Yes" : "No";
@@ -9823,6 +10459,7 @@
         } catch (_) {
           source = [];
         }
+        source = window.applyDueTagChanges(source);
         // First-load fallback: Tags Management has in-memory defaults before localStorage is created.
         if (!source.length) {
           try {
@@ -9881,6 +10518,8 @@
           r.name = r.name || r.tags || "Unnamed Tags";
           r.device = r.device || "PC / H5";
           r.status = statusOn(r.status) ? "Enabled" : "Disabled";
+          if (typeof r.showGameTagName !== "boolean")
+            r.showGameTagName = true;
         });
       }
       function configureToolbar() {
@@ -10162,6 +10801,8 @@
             name: tag.name || "Unnamed Tags",
             tags: tag.name || "",
             style: tag.layout || "",
+            showGameTagName: tag.showGameTagName !== false,
+            statisticsDays: tag.statisticsDays || "",
             lobbyId: currentLobbyId(),
             lobbyName: currentLobbyName(),
             country: tag.country || "All",
@@ -10296,7 +10937,7 @@
     let lobbyRows = loadState(STORE_LOBBIES, [
       {
         id: 1001,
-        name: "Aibet Main Lobby",
+        name: "Megwin Main Lobby",
         country: "Global2",
         currency: "USD",
         status: "Active",
@@ -10331,6 +10972,9 @@
         tags: ["Mexico", "Live Casino"],
       },
     ]);
+    let lobbyCurrentPage = 1;
+    let lobbyPageSize = 10;
+    let lobbyFilteredRows = [];
 
     function lobbyCurrentCountry() {
       return "Global2";
@@ -10369,24 +11013,24 @@
     }
     function lobbyPageHtml() {
       const country = lobbyCurrentCountry();
-      const rows = lobbyRows.filter(
+      lobbyFilteredRows = lobbyRows.filter(
         (x) => String(x.country) === String(country),
       );
-      return `<div id="lobbyPageRoot"><div class="breadcrumb">Home / Casino Management / Lobby</div>
-					<h1 class="page-title">Lobby Management</h1>
+      lobbyCurrentPage = 1;
+      return `<div id="lobbyPageRoot"><h1 class="page-title">Lobby Management</h1>
 					<div class="lobby-filter">
 						<div class="lobby-filter-grid">
-							<div class="lobby-field"><label>Lobby Name</label><input id="lobbySearchName" placeholder="Enter lobby name"></div>
+							<div class="lobby-field"><label>Lobby Name</label><input id="lobbySearchName" placeholder="Please enter"></div>
 							<div class="lobby-field"><label>Status</label><select id="lobbySearchStatus"><option value="">All</option><option>Active</option><option>Disabled</option></select></div>
 							<div class="lobby-filter-actions">
-								<button class="btn light" id="lobbyResetBtn" type="button">Reset</button>
-								<button class="btn" id="lobbySearchBtn" type="button">Search</button>
+								<button class="btn" id="lobbySearchBtn" type="button">⌕ Search</button>
+								<button class="btn" id="lobbyResetBtn" type="button">↻ Reset</button>
+								<button class="btn" id="lobbyAddBtn" type="button">＋ Add Lobby</button>
 							</div>
 						</div>
 					</div>
 					<div class="lobby-card">
-						<div class="lobby-card-head"><h2>Lobby List</h2><button class="btn" id="lobbyAddBtn" type="button">+ Add Lobby</button></div>
-						<div id="lobbyTableArea">${lobbyTableHtml(rows)}</div>
+						<div id="lobbyTableArea">${lobbyTableWithPaginationHtml()}</div>
 					</div></div>`;
     }
     function lobbyTableHtml(rows) {
@@ -10415,9 +11059,50 @@
               : `<tr><td colspan="5" class="empty-row">No data available</td></tr>`
           }</tbody></table></div>`;
     }
-    function renderLobbyTable(rows) {
+    function lobbyPaginationHtml(total) {
+      const totalPages = Math.max(1, Math.ceil(total / lobbyPageSize));
+      lobbyCurrentPage = Math.min(Math.max(1, lobbyCurrentPage), totalPages);
+      const pages = [];
+      if (totalPages <= 7) {
+        for (let i = 1; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        if (lobbyCurrentPage > 4) pages.push("...");
+        for (
+          let i = Math.max(2, lobbyCurrentPage - 1);
+          i <= Math.min(totalPages - 1, lobbyCurrentPage + 1);
+          i++
+        )
+          pages.push(i);
+        if (lobbyCurrentPage < totalPages - 3) pages.push("...");
+        pages.push(totalPages);
+      }
+      const buttons = pages
+        .map((page) =>
+          page === "..."
+            ? "<span>…</span>"
+            : `<button class="pg-page ${page === lobbyCurrentPage ? "active" : ""}" data-lobby-page="${page}" type="button">${page}</button>`,
+        )
+        .join("");
+      return `<div class="lobby-pg-footer"><label>Records per page: <select id="lobbyPageSize"><option value="10" ${lobbyPageSize === 10 ? "selected" : ""}>10</option><option value="20" ${lobbyPageSize === 20 ? "selected" : ""}>20</option><option value="50" ${lobbyPageSize === 50 ? "selected" : ""}>50</option><option value="100" ${lobbyPageSize === 100 ? "selected" : ""}>100</option></select></label><span>Total:${total}</span><div class="lobby-pager"><button class="pg-page" data-lobby-page="first" ${lobbyCurrentPage === 1 ? "disabled" : ""}>«</button><button class="pg-page" data-lobby-page="prev" ${lobbyCurrentPage === 1 ? "disabled" : ""}>‹</button>${buttons}<button class="pg-page" data-lobby-page="next" ${lobbyCurrentPage === totalPages ? "disabled" : ""}>›</button><button class="pg-page" data-lobby-page="last" ${lobbyCurrentPage === totalPages ? "disabled" : ""}>»</button></div><label>GoTo: <input id="lobbyGoTo" type="number" min="1" max="${totalPages}" value="${lobbyCurrentPage}"> Page</label></div>`;
+    }
+    function lobbyTableWithPaginationHtml() {
+      const totalPages = Math.max(
+        1,
+        Math.ceil(lobbyFilteredRows.length / lobbyPageSize),
+      );
+      lobbyCurrentPage = Math.min(Math.max(1, lobbyCurrentPage), totalPages);
+      const start = (lobbyCurrentPage - 1) * lobbyPageSize;
+      const rows = lobbyFilteredRows.slice(start, start + lobbyPageSize);
+      return (
+        lobbyTableHtml(rows) + lobbyPaginationHtml(lobbyFilteredRows.length)
+      );
+    }
+    function renderLobbyTable(rows, resetPage = false) {
+      lobbyFilteredRows = Array.isArray(rows) ? rows : [];
+      if (resetPage) lobbyCurrentPage = 1;
       const area = document.getElementById("lobbyTableArea");
-      if (area) area.innerHTML = lobbyTableHtml(rows);
+      if (area) area.innerHTML = lobbyTableWithPaginationHtml();
     }
     function filterLobbyRows() {
       const country = lobbyCurrentCountry();
@@ -10440,11 +11125,11 @@
         mode === "edit" ? "Edit Lobby" : "Add Lobby";
       document.getElementById("lobbyModalBody").innerHTML =
         `<div class="lobby-form-grid">
-					<div class="lobby-form-field full"><label>Lobby Name</label><input id="lobbyFormName" maxlength="80" value="${escapeHtml(row?.name || "")}" placeholder="Enter lobby name"></div>
-					<input id="lobbyFormCountry" type="hidden" value="${escapeHtml(country)}">
+					<div class="lobby-form-field full"><label><span class="lobby-required">*</span> Lobby Name</label><input id="lobbyFormName" maxlength="80" value="${escapeHtml(row?.name || "")}" placeholder="Please enter"></div>
+					<div class="lobby-form-field"><label>Country</label><input id="lobbyFormCountry" type="text" readonly value="${escapeHtml(row?.country || country)}"></div>
 					<input id="lobbyFormCurrency" type="hidden" value="${escapeHtml(currency)}">
-					<div class="lobby-form-field"><label>Status</label><select id="lobbyFormStatus"><option ${!row || row.status === "Active" ? "selected" : ""}>Active</option><option ${row?.status === "Disabled" ? "selected" : ""}>Disabled</option></select></div>
-					<div class="lobby-form-field"><label>Sort</label><input id="lobbyFormSort" type="number" min="0" step="1" value="${row?.sort ?? 0}"></div>
+					<div class="lobby-form-field"><label>Status</label><select id="lobbyFormStatus"><option ${row?.status === "Active" ? "selected" : ""}>Active</option><option ${!row || row.status === "Disabled" ? "selected" : ""}>Disabled</option></select></div>
+					<div class="lobby-form-field"><label><span class="lobby-required">*</span> Sort</label><input id="lobbyFormSort" type="number" min="0" step="1" value="${row?.sort ?? ""}"></div>
 				</div>`;
       document.getElementById("lobbyModalFoot").style.display = "flex";
       document.getElementById("lobbyModalMask").classList.add("open");
@@ -10548,13 +11233,16 @@
         lobbyCurrencyByCountry(country);
       const status =
         document.getElementById("lobbyFormStatus")?.value || "Active";
-      const sort = Math.max(
-        0,
-        Number(document.getElementById("lobbyFormSort")?.value || 0),
-      );
+      const rawSort = document.getElementById("lobbyFormSort")?.value || "";
+      const sort = Number(rawSort);
       if (!name) {
         toast("Please enter Lobby Name");
         document.getElementById("lobbyFormName")?.focus();
+        return;
+      }
+      if (!Number.isInteger(sort) || sort < 0) {
+        toast("Sort must be a non-negative whole number");
+        document.getElementById("lobbyFormSort")?.focus();
         return;
       }
       const duplicate = lobbyRows.some(
@@ -10568,7 +11256,8 @@
         toast("Lobby Name already exists in this country");
         return;
       }
-      if (lobbyEditingId) {
+      const editing = Boolean(lobbyEditingId);
+      if (editing) {
         const row = lobbyRows.find(
           (x) => String(x.id) === String(lobbyEditingId),
         );
@@ -10590,7 +11279,7 @@
       closeLobbyModal();
       window.renderIntegratedManagementPage?.("Lobby");
       window.refreshHomepageLobbyModules?.();
-      toast(lobbyEditingId ? "Lobby updated" : "Lobby created");
+      toast(editing ? "Lobby updated" : "Lobby created");
     }
     window.lobbyPageHtml = lobbyPageHtml;
 
@@ -10606,7 +11295,7 @@
         return;
       }
       if (e.target.closest("#lobbySearchBtn")) {
-        renderLobbyTable(filterLobbyRows());
+        renderLobbyTable(filterLobbyRows(), true);
         return;
       }
       if (e.target.closest("#lobbyResetBtn")) {
@@ -10614,7 +11303,28 @@
           s = document.getElementById("lobbySearchStatus");
         if (n) n.value = "";
         if (s) s.value = "";
-        renderLobbyTable(filterLobbyRows());
+        renderLobbyTable(filterLobbyRows(), true);
+        return;
+      }
+      const pageButton = e.target.closest("[data-lobby-page]");
+      if (pageButton && !pageButton.disabled) {
+        const totalPages = Math.max(
+          1,
+          Math.ceil(lobbyFilteredRows.length / lobbyPageSize),
+        );
+        const target = pageButton.dataset.lobbyPage;
+        if (target === "first") lobbyCurrentPage = 1;
+        else if (target === "prev")
+          lobbyCurrentPage = Math.max(1, lobbyCurrentPage - 1);
+        else if (target === "next")
+          lobbyCurrentPage = Math.min(totalPages, lobbyCurrentPage + 1);
+        else if (target === "last") lobbyCurrentPage = totalPages;
+        else
+          lobbyCurrentPage = Math.min(
+            totalPages,
+            Math.max(1, Number(target) || 1),
+          );
+        renderLobbyTable(lobbyFilteredRows);
         return;
       }
       const action = e.target.closest("[data-lobby-action]");
@@ -10642,6 +11352,34 @@
         );
       }
     });
+    document.getElementById("adminContent").addEventListener("change", (e) => {
+      if (window.adminShellState?.active !== "Lobby") return;
+      if (e.target.id === "lobbyPageSize") {
+        lobbyPageSize = Math.max(1, Number(e.target.value) || 10);
+        lobbyCurrentPage = 1;
+        renderLobbyTable(lobbyFilteredRows);
+      } else if (e.target.id === "lobbyGoTo") {
+        const totalPages = Math.max(
+          1,
+          Math.ceil(lobbyFilteredRows.length / lobbyPageSize),
+        );
+        lobbyCurrentPage = Math.min(
+          totalPages,
+          Math.max(1, Number(e.target.value) || 1),
+        );
+        renderLobbyTable(lobbyFilteredRows);
+      }
+    });
+    document.getElementById("adminContent").addEventListener("keydown", (e) => {
+      if (
+        window.adminShellState?.active === "Lobby" &&
+        e.target.id === "lobbyGoTo" &&
+        e.key === "Enter"
+      ) {
+        e.preventDefault();
+        e.target.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    });
     document
       .getElementById("lobbyModalClose")
       .addEventListener("click", closeLobbyModal);
@@ -10658,25 +11396,33 @@
     /* Tags CRUD */
     const STORE_TAGS = "aibet_tags_rows_v1";
     const TAG_LAYOUTS = [
-      "Top10 一排",
-      "Top 10 全展",
-      "1大4小",
-      "4小2排",
-      "4小1排",
+      "Top 10 Row",
+      "Top 10 Full",
+      "1 Big + 4 Small",
+      "4 Small 2 Rows",
+      "4 Small 1 Row",
       "Rank Game",
-      "冷热排行",
+      "Hot / Cold Rank",
       "Jackpot",
     ];
+    const TAG_LAYOUT_LABELS = {
+      "Top10 一排": "Top 10 Row",
+      "Top 10 全展": "Top 10 Full",
+      "1大4小": "1 Big + 4 Small",
+      "4小2排": "4 Small 2 Rows",
+      "4小1排": "4 Small 1 Row",
+      冷热排行: "Hot / Cold Rank",
+    };
     let tagsEditingId = null;
     let tagsRows = loadState(STORE_TAGS, [
       {
         id: 2001,
         name: "Popular Games",
         lobbyId: 1001,
-        lobbyName: "Aibet Main Lobby",
+        lobbyName: "Megwin Main Lobby",
         country: "Global2",
         currency: "USD",
-        layout: "Top10 一排",
+        layout: "Top 10 Row",
         status: "Active",
         sort: 1,
         games: [
@@ -10732,6 +11478,15 @@
         ],
       },
     ]);
+    let tagsLayoutsMigrated = false;
+    tagsRows = tagsRows.map((row) => {
+      const layout = TAG_LAYOUT_LABELS[row.layout] || row.layout;
+      if (layout === row.layout) return row;
+      tagsLayoutsMigrated = true;
+      return { ...row, layout };
+    });
+    tagsRows = window.applyDueTagChanges(tagsRows);
+    if (tagsLayoutsMigrated) saveState(STORE_TAGS, tagsRows);
     function tagsCurrentCountry() {
       return "Global2";
     }
@@ -10742,7 +11497,7 @@
           : loadState("aibet_lobby_rows_v1", [
               {
                 id: 1001,
-                name: "Aibet Main Lobby",
+                name: "Megwin Main Lobby",
                 country: "Global2",
                 currency: "USD",
                 status: "Active",
@@ -10800,13 +11555,41 @@
         (x) => String(x.country) === String(country),
       );
       tagsCurrentPage = 1;
-      return `<div id="tagsPageRoot"><div class="breadcrumb">Home / Casino Management / Tags</div><h1 class="page-title">Tags Management</h1><div class="tags-filter"><div class="tags-filter-grid"><div class="tags-field wide"><label>Lobby</label><select id="tagsSearchLobby">${tagsLobbyOptions(country)}</select></div><div class="tags-field wide"><label>Tags Name</label><input id="tagsSearchName" placeholder="Enter tags name"></div><div class="tags-field wide"><label>Layout Style</label><select id="tagsSearchLayout"><option value="">All</option>${TAG_LAYOUTS.map((x) => `<option>${x}</option>`).join("")}</select></div><div class="tags-field"><label>Status</label><select id="tagsSearchStatus"><option value="">All</option><option>Active</option><option>Disabled</option></select></div><div class="tags-filter-actions"><button class="btn light" id="tagsResetBtn" type="button">Reset</button><button class="btn" id="tagsSearchBtn" type="button">Search</button></div></div></div><div class="tags-card"><div class="tags-card-head"><h2>Tags List</h2><button class="btn" id="tagsAddBtn" type="button">+ Add Tags</button></div><div id="tagsTableArea">${tagsTableWithPaginationHtml()}</div></div>`;
+      return `<div id="tagsPageRoot"><h1 class="page-title">Tags Management</h1><div class="tags-filter"><div class="tags-filter-grid"><div class="tags-field"><label>Lobby</label><select id="tagsSearchLobby">${tagsLobbyOptions(country)}</select></div><div class="tags-field"><label>Tags Name</label><input id="tagsSearchName" placeholder="Please enter"></div><div class="tags-field"><label>Layout Style</label><select id="tagsSearchLayout"><option value="">All</option>${TAG_LAYOUTS.map((x) => `<option>${x}</option>`).join("")}</select></div><div class="tags-field"><label>Status</label><select id="tagsSearchStatus"><option value="">All</option><option>Active</option><option>Disabled</option></select></div><div class="tags-filter-actions"><button class="btn" id="tagsSearchBtn" type="button">⌕ Search</button><button class="btn tags-reset-btn" id="tagsResetBtn" type="button">↻ Reset</button></div></div></div><div class="tags-card"><div class="tags-card-head"><h2>Tags List</h2><button class="btn" id="tagsAddBtn" type="button">＋ Add Tags</button></div><div id="tagsTableArea">${tagsTableWithPaginationHtml()}</div></div>`;
     }
 
     let tagsPendingIcon = "";
-    tagsRows = tagsRows.map((row) => ({ ...row, icon: row.icon || "" }));
+    tagsRows = tagsRows.map((row) => ({
+      ...row,
+      icon: row.icon || "",
+      showGameTagName: row.showGameTagName !== false,
+    }));
     // Persist default Tags immediately so Casino Content / Configuration > Add Tags can read them on first load.
     if (!localStorage.getItem(STORE_TAGS)) saveState(STORE_TAGS, tagsRows);
+    let tagsActivationTimer = null;
+    function schedulePendingTagActivation() {
+      clearTimeout(tagsActivationTimer);
+      const deadlines = tagsRows
+        .filter((row) => row.pendingChanges)
+        .map((row) => Date.parse(row.pendingEffectiveAt || ""))
+        .filter(Number.isFinite);
+      if (!deadlines.length) return;
+      tagsActivationTimer = setTimeout(() => {
+        const wasDue = tagsRows.some(
+          (row) =>
+            row.pendingChanges &&
+            Date.parse(row.pendingEffectiveAt || "") <= Date.now(),
+        );
+        tagsRows = window.applyDueTagChanges(tagsRows);
+        if (wasDue) {
+          saveState(STORE_TAGS, tagsRows);
+          if (window.adminShellState?.active === "Tags")
+            window.renderIntegratedManagementPage?.("Tags");
+        }
+        schedulePendingTagActivation();
+      }, Math.max(0, Math.min(...deadlines) - Date.now()));
+    }
+    schedulePendingTagActivation();
     function tagsIconCell(icon, name) {
       const safeName = escapeHtml(name || "Tag");
       return icon
@@ -10830,10 +11613,16 @@
       input?.addEventListener("change", () => {
         const file = input.files?.[0];
         if (!file) return;
-        const allowed = ["image/png", "image/svg+xml", "image/webp"];
+        const allowed = [
+          "image/gif",
+          "image/jpeg",
+          "image/png",
+          "image/svg+xml",
+          "image/webp",
+        ];
         if (!allowed.includes(file.type)) {
           input.value = "";
-          toast("Only PNG / SVG / WEBP are supported");
+          toast("Only GIF / JPG / JPEG / PNG / SVG / WEBP are supported");
           return;
         }
         if (file.size > 300 * 1024) {
@@ -10880,7 +11669,7 @@
 						<tr data-tags-id="${row.id}">
 							<td>${row.id}</td>
 							<td>${tagsIconCell(row.icon, row.name)}</td>
-							<td>${escapeHtml(row.name)}</td>
+							<td>${escapeHtml(row.name)}${row.pendingChanges ? `<span class="tags-pending-note">Pending${row.pendingChanges.status ? ` · ${escapeHtml(row.pendingChanges.status)}` : ""} · ${escapeHtml(new Date(row.pendingEffectiveAt).toLocaleString("zh-TW", { hour12: false }))}</span>` : ""}</td>
 							<td>${escapeHtml(row.lobbyName)}</td>
 							<td><span class="tags-layout">${escapeHtml(row.layout)}</span></td>
 							<td>${statusSwitchHtml(row.status === "Active", "tags", row.id)}</td>
@@ -10901,8 +11690,6 @@
     function tagsPaginationHtml(total) {
       const totalPages = Math.max(1, Math.ceil(total / tagsPageSize));
       tagsCurrentPage = Math.min(Math.max(1, tagsCurrentPage), totalPages);
-      const start = total ? (tagsCurrentPage - 1) * tagsPageSize + 1 : 0;
-      const end = Math.min(tagsCurrentPage * tagsPageSize, total);
       let pageButtons = "";
       const pages = [];
       if (totalPages <= 7) {
@@ -10926,7 +11713,7 @@
             : `<button class="pg-page ${p === tagsCurrentPage ? "active" : ""}" data-tags-page="${p}" type="button">${p}</button>`,
         )
         .join("");
-      return `<div class="pg-footer"><span>Showing ${start}–${end} of ${total}</span><div class="pg-pager"><select class="pg-size" id="tagsPageSize"><option value="10" ${tagsPageSize === 10 ? "selected" : ""}>10 / page</option><option value="20" ${tagsPageSize === 20 ? "selected" : ""}>20 / page</option><option value="50" ${tagsPageSize === 50 ? "selected" : ""}>50 / page</option><option value="100" ${tagsPageSize === 100 ? "selected" : ""}>100 / page</option></select><button class="pg-page" data-tags-page="first" type="button" ${tagsCurrentPage === 1 ? "disabled" : ""}>«</button><button class="pg-page" data-tags-page="prev" type="button" ${tagsCurrentPage === 1 ? "disabled" : ""}>‹</button>${pageButtons}<button class="pg-page" data-tags-page="next" type="button" ${tagsCurrentPage === totalPages ? "disabled" : ""}>›</button><button class="pg-page" data-tags-page="last" type="button" ${tagsCurrentPage === totalPages ? "disabled" : ""}>»</button></div></div>`;
+      return `<div class="tags-pg-footer"><label>Records per page: <select class="pg-size" id="tagsPageSize"><option value="10" ${tagsPageSize === 10 ? "selected" : ""}>10</option><option value="20" ${tagsPageSize === 20 ? "selected" : ""}>20</option><option value="50" ${tagsPageSize === 50 ? "selected" : ""}>50</option><option value="100" ${tagsPageSize === 100 ? "selected" : ""}>100</option></select></label><span>Total:${total}</span><div class="tags-pager"><button class="pg-page" data-tags-page="first" type="button" ${tagsCurrentPage === 1 ? "disabled" : ""}>«</button><button class="pg-page" data-tags-page="prev" type="button" ${tagsCurrentPage === 1 ? "disabled" : ""}>‹</button>${pageButtons}<button class="pg-page" data-tags-page="next" type="button" ${tagsCurrentPage === totalPages ? "disabled" : ""}>›</button><button class="pg-page" data-tags-page="last" type="button" ${tagsCurrentPage === totalPages ? "disabled" : ""}>»</button></div><label>GoTo: <input class="tags-goto" id="tagsGoTo" type="number" min="1" max="${totalPages}" value="${tagsCurrentPage}"> Page</label></div>`;
     }
     function tagsTableWithPaginationHtml() {
       const total = tagsFilteredRows.length;
@@ -10959,31 +11746,55 @@
           (!status || x.status === status),
       );
     }
+    const TAG_LAYOUTS_WITH_STATISTICS = new Set([
+      "Top 10 Row",
+      "Top 10 Full",
+      "Hot / Cold Rank",
+    ]);
+    function nextTagsEffectiveAt() {
+      const next = new Date();
+      next.setDate(next.getDate() + 1);
+      next.setHours(0, 0, 0, 0);
+      return next.toISOString();
+    }
+    function syncTagStatisticsField() {
+      const layout = document.getElementById("tagsFormLayout")?.value;
+      const field = document.getElementById("tagsStatisticsField");
+      const input = document.getElementById("tagsFormStatisticsDays");
+      const visible = TAG_LAYOUTS_WITH_STATISTICS.has(layout);
+      if (field) field.style.display = visible ? "" : "none";
+      if (input) input.disabled = !visible;
+    }
     function openTagsModal(mode, row = null) {
       tagsEditingId = mode === "edit" ? row.id : null;
+      const formRow = row ? { ...row, ...(row.pendingChanges || {}) } : null;
       const country = tagsCurrentCountry(),
         lobbies = tagsLobbyRowsForCountry(country);
       document.getElementById("tagsModalTitle").textContent =
         mode === "edit" ? "Edit Tags" : "Add Tags";
       document.getElementById("tagsModalBody").innerHTML =
         `<div class="tags-form-grid">
-			<div class="tags-form-field full"><label>Icon</label>
+			${row?.pendingChanges ? `<div class="tags-form-field full tags-pending-note">Changes are pending and will take effect at ${escapeHtml(new Date(row.pendingEffectiveAt).toLocaleString("zh-TW", { hour12: false }))}.</div>` : ""}
+			<div class="tags-form-field full"><label><span class="tags-required">*</span> Icon</label>
 				<div class="tags-icon-upload">
 					<div class="tags-icon-preview" id="tagsIconPreview">No Icon</div>
 					<div class="tags-icon-controls">
-						<input id="tagsIconFile" type="file" accept=".png,.svg,.webp,image/png,image/svg+xml,image/webp">
+						<input id="tagsIconFile" type="file" accept=".gif,.jpg,.jpeg,.png,.svg,.webp,image/gif,image/jpeg,image/png,image/svg+xml,image/webp">
 						<div class="tags-icon-buttons"><button class="tags-icon-remove" id="tagsIconRemove" type="button">Remove Icon</button></div>
-						<div class="tags-icon-tip">Supports PNG, SVG, and WEBP. Recommended size: 128 × 128 px. Maximum file size: 300 KB.</div>
+						<div class="tags-icon-tip">Supports GIF, JPG, JPEG, PNG, and SVG. Aspect ratio: 1:1. Max dimensions: 128 × 128 px. Max file size: 300 KB.</div>
 					</div>
 				</div>
 			</div>
-			<div class="tags-form-field full"><label>Tags Name</label><input id="tagsFormName" maxlength="80" value="${escapeHtml(row?.name || "")}" placeholder="Enter tags name"></div>
-			<div class="tags-form-field"><label>Lobby Name</label><select id="tagsFormLobby">${tagsLobbyOptions(country, row?.lobbyId || "")}</select></div>
-			<div class="tags-form-field"><label>Layout Style</label><select id="tagsFormLayout">${TAG_LAYOUTS.map((x) => `<option ${row?.layout === x ? "selected" : ""}>${x}</option>`).join("")}</select></div>
-			<input id="tagsFormCountry" type="hidden" value="${escapeHtml(country)}">
-			<input id="tagsFormCurrency" type="hidden" value="${escapeHtml(row?.currency || lobbies[0]?.currency || (typeof lobbyCurrencyByCountry === "function" ? lobbyCurrencyByCountry(country) : "USD"))}">
-			<div class="tags-form-field"><label>Status</label><select id="tagsFormStatus"><option ${!row || row.status === "Active" ? "selected" : ""}>Active</option><option ${row?.status === "Disabled" ? "selected" : ""}>Disabled</option></select></div>
-			<div class="tags-form-field"><label>Sort</label><input id="tagsFormSort" type="number" min="0" step="1" value="${row?.sort ?? 0}"></div>
+			<div class="tags-form-field full"><label><span class="tags-required">*</span> Tags Name</label><input id="tagsFormName" maxlength="80" value="${escapeHtml(formRow?.name || "")}" placeholder="Please enter"></div>
+			<div class="tags-form-field"><label><span class="tags-required">*</span> Lobby Name</label><select id="tagsFormLobby">${tagsLobbyOptions(country, formRow?.lobbyId || "")}</select></div>
+			<div class="tags-form-field"><label><span class="tags-required">*</span> Layout Style</label><select id="tagsFormLayout">${TAG_LAYOUTS.map((x) => `<option ${formRow?.layout === x ? "selected" : ""}>${x}</option>`).join("")}</select></div>
+			<div class="tags-form-field" id="tagsStatisticsField" style="display:none"><label>Statistics time (days)</label><input id="tagsFormStatisticsDays" type="number" min="1" step="1" value="${escapeHtml(formRow?.statisticsDays ?? "")}" placeholder="Enter number of days"><span class="tags-field-hint">Optional: limits Hot &amp; Cold / Top 10 statistics to the past N days.</span></div>
+			<div class="tags-form-field"><label>Game Tags Name display</label><select id="tagsFormShowGameTagName"><option value="true" ${formRow?.showGameTagName !== false ? "selected" : ""}>On</option><option value="false" ${formRow?.showGameTagName === false ? "selected" : ""}>Off</option></select><span class="tags-field-hint">On: show Tags Name on the front end. Off: hide it.</span></div>
+			<div class="tags-form-field"><label>Country</label><input id="tagsFormCountry" type="text" readonly value="${escapeHtml(formRow?.country || country)}"></div>
+			<input id="tagsFormCurrency" type="hidden" value="${escapeHtml(formRow?.currency || lobbies[0]?.currency || (typeof lobbyCurrencyByCountry === "function" ? lobbyCurrencyByCountry(country) : "USD"))}">
+			<div class="tags-form-field"><label>Status</label><select id="tagsFormStatus"><option ${formRow ? formRow.status === "Active" ? "selected" : "" : ""}>Active</option><option ${!formRow || formRow.status === "Disabled" ? "selected" : ""}>Disabled</option></select></div>
+			<div class="tags-form-field"><label><span class="tags-required">*</span> Sort</label><input id="tagsFormSort" type="number" min="0" step="1" value="${formRow?.sort ?? 0}"></div>
+			<div class="tags-form-field full"><label>Description</label><textarea id="tagsFormDescription" placeholder="Please enter">${escapeHtml(formRow?.description || "")}</textarea></div>
 		</div>`;
       document
         .getElementById("tagsFormLobby")
@@ -10996,8 +11807,14 @@
             (typeof lobbyCurrencyByCountry === "function"
               ? lobbyCurrencyByCountry(country)
               : "USD");
+          document.getElementById("tagsFormCountry").value =
+            lobby?.country || country;
         });
-      bindTagsIconUpload(row?.icon || "");
+      document
+        .getElementById("tagsFormLayout")
+        ?.addEventListener("change", syncTagStatisticsField);
+      syncTagStatisticsField();
+      bindTagsIconUpload(formRow?.icon || "");
       document.getElementById("tagsModalFoot").style.display = "flex";
       document.getElementById("tagsModalMask").classList.add("open");
     }
@@ -11045,17 +11862,38 @@
           document.getElementById("tagsFormCurrency")?.value ||
           "USD",
         status = document.getElementById("tagsFormStatus")?.value || "Active",
-        sort = Math.max(
-          0,
-          Number(document.getElementById("tagsFormSort")?.value || 0),
-        ),
-        icon = tagsPendingIcon || "";
+        showGameTagName =
+          document.getElementById("tagsFormShowGameTagName")?.value !== "false",
+        statisticsDaysRaw =
+          document.getElementById("tagsFormStatisticsDays")?.value.trim() || "",
+        statisticsDays = statisticsDaysRaw ? Number(statisticsDaysRaw) : "",
+        rawSort = document.getElementById("tagsFormSort")?.value || "",
+        sort = Number(rawSort),
+        icon = tagsPendingIcon || "",
+        description =
+          document.getElementById("tagsFormDescription")?.value.trim() || "";
       if (!name) {
         toast("Please enter Tags Name");
         return;
       }
+      if (!icon && !tagsEditingId) {
+        toast("Please upload Tags Icon");
+        return;
+      }
       if (!lobby) {
         toast("Please select Lobby");
+        return;
+      }
+      if (!Number.isInteger(sort) || sort < 0) {
+        toast("Sort must be a non-negative whole number");
+        return;
+      }
+      if (
+        TAG_LAYOUTS_WITH_STATISTICS.has(layout) &&
+        statisticsDaysRaw &&
+        (!Number.isInteger(statisticsDays) || statisticsDays < 1)
+      ) {
+        toast("Statistics time must be a positive whole number of days");
         return;
       }
       const duplicate = tagsRows.some(
@@ -11074,8 +11912,9 @@
         const row = tagsRows.find(
           (x) => String(x.id) === String(tagsEditingId),
         );
-        if (row)
-          Object.assign(row, {
+        if (row) {
+          row.pendingChanges = {
+            ...(row.pendingChanges || {}),
             name,
             lobbyId: Number(lobbyId),
             lobbyName: lobby.name,
@@ -11085,7 +11924,14 @@
             status,
             sort,
             icon,
-          });
+            description,
+            showGameTagName,
+            statisticsDays: TAG_LAYOUTS_WITH_STATISTICS.has(layout)
+              ? statisticsDays
+              : "",
+          };
+          row.pendingEffectiveAt = nextTagsEffectiveAt();
+        }
       } else {
         const nextId = Math.max(2000, ...tagsRows.map((x) => +x.id || 0)) + 1;
         tagsRows.push({
@@ -11099,13 +11945,26 @@
           status,
           sort,
           icon,
+          description,
+          showGameTagName,
+          statisticsDays: TAG_LAYOUTS_WITH_STATISTICS.has(layout)
+            ? statisticsDays
+            : "",
           games: [],
         });
       }
       saveState(STORE_TAGS, tagsRows);
+      schedulePendingTagActivation();
+      const savedRow = editing
+        ? tagsRows.find((x) => String(x.id) === String(tagsEditingId))
+        : null;
       closeTagsModal();
       window.renderIntegratedManagementPage?.("Tags");
-      toast(editing ? "Tags updated" : "Tags created");
+      toast(
+        editing && savedRow?.pendingEffectiveAt
+          ? `Changes scheduled for ${new Date(savedRow.pendingEffectiveAt).toLocaleString("zh-TW", { hour12: false })}`
+          : "Tags created",
+      );
     }
     window.tagsPageHtml = tagsPageHtml;
     document.getElementById("adminContent").addEventListener("click", (e) => {
@@ -11193,7 +12052,27 @@
         tagsPageSize = Math.max(1, Number(e.target.value) || 10);
         tagsCurrentPage = 1;
         renderTagsTable(tagsFilteredRows);
+      } else if (e.target.id === "tagsGoTo") {
+        const totalPages = Math.max(
+          1,
+          Math.ceil(tagsFilteredRows.length / tagsPageSize),
+        );
+        tagsCurrentPage = Math.min(
+          totalPages,
+          Math.max(1, Number(e.target.value) || 1),
+        );
+        renderTagsTable(tagsFilteredRows);
       }
+    });
+    document.getElementById("adminContent").addEventListener("keydown", (e) => {
+      if (
+        window.adminShellState?.active !== "Tags" ||
+        e.target.id !== "tagsGoTo" ||
+        e.key !== "Enter"
+      )
+        return;
+      e.preventDefault();
+      e.target.dispatchEvent(new Event("change", { bubbles: true }));
     });
     document
       .getElementById("tagsModalClose")
@@ -11291,7 +12170,6 @@
       gameAddPageSize = 10,
       gameAddKeyword = "",
       gameAddType = "",
-      gameAddProvider = "",
       gameAddVendor = "";
     let gameAddSelectedIds = new Set();
     let draggedGameId = null;
@@ -11353,16 +12231,16 @@
 						<div class="game-bind-title">
 							<button class="game-back" id="gameBackBtn" type="button">← Back to Tags</button>
 							<div>
-								<h1>Edit Game — ${escapeHtml(row.name)}</h1><div class="game-bind-meta">Lobby: ${escapeHtml(row.lobbyName)} · Country: ${escapeHtml(row.country)}</div>
+								<h1>Tags: ${escapeHtml(row.name)}</h1><div class="game-bind-meta">Lobby: ${escapeHtml(row.lobbyName)} · Country: ${escapeHtml(row.country)}</div>
 							</div>
 						</div>
 						<button class="btn" id="openAddGamesBtn" type="button">+ Add games</button>
 					</div>
 					<div class="game-bind-filter">
-						<div class="game-bind-field"><label>Game Name</label><input id="bindGameName" value="${escapeHtml(gameBindFilters.name)}" placeholder="Fuzzy search"></div>
+						<div class="game-bind-field"><label>Game Name</label><input id="bindGameName" value="${escapeHtml(gameBindFilters.name)}" placeholder="Please enter"></div>
 						<div class="game-bind-field"><label>Game Type</label><select id="bindGameType">${gameFilterOptions(GAME_TYPES, gameBindFilters.type)}</select></div>
 						<div class="game-bind-field"><label>Game vendor</label><select id="bindGameVendor">${gameFilterOptions(GAME_VENDORS, gameBindFilters.vendor)}</select></div>
-						<div class="game-bind-filter-actions"><button class="btn light" id="bindGameReset" type="button">Reset</button><button class="btn" id="bindGameSearch" type="button">Search</button></div>
+						<div class="game-bind-filter-actions"><button class="btn tags-reset-btn" id="bindGameReset" type="button">Reset</button><button class="btn" id="bindGameSearch" type="button">Search</button></div>
 					</div>
 					<div class="game-bind-bulk">
 						<button class="game-remove-btn" id="removeSelectedGamesBtn" type="button" ${gameBindSelectedIds.size ? "" : "disabled"}>Remove Selected</button>
@@ -11404,14 +12282,13 @@
       const buttons = Array.from({ length: count }, (_, i) => i + 1).filter(
         (p) => count <= 7 || p === 1 || p === count || Math.abs(p - page) <= 1,
       );
-      return `<div class="pg-footer"><span>Total ${total} items</span><div class="pg-pager">
-					<select class="pg-size" id="${prefix}PageSize">${[5, 10, 20, 50].map((x) => `<option value="${x}" ${x === size ? "selected" : ""}>${x} / page</option>`).join("")}</select>
+      return `<div class="game-pagination"><label>Records per page: <select class="pg-size" id="${prefix}PageSize">${[5, 10, 20, 50].map((x) => `<option value="${x}" ${x === size ? "selected" : ""}>${x}</option>`).join("")}</select></label><span>Total:${total}</span><div class="pg-pager">
 					<button class="pg-page" data-${prefix}-page="1" ${page <= 1 ? "disabled" : ""}>«</button>
 					<button class="pg-page" data-${prefix}-page="${page - 1}" ${page <= 1 ? "disabled" : ""}>‹</button>
 					${buttons.map((p, i) => `${i && p - buttons[i - 1] > 1 ? "<span>…</span>" : ""}<button class="pg-page ${p === page ? "active" : ""}" data-${prefix}-page="${p}">${p}</button>`).join("")}
 					<button class="pg-page" data-${prefix}-page="${page + 1}" ${page >= count ? "disabled" : ""}>›</button>
 					<button class="pg-page" data-${prefix}-page="${count}" ${page >= count ? "disabled" : ""}>»</button>
-				</div></div>`;
+				</div><label>GoTo: <input class="game-goto" id="${prefix}GoTo" type="number" min="1" max="${count}" value="${page}"> Page</label></div>`;
     }
     function refreshGameMasterData() {
       let raw = [];
@@ -11590,7 +12467,6 @@
               .toLowerCase()
               .includes(gameAddKeyword.toLowerCase())) &&
           (!gameAddType || g.type === gameAddType) &&
-          (!gameAddProvider || g.provider === gameAddProvider) &&
           (!gameAddVendor || g.vendor === gameAddVendor),
       );
     }
@@ -11607,14 +12483,13 @@
         [...gameAddSelectedIds].filter((id) => visibleIds.has(String(id))),
       );
       return `<div class="game-add-toolbar game-bind-filter">
-					<div class="game-bind-field"><label>Game Name / Code</label><input id="gameAddKeyword" value="${escapeHtml(gameAddKeyword)}" placeholder="Fuzzy search"></div>
+					<div class="game-bind-field"><label>Game Name</label><input id="gameAddKeyword" value="${escapeHtml(gameAddKeyword)}" placeholder="Please enter"></div>
 					<div class="game-bind-field"><label>Game Type</label><select id="gameAddType">${gameFilterOptions(dynamicGameValues("type"), gameAddType)}</select></div>
-					<div class="game-bind-field"><label>Provider</label><select id="gameAddProvider">${gameFilterOptions(dynamicGameValues("provider"), gameAddProvider)}</select></div>
 					<div class="game-bind-field"><label>Game vendor</label><select id="gameAddVendor">${gameFilterOptions(dynamicGameValues("vendor"), gameAddVendor)}</select></div>
-					<div class="game-bind-filter-actions"><button class="btn light" id="gameAddReset" type="button">Reset</button><button class="btn" id="gameAddSearch" type="button">Search</button></div>
+					<div class="game-bind-filter-actions"><button class="btn tags-reset-btn" id="gameAddReset" type="button">Reset</button><button class="btn" id="gameAddSearch" type="button">Search</button></div>
 				</div>
-				<div class="game-bind-table-wrap"><table class="game-add-table"><thead><tr><th><input id="gameAddCheckAll" type="checkbox"></th><th>Provider</th><th>Game vendor</th><th>Game Name</th><th>Game Code</th><th>Game Type</th></tr></thead><tbody>
-					${pageRows.length ? pageRows.map((g) => `<tr><td><input class="game-add-check" type="checkbox" value="${escapeHtml(g.id)}" ${gameAddSelectedIds.has(String(g.id)) ? "checked" : ""}></td><td>${escapeHtml(g.provider)}</td><td>${escapeHtml(g.vendor)}</td><td>${escapeHtml(g.name)}</td><td>${escapeHtml(g.code || "-")}</td><td>${escapeHtml(g.type)}</td></tr>`).join("") : `<tr><td colspan="6" class="empty-row">No games available</td></tr>`}
+				<div class="game-add-table-wrap"><table class="game-add-table"><thead><tr><th><input id="gameAddCheckAll" type="checkbox"></th><th></th><th>Game vendor</th><th>Game Name</th><th>Game Type</th></tr></thead><tbody>
+					${pageRows.length ? pageRows.map((g) => `<tr><td><input class="game-add-check" type="checkbox" value="${escapeHtml(g.id)}" ${gameAddSelectedIds.has(String(g.id)) ? "checked" : ""}></td><td></td><td>${escapeHtml(g.vendor)}</td><td>${escapeHtml(g.name)}</td><td>${escapeHtml(g.type)}</td></tr>`).join("") : `<tr><td colspan="5" class="empty-row">No games available</td></tr>`}
 				</tbody></table></div>${gamePaginationHtml(rows.length, gameAddPage, gameAddPageSize, "add")}`;
     }
     function openAddGames() {
@@ -11623,7 +12498,6 @@
       gameAddPageSize = 10;
       gameAddKeyword = "";
       gameAddType = "";
-      gameAddProvider = "";
       gameAddVendor = "";
       gameAddSelectedIds = new Set();
       document.getElementById("gameAddBody").innerHTML = gameAddBodyHtml();
@@ -11736,6 +12610,18 @@
         rerenderGameBinding();
         return;
       }
+      if (e.target.id === "bindGoTo") {
+        const totalPages = Math.max(
+          1,
+          Math.ceil(filteredBoundGames().length / gameBindPageSize),
+        );
+        gameBindPage = Math.min(
+          totalPages,
+          Math.max(1, Number(e.target.value) || 1),
+        );
+        rerenderGameBinding();
+        return;
+      }
       if (e.target.id === "bindGameCheckAll") {
         document.querySelectorAll(".bind-game-check").forEach((cb) => {
           cb.checked = e.target.checked;
@@ -11801,8 +12687,6 @@
           document.getElementById("gameAddKeyword")?.value || ""
         ).trim();
         gameAddType = document.getElementById("gameAddType")?.value || "";
-        gameAddProvider =
-          document.getElementById("gameAddProvider")?.value || "";
         gameAddVendor = document.getElementById("gameAddVendor")?.value || "";
         gameAddPage = 1;
         rerenderAddGames();
@@ -11811,7 +12695,6 @@
       if (e.target.closest("#gameAddReset")) {
         gameAddKeyword = "";
         gameAddType = "";
-        gameAddProvider = "";
         gameAddVendor = "";
         gameAddPage = 1;
         rerenderAddGames();
@@ -11827,6 +12710,18 @@
       if (e.target.id === "addPageSize") {
         gameAddPageSize = Number(e.target.value) || 10;
         gameAddPage = 1;
+        rerenderAddGames();
+        return;
+      }
+      if (e.target.id === "addGoTo") {
+        const totalPages = Math.max(
+          1,
+          Math.ceil(availableGames().length / gameAddPageSize),
+        );
+        gameAddPage = Math.min(
+          totalPages,
+          Math.max(1, Number(e.target.value) || 1),
+        );
         rerenderAddGames();
         return;
       }
@@ -11866,6 +12761,9 @@
         };
         gameBindPage = 1;
         rerenderGameBinding();
+      } else if (e.target.id === "bindGoTo") {
+        e.preventDefault();
+        e.target.dispatchEvent(new Event("change", { bubbles: true }));
       }
     });
     document.getElementById("gameAddBody").addEventListener("keydown", (e) => {
@@ -11874,7 +12772,6 @@
         [
           "gameAddKeyword",
           "gameAddType",
-          "gameAddProvider",
           "gameAddVendor",
         ].includes(e.target.id)
       ) {
@@ -11883,11 +12780,12 @@
           document.getElementById("gameAddKeyword")?.value || ""
         ).trim();
         gameAddType = document.getElementById("gameAddType")?.value || "";
-        gameAddProvider =
-          document.getElementById("gameAddProvider")?.value || "";
         gameAddVendor = document.getElementById("gameAddVendor")?.value || "";
         gameAddPage = 1;
         rerenderAddGames();
+      } else if (e.target.id === "addGoTo") {
+        e.preventDefault();
+        e.target.dispatchEvent(new Event("change", { bubbles: true }));
       }
     });
 
@@ -12243,8 +13141,18 @@
         if (type === "tags" && typeof tagsRows !== "undefined") {
           const r = tagsRows.find((x) => String(x.id) === String(id));
           if (r) {
-            r.status = on ? "Active" : "Disabled";
+            r.pendingChanges = {
+              ...(r.pendingChanges || {}),
+              status: on ? "Active" : "Disabled",
+            };
+            r.pendingEffectiveAt = nextTagsEffectiveAt();
             saveState("aibet_tags_rows_v1", tagsRows);
+            schedulePendingTagActivation();
+            window.renderIntegratedManagementPage?.("Tags");
+            if (typeof toast === "function")
+              toast(
+                `Status change scheduled for ${new Date(r.pendingEffectiveAt).toLocaleString("zh-TW", { hour12: false })}`,
+              );
           }
         }
       });
@@ -12399,6 +13307,7 @@
         } catch (_) {
           rows = [];
         }
+        rows = window.applyDueTagChanges(rows);
         if (!Array.isArray(rows) || !rows.length) {
           try {
             if (typeof tagsRows !== "undefined" && Array.isArray(tagsRows))
@@ -12442,6 +13351,8 @@
               gameCount: Array.isArray(source?.games)
                 ? source.games.length
                 : Number(row.gameCount) || 0,
+              showGameTagName: source?.showGameTagName !== false,
+              statisticsDays: source?.statisticsDays || "",
               device: row.device || "PC / H5",
               status: statusOn(row.status) ? "Enabled" : "Disabled",
               sort: Number(row.sort) || index + 1,
