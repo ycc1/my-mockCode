@@ -3896,6 +3896,154 @@
       }
 
 
+      /* Casino Main Menu list */
+      #casinoMainMenu .mm-list-wrap {
+        overflow-x: auto;
+        margin-top: 14px;
+      }
+
+      #casinoMainMenu .mm-list-table {
+        width: 100%;
+        min-width: 1280px;
+        table-layout: fixed;
+        border-collapse: collapse;
+      }
+
+      #casinoMainMenu .mm-list-table th,
+      #casinoMainMenu .mm-list-table td {
+        height: 50px;
+        padding: 6px 8px;
+        border: 1px solid var(--line);
+        color: var(--text);
+        text-align: center;
+        vertical-align: middle;
+        white-space: nowrap;
+      }
+
+      #casinoMainMenu .mm-list-table th {
+        height: 44px;
+        background: var(--bg);
+        font-weight: 700;
+      }
+
+      #casinoMainMenu .mm-list-table tbody tr:nth-child(even) {
+        background: color-mix(in srgb, var(--bg) 42%, transparent);
+      }
+
+      #casinoMainMenu .mm-list-table th:nth-child(1),
+      #casinoMainMenu .mm-list-table td:nth-child(1) { width: 3.5%; }
+      #casinoMainMenu .mm-list-table th:nth-child(2),
+      #casinoMainMenu .mm-list-table td:nth-child(2) { width: 6.5%; }
+      #casinoMainMenu .mm-list-table th:nth-child(3),
+      #casinoMainMenu .mm-list-table td:nth-child(3) { width: 4%; }
+      #casinoMainMenu .mm-list-table th:nth-child(4),
+      #casinoMainMenu .mm-list-table td:nth-child(4) { width: 9%; text-align: left; }
+      #casinoMainMenu .mm-list-table th:nth-child(5),
+      #casinoMainMenu .mm-list-table td:nth-child(5) { width: 5%; }
+      #casinoMainMenu .mm-list-table th:nth-child(6),
+      #casinoMainMenu .mm-list-table td:nth-child(6) { width: 5%; }
+      #casinoMainMenu .mm-list-table th:nth-child(7),
+      #casinoMainMenu .mm-list-table td:nth-child(7) { width: 8%; }
+      #casinoMainMenu .mm-list-table th:nth-child(8),
+      #casinoMainMenu .mm-list-table td:nth-child(8) { width: 14%; text-align: left; }
+      #casinoMainMenu .mm-list-table th:nth-child(9),
+      #casinoMainMenu .mm-list-table td:nth-child(9) { width: 8%; }
+      #casinoMainMenu .mm-list-table th:nth-child(10),
+      #casinoMainMenu .mm-list-table td:nth-child(10) { width: 5%; }
+      #casinoMainMenu .mm-list-table th:nth-child(11),
+      #casinoMainMenu .mm-list-table td:nth-child(11) { width: 8%; }
+      #casinoMainMenu .mm-list-table th:nth-child(12),
+      #casinoMainMenu .mm-list-table td:nth-child(12) { width: 14%; }
+      #casinoMainMenu .mm-list-table th:nth-child(13),
+      #casinoMainMenu .mm-list-table td:nth-child(13) { width: 10%; }
+
+      #casinoMainMenu .mm-list-table .mm-sort-input {
+        width: 70px;
+        height: 28px;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        background: transparent;
+        color: var(--text);
+        text-align: left;
+        padding: 0 8px;
+      }
+
+      #casinoMainMenu .mm-list-table .mm-position-badge {
+        display: inline-flex;
+        min-width: 40px;
+        height: 20px;
+        align-items: center;
+        justify-content: center;
+        padding: 0 6px;
+        border-radius: 4px;
+        background: #20b45a;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      #casinoMainMenu .mm-list-table .mm-position-badge.down {
+        background: #ff5b2e;
+      }
+
+      #casinoMainMenu .mm-list-table .mm-status-switch {
+        width: 32px;
+        height: 18px;
+        margin: 0 auto;
+        background: #b7c1ce;
+      }
+
+      #casinoMainMenu .mm-list-table .mm-status-switch::after {
+        top: 2px;
+        left: 2px;
+        width: 14px;
+        height: 14px;
+      }
+
+      #casinoMainMenu .mm-list-table .mm-status-switch.on::after {
+        left: 16px;
+      }
+
+      #casinoMainMenu .mm-list-table .mm-status-text {
+        display: none;
+      }
+
+      #casinoMainMenu .mm-row-actions {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      #casinoMainMenu .mm-row-action {
+        display: inline-flex;
+        width: 20px;
+        height: 24px;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--blue);
+        cursor: pointer;
+      }
+
+      #casinoMainMenu .mm-row-action svg {
+        width: 17px;
+        height: 17px;
+        fill: currentColor;
+      }
+
+      #casinoMainMenu .mm-row-action.delete {
+        color: #ff4d5c;
+      }
+
+      #casinoMainMenu .mm-list-table .grip {
+        color: var(--text);
+        cursor: grab;
+        font-size: 16px;
+      }
+
       /* =========================================================
          Casino Main Menu Create / Edit modal
          Screenshot-matched fields and layout
@@ -4812,8 +4960,7 @@
             <div>
               <h1>Casino Main Menu</h1>
               <p>
-                配置前台左侧 Casino 菜单；Up 与 Down 分区独立新增与排序，
-                新增时无需再选择 Position。
+                配置前台左侧 Casino 菜单；Up 与 Down 菜单统一展示，排序仍按 Position 分别计算。
               </p>
             </div>
             <div class="actions">
@@ -4842,45 +4989,17 @@
           <div class="card">
             <div class="section-title">
               <div>
-                <h2>Up Menu Configuration</h2>
-                <p>
-                  前台 Casino 菜单上半部；此区新增的项目自动设为 Up，
-                  Sort 仅在 Up 区块内独立排序。
-                </p>
+                <h2>Main Menu Configuration</h2>
+                <p>Up / Down 菜单统一列表；Sort 在各 Position 内独立排序。</p>
               </div>
               <div class="actions">
-                <button class="btn primary" id="mainMenuAddUpBtn">
-                  ＋ Create
-                </button>
+                <button class="btn primary" id="mainMenuAddBtn">＋ Create</button>
               </div>
             </div>
-            <div class="table-wrap" style="margin-top: 14px">
-              <table>
-                <thead id="mainMenuUpThead"></thead>
-                <tbody id="mainMenuUpTbody"></tbody>
-              </table>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="section-title">
-              <div>
-                <h2>Down Menu Configuration</h2>
-                <p>
-                  前台 Casino 菜单下半部；此区新增的项目自动设为 Down，
-                  Sort 仅在 Down 区块内独立排序。
-                </p>
-              </div>
-              <div class="actions">
-                <button class="btn primary" id="mainMenuAddDownBtn">
-                  ＋ Create
-                </button>
-              </div>
-            </div>
-            <div class="table-wrap" style="margin-top: 14px">
-              <table>
-                <thead id="mainMenuDownThead"></thead>
-                <tbody id="mainMenuDownTbody"></tbody>
+            <div class="table-wrap mm-list-wrap">
+              <table class="mm-list-table">
+                <thead id="mainMenuThead"></thead>
+                <tbody id="mainMenuTbody"></tbody>
               </table>
             </div>
           </div>
@@ -5310,11 +5429,13 @@
           "Sort",
           "Icon",
           "Menu Name",
-          "Parent Menu",
-          "Link Type",
-          "Link Value",
-          "Device",
+          "Position",
           "Status",
+          "Link Type",
+          "Link / Route",
+          "Parent Menu",
+          "Device",
+          "Login Required",
           "Updated Time",
           "Actions",
         ],
@@ -7912,7 +8033,12 @@
         const initialLinkValue = row.linkValue || row.link || "";
 
         const internalPageOptions = [
-          ["Favorites (/casino/favourites)", "/casino/favourites"],
+          [
+            active === "mainMenu"
+              ? "Favorites (/casino/favourites)"
+              : "Favourites (/casino/favourites)",
+            "/casino/favourites",
+          ],
           ["Recent (/casino/recent)", "/casino/recent"],
           ["Frequently Played (/casino/frequently)", "/casino/frequently"],
           ["Recent Wins (/casino/recentwin)", "/casino/recentwin"],
@@ -8030,10 +8156,53 @@
           }
 
           existing?.replaceWith(nextControl);
+          if (active === "mainMenu") {
+            nextControl.addEventListener("change", () => {
+              const settings = grid.querySelector(
+                ".mainmenu-favorite-settings",
+              );
+              if (settings)
+                settings.hidden = nextControl.value !== "/casino/favourites";
+            });
+          }
         };
+
+        const syncFavoriteSettings = () => {
+          if (active !== "mainMenu") return;
+          const linkValue = linkValueField?.querySelector(
+            '[data-key="linkValue"]',
+          )?.value;
+          const fields = grid.querySelector(".mainmenu-favorite-settings");
+          if (fields) fields.hidden = linkValue !== "/casino/favourites";
+        };
+        if (active === "mainMenu") {
+          const settings = document.createElement("div");
+          settings.className = "field full mainmenu-favorite-settings";
+          settings.hidden = true;
+          settings.innerHTML = `
+            <label>Sorting Method</label>
+            <select data-key="favoriteSortMethod">
+              <option value="">Please select</option>
+              <option value="Play Count" ${row.favoriteSortMethod === "Play Count" || row.favoriteStatisticsMethod === "Play Count" ? "selected" : ""}>Play Count</option>
+              <option value="Bet Count" ${row.favoriteSortMethod === "Bet Count" || row.favoriteStatisticsMethod === "Bet Count" ? "selected" : ""}>Bet Count</option>
+              <option value="Profit Amount" ${row.favoriteSortMethod === "Profit Amount" || row.favoriteStatisticsMethod === "Profit Amount" ? "selected" : ""}>Profit Amount</option>
+            </select>
+            <label>Statistics Period (seconds)</label>
+            <input data-key="favoriteStatisticsPeriodSeconds" type="number" min="1" step="1" placeholder="Enter seconds" value="${esc(row.favoriteStatisticsPeriodSeconds || "")}">
+            <label>Layout</label>
+            <select data-key="favoriteLayout">
+              <option value="">Please select</option>
+              <option value="One Column" ${row.favoriteLayout === "One Column" ? "selected" : ""}>One Column</option>
+              <option value="Two Columns" ${row.favoriteLayout === "Two Columns" ? "selected" : ""}>Two Columns</option>
+            </select>
+          `;
+          linkValueField?.insertAdjacentElement("afterend", settings);
+          syncFavoriteSettings();
+        }
 
         linkTypeSelect?.addEventListener("change", () => {
           renderLinkedValueControl(false);
+          syncFavoriteSettings();
         });
 
         renderLinkedValueControl(true);
@@ -8281,6 +8450,21 @@
           obj.parentMenu = obj.parentMenu || "-";
           obj.loginRequired = obj.loginRequired || "No";
           delete obj.functionKey;
+          if (obj.linkValue === "/casino/favourites") {
+            const period = Number(obj.favoriteStatisticsPeriodSeconds);
+            if (
+              obj.favoriteStatisticsPeriodSeconds &&
+              (!Number.isInteger(period) || period < 1)
+            ) {
+              toast("Statistics Period must be a positive whole number of seconds");
+              return;
+            }
+            delete obj.favoriteStatisticsMethod;
+          } else {
+            delete obj.favoriteSortMethod;
+            delete obj.favoriteStatisticsPeriodSeconds;
+            delete obj.favoriteLayout;
+          }
 
           if (obj.parentMenu === obj.name) {
             toast("Parent Menu cannot be the same as Menu Name");
@@ -9141,24 +9325,28 @@
         .sort((a, b) => (Number(a.sort) || 0) - (Number(b.sort) || 0));
     }
 
-    function mainMenuTableRenderByPosition(position) {
+    function mainMenuTableRenderByPosition(position = "All") {
       const schema = schemas.mainMenu;
-      const head = document.getElementById(
-        position === "Up" ? "mainMenuUpThead" : "mainMenuDownThead",
-      );
-      const body = document.getElementById(
-        position === "Up" ? "mainMenuUpTbody" : "mainMenuDownTbody",
-      );
+      const head = document.getElementById("mainMenuThead");
+      const body = document.getElementById("mainMenuTbody");
       if (!head || !body) return;
 
-      const columns = schema.columns.filter((column) => column !== "Position");
+      const columns = schema.columns;
       head.innerHTML =
-        '<tr><th style="width:36px"></th>' +
-        columns.map((column) => `<th>${column}</th>`).join("") +
+        '<tr><th>Drag</th>' +
+        columns.map((column) =>
+          `<th>${column === "Link / Route" ? "Link / Route" : column}</th>`,
+        ).join("") +
         "</tr>";
 
       const keyword = mainMenuSearchText.toLowerCase();
-      const positionRows = mainMenuRowsByPosition(position);
+      const positionRows =
+        position === "All"
+          ? [
+              ...mainMenuRowsByPosition("Up"),
+              ...mainMenuRowsByPosition("Down"),
+            ]
+          : mainMenuRowsByPosition(position);
       const filteredRows = positionRows.filter(
         (row) =>
           (!keyword ||
@@ -9170,19 +9358,28 @@
       body.innerHTML = "";
 
       filteredRows.forEach((row) => {
+        const rowPosition = row.position || "Up";
         const tr = document.createElement("tr");
         tr.draggable = true;
         tr.dataset.id = row.id;
 
-        let rowHtml = '<td class="grip">⠿</td>';
+        let rowHtml = '<td class="grip" aria-label="Drag to reorder">⠿</td>';
 
         columns.forEach((column) => {
           if (column === "Actions") {
             rowHtml += `
-              <td>
-                <span class="link mm-edit">Edit</span>　
-                <span class="link mm-copy">Duplicate</span>　
-                <span class="link mm-delete">Delete</span>
+              <td class="mm-actions-cell">
+                <div class="mm-row-actions">
+                  <button class="mm-row-action mm-edit" type="button" title="Edit" aria-label="Edit">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm17.71-10.04a1 1 0 0 0 0-1.42l-2.5-2.5a1 1 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 2-1.66z"/></svg>
+                  </button>
+                  <button class="mm-row-action mm-copy" type="button" title="Duplicate" aria-label="Duplicate">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/></svg>
+                  </button>
+                  <button class="mm-row-action mm-delete delete" type="button" title="Delete" aria-label="Delete">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                  </button>
+                </div>
               </td>
             `;
           } else if (column === "Status") {
@@ -9205,7 +9402,7 @@
                   class="sort-input mm-sort-input"
                   type="number"
                   min="1"
-                  max="${Math.max(1, positionRows.length)}"
+                  max="${Math.max(1, mainMenuRowsByPosition(rowPosition).length)}"
                   value="${row.sort || 1}"
                 >
               </td>
@@ -9224,11 +9421,18 @@
               <td>
                 ${
                   row.icon
-                    ? `<img class="icon-thumb" src="${row.icon}">`
+                    ? `<img class="icon-thumb" src="${row.icon}" alt="${esc(row.name || "Menu")} icon">`
                     : '<div class="icon-thumb"></div>'
                 }
               </td>
             `;
+          } else if (column === "Position") {
+            const menuPosition = rowPosition;
+            rowHtml += `<td><span class="mm-position-badge ${menuPosition === "Down" ? "down" : ""}">${esc(menuPosition)}</span></td>`;
+          } else if (column === "Login Required") {
+            rowHtml += `<td>${esc(row.loginRequired || "No")}</td>`;
+          } else if (column === "Link / Route") {
+            rowHtml += `<td>${esc(row.linkValue || row.link || "-")}</td>`;
           } else {
             rowHtml += `<td>${esc(cellVal(row, column))}</td>`;
           }
@@ -9244,7 +9448,7 @@
         });
 
         tr.querySelector(".mm-sort-input")?.addEventListener("change", (event) => {
-          const group = mainMenuRowsByPosition(position);
+          const group = mainMenuRowsByPosition(rowPosition);
           const from = group.findIndex(
             (item) => String(item.id) === String(row.id),
           );
@@ -9267,7 +9471,7 @@
 
         tr.querySelector(".mm-edit").onclick = () => {
           active = "mainMenu";
-          mainMenuCreatePosition = row.position || position;
+          mainMenuCreatePosition = rowPosition;
           openForm(row.id);
         };
 
@@ -9276,8 +9480,8 @@
           const copied = clone(row);
           copied.id = Date.now();
           copied.name = (copied.name || "Menu") + " Copy";
-          copied.position = position;
-          copied.sort = mainMenuRowsByPosition(position).length + 1;
+          copied.position = rowPosition;
+          copied.sort = mainMenuRowsByPosition(rowPosition).length + 1;
           rows.push(copied);
           normalizeMainMenuSort();
           persist();
@@ -9338,7 +9542,21 @@
           const targetId = rowElement.dataset.id;
           if (String(draggedId) === String(targetId)) return;
 
-          const group = mainMenuRowsByPosition(position);
+          const rows = state.data.mainMenu || [];
+          const draggedRow = rows.find(
+            (item) => String(item.id) === String(draggedId),
+          );
+          const targetRow = rows.find(
+            (item) => String(item.id) === String(targetId),
+          );
+          const draggedPosition = draggedRow?.position || "Up";
+          if (
+            !draggedRow ||
+            !targetRow ||
+            draggedPosition !== (targetRow.position || "Up")
+          )
+            return;
+          const group = mainMenuRowsByPosition(draggedPosition);
           const from = group.findIndex(
             (item) => String(item.id) === String(draggedId),
           );
@@ -9362,8 +9580,7 @@
 
     function mainMenuTableRender() {
       normalizeMainMenuSort();
-      mainMenuTableRenderByPosition("Up");
-      mainMenuTableRenderByPosition("Down");
+      mainMenuTableRenderByPosition();
     }
 
     function mainMenuPageRender() {
@@ -9372,19 +9589,9 @@
       mainMenuTableRender();
     }
 
-    document
-      .getElementById("mainMenuAddUpBtn")
-      ?.addEventListener("click", () => {
+    document.getElementById("mainMenuAddBtn")?.addEventListener("click", () => {
         active = "mainMenu";
         mainMenuCreatePosition = "Up";
-        openForm();
-      });
-
-    document
-      .getElementById("mainMenuAddDownBtn")
-      ?.addEventListener("click", () => {
-        active = "mainMenu";
-        mainMenuCreatePosition = "Down";
         openForm();
       });
 
@@ -11789,7 +11996,7 @@
 			<div class="tags-form-field"><label><span class="tags-required">*</span> Lobby Name</label><select id="tagsFormLobby">${tagsLobbyOptions(country, formRow?.lobbyId || "")}</select></div>
 			<div class="tags-form-field"><label><span class="tags-required">*</span> Layout Style</label><select id="tagsFormLayout">${TAG_LAYOUTS.map((x) => `<option ${formRow?.layout === x ? "selected" : ""}>${x}</option>`).join("")}</select></div>
 			<div class="tags-form-field" id="tagsStatisticsField" style="display:none"><label>Statistics time (days)</label><input id="tagsFormStatisticsDays" type="number" min="1" step="1" value="${escapeHtml(formRow?.statisticsDays ?? "")}" placeholder="Enter number of days"><span class="tags-field-hint">Optional: limits Hot &amp; Cold / Top 10 statistics to the past N days.</span></div>
-			<div class="tags-form-field"><label>Game Tags Name display</label><select id="tagsFormShowGameTagName"><option value="true" ${formRow?.showGameTagName !== false ? "selected" : ""}>On</option><option value="false" ${formRow?.showGameTagName === false ? "selected" : ""}>Off</option></select><span class="tags-field-hint">On: show Tags Name on the front end. Off: hide it.</span></div>
+			<div class="tags-form-field"><label>Game Tags Name display</label><div class="tags-display-control"><label class="status-switch"><input id="tagsFormShowGameTagName" type="checkbox" ${formRow?.showGameTagName !== false ? "checked" : ""}><span class="status-slider"></span><span class="status-switch-text" id="tagsShowGameTagNameState">${formRow?.showGameTagName !== false ? "On" : "Off"}</span></label></div><span class="tags-field-hint">On: show Tags Name on the front end. Off: hide it.</span></div>
 			<div class="tags-form-field"><label>Country</label><input id="tagsFormCountry" type="text" readonly value="${escapeHtml(formRow?.country || country)}"></div>
 			<input id="tagsFormCurrency" type="hidden" value="${escapeHtml(formRow?.currency || lobbies[0]?.currency || (typeof lobbyCurrencyByCountry === "function" ? lobbyCurrencyByCountry(country) : "USD"))}">
 			<div class="tags-form-field"><label>Status</label><select id="tagsFormStatus"><option ${formRow ? formRow.status === "Active" ? "selected" : "" : ""}>Active</option><option ${!formRow || formRow.status === "Disabled" ? "selected" : ""}>Disabled</option></select></div>
@@ -11813,6 +12020,12 @@
       document
         .getElementById("tagsFormLayout")
         ?.addEventListener("change", syncTagStatisticsField);
+      document
+        .getElementById("tagsFormShowGameTagName")
+        ?.addEventListener("change", (event) => {
+          const label = document.getElementById("tagsShowGameTagNameState");
+          if (label) label.textContent = event.target.checked ? "On" : "Off";
+        });
       syncTagStatisticsField();
       bindTagsIconUpload(formRow?.icon || "");
       document.getElementById("tagsModalFoot").style.display = "flex";
@@ -11862,8 +12075,9 @@
           document.getElementById("tagsFormCurrency")?.value ||
           "USD",
         status = document.getElementById("tagsFormStatus")?.value || "Active",
-        showGameTagName =
-          document.getElementById("tagsFormShowGameTagName")?.value !== "false",
+        showGameTagName = Boolean(
+          document.getElementById("tagsFormShowGameTagName")?.checked,
+        ),
         statisticsDaysRaw =
           document.getElementById("tagsFormStatisticsDays")?.value.trim() || "",
         statisticsDays = statisticsDaysRaw ? Number(statisticsDaysRaw) : "",
