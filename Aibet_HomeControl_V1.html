@@ -6940,6 +6940,11 @@
     const HOMEPAGE_LOBBY_CONFIG_VERSION = "homepage_modules_by_lobby_v1";
     const HOMEPAGE_LOBBY_STORE = "aibet_lobby_rows_v1";
 
+    function normalizeTagReadSize(value) {
+      const size = Number(value);
+      return Number.isInteger(size) && size >= 10 && size <= 100 ? size : 10;
+    }
+
     function readHomepageLobbies() {
       let rows = [];
       try {
@@ -6990,6 +6995,7 @@
               style: tag.layout || tag.layoutStyle || "",
               showGameTagName: tag.showGameTagName !== false,
               statisticsDays: tag.statisticsDays || "",
+              readSize: normalizeTagReadSize(tag.readSize),
               pcSize: tag.pcSize || "390x480",
               h5Size: tag.h5Size || "390x480",
               games: Array.isArray(tag.games) ? clone(tag.games) : [],
@@ -7102,6 +7108,7 @@
         style: tag.layout || tag.layoutStyle || "",
         showGameTagName: tag.showGameTagName !== false,
         statisticsDays: tag.statisticsDays || "",
+        readSize: normalizeTagReadSize(tag.readSize),
         pcSize: tag.pcSize || "390x480",
         h5Size: tag.h5Size || "390x480",
         games: Array.isArray(tag.games) ? clone(tag.games) : [],
@@ -11178,6 +11185,7 @@
             style: tag.layout || "",
             showGameTagName: tag.showGameTagName !== false,
             statisticsDays: tag.statisticsDays || "",
+            readSize: normalizeTagReadSize(tag.readSize),
             lobbyId: currentLobbyId(),
             lobbyName: currentLobbyName(),
             country: tag.country || "All",
@@ -11941,13 +11949,22 @@
         ...row,
         icon: row.icon || "",
         showGameTagName: row.showGameTagName !== false,
+        readSize: normalizeTagReadSize(row.readSize),
         pcSize: row.pcSize || "390x480",
         h5Size: row.h5Size || "390x480",
       };
-      if (!row.pcSize || !row.h5Size) tagsSizeDefaultsMigrated = true;
+      if (
+        row.readSize !== next.readSize ||
+        !row.pcSize ||
+        !row.h5Size ||
+        (row.pendingChanges &&
+          row.pendingChanges.readSize !== next.pendingChanges.readSize)
+      )
+        tagsSizeDefaultsMigrated = true;
       if (row.pendingChanges) {
         next.pendingChanges = {
           ...row.pendingChanges,
+          readSize: normalizeTagReadSize(row.pendingChanges.readSize),
           pcSize: row.pendingChanges.pcSize || "390x480",
           h5Size: row.pendingChanges.h5Size || "390x480",
         };
@@ -12181,6 +12198,7 @@
 			<div class="tags-form-field"><label><span class="tags-required">*</span> Layout Style</label><select id="tagsFormLayout">${TAG_LAYOUTS.map((x) => `<option ${formRow?.layout === x ? "selected" : ""}>${x}</option>`).join("")}</select></div>
 			<div class="tags-form-field"><label>PC Size</label><select id="tagsFormPcSize">${TAG_GAME_LOGO_SIZES.map((size) => `<option value="${escapeHtml(size)}" ${(formRow?.pcSize || "390x480") === size ? "selected" : ""}>${escapeHtml(size)}</option>`).join("")}</select><span class="tags-field-hint">NA uses the game's logo URL.</span></div>
 			<div class="tags-form-field"><label>H5 Size</label><select id="tagsFormH5Size">${TAG_GAME_LOGO_SIZES.map((size) => `<option value="${escapeHtml(size)}" ${(formRow?.h5Size || "390x480") === size ? "selected" : ""}>${escapeHtml(size)}</option>`).join("")}</select><span class="tags-field-hint">NA uses the game's logo URL.</span></div>
+			<div class="tags-form-field"><label>Read Size</label><input id="tagsFormReadSize" type="number" min="10" max="100" step="1" required value="${escapeHtml(normalizeTagReadSize(formRow?.readSize))}" placeholder="10-100"></div>
 			<div class="tags-form-field" id="tagsStatisticsField" style="display:none"><label>Statistics time (days)</label><input id="tagsFormStatisticsDays" type="number" min="1" step="1" value="${escapeHtml(formRow?.statisticsDays ?? "")}" placeholder="Enter number of days"><span class="tags-field-hint">Optional: limits Hot &amp; Cold / Top 10 statistics to the past N days.</span></div>
 			<div class="tags-form-field"><label>Game Tags Name display</label><div class="tags-display-control"><label class="status-switch"><input id="tagsFormShowGameTagName" type="checkbox" ${formRow?.showGameTagName !== false ? "checked" : ""}><span class="status-slider"></span><span class="status-switch-text" id="tagsShowGameTagNameState">${formRow?.showGameTagName !== false ? "On" : "Off"}</span></label></div><span class="tags-field-hint">On: show Tags Name on the front end. Off: hide it.</span></div>
 			<div class="tags-form-field"><label>Country</label><input id="tagsFormCountry" type="text" readonly value="${escapeHtml(formRow?.country || country)}"></div>
@@ -12258,6 +12276,8 @@
           document.getElementById("tagsFormLayout")?.value || TAG_LAYOUTS[0],
         pcSize = document.getElementById("tagsFormPcSize")?.value || "390x480",
         h5Size = document.getElementById("tagsFormH5Size")?.value || "390x480",
+        readSizeRaw = document.getElementById("tagsFormReadSize")?.value.trim() || "",
+        readSize = Number(readSizeRaw),
         currency =
           lobby?.currency ||
           document.getElementById("tagsFormCurrency")?.value ||
@@ -12288,6 +12308,15 @@
       }
       if (!Number.isInteger(sort) || sort < 0) {
         toast("Sort must be a non-negative whole number");
+        return;
+      }
+      if (
+        !readSizeRaw ||
+        !Number.isInteger(readSize) ||
+        readSize < 10 ||
+        readSize > 100
+      ) {
+        toast("Read Size must be a whole number between 10 and 100");
         return;
       }
       if (
@@ -12330,6 +12359,7 @@
             country,
             currency,
             layout,
+            readSize,
             pcSize,
             h5Size,
             status,
@@ -12353,6 +12383,7 @@
           country,
           currency,
           layout,
+          readSize,
           pcSize,
           h5Size,
           status,
@@ -13978,6 +14009,9 @@
                 : Number(row.gameCount) || 0,
               showGameTagName: source?.showGameTagName !== false,
               statisticsDays: source?.statisticsDays || "",
+              readSize: normalizeTagReadSize(
+                source?.readSize ?? row.readSize,
+              ),
               device: row.device || "PC / H5",
               status: statusOn(row.status) ? "Enabled" : "Disabled",
               sort: Number(row.sort) || index + 1,
