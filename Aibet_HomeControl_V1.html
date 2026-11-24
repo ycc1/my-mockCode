@@ -6924,6 +6924,9 @@
               style: tag.layout || tag.layoutStyle || "",
               showGameTagName: tag.showGameTagName !== false,
               statisticsDays: tag.statisticsDays || "",
+              pcSize: tag.pcSize || "390x480",
+              h5Size: tag.h5Size || "390x480",
+              games: Array.isArray(tag.games) ? clone(tag.games) : [],
               lobbyId: tag.lobbyId,
               lobbyName: tag.lobbyName || "",
               country: tag.country || "All",
@@ -6947,6 +6950,50 @@
       return Array.isArray(rows) ? rows : [];
     }
     window.applyDueTagChanges = applyDueTagChanges;
+
+    function getTagGameLogoUrl(tag, game, device) {
+      const size = device === "H5" ? tag?.h5Size : tag?.pcSize;
+      const gameId = game?.id || game?.gameId || game?.gameID || game?.code || "";
+      let masterGame = null;
+      try {
+        const masterGames = JSON.parse(
+          localStorage.getItem("aibet_gamelist_rows_v1") || "[]",
+        );
+        if (Array.isArray(masterGames))
+          masterGame = masterGames.find(
+            (item) =>
+              String(item.id || item.gameId || item.gameID || item.code || "") ===
+              String(gameId),
+          );
+      } catch (error) {
+        console.error("Unable to read game logo data:", error);
+      }
+      const logoUrl =
+        game?.logo_url ||
+        game?.logoUrl ||
+        game?.logo ||
+        game?.image ||
+        masterGame?.logo_url ||
+        masterGame?.logoUrl ||
+        masterGame?.logo ||
+        masterGame?.image ||
+        "";
+      if (size === "NA") return String(logoUrl);
+      if (!["390x480", "450×345", "640x360"].includes(size)) return "";
+      const vendor = String(
+        game?.vendor ||
+          game?.gameVendor ||
+          masterGame?.vendor ||
+          masterGame?.gameVendor ||
+          "",
+      )
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9_-]/g, "");
+      if (!vendor || !gameId) return "";
+      return `https://static.megwin.mx/assets/casino/${size}/${vendor}/${encodeURIComponent(String(gameId))}.jpg`;
+    }
+    window.getTagGameLogoUrl = getTagGameLogoUrl;
 
     function readTagsForHomepageLobby(lobbyId) {
       let rows = [];
@@ -6989,6 +7036,9 @@
         style: tag.layout || tag.layoutStyle || "",
         showGameTagName: tag.showGameTagName !== false,
         statisticsDays: tag.statisticsDays || "",
+        pcSize: tag.pcSize || "390x480",
+        h5Size: tag.h5Size || "390x480",
+        games: Array.isArray(tag.games) ? clone(tag.games) : [],
         lobbyId: lobbyId,
         lobbyName: tag.lobbyName || lobby?.name || "",
         country: tag.country || lobby?.country || "All",
@@ -8831,77 +8881,129 @@
     };
     document.getElementById("previewBtn").onclick = () => {
       const b = document.getElementById("previewBody");
-      b.innerHTML = state.modules
-        .filter((m) => m.on)
-        .map((m) => {
-          const rows = (
-            (state.moduleConfigs && state.moduleConfigs[String(m.id)]) ||
-            []
-          ).filter((x) => x.status === "Enabled");
-          return `<div class="card" style="margin-top:10px"><h3>${esc(m.title || m.name)}</h3><div style="display:flex;gap:8px;flex-wrap:wrap">${
-            rows
-              .slice(0, 10)
-              .map(
-                (x) => {
-                  const beforeIcon =
-                    x.iconBeforeLight || x.iconBeforeDark || x.icon || x.image || "";
-                  const afterIcon =
-                    x.iconAfterLight || x.iconAfterDark || beforeIcon;
-                  return `<button type="button" class="casino-preview-item"
-                    data-link-type="${esc(x.linkType || "")}"
-                    data-link-value="${esc(x.linkValue || "")}"
-                    data-before-icon="${esc(beforeIcon)}"
-                    data-after-icon="${esc(afterIcon)}">
-                    ${beforeIcon ? `<img src="${esc(beforeIcon)}" alt="">` : ""}
-                    <b>${esc(x.name || x.vendor || x.placeholder || "Item")}</b>
-                  </button>`;
-                },
-              )
-              .join("") || '<span style="color:#999">No enabled items</span>'
-          }</div></div>`
-        })
-        .join("");
-      b.insertAdjacentHTML(
-        "afterbegin",
-        '<div class="casino-preview-result" id="casinoPreviewResult">点击项目预览前台效果</div>',
-      );
-      b.querySelectorAll(".casino-preview-item").forEach((item) => {
-        item.addEventListener("click", () => {
-          b.querySelectorAll(".casino-preview-item.is-selected").forEach(
-            (other) => {
-              if (other === item) return;
-              other.classList.remove("is-selected");
-              const otherImage = other.querySelector("img");
-              if (otherImage && other.dataset.beforeIcon) {
-                otherImage.src = other.dataset.beforeIcon;
-              }
-            },
-          );
-          item.classList.add("is-selected");
-          const image = item.querySelector("img");
-          if (image && item.dataset.afterIcon) image.src = item.dataset.afterIcon;
-
-          const result = document.getElementById("casinoPreviewResult");
-          const type = item.dataset.linkType || "";
-          const value = item.dataset.linkValue || "";
-          if (!result) return;
-          if (type === "Popup" && value === "Deposit") {
-            result.innerHTML = "<h3>Deposit</h3><p>Deposit 弹框已打开</p>";
-          } else if (type === "Popup" && value === "ChatRoom") {
-            result.innerHTML = "<h3>ChatRoom</h3><p>聊天室弹框已打开</p>";
-          } else if (type === "Lobby") {
-            const lobby = readHomepageLobbies().find(
-              (row) => String(row.id) === String(value),
+      const renderPreview = (device = "PC") => {
+        const sourceTags = readTagsForHomepageLobby(selectedHomepageLobbyId);
+        const sourceTagById = new Map(
+          sourceTags.map((tag) => [String(tag.id), tag]),
+        );
+        b.innerHTML = `
+          <div class="casino-preview-device">
+            <label for="casinoPreviewDevice">Preview Device</label>
+            <select id="casinoPreviewDevice">
+              <option value="PC" ${device === "PC" ? "selected" : ""}>PC</option>
+              <option value="H5" ${device === "H5" ? "selected" : ""}>H5</option>
+            </select>
+          </div>
+          <div class="casino-preview-result" id="casinoPreviewResult">点击项目预览前台效果</div>
+          ${state.modules
+            .filter((moduleRow) => moduleRow.on)
+            .map((moduleRow) => {
+              const rows = (
+                (state.moduleConfigs &&
+                  state.moduleConfigs[String(moduleRow.id)]) ||
+                []
+              ).filter((row) => row.status === "Enabled");
+              const isContentModule = [
+                "content",
+                "contentFunction",
+              ].includes(moduleRow.module);
+              return `<div class="card" style="margin-top:10px"><h3>${esc(moduleRow.title || moduleRow.name)}</h3><div class="casino-preview-items">${
+                rows
+                  .slice(0, 10)
+                  .map((row) => {
+                    const beforeIcon =
+                      row.iconBeforeLight ||
+                      row.iconBeforeDark ||
+                      row.icon ||
+                      row.image ||
+                      "";
+                    const afterIcon =
+                      row.iconAfterLight || row.iconAfterDark || beforeIcon;
+                    const tag = sourceTagById.get(
+                      String(row.sourceTagId || ""),
+                    );
+                    const tagGames =
+                      isContentModule && Array.isArray(tag?.games)
+                        ? tag.games
+                        : isContentModule && Array.isArray(row.games)
+                          ? row.games
+                          : [];
+                    const gameImages = tagGames
+                      .slice(0, 8)
+                      .map((game) => {
+                        const logoUrl = getTagGameLogoUrl(
+                          tag || row,
+                          game,
+                          device,
+                        );
+                        return `<div class="casino-preview-game" title="${esc(game.name || game.gameName || "Game")}">${
+                          logoUrl
+                            ? `<img src="${esc(logoUrl)}" alt="${esc(game.name || game.gameName || "Game")}">`
+                            : '<span class="casino-preview-game-empty">No logo</span>'
+                        }<span>${esc(game.name || game.gameName || "Game")}</span></div>`;
+                      })
+                      .join("");
+                    const showTagName =
+                      !isContentModule || row.showGameTagName !== false;
+                    return `<div class="casino-preview-entry">
+                      <button type="button" class="casino-preview-item"
+                        data-link-type="${esc(row.linkType || "")}"
+                        data-link-value="${esc(row.linkValue || "")}"
+                        data-before-icon="${esc(beforeIcon)}"
+                        data-after-icon="${esc(afterIcon)}">
+                        ${beforeIcon ? `<img src="${esc(beforeIcon)}" alt="">` : ""}
+                        ${showTagName ? `<b>${esc(row.name || row.vendor || row.placeholder || "Item")}</b>` : ""}
+                      </button>
+                      ${gameImages ? `<div class="casino-preview-games">${gameImages}</div>` : ""}
+                    </div>`;
+                  })
+                  .join("") || '<span style="color:#999">No enabled items</span>'
+              }</div></div>`;
+            })
+            .join("")}
+        `;
+        b.querySelector("#casinoPreviewDevice").onchange = (event) =>
+          renderPreview(event.target.value);
+        b.querySelectorAll(".casino-preview-item").forEach((item) => {
+          item.addEventListener("click", () => {
+            b.querySelectorAll(".casino-preview-item.is-selected").forEach(
+              (other) => {
+                if (other === item) return;
+                other.classList.remove("is-selected");
+                const otherImage = other.querySelector("img");
+                if (otherImage && other.dataset.beforeIcon) {
+                  otherImage.src = other.dataset.beforeIcon;
+                }
+              },
             );
-            result.innerHTML = lobby
-              ? `<h3>${esc(lobby.name || "Lobby")}</h3><p>前台已显示该 Lobby。</p>`
-              : "<h3>Lobby</h3><p>找不到已选择的 Lobby。</p>";
-          } else {
-            result.textContent =
-              value ? `前台前往：${value}` : "已切换点击后样式";
-          }
+            item.classList.add("is-selected");
+            const image = item.querySelector("img");
+            if (image && item.dataset.afterIcon)
+              image.src = item.dataset.afterIcon;
+
+            const result = document.getElementById("casinoPreviewResult");
+            const type = item.dataset.linkType || "";
+            const value = item.dataset.linkValue || "";
+            if (!result) return;
+            if (type === "Popup" && value === "Deposit") {
+              result.innerHTML = "<h3>Deposit</h3><p>Deposit 弹框已打开</p>";
+            } else if (type === "Popup" && value === "ChatRoom") {
+              result.innerHTML = "<h3>ChatRoom</h3><p>聊天室弹框已打开</p>";
+            } else if (type === "Lobby") {
+              const lobby = readHomepageLobbies().find(
+                (lobbyRow) => String(lobbyRow.id) === String(value),
+              );
+              result.innerHTML = lobby
+                ? `<h3>${esc(lobby.name || "Lobby")}</h3><p>前台已显示该 Lobby。</p>`
+                : "<h3>Lobby</h3><p>找不到已选择的 Lobby。</p>";
+            } else {
+              result.textContent =
+                value ? `前台前往：${value}` : "已切换点击后样式";
+            }
+          });
         });
-      });
+      };
+      renderPreview();
       document.getElementById("previewMask").classList.add("show");
     };
     document.getElementById("previewClose").onclick = () =>
@@ -11612,6 +11714,7 @@
       "Hot / Cold Rank",
       "Jackpot",
     ];
+    const TAG_GAME_LOGO_SIZES = ["NA", "390x480", "450×345", "640x360"];
     const TAG_LAYOUT_LABELS = {
       "Top10 一排": "Top 10 Row",
       "Top 10 全展": "Top 10 Full",
@@ -11766,13 +11869,28 @@
     }
 
     let tagsPendingIcon = "";
-    tagsRows = tagsRows.map((row) => ({
-      ...row,
-      icon: row.icon || "",
-      showGameTagName: row.showGameTagName !== false,
-    }));
+    let tagsSizeDefaultsMigrated = false;
+    tagsRows = tagsRows.map((row) => {
+      const next = {
+        ...row,
+        icon: row.icon || "",
+        showGameTagName: row.showGameTagName !== false,
+        pcSize: row.pcSize || "390x480",
+        h5Size: row.h5Size || "390x480",
+      };
+      if (!row.pcSize || !row.h5Size) tagsSizeDefaultsMigrated = true;
+      if (row.pendingChanges) {
+        next.pendingChanges = {
+          ...row.pendingChanges,
+          pcSize: row.pendingChanges.pcSize || "390x480",
+          h5Size: row.pendingChanges.h5Size || "390x480",
+        };
+      }
+      return next;
+    });
     // Persist default Tags immediately so Casino Content / Configuration > Add Tags can read them on first load.
     if (!localStorage.getItem(STORE_TAGS)) saveState(STORE_TAGS, tagsRows);
+    else if (tagsSizeDefaultsMigrated) saveState(STORE_TAGS, tagsRows);
     let tagsActivationTimer = null;
     function schedulePendingTagActivation() {
       clearTimeout(tagsActivationTimer);
@@ -11995,6 +12113,8 @@
 			<div class="tags-form-field full"><label><span class="tags-required">*</span> Tags Name</label><input id="tagsFormName" maxlength="80" value="${escapeHtml(formRow?.name || "")}" placeholder="Please enter"></div>
 			<div class="tags-form-field"><label><span class="tags-required">*</span> Lobby Name</label><select id="tagsFormLobby">${tagsLobbyOptions(country, formRow?.lobbyId || "")}</select></div>
 			<div class="tags-form-field"><label><span class="tags-required">*</span> Layout Style</label><select id="tagsFormLayout">${TAG_LAYOUTS.map((x) => `<option ${formRow?.layout === x ? "selected" : ""}>${x}</option>`).join("")}</select></div>
+			<div class="tags-form-field"><label>PC Size</label><select id="tagsFormPcSize">${TAG_GAME_LOGO_SIZES.map((size) => `<option value="${escapeHtml(size)}" ${(formRow?.pcSize || "390x480") === size ? "selected" : ""}>${escapeHtml(size)}</option>`).join("")}</select><span class="tags-field-hint">NA uses the game's logo URL.</span></div>
+			<div class="tags-form-field"><label>H5 Size</label><select id="tagsFormH5Size">${TAG_GAME_LOGO_SIZES.map((size) => `<option value="${escapeHtml(size)}" ${(formRow?.h5Size || "390x480") === size ? "selected" : ""}>${escapeHtml(size)}</option>`).join("")}</select><span class="tags-field-hint">NA uses the game's logo URL.</span></div>
 			<div class="tags-form-field" id="tagsStatisticsField" style="display:none"><label>Statistics time (days)</label><input id="tagsFormStatisticsDays" type="number" min="1" step="1" value="${escapeHtml(formRow?.statisticsDays ?? "")}" placeholder="Enter number of days"><span class="tags-field-hint">Optional: limits Hot &amp; Cold / Top 10 statistics to the past N days.</span></div>
 			<div class="tags-form-field"><label>Game Tags Name display</label><div class="tags-display-control"><label class="status-switch"><input id="tagsFormShowGameTagName" type="checkbox" ${formRow?.showGameTagName !== false ? "checked" : ""}><span class="status-slider"></span><span class="status-switch-text" id="tagsShowGameTagNameState">${formRow?.showGameTagName !== false ? "On" : "Off"}</span></label></div><span class="tags-field-hint">On: show Tags Name on the front end. Off: hide it.</span></div>
 			<div class="tags-form-field"><label>Country</label><input id="tagsFormCountry" type="text" readonly value="${escapeHtml(formRow?.country || country)}"></div>
@@ -12070,6 +12190,8 @@
         ),
         layout =
           document.getElementById("tagsFormLayout")?.value || TAG_LAYOUTS[0],
+        pcSize = document.getElementById("tagsFormPcSize")?.value || "390x480",
+        h5Size = document.getElementById("tagsFormH5Size")?.value || "390x480",
         currency =
           lobby?.currency ||
           document.getElementById("tagsFormCurrency")?.value ||
@@ -12100,6 +12222,13 @@
       }
       if (!Number.isInteger(sort) || sort < 0) {
         toast("Sort must be a non-negative whole number");
+        return;
+      }
+      if (
+        !TAG_GAME_LOGO_SIZES.includes(pcSize) ||
+        !TAG_GAME_LOGO_SIZES.includes(h5Size)
+      ) {
+        toast("Please select a valid PC and H5 image size");
         return;
       }
       if (
@@ -12135,6 +12264,8 @@
             country,
             currency,
             layout,
+            pcSize,
+            h5Size,
             status,
             sort,
             icon,
@@ -12156,6 +12287,8 @@
           country,
           currency,
           layout,
+          pcSize,
+          h5Size,
           status,
           sort,
           icon,
@@ -12334,6 +12467,14 @@
           provider: g.provider || "-",
           vendor: g.vendor || g.gameVendor || "-",
           type: g.type || g.gameType || "Slot",
+          logo_url:
+            g.logo_url ||
+            g.logoUrl ||
+            g.logo ||
+            g.imageUrl ||
+            g.gameLogoUrl ||
+            g.image ||
+            "",
         }));
     } catch (e) {}
     if (!gameData.length) {
@@ -12403,6 +12544,15 @@
             vendor: g.vendor || master?.vendor || g.provider || "-",
             name: g.name || master?.name || "Game",
             type: g.type || master?.type || "SLOT",
+            logo_url:
+              g.logo_url ||
+              g.logoUrl ||
+              g.logo ||
+              g.imageUrl ||
+              g.gameLogoUrl ||
+              g.image ||
+              master?.logo_url ||
+              "",
             sort: Number(g.sort ?? index + 1),
           };
         })
@@ -12534,6 +12684,15 @@
             ),
             type: String(g.type ?? g.gameType ?? g.GameType ?? "Slot"),
             code: String(g.code ?? g.gameCode ?? g.GameCode ?? ""),
+            logo_url: String(
+              g.logo_url ??
+                g.logoUrl ??
+                g.logo ??
+                g.imageUrl ??
+                g.gameLogoUrl ??
+                g.image ??
+                "",
+            ),
             status: String(g.status ?? g.Status ?? "Active"),
           };
         })
