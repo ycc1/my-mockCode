@@ -4753,6 +4753,79 @@
 #modalMask.show .broadcast-config-grid .broadcast-extra-switch { min-height:58px; }
 #modalMask.show .broadcast-config-grid .broadcast-extra-switch .bottom-toggle-field { min-height:32px; display:flex; align-items:center; }
 </style>
+<style id="game-list-management-styles">
+  .gl-page { display:grid; gap:12px; }
+  .gl-filter-card { display:grid; grid-template-columns:repeat(5,minmax(140px,1fr)); gap:12px; padding:16px; }
+  .gl-field { display:grid; gap:6px; min-width:0; color:#526174; font-size:12px; }
+  .gl-field input, .gl-field select { width:100%; min-width:0; height:34px; padding:0 9px; border:1px solid #d5deea; border-radius:4px; background:#fff; color:#263547; font:12px Arial,sans-serif; }
+  .gl-filter-actions { grid-column:1/-1; display:flex; gap:8px; }
+  .gl-filter-actions .btn { display:inline-flex; align-items:center; gap:6px; }
+  .gl-table-card { padding:0; overflow:hidden; }
+  .gl-table-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 14px; }
+  .gl-table-head h2 { margin:0; font-size:16px; }
+  .gl-actions { display:flex; flex-wrap:wrap; gap:7px; }
+  .gl-actions .btn { font-size:12px; }
+  .gl-actions .gl-import { background:#35bb71; }
+  .gl-actions .gl-release { background:#3289e8; }
+  .gl-actions .gl-preview { background:#8847ed; }
+  .gl-file { display:none; }
+  .gl-notice { display:flex; justify-content:space-between; gap:12px; padding:9px 14px; border-block:1px solid #dce8f1; background:#f4f9fd; color:#415b70; font-size:12px; }
+  .gl-notice.error { border-color:#f1d0d0; background:#fff6f6; color:#a83232; }
+  .gl-notice button { border:0; background:transparent; color:inherit; cursor:pointer; }
+  .gl-scroll { overflow:auto; border-top:1px solid #dfe6ef; }
+  .gl-table { width:max-content; min-width:100%; border-collapse:collapse; text-align:center; font-size:12px; }
+  .gl-table th { padding:11px 9px; border:1px solid #dfe6ef; background:#f8fafc; color:#263547; font-weight:600; white-space:nowrap; }
+  .gl-table td { max-width:230px; padding:11px 9px; border:1px solid #e1e8f0; color:#303c49; white-space:nowrap; }
+  .gl-table tbody tr:nth-child(even) { background:#f8fafd; }
+  .gl-table .gl-logo { display:block; max-width:180px; overflow:hidden; color:#27384a; text-overflow:ellipsis; }
+  .gl-switch { width:34px; height:19px; padding:2px; border:0; border-radius:12px; background:#aeb5bc; vertical-align:middle; cursor:pointer; }
+  .gl-switch span { display:block; width:15px; height:15px; border-radius:50%; background:#fff; box-shadow:0 1px 3px #0003; transition:transform .15s; }
+  .gl-switch.on { background:#35bb71; }
+  .gl-switch.on span { transform:translateX(15px); }
+  .gl-demo-setting { display:flex; align-items:center; gap:12px; min-height:32px; }
+  .gl-demo-setting .gl-switch { flex:none; }
+  .gl-demo-setting small { color:#718092; font-size:11px; line-height:1.45; }
+  .gl-row-actions { display:flex; justify-content:center; gap:6px; }
+  .gl-row-actions button { padding:6px 9px; border:0; border-radius:4px; cursor:pointer; }
+  .gl-edit { background:#dcecff; color:#3289e8; }
+  .gl-delete { background:#ffeaec; color:#df5360; }
+  .gl-empty { padding:28px !important; color:#7a8795 !important; text-align:center; }
+  .gl-pagination { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:7px; padding:12px 14px; color:#455468; font-size:12px; }
+  .gl-pagination label { display:flex; align-items:center; gap:7px; }
+  .gl-pagination select { width:62px; height:30px; border:1px solid #d5deea; border-radius:4px; background:#fff; }
+  .gl-pagination button { min-width:28px; height:28px; border:0; border-radius:4px; background:transparent; color:#3289e8; cursor:pointer; }
+  .gl-pagination button.active { background:#3289e8; color:#fff; }
+  .gl-pagination button:disabled { color:#b6c0c9; cursor:default; }
+  .gl-modal-mask { position:fixed; inset:0; z-index:10020; display:none; place-items:center; padding:16px; background:#17223566; }
+  .gl-modal-mask.open { display:grid; }
+  .gl-modal { width:min(760px,96vw); max-height:90vh; overflow:auto; padding:20px; border-radius:8px; background:#fff; box-shadow:0 18px 60px #10203544; }
+  .gl-modal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+  .gl-modal-head h2 { margin:0; font-size:18px; }
+  .gl-modal-head button { border:0; background:transparent; font-size:22px; cursor:pointer; }
+  .gl-form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+  .gl-modal-mask { align-items:start; overflow:auto; padding:4px 16px; }
+  .gl-modal { display:flex; flex-direction:column; width:min(708px,96vw); height:min(750px,calc(100vh - 8px)); max-height:calc(100vh - 8px); padding:0; border-radius:4px; }
+  .gl-modal-head { flex:none; margin:0; padding:8px 12px 6px; }
+  .gl-modal-head h2 { font-size:14px; }
+  .gl-edit-scroll { flex:1; min-height:0; overflow:auto; padding:0 15px 16px; }
+  .gl-form-grid { grid-template-columns:repeat(2,minmax(0,1fr)); column-gap:16px; row-gap:20px; }
+  .gl-field { gap:6px; color:#626b75; font-size:12px; }
+  .gl-required::before { content:"* "; color:#e25454; font-weight:700; }
+  .gl-field input, .gl-field select, .gl-field textarea { box-sizing:border-box; width:100%; min-width:0; height:28px; padding:0 10px; border:1px solid #d5deea; border-radius:4px; background:#fff; color:#35404b; font:12px Arial,sans-serif; }
+  .gl-field textarea { height:40px; padding:8px 10px; resize:vertical; }
+  .gl-field input::placeholder, .gl-field textarea::placeholder { color:#b9c1ca; }
+  .gl-field-full { grid-column:1/-1; }
+  .gl-rtp-input { position:relative; }
+  .gl-rtp-input input { padding-right:30px; }
+  .gl-rtp-input span { position:absolute; top:7px; right:10px; color:#394553; font-size:12px; pointer-events:none; }
+  .gl-status-options { display:flex; align-items:center; gap:18px; height:28px; }
+  .gl-status-options label { display:flex; align-items:center; gap:5px; color:#35404b; font-size:12px; }
+  .gl-status-options input { width:16px; height:16px; margin:0; accent-color:#3289e8; }
+  .gl-modal-foot { flex:none; display:flex; justify-content:flex-end; gap:8px; margin:0; padding:7px 12px; border-top:1px solid #e3e7ec; background:#fff; }
+  .gl-modal-foot .btn { min-width:62px; padding:7px 12px; }
+  @media(max-width:850px) { .gl-filter-card { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+  @media(max-width:600px) { .gl-filter-card { grid-template-columns:repeat(2,minmax(0,1fr)); } .gl-table-head { align-items:flex-start; flex-direction:column; } .gl-form-grid { grid-template-columns:1fr; } .gl-field-full { grid-column:1; } .gl-pagination { justify-content:flex-start; } }
+</style>
 </head>
   <body>
     <header class="admin-topbar" id="adminTopbar">
@@ -11313,6 +11386,507 @@
         };
     })();
   </script>
+  <script id="gamelist-management-script">
+    (() => {
+      const storeKey = "aibet_gamelist_rows_v1";
+      const state = {
+        rows: null,
+        page: 1,
+        size: 10,
+        filters: { name: "", type: "", provider: "", vendor: "", rtp: "" },
+        applied: { name: "", type: "", provider: "", vendor: "", rtp: "" },
+        notice: "",
+        error: false,
+        loadError: "",
+      };
+      const fields = [
+        ["id", "ID"],
+        ["gameId", "Game ID"],
+        ["name", "Game Name"],
+        ["code", "Game Code"],
+        ["type", "Game Type"],
+        ["subtype", "Subtype"],
+        ["provider", "Provider"],
+        ["vendor", "Vendor"],
+        ["rtp", "RTP"],
+        ["description", "Description"],
+        ["status", "Status"],
+        ["demoEnabled", "Demo"],
+        ["logo_url", "Logo URL"],
+        ["maintainStart", "Maintain Start"],
+        ["maintainEnd", "Maintain End"],
+        ["createdAt", "Created At"],
+        ["createdBy", "Created By"],
+        ["updatedAt", "Updated At"],
+        ["updatedBy", "Updated By"],
+      ];
+      const defaults = [
+        [16371, 42510, "Wild Justice", "95.00%", "18:24:43", "15:53:29"],
+        [15917, 42556, "Viking Games", "95.38%", "18:24:34", "15:53:24"],
+        [14837, 42010, "The Ancient Four", "95.02%", "18:24:13", "15:52:55"],
+        [13210, 42049, "Safari Adventures", "95.02%", "18:23:42", "15:52:49"],
+        [12274, 42051, "Princess of Birds", "94.00%", "18:23:25", "15:52:44"],
+        [11837, 42518, "Piedra Del Sol", "95.00%", "18:23:16", "15:52:38"],
+        [11838, 42570, "Piedra Del Sol Deluxe", "96.10%", "18:23:16", "15:52:37"],
+        [11341, 42023, "Neon Classic", "95.01%", "18:23:06", "15:52:29"],
+        [11027, 42031, "Monkeys Journey", "94.00%", "18:23:01", "15:52:24"],
+        [10924, 42043, "Mistress of Amazon", "94.00%", "18:22:59", "15:52:19"],
+      ].map(([id, gameId, name, rtp, createdTime, updatedTime]) => ({
+        id,
+        gameId,
+        name,
+        code: name,
+        type: "slots",
+        subtype: "-",
+        provider: "TLT",
+        vendor: "platipus",
+        rtp,
+        description: "-",
+        status: "Disabled",
+        demoEnabled: true,
+        logo_url: `https://static.megwin.mx/assets/games/${String(name).toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`,
+        maintainStart: "-",
+        maintainEnd: "-",
+        createdAt: `2026-09-22 ${createdTime}`,
+        createdBy: "yark01",
+        updatedAt: `2026-11-20 ${updatedTime}`,
+        updatedBy: "young",
+      }));
+
+      function escapeHtml(value) {
+        return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        })[char]);
+      }
+
+      function normalize(row, index) {
+        const status = String(row.status ?? "Enabled").toLowerCase();
+        const enabled = row.status === true || ["enabled", "active", "on", "true", "1"].includes(status);
+        const demoValue = row.demoEnabled ?? row.demo_enabled ?? row.demo;
+        const demoEnabled = demoValue == null || demoValue === ""
+          ? true
+          : demoValue === true || ["enabled", "active", "on", "true", "1"].includes(String(demoValue).toLowerCase());
+        return {
+          ...row,
+          id: row.id ?? row.gameId ?? row.gameID ?? row.code ?? `GAME-${index + 1}`,
+          gameId: row.gameId ?? row.gameID ?? row.id ?? "",
+          name: row.name ?? row.gameName ?? "Game",
+          code: row.code ?? row.gameCode ?? "",
+          type: row.type ?? row.gameType ?? "slots",
+          subtype: row.subtype ?? "-",
+          provider: row.provider ?? row.merchant ?? "TLT",
+          vendor: row.vendor ?? row.gameVendor ?? "-",
+          rtp: row.rtp ?? "",
+          description: row.description ?? "-",
+          status: enabled ? "Enabled" : "Disabled",
+          demoEnabled,
+          logo_url: row.logo_url ?? row.logoUrl ?? row.logo ?? row.imageUrl ?? row.image ?? "",
+          demoUrl: row.demoUrl ?? row.demo_url ?? row.gameUrl ?? row.game_url ?? "",
+          maintainStart: row.maintainStart ?? row.maintain_start ?? "-",
+          maintainEnd: row.maintainEnd ?? row.maintain_end ?? "-",
+          createdAt: row.createdAt ?? "-",
+          createdBy: row.createdBy ?? "-",
+          updatedAt: row.updatedAt ?? "-",
+          updatedBy: row.updatedBy ?? "-",
+        };
+      }
+
+      function loadRows() {
+        if (state.rows) return state.rows;
+        try {
+          const raw = localStorage.getItem(storeKey);
+          if (raw === null) {
+            state.rows = defaults;
+            localStorage.setItem(storeKey, JSON.stringify(state.rows));
+          } else {
+            const parsed = JSON.parse(raw);
+            if (!Array.isArray(parsed)) throw new Error("Stored GameList data is not a list.");
+            state.rows = parsed.map(normalize);
+          }
+          return state.rows;
+        } catch (error) {
+          state.loadError = `Unable to load GameList data: ${error.message}`;
+          state.rows = [];
+          return state.rows;
+        }
+      }
+
+      function persist() {
+        try {
+          localStorage.setItem(storeKey, JSON.stringify(state.rows));
+          return true;
+        } catch (error) {
+          state.notice = `Unable to save GameList data: ${error.message}`;
+          state.error = true;
+          return false;
+        }
+      }
+
+      function currentRows() {
+        const f = state.applied;
+        return loadRows().filter((row) =>
+          String(row.name).toLowerCase().includes(f.name.toLowerCase()) &&
+          (!f.type || row.type === f.type) &&
+          (!f.provider || row.provider === f.provider) &&
+          (!f.vendor || row.vendor === f.vendor) &&
+          String(row.rtp).includes(f.rtp),
+        );
+      }
+
+      function options(key, selected) {
+        const values = [...new Set(loadRows().map((row) => row[key]).filter(Boolean))].sort();
+        return `<option value="">All</option>${values.map((value) => `<option value="${escapeHtml(value)}" ${value === selected ? "selected" : ""}>${escapeHtml(value)}</option>`).join("")}`;
+      }
+
+      function csvCell(value) {
+        if (typeof value === "boolean") value = value ? "Enabled" : "Disabled";
+        return `"${String(value ?? "").replace(/"/g, '""')}"`;
+      }
+
+      function downloadCsv(rows, filename) {
+        const csv = [
+          fields.map(([, label]) => csvCell(label)).join(","),
+          ...rows.map((row) => fields.map(([key]) => csvCell(row[key])).join(",")),
+        ].join("\r\n");
+        const url = URL.createObjectURL(new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8" }));
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        link.click();
+        URL.revokeObjectURL(url);
+      }
+
+      function parseCsv(text) {
+        const records = [];
+        let row = [];
+        let cell = "";
+        let quoted = false;
+        for (let i = 0; i < text.length; i++) {
+          const char = text[i];
+          if (char === '"' && quoted && text[i + 1] === '"') {
+            cell += '"';
+            i++;
+          } else if (char === '"') {
+            quoted = !quoted;
+          } else if (char === "," && !quoted) {
+            row.push(cell);
+            cell = "";
+          } else if ((char === "\n" || char === "\r") && !quoted) {
+            if (char === "\r" && text[i + 1] === "\n") i++;
+            row.push(cell);
+            if (row.some((value) => value.trim())) records.push(row);
+            row = [];
+            cell = "";
+          } else {
+            cell += char;
+          }
+        }
+        if (quoted) throw new Error("The CSV file contains an unclosed quoted field.");
+        if (cell || row.length) {
+          row.push(cell);
+          if (row.some((value) => value.trim())) records.push(row);
+        }
+        return records;
+      }
+
+      function importCsv(file) {
+        if (!/\.csv$/i.test(file.name)) {
+          state.notice = "Please import an Excel-compatible CSV file (.csv).";
+          state.error = true;
+          render();
+          return;
+        }
+        const reader = new FileReader();
+        reader.onerror = () => {
+          state.notice = "Unable to read the selected file.";
+          state.error = true;
+          render();
+        };
+        reader.onload = () => {
+          try {
+            const records = parseCsv(String(reader.result || "").replace(/^\uFEFF/, ""));
+            const headers = records.shift()?.map((value) => value.trim().toLowerCase()) || [];
+            const indexOf = (...names) => headers.findIndex((header) => names.includes(header));
+            const nameIndex = indexOf("game name", "name", "gamename");
+            if (nameIndex < 0) throw new Error("CSV must include a Game Name column.");
+            const existing = new Set(loadRows().map((row) => String(row.gameId || row.id)));
+            let added = 0;
+            records.forEach((values, i) => {
+              const value = (...names) => {
+                const index = indexOf(...names);
+                return index < 0 ? "" : values[index] || "";
+              };
+              const gameId = value("game id", "gameid", "id") || `IMPORT-${Date.now()}-${i}`;
+              if (existing.has(String(gameId))) return;
+              existing.add(String(gameId));
+              state.rows.push(normalize({
+                id: value("id") || gameId,
+                gameId,
+                name: values[nameIndex],
+                code: value("game code", "gamecode", "code"),
+                type: value("game type", "gametype", "type") || "slots",
+                subtype: value("subtype") || "-",
+                provider: value("provider") || "TLT",
+                vendor: value("vendor", "game vendor", "gamevendor") || "-",
+                rtp: value("rtp"),
+                description: value("description") || "-",
+                status: value("status") || "Enabled",
+                demoEnabled: value("demo", "demo enabled", "demoenabled", "demo_enabled") || true,
+                logo_url: value("logo url", "logourl", "logo_url", "logo"),
+                maintainStart: value("maintain start", "maintainstart") || "-",
+                maintainEnd: value("maintain end", "maintainend") || "-",
+                createdAt: value("created at", "createdat") || "-",
+                createdBy: value("created by", "createdby") || "-",
+                updatedAt: value("updated at", "updatedat") || "-",
+                updatedBy: value("updated by", "updatedby") || "-",
+              }, state.rows.length));
+              added++;
+            });
+            if (!persist()) return render();
+            state.page = 1;
+            state.notice = `${added} game(s) imported. Duplicate Game IDs were skipped.`;
+            state.error = false;
+          } catch (error) {
+            state.notice = `Import failed: ${error.message}`;
+            state.error = true;
+          }
+          render();
+        };
+        reader.readAsText(file);
+      }
+
+      function render() {
+        const host = document.getElementById("gameListManagementPage");
+        if (!host) return;
+        const rows = currentRows();
+        const pages = Math.max(1, Math.ceil(rows.length / state.size));
+        state.page = Math.min(state.page, pages);
+        const start = (state.page - 1) * state.size;
+        const shown = rows.slice(start, start + state.size);
+        const filter = state.filters;
+        const notice = state.loadError || state.notice;
+        const err = state.loadError || state.error;
+        const pageStart = Math.max(1, state.page - 2);
+        const pageEnd = Math.min(pages, pageStart + 4);
+        const pageNumbers = Array.from({ length: pageEnd - pageStart + 1 }, (_, i) => pageStart + i);
+        host.innerHTML = `<div class="gl-page">
+          <div class="heading"><div><h1>GameList Management</h1></div></div>
+          <div class="card gl-filter-card">
+            <label class="gl-field">Game Name<input data-filter="name" value="${escapeHtml(filter.name)}" placeholder="Please enter"></label>
+            <label class="gl-field">Game Type<select data-filter="type">${options("type", filter.type)}</select></label>
+            <label class="gl-field">Provider<select data-filter="provider">${options("provider", filter.provider)}</select></label>
+            <label class="gl-field">Vendor<select data-filter="vendor">${options("vendor", filter.vendor)}</select></label>
+            <label class="gl-field">RTP<input data-filter="rtp" value="${escapeHtml(filter.rtp)}" placeholder="Please enter"></label>
+            <div class="gl-filter-actions"><button class="btn primary" data-action="search">⌕ Search</button><button class="btn warning" data-action="reset">⟲ Reset</button></div>
+          </div>
+          <div class="card gl-table-card">
+            <div class="gl-table-head"><h2>GameList</h2><div class="gl-actions">
+              <input class="gl-file" type="file" accept=".csv,text/csv" data-import>
+              <button class="btn gl-import" data-action="import">⇧ Import Excel</button>
+              <button class="btn gl-release" data-action="release">⬇ Export Release</button>
+              <button class="btn gl-preview" data-action="preview">⬇ Export Preview</button>
+            </div></div>
+            ${notice ? `<div class="gl-notice ${err ? "error" : ""}" role="status"><span>${escapeHtml(notice)}</span><button data-action="dismiss" aria-label="Dismiss">×</button></div>` : ""}
+            <div class="gl-scroll"><table class="gl-table"><thead><tr>${fields.map(([, label]) => `<th>${label}</th>`).join("")}<th>Action</th></tr></thead><tbody>
+              ${shown.length ? shown.map((row) => `<tr>
+                <td>${escapeHtml(row.id)}</td><td>${escapeHtml(row.gameId)}</td><td>${escapeHtml(row.name)}</td><td>${escapeHtml(row.code)}</td><td>${escapeHtml(row.type)}</td><td>${escapeHtml(row.subtype)}</td><td>${escapeHtml(row.provider)}</td><td>${escapeHtml(row.vendor)}</td><td>${escapeHtml(row.rtp)}</td><td>${escapeHtml(row.description)}</td>
+                <td><button class="gl-switch ${row.status === "Enabled" ? "on" : ""}" role="switch" aria-checked="${row.status === "Enabled"}" aria-label="Toggle ${escapeHtml(row.name)} status" data-status="${escapeHtml(row.id)}"><span></span></button></td>
+                <td><button class="gl-switch ${row.demoEnabled ? "on" : ""}" role="switch" aria-checked="${row.demoEnabled}" aria-label="Toggle ${escapeHtml(row.name)} demo" data-demo-row="${escapeHtml(row.id)}"><span></span></button></td>
+                <td><a class="gl-logo" href="${escapeHtml(row.logo_url)}" title="${escapeHtml(row.logo_url)}" target="_blank" rel="noreferrer">${escapeHtml(row.logo_url || "-")}</a></td><td>${escapeHtml(row.maintainStart)}</td><td>${escapeHtml(row.maintainEnd)}</td><td>${escapeHtml(row.createdAt)}</td><td>${escapeHtml(row.createdBy)}</td><td>${escapeHtml(row.updatedAt)}</td><td>${escapeHtml(row.updatedBy)}</td>
+                <td><div class="gl-row-actions"><button class="gl-edit" data-edit="${escapeHtml(row.id)}">Edit</button><button class="gl-delete" data-delete="${escapeHtml(row.id)}">Delete</button></div></td>
+              </tr>`).join("") : `<tr><td class="gl-empty" colspan="${fields.length + 1}">${state.loadError ? "Unable to load game records." : "No games match your search."}</td></tr>`}
+            </tbody></table></div>
+            <div class="gl-pagination"><label>Records per page:<select data-page-size>${[10, 20, 50].map((size) => `<option value="${size}" ${size === state.size ? "selected" : ""}>${size}</option>`).join("")}</select></label>
+              <span>Total: ${rows.length}</span><button data-page="1" aria-label="First page" ${state.page <= 1 ? "disabled" : ""}>«</button><button data-page="${state.page - 1}" aria-label="Previous page" ${state.page <= 1 ? "disabled" : ""}>‹</button>
+              ${pageNumbers.map((page) => `<button data-page="${page}" class="${page === state.page ? "active" : ""}">${page}</button>`).join("")}${pageEnd < pages ? `<span>…</span><button data-page="${pages}">${pages}</button>` : ""}
+              <button data-page="${state.page + 1}" aria-label="Next page" ${state.page >= pages ? "disabled" : ""}>›</button><button data-page="${pages}" aria-label="Last page" ${state.page >= pages ? "disabled" : ""}>»</button>
+            </div>
+          </div>
+          <div class="gl-modal-mask" data-modal><form class="gl-modal" data-edit-form><div class="gl-modal-head"><h2>Edit Game</h2><button type="button" data-action="close" aria-label="Close">×</button></div><div class="gl-edit-scroll"><div class="gl-form-grid"></div></div><div class="gl-modal-foot"><button type="button" class="btn light" data-action="close">Cancel</button><button type="submit" class="btn primary">Save</button></div></form></div>
+        </div>`;
+        bind(host, shown);
+      }
+
+      function openEdit(host, row) {
+        const modal = host.querySelector("[data-modal]");
+        const form = host.querySelector("[data-edit-form]");
+        const grid = form.querySelector(".gl-form-grid");
+        const value = (key) => String(row[key] ?? "");
+        const field = (label, key, control, required = false, full = false) =>
+          `<label class="gl-field ${full ? "gl-field-full" : ""}"><span class="${required ? "gl-required" : ""}">${label}</span>${control}</label>`;
+        const input = (key, type = "text", required = false, placeholder = "") =>
+          `<input name="${key}" type="${type}" value="${escapeHtml(value(key))}" ${required ? "required" : ""} ${placeholder ? `placeholder="${placeholder}"` : ""}>`;
+        const select = (key, choices, required = false) => {
+          const values = [...new Set([value(key), ...choices].filter(Boolean))];
+          return `<select name="${key}" ${required ? "required" : ""}>${values.map((choice) => `<option value="${escapeHtml(choice)}" ${choice === value(key) ? "selected" : ""}>${escapeHtml(choice)}</option>`).join("")}</select>`;
+        };
+        const dateTimeValue = (key) => {
+          const date = value(key);
+          return date && date !== "-" ? date.replace(" ", "T").slice(0, 19) : "";
+        };
+        const rtpValue = value("rtp").replace(/%$/, "");
+        form.dataset.id = row.id;
+        grid.innerHTML = [
+          field("Game Name", "name", input("name", "text", true), true),
+          field("Game ID", "gameId", input("gameId", "text", true), true),
+          field("Game Code", "code", input("code", "text", true), true),
+          field("Game Type", "type", select("type", ["slots", "live casino", "table", "fishing", "bingo", "casual", "mini"], true), true),
+          field("Subtype", "subtype", `<input name="subtype" value="${escapeHtml(value("subtype") === "-" ? "" : value("subtype"))}" placeholder="Please enter">`),
+          field("Provider", "provider", select("provider", ["TLT", "Merchant A", "Merchant B", "Merchant C"], true), true),
+          field("Vendor", "vendor", select("vendor", ["platipus", "PP", "PG Soft", "RG", "EVO", "JDB", "CQ9", "Habanero"], true), true),
+          field("RTP", "rtp", `<div class="gl-rtp-input"><input name="rtp" type="number" min="0" max="100" step="0.01" value="${escapeHtml(rtpValue)}"><span>%</span></div>`),
+          field("Description", "description", `<textarea name="description" placeholder="Please enter">${escapeHtml(value("description") === "-" ? "" : value("description"))}</textarea>`, false, true),
+          field("Logo URL", "logo_url", input("logo_url", "url", true), true, true),
+          field("Demo URL", "demoUrl", input("demoUrl", "url"), false, true),
+          `<div class="gl-field gl-field-full"><span class="gl-required">Status</span><div class="gl-status-options"><label><input type="radio" name="status" value="Enabled" ${row.status === "Enabled" ? "checked" : ""} required>Enabled</label><label><input type="radio" name="status" value="Disabled" ${row.status !== "Enabled" ? "checked" : ""}>Disabled</label></div></div>`,
+          `<div class="gl-field gl-field-full"><span>Demo</span><div class="gl-demo-setting"><input type="hidden" name="demoEnabled" value="${row.demoEnabled ? "true" : "false"}"><button type="button" class="gl-switch ${row.demoEnabled ? "on" : ""}" role="switch" aria-checked="${row.demoEnabled}" aria-label="Show Demo button to users" data-demo-toggle><span></span></button><small>Enabled: show a Demo button so users can play for free. Disabled: hide the Demo button.</small></div></div>`,
+          field("Maintain Start", "maintainStart", `<input name="maintainStart" type="datetime-local" step="1" value="${escapeHtml(dateTimeValue("maintainStart"))}">`),
+          field("Maintain End", "maintainEnd", `<input name="maintainEnd" type="datetime-local" step="1" value="${escapeHtml(dateTimeValue("maintainEnd"))}">`),
+        ].join("");
+        modal.classList.add("open");
+      }
+
+      function bind(host, shown) {
+        host.querySelectorAll("[data-filter]").forEach((input) => {
+          input.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") host.querySelector('[data-action="search"]').click();
+          });
+        });
+        host.querySelector('[data-action="search"]').onclick = () => {
+          state.filters = Object.fromEntries([...host.querySelectorAll("[data-filter]")].map((input) => [input.dataset.filter, input.value.trim()]));
+          state.applied = { ...state.filters };
+          state.page = 1;
+          state.notice = "";
+          state.error = false;
+          render();
+        };
+        host.querySelector('[data-action="reset"]').onclick = () => {
+          state.filters = { name: "", type: "", provider: "", vendor: "", rtp: "" };
+          state.applied = { ...state.filters };
+          state.page = 1;
+          state.notice = "";
+          state.error = false;
+          render();
+        };
+        host.querySelector('[data-action="import"]').onclick = () => host.querySelector("[data-import]").click();
+        host.querySelector("[data-import]").onchange = (event) => {
+          const file = event.target.files[0];
+          if (file) importCsv(file);
+          event.target.value = "";
+        };
+        host.querySelector('[data-action="release"]').onclick = () => downloadCsv(currentRows().filter((row) => row.status === "Enabled"), "game-list-release.csv");
+        host.querySelector('[data-action="preview"]').onclick = () => downloadCsv(currentRows(), "game-list-preview.csv");
+        host.querySelector('[data-action="dismiss"]')?.addEventListener("click", () => {
+          state.notice = "";
+          state.error = false;
+          state.loadError = "";
+          render();
+        });
+        host.querySelectorAll("[data-status]").forEach((button) => {
+          button.onclick = () => {
+            const row = loadRows().find((item) => String(item.id) === button.dataset.status);
+            if (!row) return;
+            row.status = row.status === "Enabled" ? "Disabled" : "Enabled";
+            row.updatedAt = new Date().toLocaleString("sv-SE", { hour12: false });
+            if (persist()) {
+              state.notice = `Status updated for ${row.name}.`;
+              state.error = false;
+            }
+            render();
+          };
+        });
+        host.querySelectorAll("[data-demo-row]").forEach((button) => {
+          button.onclick = () => {
+            const row = loadRows().find((item) => String(item.id) === button.dataset.demoRow);
+            if (!row) return;
+            row.demoEnabled = !row.demoEnabled;
+            if (persist()) {
+              state.notice = `Demo ${row.demoEnabled ? "enabled" : "disabled"} for ${row.name}.`;
+              state.error = false;
+            }
+            render();
+          };
+        });
+        host.querySelectorAll("[data-edit]").forEach((button) => {
+          button.onclick = () => {
+            const row = loadRows().find((item) => String(item.id) === button.dataset.edit);
+            if (row) openEdit(host, row);
+          };
+        });
+        host.querySelectorAll("[data-delete]").forEach((button) => {
+          button.onclick = () => {
+            const row = loadRows().find((item) => String(item.id) === button.dataset.delete);
+            if (!row || !confirm(`Delete game "${row.name}"?`)) return;
+            state.rows = loadRows().filter((item) => String(item.id) !== String(row.id));
+            if (persist()) {
+              state.notice = `Game "${row.name}" deleted.`;
+              state.error = false;
+              render();
+            }
+          };
+        });
+        host.querySelectorAll("[data-page]").forEach((button) => {
+          button.onclick = () => {
+            if (button.disabled) return;
+            state.page = Number(button.dataset.page);
+            render();
+          };
+        });
+        host.querySelector("[data-page-size]").onchange = (event) => {
+          state.size = Number(event.target.value);
+          state.page = 1;
+          render();
+        };
+        host.querySelectorAll('[data-action="close"]').forEach((button) => {
+          button.onclick = () => host.querySelector("[data-modal]").classList.remove("open");
+        });
+        host.querySelector("[data-modal]").onclick = (event) => {
+          if (event.target === event.currentTarget) event.currentTarget.classList.remove("open");
+        };
+        host.querySelector("[data-edit-form]").addEventListener("click", (event) => {
+          const button = event.target.closest("[data-demo-toggle]");
+          if (!button) return;
+          const enabled = button.getAttribute("aria-checked") !== "true";
+          button.setAttribute("aria-checked", String(enabled));
+          button.classList.toggle("on", enabled);
+          host.querySelector('[name="demoEnabled"]').value = String(enabled);
+        });
+        host.querySelector("[data-edit-form]").onsubmit = (event) => {
+          event.preventDefault();
+          const form = event.currentTarget;
+          const row = loadRows().find((item) => String(item.id) === form.dataset.id);
+          if (!row) return;
+          new FormData(form).forEach((formValue, key) => {
+            let value = String(formValue).trim();
+            if (key === "demoEnabled") {
+              row[key] = value === "true";
+              return;
+            }
+            if (key === "rtp") value = value ? `${value}%` : "";
+            if (key === "maintainStart" || key === "maintainEnd")
+              value = value ? value.replace("T", " ") : "-";
+            row[key] = value;
+          });
+          row.updatedAt = new Date().toLocaleString("sv-SE", { hour12: false });
+          row.updatedBy = "Admin";
+          if (persist()) {
+            state.notice = `Game "${row.name}" updated.`;
+            state.error = false;
+            render();
+          }
+        };
+      }
+
+      window.renderGameListPage = () => {
+        loadRows();
+        render();
+      };
+    })();
+  </script>
   <script id="lobby-tags-integrated-script">
     /* Lobby CRUD */
     const STORE_LOBBIES = "aibet_lobby_rows_v1";
@@ -13653,6 +14227,15 @@
           }
           el.innerHTML = window.tagsPageHtml ? window.tagsPageHtml() : "";
         }
+        if (page === "GameList") {
+          el = document.getElementById("gameListManagementPage");
+          if (!el) {
+            el = document.createElement("section");
+            el.id = "gameListManagementPage";
+            el.className = "page";
+            content.appendChild(el);
+          }
+        }
         if (page === "broadcastReceiverPage") {
           el = typeof window.openBroadcastReceiverConfigurationPage === "function"
             ? window.openBroadcastReceiverConfigurationPage()
@@ -13665,6 +14248,12 @@
             typeof window.renderPopularGamePage === "function"
           ) {
             window.renderPopularGamePage();
+          }
+          if (
+            page === "GameList" &&
+            typeof window.renderGameListPage === "function"
+          ) {
+            window.renderGameListPage();
           }
           if (
             page === "casinoMainMenu" &&
