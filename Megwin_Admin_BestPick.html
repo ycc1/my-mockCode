@@ -1,0 +1,1374 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <title>Megwin | Best Pick Setting</title>
+    <style>
+      :root {
+        --blue: #2d7fd8;
+        --blue-dark: #256ec0;
+        --blue-soft: #eef6ff;
+        --ink: #263445;
+        --muted: #8290a0;
+        --line: #e2e8ef;
+        --canvas: #f3f7fd;
+        --green: #28a36a;
+        --orange: #e89a35;
+        --red: #df5b62;
+        --sidebar: 260px;
+        --topbar: 52px;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-width: 320px;
+        background: var(--canvas);
+        color: var(--ink);
+        font: 13px Arial, "Microsoft JhengHei", sans-serif;
+      }
+      button, input, select, textarea { font: inherit; }
+      button { cursor: pointer; }
+      .admin-topbar {
+        position: fixed;
+        inset: 0 0 auto;
+        z-index: 100;
+        height: var(--topbar);
+        display: flex;
+        align-items: center;
+        background: var(--blue);
+        color: #fff;
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+      }
+      .admin-brand {
+        width: var(--sidebar);
+        height: 100%;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0 12px;
+        flex: 0 0 var(--sidebar);
+        transition: .2s;
+      }
+      .admin-menu-toggle {
+        width: 28px;
+        height: 28px;
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: #fff;
+        cursor: pointer;
+        font-size: 20px;
+      }
+      .admin-menu-toggle:hover { background: rgba(255, 255, 255, .12); }
+      .admin-logo {
+        font-size: 30px;
+        font-weight: 900;
+        font-style: italic;
+        letter-spacing: -2px;
+      }
+      .admin-tabs {
+        height: 40px;
+        display: flex;
+        align-items: center;
+        align-self: center;
+        max-width: min(900px, 52vw);
+        overflow-x: auto;
+        background: rgba(0, 0, 0, .06);
+        scrollbar-width: none;
+      }
+      .admin-tabs::-webkit-scrollbar { display: none; }
+      .admin-tab {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 0 14px;
+        border-left: 1px solid rgba(255, 255, 255, .08);
+        background: #2b77cf;
+        color: #fff;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .admin-tab.active { background: var(--blue-dark); font-weight: 800; }
+      .admin-top-spacer { flex: 1; }
+      .admin-clock { margin-right: 14px; font-size: 12px; white-space: nowrap; }
+      .admin-user { display: flex; align-items: center; gap: 8px; margin-right: 14px; font-weight: 700; }
+      .admin-avatar {
+        width: 28px;
+        height: 28px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, .2);
+      }
+      .admin-sidebar {
+        position: fixed;
+        top: var(--topbar);
+        bottom: 0;
+        left: 0;
+        z-index: 90;
+        width: var(--sidebar);
+        height: calc(100vh - var(--topbar));
+        overflow-y: auto;
+        border-right: 1px solid #dfe4ea;
+        background: #fff;
+        transition: .2s;
+      }
+      .admin-menu-section { border-bottom: 1px solid #dfe4ea; }
+      .admin-menu-item {
+        height: 44px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 16px 0 12px;
+        background: #fff;
+        cursor: pointer;
+        font-weight: 500;
+      }
+      .admin-menu-item:hover { background: #f7fbff; }
+      .admin-menu-item.active { color: var(--blue); font-weight: 800; }
+      .admin-menu-icon {
+        width: 22px;
+        color: var(--blue);
+        font-size: 17px;
+        text-align: center;
+      }
+      .admin-menu-label { flex: 1; }
+      .admin-menu-chevron {
+        margin-left: auto;
+        color: #777;
+        transition: .2s;
+      }
+      .admin-menu-section.open > .admin-menu-item .admin-menu-chevron { transform: rotate(180deg); }
+      .admin-submenu {
+        display: none;
+        padding: 4px 0 8px;
+        background: #fff;
+      }
+      .admin-menu-section.open > .admin-submenu { display: block; }
+      .admin-sub {
+        display: flex;
+        align-items: center;
+        height: 40px;
+        gap: 10px;
+        padding-left: 38px;
+        cursor: pointer;
+      }
+      .admin-sub:hover, .admin-sub.active { background: var(--blue-soft); }
+      .admin-sub.active { color: var(--blue); font-weight: 800; }
+      .admin-dot { width: 6px; height: 6px; flex: none; border-radius: 50%; background: #bfc1c4; }
+      .admin-sub.active .admin-dot { background: var(--blue); }
+      .admin-sub-label { flex: 1; }
+      .admin-mini-chevron { margin-right: 18px; color: #777; transition: .2s; }
+      .admin-sub.parent.open .admin-mini-chevron { transform: rotate(180deg); }
+      .admin-nested { display: none; }
+      .admin-nested.open { display: block; }
+      .admin-nested .admin-sub { height: 38px; padding-left: 60px; }
+      .admin-nested .admin-nested .admin-sub { padding-left: 78px; }
+      .admin-overlay { display: none; }
+      .workspace {
+        min-height: 100vh;
+        margin-left: var(--sidebar);
+        width: calc(100% - var(--sidebar));
+        padding: calc(var(--topbar) + 20px) 20px 32px;
+        min-width: 0;
+      }
+      .page-heading {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 18px;
+      }
+      .crumb { margin: 0 0 8px; color: #8b98a7; font-size: 11px; }
+      h1 { margin: 0; color: #28384a; font-size: 23px; }
+      .page-subtitle { margin: 7px 0 0; color: #8794a2; font-size: 12px; }
+      .header-actions { display: flex; gap: 8px; }
+      .button {
+        min-height: 34px;
+        padding: 0 13px;
+        border: 1px solid #d5dee8;
+        border-radius: 5px;
+        background: #fff;
+        color: #526172;
+        font-weight: 600;
+      }
+      .button:hover { border-color: #9abde5; color: var(--blue); }
+      .button.primary { border-color: var(--blue); background: var(--blue); color: #fff; }
+      .button.primary:hover { background: var(--blue-dark); }
+      .button.subtle { border-color: transparent; background: transparent; color: var(--blue); }
+      .button.danger { color: var(--red); }
+      .button.small { min-height: 27px; padding: 0 8px; font-size: 11px; }
+      .card {
+        margin-bottom: 15px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 2px 6px #16395b08;
+      }
+      .type-tabs {
+        display: flex;
+        align-items: stretch;
+        gap: 25px;
+        min-height: 48px;
+        padding: 0 18px;
+        border-bottom: 1px solid var(--line);
+      }
+      .type-tab {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        border: 0;
+        background: transparent;
+        color: #718092;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .type-tab.active { color: var(--blue); }
+      .type-tab.active::after {
+        position: absolute;
+        right: 0;
+        bottom: -1px;
+        left: 0;
+        height: 2px;
+        background: var(--blue);
+        content: "";
+      }
+      .tab-count {
+        min-width: 19px;
+        padding: 2px 5px;
+        border-radius: 10px;
+        background: #f0f3f7;
+        color: #8794a2;
+        font-size: 10px;
+        text-align: center;
+      }
+      .type-tab.active .tab-count { background: #e7f2ff; color: var(--blue); }
+      .filters {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: end;
+        gap: 11px;
+        padding: 15px 17px;
+        border-bottom: 1px solid var(--line);
+      }
+      .filter-field { display: grid; gap: 6px; min-width: 145px; }
+      .filter-field.search { flex: 1; min-width: 200px; }
+      .filter-field label, .field label {
+        color: #667586;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .input, .select, .textarea {
+        width: 100%;
+        min-height: 34px;
+        padding: 0 10px;
+        border: 1px solid #d9e1ea;
+        border-radius: 4px;
+        outline: none;
+        background: #fff;
+        color: #364658;
+      }
+      .input:focus, .select:focus, .textarea:focus { border-color: #78ade8; box-shadow: 0 0 0 2px #dceeff; }
+      .textarea { min-height: 64px; padding: 9px 10px; resize: vertical; }
+      .search-wrap { position: relative; }
+      .search-wrap::before {
+        position: absolute;
+        top: 9px;
+        left: 10px;
+        color: #95a1ae;
+        content: "⌕";
+        font-size: 17px;
+      }
+      .search-wrap .input { padding-left: 31px; }
+      .table-tools {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 12px 17px;
+      }
+      .result-label { color: #8794a2; font-size: 11px; }
+      .table-wrap { overflow-x: auto; }
+      table { width: 100%; min-width: 980px; border-collapse: collapse; }
+      th {
+        height: 37px;
+        padding: 0 10px;
+        background: #f7f9fc;
+        color: #748292;
+        font-size: 10px;
+        font-weight: 700;
+        text-align: left;
+        white-space: nowrap;
+      }
+      td {
+        height: 58px;
+        padding: 8px 10px;
+        border-top: 1px solid #edf0f4;
+        color: #4a5868;
+        vertical-align: middle;
+      }
+      tr:hover td { background: #fbfdff; }
+      .drag-cell { width: 38px; color: #a9b2bd; font-size: 17px; text-align: center; }
+      .order-cell { width: 52px; font-weight: 700; }
+      .item-name { display: block; max-width: 210px; overflow: hidden; color: #344456; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+      .item-sub { display: block; max-width: 235px; margin-top: 4px; overflow: hidden; color: #98a2ae; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+      .type-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 7px;
+        border-radius: 3px;
+        background: #eef5ff;
+        color: #397cc6;
+        font-size: 10px;
+        white-space: nowrap;
+      }
+      .type-badge.sgp { background: #f3efff; color: #7556b9; }
+      .type-badge.super { background: #fff5e8; color: #c17b1a; }
+      .boost-value { color: #26976a; font-weight: 700; white-space: nowrap; }
+      .schedule { color: #596879; font-size: 10px; line-height: 1.5; white-space: nowrap; }
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 7px;
+        border-radius: 12px;
+        background: #edf8f2;
+        color: #258d5d;
+        font-size: 10px;
+        white-space: nowrap;
+      }
+      .status::before { width: 6px; height: 6px; border-radius: 50%; background: currentColor; content: ""; }
+      .status.paused { background: #f1f3f6; color: #8994a1; }
+      .status.scheduled { background: #fff6e8; color: #c38324; }
+      .row-actions { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+      .icon-button {
+        min-width: 25px;
+        height: 25px;
+        padding: 0 5px;
+        border: 1px solid #e1e6ec;
+        border-radius: 4px;
+        background: #fff;
+        color: #687889;
+        font-size: 11px;
+      }
+      .icon-button:hover { border-color: #9abde5; color: var(--blue); }
+      .icon-button.delete:hover { border-color: #f1b3b7; color: var(--red); }
+      .empty-row { padding: 36px; color: #94a0ad; text-align: center; }
+      .table-footer {
+        display: flex;
+        justify-content: space-between;
+        padding: 11px 17px;
+        border-top: 1px solid var(--line);
+        color: #8895a2;
+        font-size: 10px;
+      }
+      .editor-view { display: none; }
+      .editor-view.visible { display: block; }
+      .list-view.hidden { display: none; }
+      .back-link { display: inline-flex; gap: 6px; margin-bottom: 13px; color: var(--blue); cursor: pointer; font-weight: 700; }
+      .editor-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 15px; }
+      .editor-heading h2 { margin: 0; font-size: 18px; }
+      .editor-heading p { margin: 5px 0 0; color: #8995a2; font-size: 11px; }
+      .editor-grid { display: grid; grid-template-columns: minmax(470px, 1.12fr) minmax(340px, .88fr); gap: 15px; align-items: start; }
+      .editor-main, .preview-card { padding: 17px; }
+      .panel-title { display: flex; align-items: center; justify-content: space-between; margin: 0 0 14px; color: #344457; font-size: 13px; }
+      .panel-title .hint { color: #96a1ae; font-size: 10px; font-weight: 400; }
+      .form-section { padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid #edf0f4; }
+      .form-section:last-child { padding-bottom: 0; margin-bottom: 0; border-bottom: 0; }
+      .section-label {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin-bottom: 12px;
+        color: #425367;
+        font-size: 11px;
+        font-weight: 800;
+      }
+      .section-number { display: grid; width: 18px; height: 18px; place-items: center; border-radius: 50%; background: #edf5ff; color: var(--blue); font-size: 10px; }
+      .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+      .field { display: grid; align-content: start; gap: 6px; min-width: 0; }
+      .field.full { grid-column: 1 / -1; }
+      .field small { color: #97a2af; font-size: 10px; line-height: 1.4; }
+      .required::after { margin-left: 3px; color: var(--red); content: "*"; }
+      .placement-options { display: flex; flex-wrap: wrap; gap: 8px; }
+      .check-option {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 30px;
+        padding: 0 9px;
+        border: 1px solid #e0e6ed;
+        border-radius: 4px;
+        color: #586777;
+        font-size: 11px;
+      }
+      .check-option input { margin: 0; accent-color: var(--blue); }
+      .switch-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+      .switch-copy strong { display: block; color: #48586a; font-size: 11px; }
+      .switch-copy small { display: block; margin-top: 4px; color: #96a2af; font-size: 10px; }
+      .toggle { position: relative; width: 36px; height: 20px; flex: none; }
+      .toggle input { width: 0; height: 0; opacity: 0; }
+      .toggle span { position: absolute; inset: 0; border-radius: 15px; background: #c8d0d9; transition: .15s; cursor: pointer; }
+      .toggle span::before { position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px #0002; transition: .15s; content: ""; }
+      .toggle input:checked + span { background: #2fa876; }
+      .toggle input:checked + span::before { transform: translateX(16px); }
+      .legs-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+      .legs-header strong { color: #566576; font-size: 11px; }
+      .leg-row {
+        display: grid;
+        grid-template-columns: minmax(105px, 1.1fr) minmax(100px, 1fr) 76px 76px 26px;
+        gap: 6px;
+        align-items: center;
+        padding: 7px 0;
+        border-top: 1px solid #f0f2f5;
+      }
+      .leg-row .input { min-height: 30px; padding: 0 7px; font-size: 10px; }
+      .leg-row .remove-leg { border: 0; background: transparent; color: #a2acb7; font-size: 16px; }
+      .leg-column-labels { display: grid; grid-template-columns: minmax(105px, 1.1fr) minmax(100px, 1fr) 76px 76px 26px; gap: 6px; padding: 0 0 5px; color: #99a4b0; font-size: 9px; }
+      .boost-input { position: relative; }
+      .boost-input .input { padding-right: 25px; }
+      .boost-input span { position: absolute; top: 10px; right: 9px; color: #8391a0; font-size: 10px; }
+      .form-error { display: none; margin-bottom: 12px; padding: 9px 11px; border: 1px solid #f3c6c8; border-radius: 4px; background: #fff5f5; color: #b94a51; font-size: 11px; line-height: 1.5; }
+      .form-error.show { display: block; }
+      .editor-footer {
+        position: sticky;
+        bottom: 0;
+        z-index: 4;
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 11px 0;
+        margin-top: 12px;
+        background: #f3f7fdf0;
+        backdrop-filter: blur(6px);
+      }
+      .preview-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; }
+      .preview-top .panel-title { margin: 0; }
+      .preview-switcher { display: flex; gap: 3px; padding: 3px; border-radius: 5px; background: #f0f3f7; }
+      .preview-switcher button { padding: 5px 7px; border: 0; border-radius: 3px; background: transparent; color: #8190a0; font-size: 9px; }
+      .preview-switcher button.active { background: #fff; color: var(--blue); box-shadow: 0 1px 3px #0001; }
+      .device-frame { max-width: 390px; min-height: 445px; margin: 0 auto; padding: 13px; border: 7px solid #283543; border-radius: 20px; background: #f5f7fa; box-shadow: 0 8px 20px #10263e17; }
+      .device-top { display: flex; justify-content: space-between; padding: 0 1px 10px; color: #748394; font-size: 9px; }
+      .sport-screen { overflow: hidden; min-height: 385px; border-radius: 7px; background: #fff; box-shadow: 0 1px 4px #172b3b12; }
+      .sport-header { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid #edf0f4; }
+      .sport-logo { color: #26394d; font-size: 13px; font-weight: 900; font-style: italic; }
+      .sport-wallet { padding: 5px 8px; border-radius: 4px; background: #eff5fb; color: #56708d; font-size: 9px; }
+      .sport-nav { display: flex; gap: 14px; padding: 9px 12px; border-bottom: 1px solid #edf0f4; color: #8a97a4; font-size: 9px; white-space: nowrap; }
+      .sport-nav .active { color: var(--blue); font-weight: 700; }
+      .preview-body { padding: 11px; }
+      .preview-group-title { margin-bottom: 7px; color: #3d4d60; font-size: 12px; font-weight: 800; }
+      .preview-event { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 9px; color: #8a97a4; font-size: 9px; }
+      .preview-event strong { color: #596a7b; font-weight: 600; }
+      .pick-card { padding: 10px; border: 1px solid #e4e9ef; border-radius: 6px; background: #fff; }
+      .pick-card + .pick-card { margin-top: 8px; }
+      .pick-title { margin-bottom: 4px; color: #34475b; font-size: 11px; font-weight: 800; }
+      .pick-subtitle { margin-bottom: 9px; color: #8c98a5; font-size: 9px; }
+      .pick-leg { display: flex; justify-content: space-between; gap: 6px; padding: 6px 0; border-top: 1px solid #f0f2f5; color: #637284; font-size: 9px; }
+      .pick-leg strong { color: #47586a; }
+      .odds-line { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 9px; padding-top: 8px; border-top: 1px solid #edf0f4; }
+      .boost-chip { padding: 4px 6px; border-radius: 3px; background: #e9f8f0; color: #21865a; font-size: 9px; font-weight: 800; }
+      .odds-pair { color: #7e8b99; font-size: 9px; }
+      .odds-pair del { margin-right: 5px; color: #aeb7c0; }
+      .odds-pair strong { color: #2a9464; font-size: 12px; }
+      .preview-total { margin-top: 9px; color: #8e9aa7; font-size: 9px; text-align: right; }
+      .preview-note { margin: 11px 0 0; color: #a0aab5; font-size: 9px; line-height: 1.45; }
+      .preview-placeholder { padding: 34px 14px; color: #8996a3; font-size: 10px; text-align: center; }
+      .preview-placeholder strong { display: block; margin-bottom: 6px; color: #58697b; font-size: 11px; }
+      .toast {
+        position: fixed;
+        right: 24px;
+        bottom: 24px;
+        z-index: 50;
+        padding: 11px 16px;
+        border-radius: 5px;
+        background: #26384b;
+        color: #fff;
+        box-shadow: 0 4px 14px #0002;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(8px);
+        transition: .18s;
+      }
+      .toast.show { opacity: 1; transform: translateY(0); }
+      .modal-backdrop { position: fixed; inset: 0; z-index: 40; display: none; align-items: center; justify-content: center; padding: 20px; background: #15283c70; }
+      .modal-backdrop.open { display: flex; }
+      .modal { width: min(460px, 100%); padding: 17px; border-radius: 8px; background: #fff; box-shadow: 0 15px 50px #12243b40; }
+      .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 13px; }
+      .modal-head h3 { margin: 0; font-size: 15px; }
+      .modal-close { border: 0; background: transparent; color: #8592a0; font-size: 20px; }
+      .modal-preview { min-height: 380px; }
+      .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 13px; }
+      @media (max-width: 1050px) {
+        .editor-grid { grid-template-columns: minmax(0, 1fr); }
+        .preview-card { max-width: 100%; }
+      }
+      body.admin-collapsed .admin-brand,
+      body.admin-collapsed .admin-sidebar { width: 56px; flex-basis: 56px; }
+      body.admin-collapsed .workspace { margin-left: 56px; width: calc(100% - 56px); }
+      body.admin-collapsed .admin-logo,
+      body.admin-collapsed .admin-menu-label,
+      body.admin-collapsed .admin-menu-chevron,
+      body.admin-collapsed .admin-submenu { display: none; }
+      body.admin-collapsed .admin-menu-item { justify-content: center; padding: 0; }
+      @media (max-width: 900px) {
+        .admin-clock, .admin-tabs { display: none; }
+        .admin-sidebar { left: -270px; width: 260px; flex-basis: 260px; }
+        .admin-sidebar.mobile-open { left: 0; }
+        .workspace, body.admin-collapsed .workspace { margin-left: 0; width: 100%; padding: 66px 14px 24px; }
+        .admin-overlay {
+          position: fixed;
+          inset: var(--topbar) 0 0;
+          z-index: 80;
+          background: rgba(0, 0, 0, .35);
+        }
+        .admin-overlay.show { display: block; }
+        .admin-brand { width: auto; flex-basis: auto; }
+        .admin-logo { font-size: 27px; }
+      }
+      @media (max-width: 760px) {
+        .workspace { padding: 66px 12px 24px; }
+        .page-heading { flex-direction: column; }
+        .header-actions { align-self: stretch; }
+        .header-actions .button { flex: 1; }
+        .type-tabs { gap: 13px; overflow-x: auto; }
+        .type-tab { min-height: 46px; white-space: nowrap; }
+        .editor-grid { grid-template-columns: minmax(0, 1fr); }
+        .editor-main { padding: 13px; }
+        .form-grid { grid-template-columns: 1fr; }
+        .field.full { grid-column: auto; }
+        .leg-row, .leg-column-labels { grid-template-columns: minmax(75px, 1fr) minmax(80px, 1fr) 55px 55px 22px; gap: 4px; }
+        .leg-row .input { padding: 0 4px; font-size: 9px; }
+        .filters { align-items: stretch; }
+        .filter-field, .filter-field.search { min-width: calc(50% - 6px); flex: 1; }
+        .filter-field.search { min-width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="admin-topbar" id="adminTopbar">
+      <div class="admin-brand">
+        <button class="admin-menu-toggle" id="adminMenuToggle" type="button" aria-label="Toggle menu">☰</button>
+        <div class="admin-logo">Megwin</div>
+      </div>
+      <div class="admin-tabs" id="adminTabs">
+        <div class="admin-tab active"><span>Best Pick Setting</span></div>
+      </div>
+      <div class="admin-top-spacer"></div>
+      <div class="admin-clock" id="adminClock"></div>
+      <div class="admin-user">Admin <span class="admin-avatar">A</span></div>
+    </header>
+    <div class="admin-overlay" id="adminOverlay"></div>
+    <aside class="admin-sidebar" id="adminSidebar">
+      <nav id="adminMenu"></nav>
+    </aside>
+
+    <main class="workspace">
+      <div class="list-view" id="listView">
+        <div class="page-heading">
+          <div>
+            <p class="crumb">Sport Management　/　Best Pick Setting</p>
+            <h1>Best Pick Setting</h1>
+            <p class="page-subtitle">Configure featured picks, Superodds and SGP boosts shown across Sport.</p>
+          </div>
+          <div class="header-actions">
+            <button class="button" id="previewAllBtn" type="button">◉ Preview</button>
+            <button class="button primary" id="createBtn" type="button">＋ Create Best Pick</button>
+          </div>
+        </div>
+
+        <section class="card">
+          <div class="type-tabs" id="typeTabs">
+            <button class="type-tab active" data-type="all" type="button">All Best Picks <span class="tab-count" id="count-all">0</span></button>
+            <button class="type-tab" data-type="parlay" type="button">Selected Parlay Boost <span class="tab-count" id="count-parlay">0</span></button>
+            <button class="type-tab" data-type="super" type="button">Superodds <span class="tab-count" id="count-super">0</span></button>
+            <button class="type-tab" data-type="sgp" type="button">SGP Boost <span class="tab-count" id="count-sgp">0</span></button>
+          </div>
+          <div class="filters">
+            <div class="filter-field search">
+              <label for="searchInput">Search</label>
+              <div class="search-wrap"><input class="input" id="searchInput" placeholder="Search name, event or recommendation..." /></div>
+            </div>
+            <div class="filter-field">
+              <label for="statusFilter">Status</label>
+              <select class="select" id="statusFilter">
+                <option value="all">All statuses</option>
+                <option value="enabled">Enabled</option>
+                <option value="paused">Paused</option>
+              </select>
+            </div>
+            <div class="filter-field">
+              <label for="placementFilter">Placement</label>
+              <select class="select" id="placementFilter">
+                <option value="all">All placements</option>
+                <option value="home">Homepage</option>
+                <option value="event">Event details</option>
+                <option value="betslip">Bet slip</option>
+              </select>
+            </div>
+            <button class="button" id="resetFilters" type="button">Reset</button>
+          </div>
+          <div class="table-tools">
+            <span class="result-label" id="resultLabel">Showing 0 records</span>
+            <span class="result-label">Use ↑ ↓ to change display order</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:38px"></th>
+                  <th style="width:50px">SORT</th>
+                  <th>NAME / EVENT</th>
+                  <th>TYPE</th>
+                  <th>RECOMMENDATION</th>
+                  <th>PLACEMENT</th>
+                  <th>BOOST</th>
+                  <th>SCHEDULE</th>
+                  <th>STATUS</th>
+                  <th style="width:150px">ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+          <div class="table-footer">
+            <span>Best Pick content is managed for Sport Homepage.</span>
+            <span id="lastSaved">Last saved —</span>
+          </div>
+        </section>
+      </div>
+
+      <section class="editor-view" id="editorView">
+        <div class="back-link" id="backToList">← Back to Best Pick list</div>
+        <div class="editor-heading">
+          <div>
+            <h2 id="editorTitle">Create Best Pick</h2>
+            <p>Set the recommendation on the left and check the front-end preview on the right.</p>
+          </div>
+          <span class="type-badge" id="editorTypeBadge">Selected Parlay Boost</span>
+        </div>
+        <div id="formError" class="form-error"></div>
+        <div class="editor-grid">
+          <div class="card editor-main" id="editorForm"></div>
+          <div class="card preview-card">
+            <div class="preview-top">
+              <h3 class="panel-title">Live Preview <span class="hint">Updates as you edit</span></h3>
+              <div class="preview-switcher" id="previewSwitcher">
+                <button class="active" data-preview="home" type="button">Homepage</button>
+                <button data-preview="event" type="button">Event</button>
+                <button data-preview="betslip" type="button">Bet slip</button>
+              </div>
+            </div>
+            <div id="livePreview"></div>
+            <p class="preview-note">Preview is a visual guide. The final display depends on the selected placement, schedule and enabled status.</p>
+          </div>
+        </div>
+        <div class="editor-footer">
+          <button class="button" id="cancelEdit" type="button">Cancel</button>
+          <button class="button" id="saveDraft" type="button">Save Draft</button>
+          <button class="button primary" id="saveEnable" type="button">Save &amp; Enable</button>
+        </div>
+      </section>
+    </main>
+
+    <div class="modal-backdrop" id="previewModal">
+      <div class="modal">
+        <div class="modal-head">
+          <h3>Best Pick Preview</h3>
+          <button class="modal-close" id="closePreview" type="button" aria-label="Close">×</button>
+        </div>
+        <div class="preview-switcher" id="modalPreviewSwitcher">
+          <button class="active" data-preview="home" type="button">Homepage</button>
+          <button data-preview="event" type="button">Event details</button>
+          <button data-preview="betslip" type="button">Bet slip</button>
+        </div>
+        <div class="modal-preview" id="modalPreviewContent"></div>
+        <div class="modal-actions"><button class="button" id="closePreviewButton" type="button">Close</button></div>
+      </div>
+    </div>
+    <div class="toast" id="toast"></div>
+
+    <script>
+      const STORAGE_KEY = "megwin_best_pick_setting_v1";
+      const typeNames = {
+        parlay: "Selected Parlay Boost",
+        super: "Superodds",
+        sgp: "SGP Boost",
+      };
+      const defaultLegs = (values) => values.map(([selection, market, oldOdds, newOdds]) => ({
+        selection, market, oldOdds, newOdds,
+      }));
+      const initialItems = [
+        {
+          id: "bp-101", sort: 1, type: "parlay", name: "UCL Favourites · Matchday 5",
+          event: "Real Madrid vs Liverpool", groupTitle: "UEFA Champions League",
+          cardTitle: "UCL Favourites", subtitle: "Full Time Result · 3 picks",
+          boost: "25", oldOdds: "4.20", newOdds: "5.25",
+          legs: defaultLegs([["Real Madrid", "Full Time Result", "1.80", "2.25"], ["Over 2.5 Goals", "Total Goals", "1.55", "1.94"], ["Both Teams to Score", "Goals", "1.50", "1.88"]]),
+          placements: ["home", "event", "betslip"], start: "2026-11-25T18:00",
+          end: "2026-11-26T23:59", enabled: true, note: "Feature in the Champions League carousel.",
+        },
+        {
+          id: "bp-102", sort: 2, type: "super", mode: "full", marketType: "1X2", name: "Premier League · Match Winner",
+          event: "Arsenal vs Tottenham", groupTitle: "Premier League",
+          cardTitle: "Superodds", subtitle: "Match Result · 1X2",
+          boost: "15", oldOdds: "2.10", newOdds: "2.42",
+          legs: defaultLegs([["Arsenal", "Home", "2.10", "2.42"], ["Draw", "Draw", "3.40", "3.91"], ["Tottenham", "Away", "3.20", "3.68"]]),
+          placements: ["home", "event"], start: "2026-11-25T18:00",
+          end: "2026-11-30T23:59", enabled: true, note: "",
+        },
+        {
+          id: "bp-103", sort: 3, type: "sgp", name: "Madrid Derby · Same Game Parlay",
+          event: "Real Madrid vs Atlético Madrid", groupTitle: "La Liga",
+          cardTitle: "Madrid Derby Special", subtitle: "Same Game Parlay",
+          boost: "20", oldOdds: "6.50", newOdds: "7.80",
+          legs: defaultLegs([["Real Madrid or Draw", "Double Chance", "1.25", "1.25"], ["Over 2.5 Goals", "Total Goals", "1.80", "1.80"], ["Jude Bellingham to score", "Anytime Scorer", "2.90", "2.90"], ["Both Teams to Score", "Goals", "1.70", "1.70"]]),
+          placements: ["home", "event", "betslip"], start: "2026-11-26T12:00",
+          end: "2026-11-27T23:59", enabled: true, note: "Keep all legs related to the selected event.",
+        },
+        {
+          id: "bp-104", sort: 4, type: "super", mode: "single", marketType: "Other", name: "Mbappé · Anytime Goalscorer",
+          event: "Real Madrid vs Liverpool", groupTitle: "UEFA Champions League",
+          cardTitle: "Superodds", subtitle: "Anytime Goalscorer",
+          boost: "12", oldOdds: "1.29", newOdds: "1.44",
+          legs: defaultLegs([["Kylian Mbappé", "Anytime Goalscorer", "1.29", "1.44"]]),
+          placements: ["event"], start: "2026-11-25T18:00",
+          end: "2026-11-26T22:00", enabled: false, note: "",
+        },
+        {
+          id: "bp-105", sort: 5, type: "parlay", name: "Premier League Goals",
+          event: "Chelsea vs Manchester City", groupTitle: "Premier League",
+          cardTitle: "Goal Rush", subtitle: "Goals & Corners",
+          boost: "18", oldOdds: "3.80", newOdds: "4.48",
+          legs: defaultLegs([["Over 2.5 Goals", "Total Goals", "1.75", "2.06"], ["Man City to score first", "First Goal", "2.17", "2.56"]]),
+          placements: ["home", "event"], start: "2026-11-28T10:00",
+          end: "2026-11-29T22:00", enabled: false, note: "",
+        },
+      ];
+      let items;
+      try {
+        items = JSON.parse(localStorage.getItem(STORAGE_KEY)) || structuredClone(initialItems);
+      } catch (error) {
+        console.error("Could not load Best Pick data from local storage.", error);
+        items = structuredClone(initialItems);
+      }
+      let activeType = "all";
+      let draft = null;
+      let editingId = null;
+      let previewLocation = "home";
+      let modalItem = null;
+      let toastTimer;
+
+      const esc = (value = "") => String(value).replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+      })[char]);
+      const clone = (value) => JSON.parse(JSON.stringify(value));
+      const placementsLabel = (placementList = []) => placementList.map((p) => ({
+        home: "Homepage", event: "Event details", betslip: "Bet slip",
+      })[p]).join(", ") || "—";
+      const formatDate = (value) => value ? value.replace("T", " ") : "Not set";
+
+      function saveState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+        document.getElementById("lastSaved").textContent = `Last saved ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+      }
+      function notify(message) {
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 2300);
+      }
+      function boostText(item) {
+        return item.type === "super" ? `${item.boost || "0"}% boost` : `${item.boost || "0"}% boost`;
+      }
+      function getFilteredItems() {
+        const query = document.getElementById("searchInput").value.trim().toLowerCase();
+        const status = document.getElementById("statusFilter").value;
+        const placement = document.getElementById("placementFilter").value;
+        return [...items].sort((a, b) => a.sort - b.sort).filter((item) => {
+          const matchesType = activeType === "all" || item.type === activeType;
+          const matchesStatus = status === "all" || (status === "enabled" ? item.enabled : !item.enabled);
+          const matchesPlacement = placement === "all" || item.placements.includes(placement);
+          const haystack = `${item.name} ${item.event} ${item.cardTitle} ${item.groupTitle}`.toLowerCase();
+          return matchesType && matchesStatus && matchesPlacement && (!query || haystack.includes(query));
+        });
+      }
+      function renderList() {
+        ["all", "parlay", "super", "sgp"].forEach((type) => {
+          const count = type === "all" ? items.length : items.filter((item) => item.type === type).length;
+          document.getElementById(`count-${type}`).textContent = count;
+        });
+        const filtered = getFilteredItems();
+        document.getElementById("resultLabel").textContent = `Showing ${filtered.length} of ${items.length} records`;
+        const body = document.getElementById("tableBody");
+        if (!filtered.length) {
+          body.innerHTML = '<tr><td class="empty-row" colspan="10">No Best Picks found. Adjust your filters or create a new item.</td></tr>';
+          return;
+        }
+        body.innerHTML = filtered.map((item) => {
+          const typeClass = item.type === "sgp" ? "sgp" : item.type === "super" ? "super" : "";
+          const recommendation = item.type === "super"
+            ? `${item.mode === "full" ? "Full market" : "Single selection"} · ${item.legs.map((leg) => leg.selection).join(", ")}`
+            : `${item.legs.length} legs · ${item.cardTitle}`;
+          return `<tr data-id="${esc(item.id)}">
+            <td class="drag-cell">⠿</td>
+            <td class="order-cell"><button class="icon-button move-up" aria-label="Move up">↑</button> ${item.sort} <button class="icon-button move-down" aria-label="Move down">↓</button></td>
+            <td><span class="item-name">${esc(item.name)}</span><span class="item-sub">${esc(item.event)}</span></td>
+            <td><span class="type-badge ${typeClass}">${esc(typeNames[item.type])}</span></td>
+            <td><span class="item-name">${esc(recommendation)}</span><span class="item-sub">${esc(item.groupTitle || "—")}</span></td>
+            <td>${esc(placementsLabel(item.placements))}</td>
+            <td><span class="boost-value">${esc(boostText(item))}</span><span class="item-sub"><del>${esc(item.oldOdds || "—")}</del> → ${esc(item.newOdds || "—")}</span></td>
+            <td><span class="schedule">${esc(formatDate(item.start))}<br>to ${esc(formatDate(item.end))}</span></td>
+            <td><span class="status ${item.enabled ? "" : "paused"}">${item.enabled ? "Enabled" : "Paused"}</span></td>
+            <td><div class="row-actions">
+              <button class="icon-button edit-row" title="Edit">Edit</button>
+              <button class="icon-button duplicate-row" title="Duplicate">Copy</button>
+              <button class="icon-button preview-row" title="Preview">◉</button>
+              <button class="icon-button pause-row" title="${item.enabled ? "Pause" : "Enable"}">${item.enabled ? "Ⅱ" : "▶"}</button>
+              <button class="icon-button delete delete-row" title="Delete">×</button>
+            </div></td>
+          </tr>`;
+        }).join("");
+      }
+      function freshDraft(type = "parlay") {
+        return {
+          id: `bp-${Date.now()}`, sort: items.length + 1, type,
+          mode: "full", marketType: "1X2", name: "", event: "", groupTitle: "", cardTitle: "",
+          subtitle: "", boost: "", oldOdds: "", newOdds: "",
+          legs: defaultLegs([["", "", "", ""]]), placements: ["home", "event"],
+          start: "", end: "", enabled: false, note: "",
+        };
+      }
+      function openEditor(item = null, type = activeType === "all" ? "parlay" : activeType) {
+        editingId = item ? item.id : null;
+        draft = item ? clone(item) : freshDraft(type);
+        previewLocation = "home";
+        document.getElementById("listView").classList.add("hidden");
+        document.getElementById("editorView").classList.add("visible");
+        document.getElementById("editorTitle").textContent = item ? "Edit Best Pick" : "Create Best Pick";
+        document.getElementById("editorTypeBadge").textContent = typeNames[draft.type];
+        document.getElementById("editorTypeBadge").className = `type-badge ${draft.type === "sgp" ? "sgp" : draft.type === "super" ? "super" : ""}`;
+        document.getElementById("formError").classList.remove("show");
+        renderForm();
+        renderLivePreview();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+      function closeEditor() {
+        draft = null;
+        editingId = null;
+        document.getElementById("editorView").classList.remove("visible");
+        document.getElementById("listView").classList.remove("hidden");
+        renderList();
+      }
+      function renderPlacementOptions() {
+        return [
+          ["home", "Sport Homepage"],
+          ["event", "Event details"],
+          ["betslip", "Bet slip"],
+        ].map(([value, label]) => {
+          const checked = draft.placements.includes(value);
+          const disabled = draft.type === "super" && draft.mode === "single" && value === "home";
+          return `<label class="check-option"><input data-placement="${value}" type="checkbox" ${checked ? "checked" : ""} ${disabled ? "disabled" : ""}/> ${label}</label>`;
+        }).join("");
+      }
+      function renderLegRows() {
+        const labels = draft.type === "super"
+          ? ["Selection / option", "Market", "Original", "Boosted"]
+          : ["Selection / leg", "Market", "Original", "New odds"];
+        return `<div class="leg-column-labels">${labels.map((label) => `<span>${label}</span>`).join("")}<span></span></div>
+          <div id="legRows">${draft.legs.map((leg, index) => `<div class="leg-row" data-leg-index="${index}">
+            <input class="input" data-leg-field="selection" placeholder="${draft.type === "sgp" ? "e.g. Over 2.5 Goals" : "e.g. Home"}" value="${esc(leg.selection)}"/>
+            <input class="input" data-leg-field="market" placeholder="Market" value="${esc(leg.market)}"/>
+            <input class="input" data-leg-field="oldOdds" inputmode="decimal" placeholder="1.50" value="${esc(leg.oldOdds)}"/>
+            <input class="input" data-leg-field="newOdds" inputmode="decimal" placeholder="1.80" value="${esc(leg.newOdds)}"/>
+            <button class="remove-leg" type="button" data-remove-leg="${index}" aria-label="Remove leg">×</button>
+          </div>`).join("")}</div>`;
+      }
+      function renderForm() {
+        const form = document.getElementById("editorForm");
+        const superMode = draft.type === "super";
+        const isSingle = superMode && draft.mode === "single";
+        let typeSpecific = "";
+        if (draft.type === "parlay") {
+          typeSpecific = `<div class="form-section">
+            <div class="section-label"><span class="section-number">2</span>Recommendation card</div>
+            <div class="form-grid">
+              <div class="field"><label class="required" for="groupTitle">Group title</label><input class="input" id="groupTitle" data-field="groupTitle" placeholder="e.g. UEFA Champions League" value="${esc(draft.groupTitle)}"/></div>
+              <div class="field"><label class="required" for="cardTitle">Card title</label><input class="input" id="cardTitle" data-field="cardTitle" placeholder="e.g. UCL Favourites" value="${esc(draft.cardTitle)}"/></div>
+              <div class="field"><label for="subtitle">Subtitle / explanation</label><input class="input" id="subtitle" data-field="subtitle" placeholder="e.g. Full Time Result" value="${esc(draft.subtitle)}"/></div>
+              <div class="field"><label class="required" for="boost">Boost percentage</label><div class="boost-input"><input class="input" id="boost" data-field="boost" inputmode="decimal" placeholder="25" value="${esc(draft.boost)}"/><span>%</span></div></div>
+            </div>
+            <div style="margin-top:14px"><div class="legs-header"><strong>Parlay legs <span class="hint">All legs should match the card theme</span></strong><button class="button small add-leg" type="button">＋ Add leg</button></div>${renderLegRows()}</div>
+          </div>`;
+        } else if (superMode) {
+          typeSpecific = `<div class="form-section">
+            <div class="section-label"><span class="section-number">2</span>Superodds configuration</div>
+            <div class="form-grid">
+              <div class="field"><label class="required" for="mode">Configuration mode</label><select class="select" id="mode" data-field="mode"><option value="full" ${draft.mode === "full" ? "selected" : ""}>Full market</option><option value="single" ${draft.mode === "single" ? "selected" : ""}>Single selection</option></select><small>Homepage supports full 1X2 / 12 markets only. Single selections are event-detail only.</small></div>
+              <div class="field"><label class="required" for="marketType">Market type</label><select class="select" id="marketType" data-field="marketType"><option ${draft.marketType === "1X2" ? "selected" : ""}>1X2</option><option ${draft.marketType === "12" ? "selected" : ""}>12</option><option ${draft.marketType === "Other" ? "selected" : ""}>Other</option></select></div>
+              <div class="field"><label class="required" for="groupTitle">Group / competition title</label><input class="input" id="groupTitle" data-field="groupTitle" placeholder="e.g. Premier League" value="${esc(draft.groupTitle)}"/></div>
+              <div class="field"><label class="required" for="boost">Boost percentage</label><div class="boost-input"><input class="input" id="boost" data-field="boost" inputmode="decimal" placeholder="15" value="${esc(draft.boost)}"/><span>%</span></div></div>
+            </div>
+            <div style="margin-top:14px"><div class="legs-header"><strong>${isSingle ? "Boosted selection" : "Market options"} <span class="hint">${isSingle ? "Add one or more selections" : "Every option in a full market must have a valid boosted price"}</span></strong><button class="button small add-leg" type="button">＋ Add option</button></div>${renderLegRows()}</div>
+          </div>`;
+        } else {
+          typeSpecific = `<div class="form-section">
+            <div class="section-label"><span class="section-number">2</span>SGP recommendation</div>
+            <div class="form-grid">
+              <div class="field"><label class="required" for="groupTitle">Group title</label><input class="input" id="groupTitle" data-field="groupTitle" placeholder="e.g. La Liga" value="${esc(draft.groupTitle)}"/></div>
+              <div class="field"><label class="required" for="cardTitle">Card title</label><input class="input" id="cardTitle" data-field="cardTitle" placeholder="e.g. Madrid Derby Special" value="${esc(draft.cardTitle)}"/></div>
+              <div class="field"><label for="subtitle">Subtitle</label><input class="input" id="subtitle" data-field="subtitle" placeholder="Same Game Parlay" value="${esc(draft.subtitle)}"/></div>
+              <div class="field"><label class="required" for="boost">SGP boost percentage</label><div class="boost-input"><input class="input" id="boost" data-field="boost" inputmode="decimal" placeholder="20" value="${esc(draft.boost)}"/><span>%</span></div></div>
+              <div class="field"><label class="required" for="oldOdds">Combined original odds</label><input class="input" id="oldOdds" data-field="oldOdds" inputmode="decimal" placeholder="6.50" value="${esc(draft.oldOdds)}"/></div>
+              <div class="field"><label class="required" for="newOdds">Boosted odds</label><input class="input" id="newOdds" data-field="newOdds" inputmode="decimal" placeholder="7.80" value="${esc(draft.newOdds)}"/></div>
+            </div>
+            <div style="margin-top:14px"><div class="legs-header"><strong>SGP legs <span class="hint">All legs must belong to this event</span></strong><button class="button small add-leg" type="button">＋ Add leg</button></div>${renderLegRows()}</div>
+          </div>`;
+        }
+        const typeSectionNumber = 2;
+        form.innerHTML = `<h3 class="panel-title">Configuration <span class="hint">Fields marked * are required</span></h3>
+          <div class="form-section">
+            <div class="section-label"><span class="section-number">1</span>Basic information</div>
+            <div class="form-grid">
+              <div class="field"><label class="required" for="name">Internal name</label><input class="input" id="name" data-field="name" placeholder="Enter a name for internal reference" value="${esc(draft.name)}"/></div>
+              <div class="field"><label class="required" for="recommendationType">Recommendation type</label><select class="select" id="recommendationType" data-field="type"><option value="parlay" ${draft.type === "parlay" ? "selected" : ""}>Selected Parlay Boost</option><option value="super" ${draft.type === "super" ? "selected" : ""}>Superodds</option><option value="sgp" ${draft.type === "sgp" ? "selected" : ""}>SGP Boost</option></select></div>
+              <div class="field"><label class="required" for="event">Event</label><select class="select" id="event" data-field="event"><option value="">Select an event</option>${["Real Madrid vs Liverpool", "Arsenal vs Tottenham", "Chelsea vs Manchester City", "Real Madrid vs Atlético Madrid", "Inter Milan vs AC Milan"].map((event) => `<option ${draft.event === event ? "selected" : ""}>${event}</option>`).join("")}</select></div>
+              ${superMode ? "" : `<div class="field full"><label>Display placements</label><div class="placement-options">${renderPlacementOptions()}</div></div>`}
+            </div>
+          </div>
+          ${typeSpecific}
+          <div class="form-section">
+            <div class="section-label"><span class="section-number">3</span>Display schedule &amp; status</div>
+            <div class="form-grid">
+              ${superMode ? `<div class="field full"><label>Display placements</label><div class="placement-options">${renderPlacementOptions()}</div></div>` : ""}
+              <div class="field"><label class="required" for="start">Start time</label><input class="input" id="start" data-field="start" type="datetime-local" value="${esc(draft.start)}"/></div>
+              <div class="field"><label class="required" for="end">End time</label><input class="input" id="end" data-field="end" type="datetime-local" value="${esc(draft.end)}"/></div>
+              <div class="field"><label for="sort">Display order</label><input class="input" id="sort" data-field="sort" type="number" min="1" value="${esc(draft.sort)}"/></div>
+              <div class="field"><label>Display status</label><div class="switch-row"><div class="switch-copy"><strong>${draft.enabled ? "Enabled" : "Paused"}</strong><small>Only enabled items within their schedule can be displayed.</small></div><label class="toggle"><input data-field="enabled" type="checkbox" ${draft.enabled ? "checked" : ""}/><span></span></label></div></div>
+              <div class="field full"><label for="note">Internal note</label><textarea class="textarea" id="note" data-field="note" placeholder="Internal notes for your team">${esc(draft.note)}</textarea></div>
+            </div>
+          </div>`;
+        form.querySelectorAll("[data-field]").forEach((control) => {
+          control.addEventListener("input", updateDraftField);
+          control.addEventListener("change", updateDraftField);
+        });
+        form.querySelectorAll("[data-placement]").forEach((control) => {
+          control.addEventListener("change", (event) => {
+            const value = event.currentTarget.dataset.placement;
+            draft.placements = event.currentTarget.checked
+              ? [...new Set([...draft.placements, value])]
+              : draft.placements.filter((placement) => placement !== value);
+            renderLivePreview();
+          });
+        });
+        form.querySelector(".add-leg").addEventListener("click", () => {
+          draft.legs.push({ selection: "", market: "", oldOdds: "", newOdds: "" });
+          renderForm();
+          renderLivePreview();
+        });
+        form.querySelectorAll("[data-remove-leg]").forEach((button) => {
+          button.addEventListener("click", () => {
+            if (draft.legs.length === 1) {
+              draft.legs[0] = { selection: "", market: "", oldOdds: "", newOdds: "" };
+            } else {
+              draft.legs.splice(Number(button.dataset.removeLeg), 1);
+            }
+            renderForm();
+            renderLivePreview();
+          });
+        });
+        form.querySelectorAll("[data-leg-field]").forEach((control) => {
+          control.addEventListener("input", (event) => {
+            const row = event.currentTarget.closest("[data-leg-index]");
+            draft.legs[Number(row.dataset.legIndex)][event.currentTarget.dataset.legField] = event.currentTarget.value;
+            renderLivePreview();
+          });
+        });
+      }
+      function updateDraftField(event) {
+        const target = event.currentTarget;
+        const field = target.dataset.field;
+        draft[field] = target.type === "checkbox" ? target.checked : target.value;
+        if (field === "type") {
+          if (draft.type === "super" && draft.mode === "single") draft.placements = draft.placements.filter((p) => p !== "home");
+          document.getElementById("editorTypeBadge").textContent = typeNames[draft.type];
+          document.getElementById("editorTypeBadge").className = `type-badge ${draft.type === "sgp" ? "sgp" : draft.type === "super" ? "super" : ""}`;
+          renderForm();
+          renderLivePreview();
+          return;
+        }
+        if (field === "mode") {
+          if (draft.mode === "single") draft.placements = draft.placements.filter((p) => p !== "home");
+          renderForm();
+          renderLivePreview();
+          return;
+        }
+        if (field === "sort") draft.sort = Math.max(1, Number(target.value) || 1);
+        if (field === "oldOdds" || field === "newOdds") {
+          draft.legs[0][field] = target.value;
+        }
+        if (field === "boost" && draft.type !== "sgp") {
+          draft.legs.forEach((leg) => {
+            if (Number(leg.oldOdds) > 0) leg.newOdds = (Number(leg.oldOdds) * (1 + (Number(draft.boost) || 0) / 100)).toFixed(2);
+          });
+          const rows = document.querySelectorAll('[data-leg-field="newOdds"]');
+          rows.forEach((input, index) => { input.value = draft.legs[index].newOdds; });
+        }
+        renderLivePreview();
+        if (field === "enabled") {
+          const label = target.closest(".switch-row").querySelector("strong");
+          label.textContent = draft.enabled ? "Enabled" : "Paused";
+        }
+      }
+      function previewCardMarkup(item, location) {
+        const isSingle = item.type === "super" && item.mode === "single";
+        const isHome = location === "home";
+        if (isSingle && isHome) {
+          return `<div class="preview-placeholder"><strong>Not available on Homepage</strong>Single-selection Superodds can only be placed on Event details.</div>`;
+        }
+        const legs = item.legs || [];
+        const shownLegs = item.type === "parlay" && isHome ? legs.slice(0, 3) : legs;
+        const displayBoost = `${esc(item.boost || "0")}%`;
+        const isSgp = item.type === "sgp";
+        const useTotalOdds = isSgp || (item.type === "parlay" && legs.length > 1);
+        return `<div class="sport-screen">
+          <div class="sport-header"><span class="sport-logo">MEGWIN <span style="color:#2d7fd8">SPORTS</span></span><span class="sport-wallet">Balance　$1,250</span></div>
+          <div class="sport-nav"><span>Home</span><span class="active">Football</span><span>Basketball</span><span>Live</span></div>
+          <div class="preview-body">
+            <div class="preview-group-title">${esc(item.groupTitle || "Competition / Recommendations")}</div>
+            <div class="preview-event"><strong>${esc(item.event || "Select an event")}</strong><span>Today · 20:00</span></div>
+            <div class="pick-card">
+              <div class="pick-title">${esc(item.cardTitle || typeNames[item.type] || "Best Pick")}</div>
+              <div class="pick-subtitle">${esc(item.subtitle || (isSgp ? "Same Game Parlay" : item.type === "super" ? "Superodds" : "Featured combination"))}</div>
+              ${shownLegs.map((leg) => `<div class="pick-leg"><span>${esc(leg.selection || "Selection")} <span style="color:#9aa5b1">· ${esc(leg.market || "Market")}</span></span><strong>${esc(leg.newOdds || "—")}</strong></div>`).join("")}
+              ${item.type === "parlay" && isHome && legs.length > 3 ? `<div class="preview-total">${legs.length - 3} more legs · ${legs.length} total</div>` : ""}
+              <div class="odds-line">
+                <span class="boost-chip">${displayBoost} BOOST</span>
+                ${item.type === "super" && item.mode === "full"
+                  ? `<span class="odds-pair">All market options boosted</span>`
+                  : `<span class="odds-pair"><del>${esc(item.oldOdds || (legs.length ? legs.map((leg) => Number(leg.oldOdds) || 0).reduce((a, b) => a * b, 1).toFixed(2) : "—"))}</del> → <strong>${esc(item.newOdds || (legs.length ? legs.map((leg) => Number(leg.newOdds) || 0).reduce((a, b) => a * b, 1).toFixed(2) : "—"))}</strong></span>`}
+              </div>
+            </div>
+            ${location === "betslip" ? `<div class="pick-card" style="margin-top:9px"><div class="pick-title">Bet Slip</div><div class="pick-leg"><span>${esc(item.event || "Event")} · ${esc(item.cardTitle || "Best Pick")}</span><strong>${esc(item.newOdds || "—")}</strong></div><div class="pick-leg"><span>Stake</span><strong>$10.00</strong></div></div>` : ""}
+          </div>
+        </div>`;
+      }
+      function renderDevice(item, location) {
+        return `<div class="device-frame"><div class="device-top"><span>9:41</span><span>●●●　Wi-Fi　100%</span></div>${previewCardMarkup(item, location)}</div>`;
+      }
+      function renderLivePreview() {
+        if (!draft) return;
+        document.querySelectorAll("#previewSwitcher button").forEach((button) => button.classList.toggle("active", button.dataset.preview === previewLocation));
+        document.getElementById("livePreview").innerHTML = renderDevice(draft, previewLocation);
+      }
+      function showPreview(item) {
+        modalItem = clone(item);
+        document.getElementById("previewModal").classList.add("open");
+        renderModalPreview("home");
+      }
+      function renderModalPreview(location) {
+        document.querySelectorAll("#modalPreviewSwitcher button").forEach((button) => button.classList.toggle("active", button.dataset.preview === location));
+        document.getElementById("modalPreviewContent").innerHTML = renderDevice(modalItem, location);
+      }
+      function validateDraft() {
+        const errors = [];
+        if (!draft.name.trim()) errors.push("Enter an internal name.");
+        if (!draft.event) errors.push("Select an event.");
+        if (!draft.groupTitle.trim()) errors.push("Enter a group / competition title.");
+        if (draft.type !== "super" && !draft.cardTitle.trim()) errors.push("Enter a recommendation card title.");
+        if (!draft.placements.length) errors.push("Select at least one display placement.");
+        if (!draft.start || !draft.end) errors.push("Set both start and end time.");
+        else if (new Date(draft.end) <= new Date(draft.start)) errors.push("End time must be later than start time.");
+        if (draft.type === "super" && draft.mode === "single" && draft.placements.includes("home")) errors.push("Single-selection Superodds cannot be placed on Homepage.");
+        if (draft.type === "super" && draft.mode === "full" && !["1X2", "12"].includes(draft.marketType)) errors.push("Full-market Superodds only supports 1X2 or 12.");
+        if (!draft.legs.length || draft.legs.some((leg) => !leg.selection || !leg.market || Number(leg.oldOdds) <= 0 || Number(leg.newOdds) <= 0)) {
+          errors.push("Complete every selection and enter valid original and boosted odds.");
+        }
+        if (draft.type === "super" && draft.mode === "full") {
+          const expected = draft.marketType === "1X2" ? 3 : 2;
+          if (draft.legs.length !== expected) errors.push(`A complete ${draft.marketType} market requires ${expected} options.`);
+        }
+        if (draft.type === "sgp" && (!Number(draft.oldOdds) || !Number(draft.newOdds))) errors.push("Enter valid combined original and boosted SGP odds.");
+        if (!Number(draft.boost) || Number(draft.boost) <= 0) errors.push("Enter a boost percentage greater than 0.");
+        return errors;
+      }
+      function saveDraft(enabled) {
+        const errors = validateDraft();
+        const errorBox = document.getElementById("formError");
+        if (errors.length) {
+          errorBox.innerHTML = `<strong>Please check the following:</strong><br>${errors.map((error) => `• ${esc(error)}`).join("<br>")}`;
+          errorBox.classList.add("show");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          return;
+        }
+        draft.enabled = enabled;
+        const saved = clone(draft);
+        if (editingId) {
+          const index = items.findIndex((item) => item.id === editingId);
+          if (index >= 0) items[index] = saved;
+        } else {
+          items.push(saved);
+        }
+        items.forEach((item, index) => { item.sort = index + 1; });
+        saveState();
+        closeEditor();
+        notify(enabled ? "Best Pick saved and enabled." : "Draft saved.");
+      }
+      function moveItem(id, direction) {
+        const sorted = [...items].sort((a, b) => a.sort - b.sort);
+        const index = sorted.findIndex((item) => item.id === id);
+        const next = index + direction;
+        if (next < 0 || next >= sorted.length) return;
+        [sorted[index], sorted[next]] = [sorted[next], sorted[index]];
+        sorted.forEach((item, order) => { item.sort = order + 1; });
+        saveState();
+        renderList();
+      }
+      function handleTableClick(event) {
+        const button = event.target.closest("button");
+        if (!button) return;
+        const row = button.closest("tr[data-id]");
+        if (!row) return;
+        const item = items.find((entry) => entry.id === row.dataset.id);
+        if (!item) return;
+        if (button.classList.contains("edit-row")) openEditor(item);
+        if (button.classList.contains("duplicate-row")) {
+          const duplicate = clone(item);
+          duplicate.id = `bp-${Date.now()}`;
+          duplicate.sort = items.length + 1;
+          duplicate.name = `${duplicate.name} (Copy)`;
+          duplicate.enabled = false;
+          items.push(duplicate);
+          saveState();
+          renderList();
+          notify("Best Pick duplicated as a paused draft.");
+        }
+        if (button.classList.contains("preview-row")) showPreview(item);
+        if (button.classList.contains("pause-row")) {
+          item.enabled = !item.enabled;
+          saveState();
+          renderList();
+          notify(item.enabled ? "Best Pick enabled." : "Best Pick paused.");
+        }
+        if (button.classList.contains("delete-row")) {
+          if (confirm(`Delete "${item.name}"?`)) {
+            items = items.filter((entry) => entry.id !== item.id);
+            items.forEach((entry, index) => { entry.sort = index + 1; });
+            saveState();
+            renderList();
+            notify("Best Pick deleted.");
+          }
+        }
+        if (button.classList.contains("move-up")) moveItem(item.id, -1);
+        if (button.classList.contains("move-down")) moveItem(item.id, 1);
+      }
+
+      const adminMenuData = [
+        {
+          title: "Content",
+          icon: "▤",
+          children: [
+            { title: "Sport HomePage" },
+            {
+              title: "Casino HomePage",
+              children: [
+                { title: "Homepage Configuration" },
+                { title: "Broadcast Receiver" },
+                { title: "Casino Main Menu" },
+                { title: "Float Menu" },
+              ],
+            },
+          ],
+        },
+        {
+          title: "Sport Management",
+          icon: "⚽",
+          children: ["Sport Homepage", "Best Pick Setting", "League Management"],
+        },
+        {
+          title: "User Management",
+          icon: "◎",
+          children: ["User List", "User Detail", "Balance History", "BlackList", "S-E Review"],
+        },
+        { title: "Record Query", icon: "▦", children: ["Sports Tickets", "Casino Tickets"] },
+        {
+          title: "Fund Management",
+          icon: "▣",
+          children: ["Withdrawals", "Deposits", "Balance History", "Fund Adjustment"],
+        },
+        { title: "Casino Management", icon: "🎲", children: ["HomePage", "Merchant", "Lobby", "Tags", "GameList"] },
+        { title: "Message Management", icon: "▱", children: ["Message"] },
+        { title: "OP Management", icon: "▱", children: ["Push", "Gift Code"] },
+        {
+          title: "Reporting",
+          icon: "▤",
+          children: ["Reporting Generator", "Reporting Summary", "Promo Report", "Event Report", "Promo Cost Report", "Liability Report", "Jackpot Report", "VIP Report"],
+        },
+        { title: "Promotion", icon: "✾", children: ["Promo-Mgt"] },
+        {
+          title: "Leaderboard",
+          icon: "♙",
+          children: ["Casino Weekly", "Casino Monthly", "Sports Weekly", "Sports Monthly"],
+        },
+        { title: "World Cup", icon: "◉", children: [] },
+        { title: "System Management", icon: "☷", children: ["Login Record", "Roles", "Account"] },
+        {
+          title: "Daily Operations",
+          icon: "▭",
+          children: [{
+            title: "BRA",
+            children: ["Banner", "Promotions", "Match Pinned", "Sports Events", "Registration Image"],
+          }],
+        },
+        { title: "Offering Management", icon: "▣", children: [] },
+      ];
+      const adminMenu = document.getElementById("adminMenu");
+      function normalizeMenuItem(item) {
+        return typeof item === "string" ? { title: item, children: [] } : item;
+      }
+      function renderAdminChildren(children, path) {
+        return children.map((raw, index) => {
+          const item = normalizeMenuItem(raw);
+          const itemPath = `${path}-${index}`;
+          if (item.children && item.children.length) {
+            return `<div class="admin-sub parent" data-path="${itemPath}"><span class="admin-dot"></span><span class="admin-sub-label">${esc(item.title)}</span><span class="admin-mini-chevron">⌄</span></div><div class="admin-nested">${renderAdminChildren(item.children, itemPath)}</div>`;
+          }
+          return `<div class="admin-sub" data-path="${itemPath}" data-title="${esc(item.title)}"><span class="admin-dot"></span><span class="admin-sub-label">${esc(item.title)}</span></div>`;
+        }).join("");
+      }
+      function renderAdminMenu() {
+        adminMenu.innerHTML = adminMenuData.map((item, index) => {
+          const hasChildren = item.children && item.children.length;
+          return `<div class="admin-menu-section ${index === 0 ? "open" : ""}" data-path="${index}">
+            <div class="admin-menu-item" ${hasChildren ? "" : `data-title="${esc(item.title)}"`}>
+              <span class="admin-menu-icon">${item.icon}</span>
+              <span class="admin-menu-label">${esc(item.title)}</span>
+              ${hasChildren ? '<span class="admin-menu-chevron">⌄</span>' : ""}
+            </div>
+            ${hasChildren ? `<div class="admin-submenu">${renderAdminChildren(item.children, String(index))}</div>` : ""}
+          </div>`;
+        }).join("");
+      }
+      function setActiveAdminMenu(title) {
+        adminMenu.querySelectorAll(".active").forEach((element) => element.classList.remove("active"));
+        const target = [...adminMenu.querySelectorAll("[data-title]")].find((element) => element.dataset.title === title);
+        if (!target) return;
+        target.classList.add("active");
+        let parent = target.parentElement;
+        while (parent && parent !== adminMenu) {
+          if (parent.classList.contains("admin-nested")) {
+            parent.classList.add("open");
+            parent.previousElementSibling?.classList.add("open");
+          }
+          if (parent.classList.contains("admin-submenu")) {
+            parent.closest(".admin-menu-section")?.classList.add("open");
+          }
+          parent = parent.parentElement;
+        }
+      }
+      adminMenu.addEventListener("click", (event) => {
+        const rootItem = event.target.closest(".admin-menu-item");
+        const subItem = event.target.closest(".admin-sub");
+        if (rootItem) {
+          const section = rootItem.closest(".admin-menu-section");
+          if (section.querySelector(".admin-submenu")) {
+            section.classList.toggle("open");
+          } else {
+            setActiveAdminMenu(rootItem.dataset.title);
+          }
+          return;
+        }
+        if (!subItem) return;
+        if (subItem.classList.contains("parent")) {
+          subItem.classList.toggle("open");
+          subItem.nextElementSibling?.classList.toggle("open");
+          return;
+        }
+        setActiveAdminMenu(subItem.dataset.title);
+        document.getElementById("adminSidebar").classList.remove("mobile-open");
+        document.getElementById("adminOverlay").classList.remove("show");
+      });
+      renderAdminMenu();
+      setActiveAdminMenu("Best Pick Setting");
+      document.getElementById("adminMenuToggle").addEventListener("click", () => {
+        if (window.innerWidth <= 900) {
+          document.getElementById("adminSidebar").classList.toggle("mobile-open");
+          document.getElementById("adminOverlay").classList.toggle("show");
+        } else {
+          document.body.classList.toggle("admin-collapsed");
+        }
+      });
+      document.getElementById("adminOverlay").addEventListener("click", () => {
+        document.getElementById("adminSidebar").classList.remove("mobile-open");
+        document.getElementById("adminOverlay").classList.remove("show");
+      });
+      function updateAdminClock() {
+        const now = new Date();
+        const time = new Intl.DateTimeFormat("en-CA", {
+          timeZone: "Asia/Taipei",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hourCycle: "h23",
+        }).format(now);
+        document.getElementById("adminClock").textContent = `Local ${time} (+08:00)`;
+      }
+      updateAdminClock();
+      setInterval(updateAdminClock, 1000);
+
+      document.getElementById("typeTabs").addEventListener("click", (event) => {
+        const tab = event.target.closest("[data-type]");
+        if (!tab) return;
+        activeType = tab.dataset.type;
+        document.querySelectorAll(".type-tab").forEach((button) => button.classList.toggle("active", button === tab));
+        renderList();
+      });
+      document.getElementById("tableBody").addEventListener("click", handleTableClick);
+      ["searchInput", "statusFilter", "placementFilter"].forEach((id) => {
+        document.getElementById(id).addEventListener("input", renderList);
+        document.getElementById(id).addEventListener("change", renderList);
+      });
+      document.getElementById("resetFilters").addEventListener("click", () => {
+        document.getElementById("searchInput").value = "";
+        document.getElementById("statusFilter").value = "all";
+        document.getElementById("placementFilter").value = "all";
+        activeType = "all";
+        document.querySelectorAll(".type-tab").forEach((button) => button.classList.toggle("active", button.dataset.type === "all"));
+        renderList();
+      });
+      document.getElementById("createBtn").addEventListener("click", () => openEditor());
+      document.getElementById("backToList").addEventListener("click", closeEditor);
+      document.getElementById("cancelEdit").addEventListener("click", closeEditor);
+      document.getElementById("saveDraft").addEventListener("click", () => saveDraft(false));
+      document.getElementById("saveEnable").addEventListener("click", () => saveDraft(true));
+      document.getElementById("previewSwitcher").addEventListener("click", (event) => {
+        const button = event.target.closest("[data-preview]");
+        if (!button) return;
+        previewLocation = button.dataset.preview;
+        renderLivePreview();
+      });
+      document.getElementById("modalPreviewSwitcher").addEventListener("click", (event) => {
+        const button = event.target.closest("[data-preview]");
+        if (button) renderModalPreview(button.dataset.preview);
+      });
+      const closeModal = () => document.getElementById("previewModal").classList.remove("open");
+      document.getElementById("closePreview").addEventListener("click", closeModal);
+      document.getElementById("closePreviewButton").addEventListener("click", closeModal);
+      document.getElementById("previewModal").addEventListener("click", (event) => {
+        if (event.target.id === "previewModal") closeModal();
+      });
+      document.getElementById("previewAllBtn").addEventListener("click", () => showPreview(items[0] || freshDraft("parlay")));
+      document.getElementById("editorForm").addEventListener("change", (event) => {
+        if (event.target.dataset.field === "mode") document.getElementById("editorTypeBadge").textContent = typeNames[draft.type];
+      });
+      renderList();
+    </script>
+  </body>
+</html>
