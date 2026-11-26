@@ -235,7 +235,6 @@
       .submodule-card.active .submodule-select { color: var(--blue-dark); }
       .submodule-toggle { margin: 0 8px; }
       .boost-link { margin: 12px 0 0; }
-      .boost-heading { margin: 16px 0 0; color: #344054; font-size: 13px; font-weight: 600; }
       .group-order { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 0 16px 12px; color: #667085; font-size: 11px; }
       .group-order-item { display: inline-flex; align-items: center; gap: 4px; padding: 3px 6px; border: 1px solid #e4e7ec; border-radius: 4px; }
       .legacy-panel { padding: 18px; }
@@ -273,46 +272,6 @@
       .parlay-selection small { display: block; margin-top: 4px; color: #667085; }
       .super-odds-row { display: grid; grid-template-columns: minmax(0, 1fr) 100px 140px; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 12px; }
       #candidateModal { z-index: 120; }
-      .homepage-modules .submodule-tabs { padding: 0; }
-      .type-tabs {
-        display: flex;
-        align-items: stretch;
-        gap: 25px;
-        min-height: 48px;
-        padding: 0 18px;
-        border-bottom: 1px solid var(--line);
-      }
-      .type-tab {
-        position: relative;
-        display: flex;
-        align-items: center;
-        gap: 7px;
-        border: 0;
-        background: transparent;
-        color: #667085;
-        font-size: 12px;
-        font-weight: 500;
-      }
-      .type-tab.active { color: var(--blue); }
-      .type-tab.active::after {
-        position: absolute;
-        right: 0;
-        bottom: -1px;
-        left: 0;
-        height: 2px;
-        background: var(--blue);
-        content: "";
-      }
-      .tab-count {
-        min-width: 19px;
-        padding: 2px 5px;
-        border-radius: 10px;
-        background: #f0f3f7;
-        color: #8794a2;
-        font-size: 10px;
-        text-align: center;
-      }
-      .type-tab.active .tab-count { background: #e7f2ff; color: var(--blue); }
       .filters {
         display: flex;
         flex-wrap: wrap;
@@ -611,8 +570,6 @@
         .page-heading { flex-direction: column; }
         .header-actions { align-self: stretch; }
         .header-actions .button { flex: 1; }
-        .type-tabs { gap: 13px; overflow-x: auto; }
-        .type-tab { min-height: 46px; white-space: nowrap; }
         .module-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         .existing-submodules { grid-template-columns: 1fr; }
         .candidate-layout { grid-template-columns: 1fr; }
@@ -676,13 +633,6 @@
             <h3 class="submodule-heading">Best Picks - Sub Modules</h3>
             <div class="existing-submodules" id="existingSubmodules" aria-label="Best Picks sub modules"></div>
             <div class="boost-link"><button class="button primary" type="button" id="publishSubmodules">Save &amp; Publish</button></div>
-            <h3 class="boost-heading">Best Picks configurations</h3>
-            <div class="type-tabs submodule-tabs" id="typeTabs">
-              <button class="type-tab" data-type="all" type="button">All Best Picks <span class="tab-count" id="count-all">0</span></button>
-              <button class="type-tab" data-type="parlay" type="button">Selected Parlay Boost <span class="tab-count" id="count-parlay">0</span></button>
-              <button class="type-tab" data-type="super" type="button">Superodds <span class="tab-count" id="count-super">0</span></button>
-              <button class="type-tab" data-type="sgp" type="button">SGP Boost <span class="tab-count" id="count-sgp">0</span></button>
-            </div>
           </div>
         </section>
         <section class="card legacy-panel" id="legacyPanel">
@@ -1006,10 +956,6 @@
       }
       function renderList() {
         document.getElementById("createParlayBtn").hidden = !["all", "parlay"].includes(activeType);
-        ["all", "parlay", "super", "sgp"].forEach((type) => {
-          const count = type === "all" ? items.length : items.filter((item) => item.type === type).length;
-          document.getElementById(`count-${type}`).textContent = count;
-        });
         const filtered = getFilteredItems();
         document.getElementById("resultLabel").textContent = `Showing ${filtered.length} of ${items.length} records`;
         const groups = [...new Set([...items].sort((a, b) => a.sort - b.sort).filter((item) => item.type === "parlay").map((item) => item.groupTitle))];
@@ -1412,7 +1358,6 @@
         document.getElementById("legacySearch").value = "";
         document.getElementById("legacyPanel").hidden = false;
         document.getElementById("bestPicksList").hidden = true;
-        document.querySelectorAll(".type-tab").forEach((tab) => tab.classList.remove("active"));
         renderSubmodules();
         renderLegacy();
       }
@@ -1658,7 +1603,9 @@
         if (!select) return;
         const key = select.dataset.selectSubmodule;
         if (["super", "sgp", "parlay"].includes(key)) {
-          document.querySelector(`#typeTabs [data-type="${key}"]`).click();
+          activeType = key;
+          showBoostSettings();
+          renderList();
         } else {
           showLegacyCategory(key);
         }
@@ -1841,14 +1788,6 @@
       });
       document.getElementById("candidateClose").addEventListener("click", closeCandidate);
       document.getElementById("candidateCancel").addEventListener("click", closeCandidate);
-      document.getElementById("typeTabs").addEventListener("click", (event) => {
-        const tab = event.target.closest("[data-type]");
-        if (!tab) return;
-        activeType = tab.dataset.type;
-        showBoostSettings();
-        document.querySelectorAll(".type-tab").forEach((button) => button.classList.toggle("active", button === tab));
-        renderList();
-      });
       document.getElementById("tableBody").addEventListener("click", handleTableClick);
       document.getElementById("groupOrder").addEventListener("click", (event) => {
         const button = event.target.closest("[data-group-move]");
@@ -1862,9 +1801,6 @@
         document.getElementById("searchInput").value = "";
         document.getElementById("statusFilter").value = "all";
         document.getElementById("placementFilter").value = "all";
-        activeType = "all";
-        document.querySelectorAll(".type-tab").forEach((button) => button.classList.toggle("active", button.dataset.type === "all"));
-        renderSubmodules();
         renderList();
       });
       document.getElementById("createBtn").addEventListener("click", () => {
