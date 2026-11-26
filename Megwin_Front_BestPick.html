@@ -243,10 +243,10 @@
     const BEST_PICK_KEY = "megwin_best_pick_setting_v1";
     const MODULE_KEY = "megwin_sport_homepage_best_picks_demo_v1";
     const SYNC_CHANNEL = "megwin-best-pick-sync-v1";
-    const categoryNames = { hot:"HOT LIVE", outright:"OUTRIGHT", props:"PLAYER PROPS", super:"SUPERODDS", sgp:"SGP BOOST", boost:"PARLAY BOOST" };
+    const categoryNames = { hot:"HOT LIVE", outright:"OUTRIGHT", props:"PLAYER PROPS", super:"SUPERODDS", sgp:"SGP BOOST", parlay:"PARLAY BOOST" };
     const defaultModuleConfig = {
-      order:["hot","outright","props","super","sgp"],
-      enabled:{ hot:true, outright:true, props:true, super:true, sgp:true },
+      order:["hot","outright","props","super","sgp","parlay"],
+      enabled:{ hot:true, outright:true, props:true, super:true, sgp:true, parlay:true },
       lists:{
         hot:[{ id:"hot-1", sport:"Soccer", league:"Premier League", event:"Arsenal vs Tottenham", eventId:"demo-1001", market:"1X2", inactive:false }],
         outright:[{ id:"out-1", sport:"Soccer", league:"Premier League", eventId:"demo-2001", market:"Premier League - Winner", outcome:"Arsenal (@3.50)", inactive:false }],
@@ -321,10 +321,8 @@
     }
     function categories() {
       const order = [...(moduleConfig.order || [])];
-      ["super", "sgp"].forEach((key) => { if (!order.includes(key)) order.push(key); });
-      const enabled = order.filter((key) => (moduleConfig.enabled?.[key] ?? (key === "super" || key === "sgp")) && categoryNames[key]);
-      if (activeBoostItems().some((item) => item.type === "parlay")) enabled.push("boost");
-      return enabled;
+      ["super", "sgp", "parlay"].forEach((key) => { if (!order.includes(key)) order.push(key); });
+      return order.filter((key) => (moduleConfig.enabled?.[key] ?? ["super", "sgp", "parlay"].includes(key)) && categoryNames[key]);
     }
     function cardSelectionButton(selection, row, category, index) {
       const id = selectionId(category, row, index);
@@ -342,8 +340,8 @@
       }
       if (!available.includes(activeCategory)) activeCategory = available[0];
       document.getElementById("pickTabs").innerHTML = available.map((key) => `<button class="tab ${key === activeCategory ? "active" : ""}" type="button" role="tab" data-pick-tab="${key}" aria-selected="${key === activeCategory}">${categoryNames[key]}</button>`).join("");
-      if (["boost", "super", "sgp"].includes(activeCategory)) {
-        const type = activeCategory === "boost" ? "parlay" : activeCategory;
+      if (["parlay", "super", "sgp"].includes(activeCategory)) {
+        const type = activeCategory;
         let items = activeBoostItems().filter((item) => item.type === type);
         if (type === "parlay" && items.length) {
           const visibleGroups = new Set(items.map((item) => item.groupTitle || "—"));
@@ -360,7 +358,7 @@
           const options = isBundle
             ? `<button class="add-pick" type="button" data-pick-id="boost:${esc(item.id)}" data-pick-label="${esc(item.cardTitle || item.name)}" data-pick-event="${esc(item.event)}" data-pick-market="${esc(item.subtitle || item.type)}" data-pick-odd="${item.newOdds}">Añadir al boleto · ${decimalToAmerican(item.newOdds)}</button>`
             : item.legs.map((leg, index) => `<button class="price-row ${slip.some((pick) => pick.id === `boost:${item.id}:${index}`) ? "selected" : ""}" type="button" data-pick-id="boost:${esc(item.id)}:${index}" data-pick-label="${esc(leg.selection || leg.label)}" data-pick-event="${esc(item.event)}" data-pick-market="${esc(leg.market || item.subtitle)}" data-pick-odd="${leg.newOdds || leg.oldOdds}"><span>${esc(leg.selection || leg.label)}</span><span class="price">${decimalToAmerican(leg.newOdds || leg.oldOdds)}</span></button>`).join("");
-          return `<article class="pick boost-card"><div class="boost-meta"><span>${esc(item.groupTitle)}</span><span>${esc(item.boost)}% boost</span></div><div class="pick-title">${esc(item.cardTitle)}<small>${esc(item.event)} · ${esc(item.subtitle)}</small></div>${item.type !== "super" ? item.legs.map((leg) => `<div class="boost-note">• ${esc(leg.selection || leg.label)} · ${esc(leg.market || "")}</div>`).join("") : ""}${options}</article>`;
+          return `<article class="pick boost-card"><div class="boost-meta"><span>${esc(item.groupTitle)}</span><span>${esc(item.boost)}% boost</span></div><div class="pick-title">${esc(item.cardTitle)}<small>${esc(item.event)} · ${esc(item.subtitle)}</small></div>${item.type !== "super" ? item.legs.map((leg) => `<div class="boost-note">• ${esc(leg.selection || leg.label)} · ${esc(leg.market || "")}${leg.event ? ` · ${esc(leg.event)}` : ""}</div>`).join("") : ""}${options}</article>`;
         }).join("") : '<div class="pick-empty">Este módulo no tiene selecciones publicadas.</div>';
       } else {
         const rows = moduleConfig.lists?.[activeCategory] || [];

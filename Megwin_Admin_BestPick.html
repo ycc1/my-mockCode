@@ -839,9 +839,11 @@
         "Real Madrid vs Liverpool": ["Real Madrid", "Liverpool", "2.10", "3.40", "3.20"],
         "Arsenal vs Tottenham": ["Arsenal", "Tottenham", "2.10", "3.40", "3.20"],
         "Chelsea vs Manchester City": ["Chelsea", "Manchester City", "3.20", "3.40", "2.10"],
+        "Club América vs Tigres UANL": ["Club América", "Tigres UANL", "2.00", "3.30", "3.70"],
         "Real Madrid vs Atlético Madrid": ["Real Madrid", "Atlético Madrid", "1.90", "3.40", "4.00"],
         "Inter Milan vs AC Milan": ["Inter Milan", "AC Milan", "2.20", "3.20", "3.40"],
       };
+      const parlayGroupSuggestions = ["UEFA Champions League", "Premier League", "Liga MX"];
       function demoSelections(event) {
         const [home, away, homeOdds, drawOdds, awayOdds] = demoMarkets[event];
         return [
@@ -849,6 +851,7 @@
           { event, selection: "Draw", market: "Draw", oldOdds: drawOdds },
           { event, selection: away, market: "Away", oldOdds: awayOdds },
           { event, selection: "Over 2.5 Goals", market: "Total Goals", oldOdds: "1.85" },
+          { event, selection: "Both Teams to Score", market: "Both Teams to Score", oldOdds: "1.75" },
           { event, selection: "Player A to score", market: "Anytime Goalscorer", oldOdds: "2.50" },
         ];
       }
@@ -860,7 +863,7 @@
           boost: "25", oldOdds: "4.20", newOdds: "5.00",
           legs: defaultLegs([["Real Madrid", "Full Time Result", "1.80", "2.25"], ["Over 2.5 Goals", "Total Goals", "1.55", "1.94"], ["Both Teams to Score", "Goals", "1.50", "1.88"]]),
           placements: ["home", "event", "betslip"], start: "2026-11-25T18:00",
-          end: "2026-11-26T23:59", enabled: true, note: "Feature in the Champions League carousel.",
+          end: "2026-12-31T23:59", enabled: true, note: "Feature in the Champions League carousel.",
         },
         {
           id: "bp-102", sort: 2, type: "super", mode: "full", marketType: "1X2", name: "Premier League · Match Winner",
@@ -897,6 +900,24 @@
           legs: defaultLegs([["Over 2.5 Goals", "Total Goals", "1.75", "2.06"], ["Man City to score first", "First Goal", "2.17", "2.56"]]),
           placements: ["home", "event"], start: "2026-11-28T10:00",
           end: "2026-11-29T22:00", enabled: false, note: "",
+        },
+        {
+          id: "bp-106", sort: 6, type: "parlay", name: "Premier League · Match and Goals",
+          event: "Arsenal vs Tottenham", groupTitle: "Premier League",
+          cardTitle: "North London Special", subtitle: "Match Result & Total Goals",
+          boost: "20", oldOdds: "3.60", newOdds: "4.12",
+          legs: defaultLegs([["Arsenal", "Match Result", "2.10", "2.10"], ["Over 2.5 Goals", "Total Goals", "1.85", "1.85"]]),
+          placements: ["home", "event"], start: "2026-11-25T18:00",
+          end: "2026-12-31T23:59", enabled: true, note: "Sample Premier League parlay.",
+        },
+        {
+          id: "bp-107", sort: 7, type: "parlay", name: "Liga MX · Goals Special",
+          event: "Club América vs Tigres UANL", groupTitle: "Liga MX",
+          cardTitle: "Liga MX Goal Rush", subtitle: "Goals & Both Teams to Score",
+          boost: "15", oldOdds: "3.20", newOdds: "3.53",
+          legs: defaultLegs([["Over 2.5 Goals", "Total Goals", "1.85", "1.85"], ["Both Teams to Score", "Both Teams to Score", "1.75", "1.75"]]),
+          placements: ["home", "event"], start: "2026-11-25T18:00",
+          end: "2026-12-31T23:59", enabled: true, note: "Sample Liga MX parlay.",
         },
       ];
       let items;
@@ -1058,7 +1079,7 @@
           typeSpecific = `<div class="form-section">
             <div class="section-label"><span class="section-number">2</span>Recommendation card</div>
             <div class="form-grid">
-              <div class="field"><label class="required" for="groupTitle">Group title</label><input class="input" id="groupTitle" data-field="groupTitle" placeholder="e.g. UEFA Champions League" value="${esc(draft.groupTitle)}"/></div>
+              <div class="field"><label class="required" for="groupTitle">Group title</label><input class="input" id="groupTitle" data-field="groupTitle" list="parlayGroupOptions" placeholder="Choose or enter a group" value="${esc(draft.groupTitle)}"/><datalist id="parlayGroupOptions">${[...new Set([...parlayGroupSuggestions, ...items.filter((item) => item.type === "parlay").map((item) => item.groupTitle).filter(Boolean)])].map((group) => `<option value="${esc(group)}"></option>`).join("")}</datalist><small>Cards with the same group title appear together on the homepage.</small></div>
               <div class="field"><label class="required" for="cardTitle">Card title</label><input class="input" id="cardTitle" data-field="cardTitle" placeholder="e.g. UCL Favourites" value="${esc(draft.cardTitle)}"/></div>
               <div class="field"><label for="subtitle">Subtitle / explanation</label><input class="input" id="subtitle" data-field="subtitle" placeholder="e.g. Full Time Result" value="${esc(draft.subtitle)}"/></div>
               <div class="field"><label class="required" for="boost">Boost percentage</label><div class="boost-input"><input class="input" id="boost" data-field="boost" inputmode="decimal" placeholder="25" value="${esc(draft.boost)}"/><span>%</span></div></div>
@@ -1128,11 +1149,11 @@
               : draft.placements.filter((placement) => placement !== value);
             renderLivePreview();
           });
-          form.querySelector("#eventSearch").addEventListener("input", (event) => {
-            const query = event.currentTarget.value.trim().toLowerCase();
-            form.querySelectorAll("#event option").forEach((option) => {
-              option.hidden = Boolean(option.value) && !option.textContent.toLowerCase().includes(query);
-            });
+        });
+        form.querySelector("#eventSearch").addEventListener("input", (event) => {
+          const query = event.currentTarget.value.trim().toLowerCase();
+          form.querySelectorAll("#event option").forEach((option) => {
+            option.hidden = Boolean(option.value) && !option.textContent.toLowerCase().includes(query);
           });
         });
         form.querySelector(".add-leg").addEventListener("click", () => {
@@ -1160,15 +1181,15 @@
             renderForm();
             renderLivePreview();
           });
-          form.querySelectorAll("[data-leg-picker]").forEach((select) => {
-            select.addEventListener("change", () => {
-              if (select.value === "") return;
-              const events = draft.type === "parlay" ? Object.keys(demoMarkets) : [draft.event];
-              const option = events.flatMap((event) => demoSelections(event))[Number(select.value)];
-              draft.legs[Number(select.dataset.legPicker)] = { ...option, newOdds: draft.type === "super" ? "" : option.oldOdds };
-              renderForm();
-              renderLivePreview();
-            });
+        });
+        form.querySelectorAll("[data-leg-picker]").forEach((select) => {
+          select.addEventListener("change", () => {
+            if (select.value === "") return;
+            const events = draft.type === "parlay" ? Object.keys(demoMarkets) : [draft.event];
+            const option = events.flatMap((event) => demoSelections(event))[Number(select.value)];
+            draft.legs[Number(select.dataset.legPicker)] = { ...option, newOdds: draft.type === "super" ? "" : option.oldOdds };
+            renderForm();
+            renderLivePreview();
           });
         });
         const calculateSgpOdds = form.querySelector("#calculateSgpOdds");
@@ -1585,7 +1606,7 @@
       setInterval(updateAdminClock, 1000);
 
       const legacyStorageKey = "megwin_sport_homepage_best_picks_demo_v1";
-      const legacyNames = { hot: "HOT LIVE", outright: "OUTRIGHT", props: "PLAYER PROPS", super: "SUPERODDS", sgp: "SGP BOOST" };
+      const legacyNames = { hot: "HOT LIVE", outright: "OUTRIGHT", props: "PLAYER PROPS", super: "SUPERODDS", sgp: "SGP BOOST", parlay: "PARLAY BOOST" };
       const candidatePool = [
         { id: "hot-1", category: "hot", source: "Sportradar", sport: "Soccer", country: "England", league: "Premier League", event: "Arsenal vs Tottenham", eventId: "demo-1001", date: "11-26 20:00", market: "1X2", inactive: false },
         { id: "hot-2", category: "hot", source: "Sportradar", sport: "Basketball", country: "USA", league: "NBA", event: "Boston vs Miami", eventId: "demo-1002", date: "11-26 21:00", market: "Money Line (Incl. Overtime)", inactive: true },
@@ -1598,8 +1619,8 @@
         { id: "prop-3", category: "props", source: "Sportradar", sport: "Soccer", country: "England", league: "Premier League", event: "Arsenal vs Tottenham", eventId: "demo-3002", date: "11-26 20:00", market: "Player Goals", outcome: "Player C to score (@2.50)", inactive: false },
       ];
       const legacyDefaults = {
-        order: ["hot", "outright", "props", "super", "sgp"],
-        enabled: { hot: true, outright: true, props: true, super: true, sgp: true },
+        order: ["hot", "outright", "props", "super", "sgp", "parlay"],
+        enabled: { hot: true, outright: true, props: true, super: true, sgp: true, parlay: true },
         lists: { hot: [candidatePool[0], candidatePool[1]], outright: [candidatePool[3]], props: [candidatePool[6]] },
         updated: { hot: "", outright: "", props: "" },
       };
@@ -1607,7 +1628,7 @@
       try {
         const saved = localStorage.getItem(legacyStorageKey);
         legacyPublished = saved ? JSON.parse(saved) : clone(legacyDefaults);
-        ["super", "sgp"].forEach((key) => {
+        ["super", "sgp", "parlay"].forEach((key) => {
           if (!legacyPublished.order.includes(key)) legacyPublished.order.push(key);
           if (!(key in legacyPublished.enabled)) legacyPublished.enabled[key] = true;
         });
@@ -1726,7 +1747,7 @@
         const select = event.target.closest("[data-select-submodule]");
         if (!select) return;
         const key = select.dataset.selectSubmodule;
-        if (key === "super" || key === "sgp") {
+        if (["super", "sgp", "parlay"].includes(key)) {
           document.querySelector(`#typeTabs [data-type="${key}"]`).click();
         } else {
           showLegacyCategory(key);
