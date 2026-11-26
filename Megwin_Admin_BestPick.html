@@ -271,6 +271,7 @@
       .parlay-selected { margin: 14px 0; }
       .parlay-selection { display: flex; justify-content: space-between; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 12px; }
       .parlay-selection small { display: block; margin-top: 4px; color: #667085; }
+      .super-odds-row { display: grid; grid-template-columns: minmax(0, 1fr) 100px 140px; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 12px; }
       #candidateModal { z-index: 120; }
       .homepage-modules .submodule-tabs { padding: 0; }
       .type-tabs {
@@ -699,7 +700,7 @@
         <div class="page-heading">
           <div>
             <h2 class="homepage-modules-heading">Best Picks</h2>
-            <p class="page-subtitle">Build Parlay recommendations from prematch selections, or select existing Superodds and SGP offers.</p>
+            <p class="page-subtitle">Build Parlay recommendations and Superodds from prematch markets, or select existing boost offers.</p>
           </div>
           <div class="header-actions">
             <button class="button" id="previewAllBtn" type="button">◉ Preview</button>
@@ -800,12 +801,25 @@
         <div class="modal-actions"><button class="button" id="parlayCancel" type="button">Cancel</button><button class="button primary" id="parlaySave" type="button">Save &amp; Publish</button></div>
       </div>
     </div>
+    <div class="modal-backdrop" id="superModal">
+      <div class="modal parlay-modal" role="dialog" aria-modal="true" aria-labelledby="superTitle">
+        <div class="modal-head"><h3 id="superTitle">Edit Superodds</h3><button class="modal-close" id="superClose" type="button" aria-label="Close">×</button></div>
+        <div id="superError" class="form-error" role="alert"></div>
+        <div class="legs-header"><strong>Prematch event and market</strong><button class="button small" id="chooseSuperMarket" type="button">＋ Select event and market</button></div>
+        <div id="superMarket" class="result-label">Select one event and market.</div>
+        <div id="superOdds"></div>
+        <p class="result-label">Enter the boosted decimal odds for every outcome (up to two decimal places). Each must be higher than its original odds. The offer expires at kickoff.</p>
+        <div class="modal-actions"><button class="button" id="superCancel" type="button">Cancel</button><button class="button primary" id="superSave" type="button">Save &amp; Publish</button></div>
+      </div>
+    </div>
     <div class="modal-backdrop" id="candidateModal">
       <div class="modal candidate-modal" role="dialog" aria-modal="true" aria-labelledby="candidateTitle">
         <div class="modal-head"><h3 id="candidateTitle">Select Sports Events</h3><button class="modal-close" id="candidateClose" type="button" aria-label="Close">×</button></div>
         <div class="candidate-toolbar"><strong id="candidateLevel"></strong><input class="input" id="candidateSearch" placeholder="Search events, markets or selections" aria-label="Search candidates" /></div>
         <div class="candidate-layout"><div class="candidate-path" id="candidatePath"></div><div class="candidate-options" id="candidateOptions"></div></div>
         <div class="candidate-selected" id="candidateSelected"></div>
+        <div id="candidateSuperError" class="form-error" role="alert"></div>
+        <div id="candidateSuperOdds"></div>
         <div class="modal-actions"><button class="button" id="candidateCancel" type="button">Cancel</button><button class="button primary" id="candidateConfirm" type="button" disabled>Confirm</button></div>
       </div>
     </div>
@@ -937,7 +951,9 @@
           { ...base, id: `${eventId}-draw`, market: "Full Time Result", outcome: "Draw", oldOdds: "3.40" },
           { ...base, id: `${eventId}-away`, market: "Full Time Result", outcome: `${away} to win`, oldOdds: "4.00" },
           { ...base, id: `${eventId}-btts`, market: "Both Teams to Score", outcome: "Both teams to score — Yes", oldOdds: "1.85" },
+          { ...base, id: `${eventId}-btts-no`, market: "Both Teams to Score", outcome: "Both teams to score — No", oldOdds: "1.95" },
           { ...base, id: `${eventId}-over`, market: "Total Goals", outcome: "Over 2.5 Goals", oldOdds: "1.85" },
+          { ...base, id: `${eventId}-under`, market: "Total Goals", outcome: "Under 2.5 Goals", oldOdds: "1.95" },
         ];
       });
       let items;
@@ -973,6 +989,7 @@
         toastTimer = setTimeout(() => toast.classList.remove("show"), 2300);
       }
       function boostText(item) {
+        if (item.superBuilder) return "Custom odds";
         return item.type === "super" ? `${item.boost || "0"}% boost` : `${item.boost || "0"}% boost`;
       }
       function getFilteredItems() {
@@ -1017,10 +1034,11 @@
             <td><span class="boost-value">${esc(boostText(item))}</span>${item.type === "super"
               ? item.legs.map((leg) => `<span class="item-sub">${esc(leg.selection)}: <del>${esc(leg.oldOdds || "—")}</del> → ${esc(leg.newOdds || "—")}</span>`).join("")
               : `<span class="item-sub"><del>${esc(item.oldOdds || "—")}</del> → ${esc(item.newOdds || "—")}</span>`}</td>
-            <td><span class="schedule">${esc(item.parlayBuilder && !item.start ? "Immediately" : formatDate(item.start))}<br>to ${esc(formatDate(item.end))}</span></td>
+            <td><span class="schedule">${esc((item.parlayBuilder || item.superBuilder) && !item.start ? "Immediately" : formatDate(item.start))}<br>to ${esc(formatDate(item.end))}</span></td>
             <td><span class="status ${item.enabled ? "" : "paused"}">${item.enabled ? "Enabled" : "Paused"}</span></td>
             <td><div class="row-actions">
               ${item.parlayBuilder ? '<button class="icon-button edit-parlay" title="Edit recommendation">Edit</button>' : ""}
+              ${item.superBuilder ? '<button class="icon-button edit-super" title="Edit Superodds">Edit</button>' : ""}
               <button class="icon-button preview-row" title="Preview">◉</button>
               <button class="icon-button pause-row" title="${item.enabled ? "Pause" : "Enable"}">${item.enabled ? "Ⅱ" : "▶"}</button>
               <button class="icon-button delete delete-row" title="Delete">×</button>
@@ -1039,7 +1057,7 @@
         }
         const legs = item.legs || [];
         const shownLegs = item.type === "parlay" && isHome ? legs.slice(0, 3) : legs;
-        const displayBoost = `${esc(item.boost || "0")}%`;
+        const displayBoost = item.superBuilder ? "SUPERODDS" : `${esc(item.boost || "0")}% BOOST`;
         const isSgp = item.type === "sgp";
         const legMarkup = shownLegs.map((leg, index) => `<div class="pick-leg"><span>${esc(leg.selection || "Selection")} <span style="color:#9aa5b1">· ${esc(leg.market || "Market")}${leg.event ? ` · ${esc(leg.event)}` : ""}</span></span>${item.type === "super" ? `<button class="preview-odds" type="button" data-preview-target="betslip" data-preview-leg="${index}" aria-label="Preview selection in bet slip"><del>${esc(leg.oldOdds || "—")}</del> → ${esc(leg.newOdds || "—")}</button>` : `<strong>${esc(leg.newOdds || "—")}</strong>`}</div>`).join("");
         const betslipSelection = selectedLeg !== null && legs[selectedLeg] ? legs[selectedLeg] : null;
@@ -1055,7 +1073,7 @@
               <div class="${item.type === "super" ? "preview-market" : ""}">${legMarkup}</div>
               ${item.type === "parlay" && isHome ? `<div class="preview-count">${legs.length} legs${legs.length > 3 ? ` · ${legs.length - 3} more legs` : ""}</div>` : isSgp ? `<div class="preview-count">${legs.length} legs</div>` : ""}
               <div class="odds-line">
-                <span class="boost-chip">${displayBoost} BOOST</span>
+                <span class="boost-chip">${displayBoost}</span>
                 ${item.type === "super" && item.mode === "full"
                   ? `<span class="odds-pair">All market options boosted</span>`
                   : item.type === "super" ? "" : `<button class="preview-odds odds-pair" type="button" data-preview-target="betslip" aria-label="Preview complete combination in bet slip"><del>${esc(item.oldOdds || "—")}</del> → <strong>${esc(item.newOdds || "—")}</strong></button>`}
@@ -1113,6 +1131,7 @@
         const item = items.find((entry) => entry.id === row.dataset.id);
         if (!item) return;
         if (button.classList.contains("edit-parlay")) openParlayEditor(item);
+        if (button.classList.contains("edit-super")) openSuperEditor(item);
         if (button.classList.contains("preview-row")) showPreview(item);
         if (button.classList.contains("pause-row")) {
           item.enabled = !item.enabled;
@@ -1327,9 +1346,13 @@
       let candidateMode = "legacy";
       let parlayLegs = [];
       let editingParlayId = null;
+      let superMarket = null;
+      let superPrices = {};
+      let editingSuperId = null;
       const candidateLabels = { source: "Data Source", sport: "Sport", country: "Country / Region", league: "League", event: "Event", market: "Market", outcome: "Outcome", type: "Offer type", groupTitle: "Group", name: "Boost offer" };
       const boostCandidateLevels = ["type", "groupTitle", "event", "name"];
       const parlayCandidateLevels = ["source", "sport", "country", "league", "event", "market", "outcome"];
+      const superCandidateLevels = parlayCandidateLevels.slice(0, -1);
       const candidateLevels = {
         hot: ["source", "sport", "country", "league", "event", "market"],
         outright: ["source", "sport", "country", "league", "outcome"],
@@ -1393,13 +1416,21 @@
         renderSubmodules();
         renderLegacy();
       }
+      function currentCandidateLevels() {
+        return candidateMode === "boost" ? boostCandidateLevels : candidateMode === "parlay" ? parlayCandidateLevels : ["super-market", "super-add"].includes(candidateMode) ? superCandidateLevels : candidateLevels[legacyCategory];
+      }
+      function currentCandidatePool() {
+        if (candidateMode === "boost") return boostCandidatePool.filter((row) => activeType === "all" || row.type === activeType);
+        if (candidateMode === "parlay" || ["super-market", "super-add"].includes(candidateMode)) return prematchPool.filter((row) => new Date(row.kickoff).getTime() > Date.now());
+        return candidatePool.filter((row) => row.category === legacyCategory);
+      }
       function renderCandidate() {
         const isBoost = candidateMode === "boost";
         const isParlay = candidateMode === "parlay";
-        const levels = isBoost ? boostCandidateLevels : isParlay ? parlayCandidateLevels : candidateLevels[legacyCategory];
+        const isSuper = ["super-market", "super-add"].includes(candidateMode);
+        const levels = currentCandidateLevels();
         const level = levels[candidatePath.length];
-        const pool = isBoost ? boostCandidatePool : isParlay ? prematchPool : candidatePool;
-        const matching = pool.filter((row) => (isBoost ? activeType === "all" || row.type === activeType : isParlay ? new Date(row.kickoff).getTime() > Date.now() : row.category === legacyCategory) && candidatePath.every((value, i) => row[levels[i]] === value));
+        const matching = currentCandidatePool().filter((row) => candidatePath.every((value, i) => row[levels[i]] === value));
         const query = document.getElementById("candidateSearch").value.trim().toLowerCase();
         const label = (value) => level === "type" ? typeNames[value] : value;
         const values = [...new Set(matching.map((row) => row[level]))].filter((value) => label(value).toLowerCase().includes(query));
@@ -1409,20 +1440,116 @@
         document.getElementById("candidateOptions").innerHTML = `<h4>${esc(candidateLabels[level])} <span class="legacy-updated">${values.length}</span></h4>` + (values.length ? values.map((value) => {
           const row = matching.find((item) => item[level] === value);
           const finalLevel = candidatePath.length === levels.length - 1;
-          const added = finalLevel && !isParlay && (isBoost ? items : legacyDraft.lists[legacyCategory]).some((item) => item.id === row.id);
+          const added = finalLevel && !isParlay && !isSuper && (isBoost ? items : legacyDraft.lists[legacyCategory]).some((item) => item.id === row.id);
           const selected = finalLevel && candidateSelection.some((item) => item.id === row.id);
           const detail = isBoost && finalLevel ? `<span class="event-meta">${esc(row.legs.map((leg) => `${leg.selection} · ${leg.market}`).join(" / "))} · ${esc(row.boost)}% boost · ${esc(formatDate(row.start))} to ${esc(formatDate(row.end))}</span>`
-            : isParlay && finalLevel ? `<span class="event-meta">${esc(row.event)} · ${esc(row.oldOdds)} · ${esc(formatDate(row.kickoff))}</span>` : "";
+            : isParlay && finalLevel ? `<span class="event-meta">${esc(row.event)} · ${esc(row.oldOdds)} · ${esc(formatDate(row.kickoff))}</span>`
+            : isSuper && finalLevel ? `<span class="event-meta">${esc(row.event)} · ${esc(formatDate(row.kickoff))}</span>` : "";
           return `<button type="button" class="candidate-choice ${selected ? "selected" : ""}" data-candidate-value="${esc(value)}" ${added ? "disabled" : ""}>${esc(label(value))} ${added ? " · Already added" : selected ? " ✓" : finalLevel ? " +" : " ›"}${detail}</button>`;
         }).join("") : '<p class="empty-row">No available data</p>');
         document.getElementById("candidateSelected").innerHTML = `<strong>Selected (${candidateSelection.length})</strong><br>` + (candidateSelection.length
-          ? candidateSelection.map((row) => `<button type="button" data-remove-candidate="${esc(row.id)}">${esc(isBoost ? row.name : isParlay ? `${row.event} · ${row.outcome}` : row.outcome || row.event || row.league)} ×</button>`).join("")
+          ? candidateSelection.map((row) => `<button type="button" data-remove-candidate="${esc(row.id)}">${esc(isBoost ? row.name : isParlay ? `${row.event} · ${row.outcome}` : isSuper ? `${row.event} · ${row.market}` : row.outcome || row.event || row.league)} ×</button>`).join("")
           : "No selections yet");
+        document.getElementById("candidateSuperOdds").innerHTML = candidateMode === "super-add" && superMarket
+          ? `<p class="result-label">Enter boosted decimal odds for every outcome (up to two decimal places). Each must be higher than its original odds. The offer expires at kickoff.</p>${superOddsMarkup()}`
+          : "";
+        document.getElementById("candidateSuperError").classList.remove("show");
         document.getElementById("candidateConfirm").disabled = !isParlay && candidateSelection.length === 0;
       }
       function closeCandidate() {
         document.getElementById("candidateModal").classList.remove("open");
       }
+      function superMarketOutcomes() {
+        return superMarket ? prematchPool.filter((row) => row.eventId === superMarket.eventId && row.market === superMarket.market) : [];
+      }
+      function superOddsMarkup() {
+        return superMarketOutcomes().map((row) => `<div class="super-odds-row"><strong>${esc(row.outcome)}</strong><span>Original: ${esc(row.oldOdds)}</span><label>Boosted odds<input class="input" inputmode="decimal" data-super-price="${esc(row.id)}" value="${esc(superPrices[row.id] || "")}" aria-label="Boosted odds for ${esc(row.outcome)}"></label></div>`).join("");
+      }
+      function renderSuperEditor() {
+        document.getElementById("superMarket").textContent = superMarket
+          ? `${superMarket.league} · ${superMarket.event} · ${superMarket.market} · ${formatDate(superMarket.kickoff)}`
+          : "Select one event and market.";
+        document.getElementById("superOdds").innerHTML = superOddsMarkup();
+      }
+      function openSuperEditor(item = null) {
+        editingSuperId = item ? item.id : null;
+        superMarket = item ? prematchPool.find((row) => row.eventId === item.eventId && row.market === item.market) : null;
+        if (item && (!superMarket || superMarketOutcomes().length !== item.legs.length || item.legs.some((leg) => !superMarketOutcomes().some((row) => row.id === leg.candidateId)))) {
+          notify("This market is no longer available in the candidate pool.");
+          return;
+        }
+        superPrices = item ? Object.fromEntries(item.legs.map((leg) => [leg.candidateId, leg.newOdds])) : {};
+        document.getElementById("superTitle").textContent = "Edit Superodds";
+        document.getElementById("superError").classList.remove("show");
+        renderSuperEditor();
+        document.getElementById("superModal").classList.add("open");
+      }
+      function saveSuper() {
+        const outcomes = superMarketOutcomes();
+        const errors = [];
+        if (!superMarket || !outcomes.length) errors.push("Select a prematch event and market.");
+        if (superMarket && new Date(superMarket.kickoff).getTime() <= Date.now()) errors.push("The event has already started.");
+        if (superMarket && items.some((item) => item.superBuilder && item.id !== editingSuperId && item.eventId === superMarket.eventId && item.market === superMarket.market)) errors.push("This event and market already have a Superodds offer.");
+        if (outcomes.some((row) => !/^\d+(?:\.\d{1,2})?$/.test(superPrices[row.id] || "") || !Number.isFinite(Number(superPrices[row.id])) || Number(superPrices[row.id]) <= Number(row.oldOdds))) errors.push("Enter boosted odds greater than the original odds for every outcome, using at most two decimal places.");
+        const previous = items.find((item) => item.id === editingSuperId);
+        if (editingSuperId && !previous) errors.push("This offer no longer exists.");
+        if (errors.length) {
+          const error = document.getElementById(editingSuperId ? "superError" : "candidateSuperError");
+          error.textContent = errors.join(" ");
+          error.classList.add("show");
+          return;
+        }
+        let id = editingSuperId || `super-${Date.now()}`;
+        while (!editingSuperId && items.some((item) => item.id === id)) id += "-1";
+        const item = {
+          ...(previous || {}), id, sort: previous?.sort || items.length + 1, type: "super", superBuilder: true,
+          mode: "full", name: `${superMarket.event} · ${superMarket.market}`, event: superMarket.event, eventId: superMarket.eventId,
+          market: superMarket.market, groupTitle: superMarket.league, cardTitle: "Superodds", subtitle: superMarket.market,
+          legs: outcomes.map((row) => ({ candidateId: row.id, selection: row.outcome, market: row.market, oldOdds: row.oldOdds, newOdds: Number(superPrices[row.id]).toFixed(2) })),
+          placements: ["home", "betslip"], start: previous?.start || "", end: superMarket.kickoff, enabled: previous ? previous.enabled : true,
+        };
+        if (previous) items[items.indexOf(previous)] = item;
+        else items.push(item);
+        saveState();
+        if (editingSuperId) document.getElementById("superModal").classList.remove("open");
+        else closeCandidate();
+        renderList();
+        notify("Superodds saved and published.");
+      }
+      document.getElementById("superClose").addEventListener("click", () => document.getElementById("superModal").classList.remove("open"));
+      document.getElementById("superCancel").addEventListener("click", () => document.getElementById("superModal").classList.remove("open"));
+      document.getElementById("superSave").addEventListener("click", saveSuper);
+      document.getElementById("superOdds").addEventListener("input", (event) => {
+        if (event.target.dataset.superPrice) superPrices[event.target.dataset.superPrice] = event.target.value.trim();
+      });
+      document.getElementById("candidateSuperOdds").addEventListener("input", (event) => {
+        if (event.target.dataset.superPrice) superPrices[event.target.dataset.superPrice] = event.target.value.trim();
+      });
+      function openSuperCandidate() {
+        editingSuperId = null;
+        superMarket = null;
+        superPrices = {};
+        candidateMode = "super-add";
+        candidatePath = [];
+        candidateSelection = [];
+        document.getElementById("candidateTitle").textContent = "Add Superodds";
+        document.getElementById("candidateSearch").placeholder = "Search events or markets";
+        document.getElementById("candidateSearch").value = "";
+        document.getElementById("candidateConfirm").textContent = "Add & Publish";
+        document.getElementById("candidateModal").classList.add("open");
+        renderCandidate();
+      }
+      document.getElementById("chooseSuperMarket").addEventListener("click", () => {
+        candidateMode = "super-market";
+        candidatePath = [];
+        candidateSelection = superMarket ? [superMarket] : [];
+        document.getElementById("candidateTitle").textContent = "Select Prematch Event and Market";
+        document.getElementById("candidateSearch").placeholder = "Search events or markets";
+        document.getElementById("candidateSearch").value = "";
+        document.getElementById("candidateConfirm").textContent = "Confirm Market";
+        document.getElementById("candidateModal").classList.add("open");
+        renderCandidate();
+      });
       function parlayPrices() {
         if (!parlayLegs.length) return null;
         const rawOdds = parlayLegs.reduce((total, leg) => total * Number(leg.oldOdds), 1);
@@ -1630,19 +1757,30 @@
       document.getElementById("candidateOptions").addEventListener("click", (event) => {
         const button = event.target.closest("[data-candidate-value]");
         if (!button) return;
-        const isBoost = candidateMode === "boost";
-        const isParlay = candidateMode === "parlay";
-        const levels = isBoost ? boostCandidateLevels : isParlay ? parlayCandidateLevels : candidateLevels[legacyCategory];
+        const levels = currentCandidateLevels();
         const value = button.dataset.candidateValue;
+        if (candidateMode === "boost" && candidatePath.length === 0 && value === "super") {
+          if (candidateSelection.length) {
+            notify("Add or remove the selected offers before creating Superodds.");
+            return;
+          }
+          openSuperCandidate();
+          return;
+        }
         if (candidatePath.length < levels.length - 1) {
           candidatePath.push(value);
         } else {
-          const pool = isBoost ? boostCandidatePool : isParlay ? prematchPool : candidatePool;
-          const row = pool.find((item) => (isBoost ? activeType === "all" || item.type === activeType : isParlay ? new Date(item.kickoff).getTime() > Date.now() : item.category === legacyCategory) && candidatePath.every((part, i) => item[levels[i]] === part) && item[levels[candidatePath.length]] === value);
+          const row = currentCandidatePool().find((item) => candidatePath.every((part, i) => item[levels[i]] === part) && item[levels[candidatePath.length]] === value);
           if (!row) return;
           const index = candidateSelection.findIndex((item) => item.id === row.id);
           if (index >= 0) candidateSelection.splice(index, 1);
+          else if (["super-market", "super-add"].includes(candidateMode)) candidateSelection = [row];
           else candidateSelection.push(row);
+          if (candidateMode === "super-add") {
+            const selected = candidateSelection[0] || null;
+            if (!selected || !superMarket || superMarket.eventId !== selected.eventId || superMarket.market !== selected.market) superPrices = {};
+            superMarket = selected;
+          }
         }
         document.getElementById("candidateSearch").value = "";
         renderCandidate();
@@ -1658,10 +1796,26 @@
         const button = event.target.closest("[data-remove-candidate]");
         if (!button) return;
         candidateSelection = candidateSelection.filter((row) => row.id !== button.dataset.removeCandidate);
+        if (candidateMode === "super-add") {
+          superMarket = null;
+          superPrices = {};
+        }
         renderCandidate();
       });
       document.getElementById("candidateSearch").addEventListener("input", renderCandidate);
       document.getElementById("candidateConfirm").addEventListener("click", () => {
+        if (candidateMode === "super-add") {
+          saveSuper();
+          return;
+        }
+        if (candidateMode === "super-market") {
+          const selected = candidateSelection[0];
+          if (!superMarket || superMarket.eventId !== selected.eventId || superMarket.market !== selected.market) superPrices = {};
+          superMarket = selected;
+          closeCandidate();
+          renderSuperEditor();
+          return;
+        }
         if (candidateMode === "parlay") {
           parlayLegs = [...candidateSelection];
           closeCandidate();
@@ -1714,6 +1868,10 @@
         renderList();
       });
       document.getElementById("createBtn").addEventListener("click", () => {
+        if (activeType === "super") {
+          openSuperCandidate();
+          return;
+        }
         candidateMode = "boost";
         candidatePath = [];
         candidateSelection = [];

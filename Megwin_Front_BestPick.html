@@ -75,6 +75,14 @@
     .pick-inactive { color:#f1b45e; font-size:10px; }
     .boost-card { border:1px solid #315d58; background:linear-gradient(150deg,#1b2826,#17181a 58%); }
     .boost-meta { display:flex; align-items:center; justify-content:space-between; margin-bottom:5px; color:#9ea1a5; font-size:10px; }
+    .super-card { background:#202124; border:0; padding:16px; }
+    .super-card .boost-meta { color:var(--teal); font-weight:700; }
+    .super-event { margin:12px 0 5px; font-size:14px; font-weight:700; }
+    .super-market-label { margin:12px 0; color:#c8d2d3; font-size:11px; }
+    .super-options { display:grid; grid-template-columns:repeat(auto-fit,minmax(75px,1fr)); gap:6px; }
+    .super-options .price-row { display:flex; flex-direction:column; align-items:stretch; justify-content:space-between; min-height:72px; margin:0; background:#151b1b; border-bottom:2px solid var(--teal); }
+    .super-options .price-row span:last-child { align-self:flex-end; }
+    .super-options del { color:#92999b; margin-right:5px; font-size:10px; }
     .boost-note { margin:8px 2px 0; color:#8e9094; font-size:10px; line-height:1.45; }
     .parlay-card .boost-note strong { display:block; color:#e7e8e9; font-size:11px; }
     .parlay-more { margin:8px 2px 0; padding:0; border:0; background:none; color:var(--teal); cursor:pointer; font-size:11px; }
@@ -263,7 +271,7 @@
     let activeCategory = null;
     let activeParlayGroup = null;
     const expandedParlays = new Set();
-    let parlayExpiryTimer;
+    let boostExpiryTimer;
     let slip = [];
     let receipt = null;
     let channel = null;
@@ -336,11 +344,11 @@
       return `<button class="price-row ${slip.some((item) => item.id === id) ? "selected" : ""}" type="button" data-pick-id="${esc(id)}" data-pick-label="${esc(selection.label)}" data-pick-event="${esc(row.event || row.league || row.market)}" data-pick-market="${esc(row.market)}" data-pick-odd="${selection.odd}" ${row.inactive ? "disabled" : ""}><span>${esc(selection.label)}${row.inactive ? ' <span class="pick-inactive">· Inactivo</span>' : ""}</span><span class="price">${decimalToAmerican(selection.odd)}</span></button>`;
     }
     function renderPicks() {
-      clearTimeout(parlayExpiryTimer);
+      clearTimeout(boostExpiryTimer);
       const now = Date.now();
-      const nextExpiry = boostItems.filter((item) => item.parlayBuilder && item.enabled && item.end)
+      const nextExpiry = boostItems.filter((item) => (item.parlayBuilder || item.superBuilder) && item.enabled && item.end)
         .map((item) => new Date(item.end).getTime()).filter((time) => time > now).sort((a, b) => a - b)[0];
-      if (nextExpiry) parlayExpiryTimer = setTimeout(renderPicks, Math.min(nextExpiry - now, 2147483647));
+      if (nextExpiry) boostExpiryTimer = setTimeout(renderPicks, Math.min(nextExpiry - now, 2147483647));
       const available = categories();
       const groupTabs = document.getElementById("parlayGroups");
       groupTabs.hidden = true;
@@ -373,6 +381,15 @@
             const selected = slip.some((pick) => pick.id === `boost:${item.id}`);
             return `<article class="pick boost-card parlay-card ${selected ? "selected" : ""}"><div class="boost-meta"><span>${esc(item.groupTitle)}</span><span>${legs.length} legs</span></div><div class="pick-title">${esc(item.cardTitle || item.name)}<small>${esc(item.subtitle || "")}</small></div>${shown.map((leg) => `<div class="boost-note"><strong>• ${esc(leg.selection || leg.label)}</strong>${esc(leg.event || item.event)} · ${esc(leg.market || "")}</div>`).join("")}${legs.length > 3 ? `<button class="parlay-more" type="button" data-expand-parlay="${esc(item.id)}" aria-expanded="${expanded}">${expanded ? "Mostrar menos" : `${legs.length - 3} más`}</button>` : ""}<div class="parlay-boost">+${esc(item.boost)}% ACCA BOOST</div><button class="add-pick" type="button" data-offer-id="${esc(item.id)}" data-pick-id="boost:${esc(item.id)}" data-pick-label="${esc(item.cardTitle || item.name)}" data-pick-event="${esc(item.event)}" data-pick-market="${esc(item.subtitle || item.type)}" data-pick-odd="${esc(item.newOdds)}"><del>${esc(item.oldOdds)}</del> ${esc(item.newOdds)} · ${selected ? "✓" : "Añadir al boleto"}</button></article>`;
           }
+          if (item.type === "super" && item.mode === "full") {
+            const resultMarket = item.market === "Full Time Result" || item.marketType === "1X2";
+            const options = item.legs.map((leg, index) => {
+              const label = resultMarket ? ["1", "X", "2"][index] || leg.selection : leg.selection;
+              const id = `boost:${item.id}:${index}`;
+              return `<button class="price-row ${slip.some((pick) => pick.id === id) ? "selected" : ""}" type="button" data-super-offer-id="${esc(item.id)}" data-super-leg-index="${index}" data-pick-id="${esc(id)}" data-pick-label="${esc(leg.selection)}" data-pick-event="${esc(item.event)}" data-pick-market="${esc(item.market || item.subtitle)}" data-pick-odd="${esc(leg.newOdds)}" aria-label="${esc(`${leg.selection}: ${leg.oldOdds} to ${leg.newOdds}`)}"><span>${esc(label)}</span><span><del>${esc(leg.oldOdds)}</del><strong class="price">${esc(leg.newOdds)}</strong></span></button>`;
+            }).join("");
+            return `<article class="pick boost-card super-card"><div class="boost-meta">SUPERODDS</div><div class="super-event">${esc(item.event)}</div><div class="boost-note">${esc(item.groupTitle)}${item.end ? ` · ${esc(item.end.replace("T", " "))}` : ""}</div><div class="super-market-label">${esc(item.market || item.subtitle)}</div><div class="super-options">${options}</div></article>`;
+          }
           const isBundle = item.type !== "super" || item.legs?.length > 1 && item.mode !== "full";
           const options = isBundle
             ? `<button class="add-pick" type="button" data-pick-id="boost:${esc(item.id)}" data-pick-label="${esc(item.cardTitle || item.name)}" data-pick-event="${esc(item.event)}" data-pick-market="${esc(item.subtitle || item.type)}" data-pick-odd="${item.newOdds}">Añadir al boleto · ${decimalToAmerican(item.newOdds)}</button>`
@@ -387,7 +404,10 @@
     function addPick(button) {
       const id = button.dataset.pickId;
       const offer = button.dataset.offerId ? boostItems.find((item) => item.id === button.dataset.offerId) : null;
-      if (button.dataset.offerId && (!offer || !activeBoostItems().some((item) => item.id === offer.id))) {
+      const superOffer = button.dataset.superOfferId ? boostItems.find((item) => item.id === button.dataset.superOfferId) : null;
+      const superLeg = superOffer?.legs[Number(button.dataset.superLegIndex)];
+      if ((button.dataset.offerId && (!offer || !activeBoostItems().some((item) => item.id === offer.id))) ||
+          (button.dataset.superOfferId && (!superOffer || !superLeg || !activeBoostItems().some((item) => item.id === superOffer.id) || Number(superLeg.newOdds) !== Number(button.dataset.pickOdd)))) {
         notify("Esta selección ya no está disponible.");
         renderPicks();
         return;
@@ -397,7 +417,7 @@
         slip.splice(existing, 1);
         notify("Selección eliminada del boleto.");
       } else {
-        slip.push({ id, label:button.dataset.pickLabel, event:button.dataset.pickEvent, market:button.dataset.pickMarket, odd:Number(button.dataset.pickOdd), ...(offer ? { offerId:offer.id, legs:offer.legs, boost:offer.boost, oldOdds:offer.oldOdds, end:offer.end } : {}) });
+        slip.push({ id, label:button.dataset.pickLabel, event:button.dataset.pickEvent, market:button.dataset.pickMarket, odd:Number(button.dataset.pickOdd), ...(offer ? { offerId:offer.id, legs:offer.legs, boost:offer.boost, oldOdds:offer.oldOdds, end:offer.end } : {}), ...(superOffer ? { superOfferId:superOffer.id, superLegIndex:Number(button.dataset.superLegIndex), oldOdds:superLeg.oldOdds, end:superOffer.end } : {}) });
         notify("Selección añadida al boleto.");
       }
       receipt = null;
@@ -413,7 +433,7 @@
       document.getElementById("combinedOdds").textContent = count ? `${odd.toFixed(2)} · ${decimalToAmerican(odd)}` : "—";
       document.getElementById("potentialReturn").textContent = `$${(Number.isFinite(stake) ? stake * odd : 0).toLocaleString("es-MX", { minimumFractionDigits:2, maximumFractionDigits:2 })}`;
       document.getElementById("placeBet").disabled = !count || !Number.isFinite(stake) || stake <= 0 || stake > 10000;
-      document.getElementById("slipBody").innerHTML = `${receipt ? `<div class="receipt">${esc(receipt)}</div>` : ""}${count ? slip.map((item) => `<div class="slip-item"><strong>${esc(item.label)}</strong><span>${esc(item.event)}<br>${esc(item.market)}${item.legs ? `<br>Parlay Boost · +${esc(item.boost)}% · ${item.legs.length} legs${item.legs.map((leg) => `<br>• ${esc(leg.selection || leg.label)}<br>${esc(leg.event || item.event)} · ${esc(leg.market || "")}`).join("")}` : ""}</span><b class="slip-odd">${item.legs ? `<del>${esc(item.oldOdds)}</del> ${item.odd.toFixed(2)}` : decimalToAmerican(item.odd)}</b><button class="remove-slip" type="button" data-remove-pick="${esc(item.id)}" aria-label="Eliminar selección">×</button></div>`).join("") : '<div class="slip-empty">Selecciona una cuota para comenzar tu apuesta.</div>'}`;
+      document.getElementById("slipBody").innerHTML = `${receipt ? `<div class="receipt">${esc(receipt)}</div>` : ""}${count ? slip.map((item) => `<div class="slip-item"><strong>${esc(item.label)}</strong><span>${esc(item.event)}<br>${esc(item.market)}${item.superOfferId ? "<br>Superodds" : ""}${item.legs ? `<br>Parlay Boost · +${esc(item.boost)}% · ${item.legs.length} legs${item.legs.map((leg) => `<br>• ${esc(leg.selection || leg.label)}<br>${esc(leg.event || item.event)} · ${esc(leg.market || "")}`).join("")}` : ""}</span><b class="slip-odd">${item.legs || item.superOfferId ? `<del>${esc(item.oldOdds)}</del> ${item.odd.toFixed(2)}` : decimalToAmerican(item.odd)}</b><button class="remove-slip" type="button" data-remove-pick="${esc(item.id)}" aria-label="Eliminar selección">×</button></div>`).join("") : '<div class="slip-empty">Selecciona una cuota para comenzar tu apuesta.</div>'}`;
       document.getElementById("openBetslip").classList.toggle("hidden", document.getElementById("betslip").classList.contains("open"));
     }
     function openSlip() {
@@ -475,6 +495,10 @@
       }
       if (slip.some((item) => item.offerId && !activeBoostItems().some((offer) => offer.id === item.offerId && Number(offer.newOdds) === item.odd && JSON.stringify(offer.legs) === JSON.stringify(item.legs)))) {
         notify("Una recomendación cambió o ya no está disponible. Retírala del boleto y vuelve a seleccionarla.");
+        return;
+      }
+      if (slip.some((item) => item.superOfferId && !activeBoostItems().some((offer) => offer.id === item.superOfferId && offer.event === item.event && (offer.market || offer.subtitle) === item.market && offer.legs[item.superLegIndex]?.selection === item.label && Number(offer.legs[item.superLegIndex]?.newOdds) === item.odd))) {
+        notify("Una cuota de Superodds cambió o ya no está disponible. Retírala del boleto y vuelve a seleccionarla.");
         return;
       }
       const combined = slip.reduce((total, item) => total * item.odd, 1);
