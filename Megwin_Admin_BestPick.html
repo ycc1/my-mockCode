@@ -264,8 +264,14 @@
       .candidate-options h4 { margin: 0 0 10px; font-size: 13px; }
       .candidate-choice { display: block; width: 100%; margin: 6px 0; padding: 10px; border: 1px solid #e4e7ec; border-radius: 4px; background: #fff; color: #344054; text-align: left; }
       .candidate-choice:hover, .candidate-choice.selected { border-color: var(--blue-dark); color: var(--blue-dark); }
+      .candidate-choice .event-meta { display: block; margin-top: 4px; color: #98a2b3; font-size: 11px; }
       .candidate-selected { padding: 12px 0; border-top: 1px solid var(--line); color: #667085; font-size: 12px; }
       .candidate-selected button { margin: 6px 6px 0 0; padding: 5px 8px; border: 1px solid #d0d5dd; border-radius: 4px; background: white; color: #344054; }
+      .parlay-modal { width: min(760px, 100%); max-height: calc(100vh - 40px); overflow-y: auto; }
+      .parlay-selected { margin: 14px 0; }
+      .parlay-selection { display: flex; justify-content: space-between; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 12px; }
+      .parlay-selection small { display: block; margin-top: 4px; color: #667085; }
+      #candidateModal { z-index: 120; }
       .homepage-modules .submodule-tabs { padding: 0; }
       .type-tabs {
         display: flex;
@@ -552,7 +558,7 @@
         position: fixed;
         right: 24px;
         bottom: 24px;
-        z-index: 50;
+        z-index: 130;
         padding: 11px 16px;
         border-radius: 5px;
         background: #26384b;
@@ -564,7 +570,7 @@
         transition: .18s;
       }
       .toast.show { opacity: 1; transform: translateY(0); }
-      .modal-backdrop { position: fixed; inset: 0; z-index: 40; display: none; align-items: center; justify-content: center; padding: 20px; background: #15283c70; }
+      .modal-backdrop { position: fixed; inset: 0; z-index: 110; display: none; align-items: center; justify-content: center; padding: 20px; background: #15283c70; }
       .modal-backdrop.open { display: flex; }
       .modal { width: min(460px, 100%); padding: 17px; border-radius: 4px; background: #fff; box-shadow: 0 15px 50px #12243b40; }
       .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 13px; }
@@ -693,11 +699,12 @@
         <div class="page-heading">
           <div>
             <h2 class="homepage-modules-heading">Best Picks</h2>
-            <p class="page-subtitle">Configure featured picks, Superodds and SGP boosts shown across Sport.</p>
+            <p class="page-subtitle">Build Parlay recommendations from prematch selections, or select existing Superodds and SGP offers.</p>
           </div>
           <div class="header-actions">
             <button class="button" id="previewAllBtn" type="button">◉ Preview</button>
-            <button class="button primary" id="createBtn" type="button">＋ Create Best Pick</button>
+            <button class="button" id="createParlayBtn" type="button">＋ Create Parlay Recommendation</button>
+            <button class="button primary" id="createBtn" type="button">＋ Add from Candidate Pool</button>
           </div>
         </div>
 
@@ -758,38 +765,6 @@
         </div>
       </div>
 
-      <section class="editor-view" id="editorView">
-        <p class="crumb">Content　/　Sport Homepage　/　Best Picks</p>
-        <div class="back-link" id="backToList">← Back to Best Picks</div>
-        <div class="editor-heading">
-          <div>
-            <h2 id="editorTitle">Create Best Pick</h2>
-            <p>Set the recommendation on the left and check the front-end preview on the right.</p>
-          </div>
-          <span class="type-badge" id="editorTypeBadge">Selected Parlay Boost</span>
-        </div>
-        <div id="formError" class="form-error"></div>
-        <div class="editor-grid">
-          <div class="card editor-main" id="editorForm"></div>
-          <div class="card preview-card">
-            <div class="preview-top">
-              <h3 class="panel-title">Live Preview <span class="hint">Updates as you edit</span></h3>
-              <div class="preview-switcher" id="previewSwitcher">
-                <button class="active" data-preview="home" type="button">Homepage</button>
-                <button data-preview="event" type="button">Event</button>
-                <button data-preview="betslip" type="button">Bet slip</button>
-              </div>
-            </div>
-            <div id="livePreview"></div>
-            <p class="preview-note">Preview is a visual guide. The final display depends on the selected placement, schedule and enabled status.</p>
-          </div>
-        </div>
-        <div class="editor-footer">
-          <button class="button" id="cancelEdit" type="button">Cancel</button>
-          <button class="button" id="saveDraft" type="button">Save Draft</button>
-          <button class="button primary" id="saveEnable" type="button">Save &amp; Enable</button>
-        </div>
-      </section>
     </main>
 
     <div class="modal-backdrop" id="previewModal">
@@ -805,6 +780,24 @@
         </div>
         <div class="modal-preview" id="modalPreviewContent"></div>
         <div class="modal-actions"><button class="button" id="closePreviewButton" type="button">Close</button></div>
+      </div>
+    </div>
+    <div class="modal-backdrop" id="parlayModal">
+      <div class="modal parlay-modal" role="dialog" aria-modal="true" aria-labelledby="parlayTitle">
+        <div class="modal-head"><h3 id="parlayTitle">Create Parlay Recommendation</h3><button class="modal-close" id="parlayClose" type="button" aria-label="Close">×</button></div>
+        <div id="parlayError" class="form-error" role="alert"></div>
+        <div class="form-grid">
+          <div class="field"><label class="required" for="parlayGroup">Group</label><input class="input" id="parlayGroup" list="parlayGroupsList" placeholder="Choose or enter a group"><datalist id="parlayGroupsList"><option value="UEFA Champions League"><option value="Premier League"><option value="Liga MX"></datalist></div>
+          <div class="field"><label class="required" for="parlayName">Recommendation title</label><input class="input" id="parlayName" placeholder="e.g. UCL FAVS"></div>
+          <div class="field"><label for="parlaySubtitle">Subtitle</label><input class="input" id="parlaySubtitle" placeholder="e.g. Full Time Result"></div>
+          <div class="field"><label class="required" for="parlayBoost">Boost percentage</label><div class="boost-input"><input class="input" id="parlayBoost" type="number" min="0.01" step="any" placeholder="10"><span>%</span></div></div>
+        </div>
+        <div class="parlay-selected">
+          <div class="legs-header"><strong>Prematch selections</strong><button class="button small" id="chooseParlayLegs" type="button">＋ Select events and markets</button></div>
+          <div id="parlayLegs"></div>
+        </div>
+        <div class="field"><strong id="parlayOdds">Combined odds: —</strong><small>Original odds are multiplied; boost applies to net winnings. The recommendation expires at the earliest kickoff.</small></div>
+        <div class="modal-actions"><button class="button" id="parlayCancel" type="button">Cancel</button><button class="button primary" id="parlaySave" type="button">Save &amp; Publish</button></div>
       </div>
     </div>
     <div class="modal-backdrop" id="candidateModal">
@@ -835,26 +828,6 @@
       const defaultLegs = (values) => values.map(([selection, market, oldOdds, newOdds]) => ({
         selection, market, oldOdds, newOdds,
       }));
-      const demoMarkets = {
-        "Real Madrid vs Liverpool": ["Real Madrid", "Liverpool", "2.10", "3.40", "3.20"],
-        "Arsenal vs Tottenham": ["Arsenal", "Tottenham", "2.10", "3.40", "3.20"],
-        "Chelsea vs Manchester City": ["Chelsea", "Manchester City", "3.20", "3.40", "2.10"],
-        "Club América vs Tigres UANL": ["Club América", "Tigres UANL", "2.00", "3.30", "3.70"],
-        "Real Madrid vs Atlético Madrid": ["Real Madrid", "Atlético Madrid", "1.90", "3.40", "4.00"],
-        "Inter Milan vs AC Milan": ["Inter Milan", "AC Milan", "2.20", "3.20", "3.40"],
-      };
-      const parlayGroupSuggestions = ["UEFA Champions League", "Premier League", "Liga MX"];
-      function demoSelections(event) {
-        const [home, away, homeOdds, drawOdds, awayOdds] = demoMarkets[event];
-        return [
-          { event, selection: home, market: "Home", oldOdds: homeOdds },
-          { event, selection: "Draw", market: "Draw", oldOdds: drawOdds },
-          { event, selection: away, market: "Away", oldOdds: awayOdds },
-          { event, selection: "Over 2.5 Goals", market: "Total Goals", oldOdds: "1.85" },
-          { event, selection: "Both Teams to Score", market: "Both Teams to Score", oldOdds: "1.75" },
-          { event, selection: "Player A to score", market: "Anytime Goalscorer", oldOdds: "2.50" },
-        ];
-      }
       const initialItems = [
         {
           id: "bp-101", sort: 1, type: "parlay", name: "UCL Favourites · Matchday 5",
@@ -920,6 +893,53 @@
           end: "2026-12-31T23:59", enabled: true, note: "Sample Liga MX parlay.",
         },
       ];
+      const boostCandidatePool = [
+        ...initialItems,
+        {
+          ...initialItems[6], id: "offer-parlay-mx", name: "Liga MX · Home and Goals",
+          cardTitle: "América Goals Special", subtitle: "Match Result & Total Goals",
+          oldOdds: "3.70", newOdds: "4.11",
+          legs: defaultLegs([["Club América", "Home", "2.00", "2.00"], ["Over 2.5 Goals", "Total Goals", "1.85", "1.85"]]),
+        },
+        {
+          ...initialItems[1], id: "offer-super-chelsea", name: "Chelsea vs Manchester City · Match Winner",
+          event: "Chelsea vs Manchester City", boost: "10", start: "2026-11-25T18:00", end: "2026-12-31T23:59",
+          legs: defaultLegs([["Chelsea", "Home", "3.20", "3.42"], ["Draw", "Draw", "3.40", "3.64"], ["Manchester City", "Away", "2.10", "2.21"]]),
+        },
+        {
+          ...initialItems[2], id: "offer-sgp-arsenal", name: "North London · Same Game Parlay",
+          event: "Arsenal vs Tottenham", groupTitle: "Premier League", cardTitle: "North London SGP",
+          oldOdds: "3.89", newOdds: "4.47", start: "2026-11-25T18:00", end: "2026-12-31T23:59",
+          legs: defaultLegs([["Arsenal", "Home", "2.10", "2.10"], ["Over 2.5 Goals", "Total Goals", "1.85", "1.85"]]),
+        },
+      ];
+      const prematchEvents = [
+        ["ucl-1", "UEFA Champions League", "Europe", "Real Madrid", "AEK Athens", "2026-12-15T20:00", "1.45"],
+        ["ucl-2", "UEFA Champions League", "Europe", "Liverpool", "Fenerbahce", "2026-12-15T20:00", "1.50"],
+        ["ucl-3", "UEFA Champions League", "Europe", "Borussia Dortmund", "Real Betis", "2026-12-15T20:00", "1.55"],
+        ["ucl-4", "UEFA Champions League", "Europe", "Inter", "PSV", "2026-12-15T20:00", "1.50"],
+        ["ucl-5", "UEFA Champions League", "Europe", "Bayern Munich", "Benfica", "2026-12-16T20:00", "1.55"],
+        ["ucl-6", "UEFA Champions League", "Europe", "Barcelona", "Club Brugge", "2026-12-16T20:00", "1.50"],
+        ["ucl-7", "UEFA Champions League", "Europe", "Arsenal", "Milan", "2026-12-16T20:00", "1.70"],
+        ["ucl-8", "UEFA Champions League", "Europe", "Paris", "Porto", "2026-12-16T20:00", "1.65"],
+        ["ucl-9", "UEFA Champions League", "Europe", "Atletico Madrid", "Celtic", "2026-12-16T20:00", "1.60"],
+        ["ucl-10", "UEFA Champions League", "Europe", "Juventus", "Ajax", "2026-12-16T20:00", "1.75"],
+        ["pl-1", "Premier League", "England", "Arsenal", "Tottenham", "2026-12-12T18:00", "2.10"],
+        ["pl-2", "Premier League", "England", "Chelsea", "Manchester City", "2026-12-13T18:00", "3.20"],
+        ["mx-1", "Liga MX", "Mexico", "Club América", "Tigres UANL", "2026-12-12T21:00", "2.00"],
+        ["mx-2", "Liga MX", "Mexico", "Monterrey", "Pumas UNAM", "2026-12-13T21:00", "1.90"],
+      ];
+      const prematchPool = prematchEvents.flatMap(([eventId, league, country, home, away, kickoff, homeOdds]) => {
+        const event = `${home} vs ${away}`;
+        const base = { source: "Sportradar", sport: "Soccer", country, league, eventId, event, kickoff };
+        return [
+          { ...base, id: `${eventId}-home`, market: "Full Time Result", outcome: `${home} to win`, oldOdds: homeOdds },
+          { ...base, id: `${eventId}-draw`, market: "Full Time Result", outcome: "Draw", oldOdds: "3.40" },
+          { ...base, id: `${eventId}-away`, market: "Full Time Result", outcome: `${away} to win`, oldOdds: "4.00" },
+          { ...base, id: `${eventId}-btts`, market: "Both Teams to Score", outcome: "Both teams to score — Yes", oldOdds: "1.85" },
+          { ...base, id: `${eventId}-over`, market: "Total Goals", outcome: "Over 2.5 Goals", oldOdds: "1.85" },
+        ];
+      });
       let items;
       try {
         items = JSON.parse(localStorage.getItem(STORAGE_KEY)) || structuredClone(initialItems);
@@ -928,9 +948,6 @@
         items = structuredClone(initialItems);
       }
       let activeType = "all";
-      let draft = null;
-      let editingId = null;
-      let previewLocation = "home";
       let modalItem = null;
       let toastTimer;
 
@@ -971,6 +988,7 @@
         });
       }
       function renderList() {
+        document.getElementById("createParlayBtn").hidden = !["all", "parlay"].includes(activeType);
         ["all", "parlay", "super", "sgp"].forEach((type) => {
           const count = type === "all" ? items.length : items.filter((item) => item.type === type).length;
           document.getElementById(`count-${type}`).textContent = count;
@@ -981,7 +999,7 @@
         document.getElementById("groupOrder").innerHTML = groups.length ? `Parlay group order: ${groups.map((group, index) => `<span class="group-order-item">${esc(group || "—")} <button class="icon-button" type="button" data-group-move="${index}" data-direction="-1" aria-label="Move group ${esc(group)} up" ${index === 0 ? "disabled" : ""}>↑</button><button class="icon-button" type="button" data-group-move="${index}" data-direction="1" aria-label="Move group ${esc(group)} down" ${index === groups.length - 1 ? "disabled" : ""}>↓</button></span>`).join("")}` : "";
         const body = document.getElementById("tableBody");
         if (!filtered.length) {
-          body.innerHTML = '<tr><td class="empty-row" colspan="10">No Best Picks found. Adjust your filters or create a new item.</td></tr>';
+          body.innerHTML = '<tr><td class="empty-row" colspan="10">No Best Picks found. Adjust your filters or add an offer from the candidate pool.</td></tr>';
           return;
         }
         body.innerHTML = filtered.map((item) => {
@@ -999,290 +1017,16 @@
             <td><span class="boost-value">${esc(boostText(item))}</span>${item.type === "super"
               ? item.legs.map((leg) => `<span class="item-sub">${esc(leg.selection)}: <del>${esc(leg.oldOdds || "—")}</del> → ${esc(leg.newOdds || "—")}</span>`).join("")
               : `<span class="item-sub"><del>${esc(item.oldOdds || "—")}</del> → ${esc(item.newOdds || "—")}</span>`}</td>
-            <td><span class="schedule">${esc(formatDate(item.start))}<br>to ${esc(formatDate(item.end))}</span></td>
+            <td><span class="schedule">${esc(item.parlayBuilder && !item.start ? "Immediately" : formatDate(item.start))}<br>to ${esc(formatDate(item.end))}</span></td>
             <td><span class="status ${item.enabled ? "" : "paused"}">${item.enabled ? "Enabled" : "Paused"}</span></td>
             <td><div class="row-actions">
-              <button class="icon-button edit-row" title="Edit">Edit</button>
-              <button class="icon-button duplicate-row" title="Duplicate">Copy</button>
+              ${item.parlayBuilder ? '<button class="icon-button edit-parlay" title="Edit recommendation">Edit</button>' : ""}
               <button class="icon-button preview-row" title="Preview">◉</button>
               <button class="icon-button pause-row" title="${item.enabled ? "Pause" : "Enable"}">${item.enabled ? "Ⅱ" : "▶"}</button>
               <button class="icon-button delete delete-row" title="Delete">×</button>
             </div></td>
           </tr>`;
         }).join("");
-      }
-      function freshDraft(type = "parlay") {
-        return {
-          id: `bp-${Date.now()}`, sort: items.length + 1, type,
-          mode: "full", marketType: "1X2", name: "", event: "", groupTitle: "", cardTitle: "",
-          subtitle: "", boost: "", oldOdds: "", newOdds: "",
-          legs: defaultLegs([["", "", "", ""]]), placements: ["home", "event"],
-          start: "", end: "", enabled: false, note: "",
-        };
-      }
-      function openEditor(item = null, type = activeType === "all" ? "parlay" : activeType) {
-        editingId = item ? item.id : null;
-        draft = item ? clone(item) : freshDraft(type);
-        previewLocation = "home";
-        previewLeg = null;
-        document.getElementById("listView").classList.add("hidden");
-        document.getElementById("editorView").classList.add("visible");
-        document.getElementById("editorTitle").textContent = item ? "Edit Best Pick" : "Create Best Pick";
-        document.getElementById("editorTypeBadge").textContent = typeNames[draft.type];
-        document.getElementById("editorTypeBadge").className = `type-badge ${draft.type === "sgp" ? "sgp" : draft.type === "super" ? "super" : ""}`;
-        document.getElementById("formError").classList.remove("show");
-        renderForm();
-        renderLivePreview();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-      function closeEditor() {
-        draft = null;
-        editingId = null;
-        document.getElementById("editorView").classList.remove("visible");
-        document.getElementById("listView").classList.remove("hidden");
-        renderList();
-      }
-      function renderPlacementOptions() {
-        return [
-          ["home", "Sport Homepage"],
-          ["event", "Event details"],
-          ["betslip", "Bet slip"],
-        ].map(([value, label]) => {
-          const checked = draft.placements.includes(value);
-          const disabled = draft.type === "super" && draft.mode === "single" && value !== "event";
-          return `<label class="check-option"><input data-placement="${value}" type="checkbox" ${checked ? "checked" : ""} ${disabled ? "disabled" : ""}/> ${label}</label>`;
-        }).join("");
-      }
-      function renderLegRows() {
-        const labels = draft.type === "super"
-          ? ["Selection / option", "Market", "Original", "Boosted"]
-          : ["Selection / leg", "Market", "Original", "New odds"];
-        const showPicker = draft.type !== "super" || draft.mode === "single";
-        const events = draft.type === "parlay" ? Object.keys(demoMarkets) : draft.event && demoMarkets[draft.event] ? [draft.event] : [];
-        const options = events.flatMap((event) => demoSelections(event));
-        return `<div class="leg-column-labels">${labels.map((label) => `<span>${label}</span>`).join("")}<span></span></div>
-          <div id="legRows">${draft.legs.map((leg, index) => `<div class="leg-row" data-leg-index="${index}">
-            <input class="input" data-leg-field="selection" placeholder="${draft.type === "sgp" ? "e.g. Over 2.5 Goals" : "e.g. Home"}" value="${esc(leg.selection)}"/>
-            <input class="input" data-leg-field="market" placeholder="Market" value="${esc(leg.market)}"/>
-            <input class="input" data-leg-field="oldOdds" inputmode="decimal" placeholder="1.50" value="${esc(leg.oldOdds)}"/>
-            <input class="input" data-leg-field="newOdds" inputmode="decimal" placeholder="1.80" value="${esc(leg.newOdds)}"/>
-            <div class="leg-controls"><button type="button" data-move-leg="${index}" data-direction="-1" aria-label="Move leg up" ${index === 0 ? "disabled" : ""}>↑</button><button type="button" data-move-leg="${index}" data-direction="1" aria-label="Move leg down" ${index === draft.legs.length - 1 ? "disabled" : ""}>↓</button><button class="remove-leg" type="button" data-remove-leg="${index}" aria-label="Remove leg">×</button></div>
-            ${showPicker ? `<label class="leg-picker">Choose a sample selection${leg.event ? ` · ${esc(leg.event)}` : ""}<select class="select" data-leg-picker="${index}"><option value="">${options.length ? "Select event / market / option" : "Select an event first"}</option>${options.map((option, optionIndex) => `<option value="${optionIndex}">${esc(option.event)} · ${esc(option.market)} · ${esc(option.selection)} (${esc(option.oldOdds)})</option>`).join("")}</select></label>` : ""}
-          </div>`).join("")}</div>`;
-      }
-      function renderForm() {
-        const form = document.getElementById("editorForm");
-        const superMode = draft.type === "super";
-        const isSingle = superMode && draft.mode === "single";
-        let typeSpecific = "";
-        if (draft.type === "parlay") {
-          typeSpecific = `<div class="form-section">
-            <div class="section-label"><span class="section-number">2</span>Recommendation card</div>
-            <div class="form-grid">
-              <div class="field"><label class="required" for="groupTitle">Group title</label><input class="input" id="groupTitle" data-field="groupTitle" list="parlayGroupOptions" placeholder="Choose or enter a group" value="${esc(draft.groupTitle)}"/><datalist id="parlayGroupOptions">${[...new Set([...parlayGroupSuggestions, ...items.filter((item) => item.type === "parlay").map((item) => item.groupTitle).filter(Boolean)])].map((group) => `<option value="${esc(group)}"></option>`).join("")}</datalist><small>Cards with the same group title appear together on the homepage.</small></div>
-              <div class="field"><label class="required" for="cardTitle">Card title</label><input class="input" id="cardTitle" data-field="cardTitle" placeholder="e.g. UCL Favourites" value="${esc(draft.cardTitle)}"/></div>
-              <div class="field"><label for="subtitle">Subtitle / explanation</label><input class="input" id="subtitle" data-field="subtitle" placeholder="e.g. Full Time Result" value="${esc(draft.subtitle)}"/></div>
-              <div class="field"><label class="required" for="boost">Boost percentage</label><div class="boost-input"><input class="input" id="boost" data-field="boost" inputmode="decimal" placeholder="25" value="${esc(draft.boost)}"/><span>%</span></div></div>
-              ${draft.legs.length === 6 || draft.legs.length === 10 ? `<div class="field full"><button class="button small" id="applyParlayPreset" type="button">Apply sample ${draft.legs.length}-leg boost (${draft.legs.length === 6 ? "10" : "20"}%)</button><small>You can still set a custom percentage.</small></div>` : ""}
-              <div class="field"><label class="required" for="oldOdds">Combined original odds</label><input class="input" id="oldOdds" data-field="oldOdds" inputmode="decimal" placeholder="4.20" value="${esc(draft.oldOdds)}"/></div>
-              <div class="field"><label class="required" for="newOdds">Boosted combined odds</label><input class="input" id="newOdds" data-field="newOdds" inputmode="decimal" value="${esc(draft.newOdds)}" readonly/><small>Calculated on net winnings: 1 + (original odds − 1) × (1 + boost %).</small></div>
-            </div>
-            <div style="margin-top:14px"><div class="legs-header"><strong>Parlay legs <span class="hint">All legs should match the card theme</span></strong><button class="button small add-leg" type="button">＋ Add leg</button></div>${renderLegRows()}</div>
-          </div>`;
-        } else if (superMode) {
-          typeSpecific = `<div class="form-section">
-            <div class="section-label"><span class="section-number">2</span>Superodds configuration</div>
-            <div class="form-grid">
-              <div class="field"><label class="required" for="mode">Configuration mode</label><select class="select" id="mode" data-field="mode"><option value="full" ${draft.mode === "full" ? "selected" : ""}>Full market</option><option value="single" ${draft.mode === "single" ? "selected" : ""}>Single selection</option></select><small>Homepage supports full 1X2 / 12 markets only. Single selections are event-detail only.</small></div>
-              <div class="field"><label class="required" for="marketType">Market type</label><select class="select" id="marketType" data-field="marketType"><option ${draft.marketType === "1X2" ? "selected" : ""}>1X2</option><option ${draft.marketType === "12" ? "selected" : ""}>12</option>${isSingle ? `<option ${draft.marketType === "Other" ? "selected" : ""}>Other</option>` : ""}</select><small>Full market options and original odds use sample data.</small></div>
-              <div class="field"><label class="required" for="groupTitle">Group / competition title</label><input class="input" id="groupTitle" data-field="groupTitle" placeholder="e.g. Premier League" value="${esc(draft.groupTitle)}"/></div>
-              <div class="field"><label class="required" for="boost">Boost percentage</label><div class="boost-input"><input class="input" id="boost" data-field="boost" inputmode="decimal" placeholder="15" value="${esc(draft.boost)}"/><span>%</span></div></div>
-            </div>
-            <div style="margin-top:14px"><div class="legs-header"><strong>${isSingle ? "Boosted selection" : "Market options"} <span class="hint">${isSingle ? "Add one or more selections" : "Every option in a full market must have a valid boosted price"}</span></strong><button class="button small add-leg" type="button">＋ Add option</button></div>${renderLegRows()}</div>
-          </div>`;
-        } else {
-          typeSpecific = `<div class="form-section">
-            <div class="section-label"><span class="section-number">2</span>SGP recommendation</div>
-            <div class="form-grid">
-              <div class="field"><label class="required" for="groupTitle">Group title</label><input class="input" id="groupTitle" data-field="groupTitle" placeholder="e.g. La Liga" value="${esc(draft.groupTitle)}"/></div>
-              <div class="field"><label class="required" for="cardTitle">Card title</label><input class="input" id="cardTitle" data-field="cardTitle" placeholder="e.g. Madrid Derby Special" value="${esc(draft.cardTitle)}"/></div>
-              <div class="field"><label for="subtitle">Subtitle</label><input class="input" id="subtitle" data-field="subtitle" placeholder="Same Game Parlay" value="${esc(draft.subtitle)}"/></div>
-              <div class="field"><label class="required" for="boost">SGP boost percentage</label><div class="boost-input"><input class="input" id="boost" data-field="boost" inputmode="decimal" placeholder="20" value="${esc(draft.boost)}"/><span>%</span></div></div>
-              <div class="field"><label class="required" for="oldOdds">Combined original odds</label><input class="input" id="oldOdds" data-field="oldOdds" inputmode="decimal" placeholder="6.50" value="${esc(draft.oldOdds)}"/></div>
-              <div class="field"><label class="required" for="newOdds">Boosted odds</label><input class="input" id="newOdds" data-field="newOdds" inputmode="decimal" placeholder="7.80" value="${esc(draft.newOdds)}"/><button class="button small" id="calculateSgpOdds" type="button">Calculate from boost</button></div>
-            </div>
-            <div style="margin-top:14px"><div class="legs-header"><strong>SGP legs <span class="hint">All legs must belong to this event</span></strong><button class="button small add-leg" type="button">＋ Add leg</button></div>${renderLegRows()}</div>
-          </div>`;
-        }
-        const typeSectionNumber = 2;
-        form.innerHTML = `<h3 class="panel-title">Configuration <span class="hint">Fields marked * are required</span></h3>
-          <div class="form-section">
-            <div class="section-label"><span class="section-number">1</span>Basic information</div>
-            <div class="form-grid">
-              <div class="field"><label class="required" for="name">Internal name</label><input class="input" id="name" data-field="name" placeholder="Enter a name for internal reference" value="${esc(draft.name)}"/></div>
-              <div class="field"><label class="required" for="recommendationType">Recommendation type</label><select class="select" id="recommendationType" data-field="type"><option value="parlay" ${draft.type === "parlay" ? "selected" : ""}>Selected Parlay Boost</option><option value="super" ${draft.type === "super" ? "selected" : ""}>Superodds</option><option value="sgp" ${draft.type === "sgp" ? "selected" : ""}>SGP Boost</option></select></div>
-              <div class="field"><label class="required" for="event">Event</label><input class="input" id="eventSearch" placeholder="Search sample events" aria-label="Search sample events"/><select class="select" id="event" data-field="event"><option value="">Select an event</option>${Object.keys(demoMarkets).map((event) => `<option ${draft.event === event ? "selected" : ""}>${esc(event)}</option>`).join("")}</select></div>
-              ${superMode ? "" : `<div class="field full"><label>Display placements</label><div class="placement-options">${renderPlacementOptions()}</div></div>`}
-            </div>
-          </div>
-          ${typeSpecific}
-          <div class="form-section">
-            <div class="section-label"><span class="section-number">3</span>Display schedule &amp; status</div>
-            <div class="form-grid">
-              ${superMode ? `<div class="field full"><label>Display placements</label><div class="placement-options">${renderPlacementOptions()}</div></div>` : ""}
-              <div class="field"><label class="required" for="start">Start time</label><input class="input" id="start" data-field="start" type="datetime-local" value="${esc(draft.start)}"/></div>
-              <div class="field"><label class="required" for="end">End time</label><input class="input" id="end" data-field="end" type="datetime-local" value="${esc(draft.end)}"/></div>
-              <div class="field"><label for="sort">Display order</label><input class="input" id="sort" data-field="sort" type="number" min="1" value="${esc(draft.sort)}"/></div>
-              <div class="field"><label>Display status</label><div class="switch-row"><div class="switch-copy"><strong>${draft.enabled ? "Enabled" : "Paused"}</strong><small>Only enabled items within their schedule can be displayed.</small></div><label class="toggle"><input data-field="enabled" type="checkbox" ${draft.enabled ? "checked" : ""}/><span></span></label></div></div>
-              <div class="field full"><label for="note">Internal note</label><textarea class="textarea" id="note" data-field="note" placeholder="Internal notes for your team">${esc(draft.note)}</textarea></div>
-            </div>
-          </div>`;
-        form.querySelectorAll("[data-field]").forEach((control) => {
-          control.addEventListener("input", updateDraftField);
-          control.addEventListener("change", updateDraftField);
-        });
-        form.querySelectorAll("[data-placement]").forEach((control) => {
-          control.addEventListener("change", (event) => {
-            const value = event.currentTarget.dataset.placement;
-            draft.placements = event.currentTarget.checked
-              ? [...new Set([...draft.placements, value])]
-              : draft.placements.filter((placement) => placement !== value);
-            renderLivePreview();
-          });
-        });
-        form.querySelector("#eventSearch").addEventListener("input", (event) => {
-          const query = event.currentTarget.value.trim().toLowerCase();
-          form.querySelectorAll("#event option").forEach((option) => {
-            option.hidden = Boolean(option.value) && !option.textContent.toLowerCase().includes(query);
-          });
-        });
-        form.querySelector(".add-leg").addEventListener("click", () => {
-          draft.legs.push({ selection: "", market: "", oldOdds: "", newOdds: "" });
-          renderForm();
-          renderLivePreview();
-        });
-        form.querySelectorAll("[data-remove-leg]").forEach((button) => {
-          button.addEventListener("click", () => {
-            if (draft.legs.length === 1) {
-              draft.legs[0] = { selection: "", market: "", oldOdds: "", newOdds: "" };
-            } else {
-              draft.legs.splice(Number(button.dataset.removeLeg), 1);
-            }
-            renderForm();
-            renderLivePreview();
-          });
-        });
-        form.querySelectorAll("[data-move-leg]").forEach((button) => {
-          button.addEventListener("click", () => {
-            const index = Number(button.dataset.moveLeg);
-            const next = index + Number(button.dataset.direction);
-            if (next < 0 || next >= draft.legs.length) return;
-            [draft.legs[index], draft.legs[next]] = [draft.legs[next], draft.legs[index]];
-            renderForm();
-            renderLivePreview();
-          });
-        });
-        form.querySelectorAll("[data-leg-picker]").forEach((select) => {
-          select.addEventListener("change", () => {
-            if (select.value === "") return;
-            const events = draft.type === "parlay" ? Object.keys(demoMarkets) : [draft.event];
-            const option = events.flatMap((event) => demoSelections(event))[Number(select.value)];
-            draft.legs[Number(select.dataset.legPicker)] = { ...option, newOdds: draft.type === "super" ? "" : option.oldOdds };
-            renderForm();
-            renderLivePreview();
-          });
-        });
-        const calculateSgpOdds = form.querySelector("#calculateSgpOdds");
-        if (calculateSgpOdds) calculateSgpOdds.addEventListener("click", () => {
-          const value = boostedCombinedOdds(draft.oldOdds, draft.boost);
-          if (!value) {
-            notify("Enter valid combined original odds and boost percentage first.");
-            return;
-          }
-          draft.newOdds = value;
-          form.querySelector("#newOdds").value = value;
-          renderLivePreview();
-        });
-        const applyParlayPreset = form.querySelector("#applyParlayPreset");
-        if (applyParlayPreset) applyParlayPreset.addEventListener("click", () => {
-          draft.boost = draft.legs.length === 6 ? "10" : "20";
-          draft.newOdds = boostedCombinedOdds(draft.oldOdds, draft.boost);
-          form.querySelector("#boost").value = draft.boost;
-          form.querySelector("#newOdds").value = draft.newOdds;
-          renderLivePreview();
-        });
-        form.querySelectorAll("[data-leg-field]").forEach((control) => {
-          control.addEventListener("input", (event) => {
-            const row = event.currentTarget.closest("[data-leg-index]");
-            draft.legs[Number(row.dataset.legIndex)][event.currentTarget.dataset.legField] = event.currentTarget.value;
-            renderLivePreview();
-          });
-        });
-      }
-      function boostedCombinedOdds(odds, boost) {
-        const price = Number(odds);
-        const percentage = Number(boost);
-        return Number.isFinite(price) && price > 1 && Number.isFinite(percentage) && percentage > 0
-          ? (1 + (price - 1) * (1 + percentage / 100)).toFixed(2) : "";
-      }
-      function populateDemoMarket() {
-        const market = demoMarkets[draft.event];
-        if (!market || draft.type !== "super" || draft.mode !== "full") return;
-        const [home, away, homeOdds, drawOdds, awayOdds] = market;
-        draft.legs = defaultLegs(draft.marketType === "1X2"
-          ? [[home, "Home", homeOdds, ""], ["Draw", "Draw", drawOdds, ""], [away, "Away", awayOdds, ""]]
-          : [[home, "Home", homeOdds, ""], [away, "Away", awayOdds, ""]]);
-      }
-      function updateDraftField(event) {
-        const target = event.currentTarget;
-        const field = target.dataset.field;
-        const previous = draft[field];
-        draft[field] = target.type === "checkbox" ? target.checked : target.value;
-        if (field === "type") {
-          if (draft.type === "super" && draft.mode === "single") draft.placements = ["event"];
-          if (draft.type === "super" && draft.mode === "full" && draft.marketType === "Other") draft.marketType = "1X2";
-          if (draft.type === "super" && draft.mode === "full" && previous !== draft.type) populateDemoMarket();
-          document.getElementById("editorTypeBadge").textContent = typeNames[draft.type];
-          document.getElementById("editorTypeBadge").className = `type-badge ${draft.type === "sgp" ? "sgp" : draft.type === "super" ? "super" : ""}`;
-          renderForm();
-          renderLivePreview();
-          return;
-        }
-        if (field === "mode") {
-          if (draft.mode === "single") draft.placements = ["event"];
-          else {
-            if (previous !== draft.mode) draft.placements = ["home", "event"];
-            if (draft.marketType === "Other") draft.marketType = "1X2";
-            if (previous !== draft.mode) populateDemoMarket();
-          }
-          renderForm();
-          renderLivePreview();
-          return;
-        }
-        if (field === "event" && draft.type === "sgp" && (!draft.cardTitle || draft.cardTitle === previous)) {
-          draft.cardTitle = draft.event;
-        }
-        if (field === "event" && (draft.type === "sgp" || (draft.type === "super" && draft.mode === "single"))) {
-          renderForm();
-          renderLivePreview();
-          return;
-        }
-        if ((field === "event" || field === "marketType") && previous !== draft[field] && draft.type === "super" && draft.mode === "full") {
-          populateDemoMarket();
-          renderForm();
-          renderLivePreview();
-          return;
-        }
-        if (field === "sort") draft.sort = Math.max(1, Number(target.value) || 1);
-        if ((field === "boost" || field === "oldOdds") && draft.type === "parlay") {
-          draft.newOdds = boostedCombinedOdds(draft.oldOdds, draft.boost);
-          document.getElementById("newOdds").value = draft.newOdds;
-        }
-        renderLivePreview();
-        if (field === "enabled") {
-          const label = target.closest(".switch-row").querySelector("strong");
-          label.textContent = draft.enabled ? "Enabled" : "Paused";
-        }
       }
       function previewCardMarkup(item, location, selectedLeg = null) {
         const isSingle = item.type === "super" && item.mode === "single";
@@ -1297,7 +1041,7 @@
         const shownLegs = item.type === "parlay" && isHome ? legs.slice(0, 3) : legs;
         const displayBoost = `${esc(item.boost || "0")}%`;
         const isSgp = item.type === "sgp";
-        const legMarkup = shownLegs.map((leg, index) => `<div class="pick-leg"><span>${esc(leg.selection || "Selection")} <span style="color:#9aa5b1">· ${esc(leg.market || "Market")}</span></span>${item.type === "super" ? `<button class="preview-odds" type="button" data-preview-target="betslip" data-preview-leg="${index}" aria-label="Preview selection in bet slip"><del>${esc(leg.oldOdds || "—")}</del> → ${esc(leg.newOdds || "—")}</button>` : `<strong>${esc(leg.newOdds || "—")}</strong>`}</div>`).join("");
+        const legMarkup = shownLegs.map((leg, index) => `<div class="pick-leg"><span>${esc(leg.selection || "Selection")} <span style="color:#9aa5b1">· ${esc(leg.market || "Market")}${leg.event ? ` · ${esc(leg.event)}` : ""}</span></span>${item.type === "super" ? `<button class="preview-odds" type="button" data-preview-target="betslip" data-preview-leg="${index}" aria-label="Preview selection in bet slip"><del>${esc(leg.oldOdds || "—")}</del> → ${esc(leg.newOdds || "—")}</button>` : `<strong>${esc(leg.newOdds || "—")}</strong>`}</div>`).join("");
         const betslipSelection = selectedLeg !== null && legs[selectedLeg] ? legs[selectedLeg] : null;
         return `<div class="sport-screen">
           <div class="sport-header"><span class="sport-logo">MEGWIN <span style="color:#2d7fd8">SPORTS</span></span><span class="sport-wallet">Balance　$1,250</span></div>
@@ -1324,13 +1068,7 @@
       function renderDevice(item, location, selectedLeg = null) {
         return `<div class="device-frame"><div class="device-top"><span>9:41</span><span>●●●　Wi-Fi　100%</span></div>${previewCardMarkup(item, location, selectedLeg)}</div>`;
       }
-      let previewLeg = null;
       let modalPreviewLeg = null;
-      function renderLivePreview() {
-        if (!draft) return;
-        document.querySelectorAll("#previewSwitcher button").forEach((button) => button.classList.toggle("active", button.dataset.preview === previewLocation));
-        document.getElementById("livePreview").innerHTML = renderDevice(draft, previewLocation, previewLeg);
-      }
       function showPreview(item) {
         modalItem = clone(item);
         modalPreviewLeg = null;
@@ -1340,54 +1078,6 @@
       function renderModalPreview(location) {
         document.querySelectorAll("#modalPreviewSwitcher button").forEach((button) => button.classList.toggle("active", button.dataset.preview === location));
         document.getElementById("modalPreviewContent").innerHTML = renderDevice(modalItem, location, modalPreviewLeg);
-      }
-      function validateDraft() {
-        const errors = [];
-        if (!draft.name.trim()) errors.push("Enter an internal name.");
-        if (!draft.event) errors.push("Select an event.");
-        if (!draft.groupTitle.trim()) errors.push("Enter a group / competition title.");
-        if (draft.type !== "super" && !draft.cardTitle.trim()) errors.push("Enter a recommendation card title.");
-        if (!draft.placements.length) errors.push("Select at least one display placement.");
-        if (!draft.start || !draft.end) errors.push("Set both start and end time.");
-        else if (new Date(draft.end) <= new Date(draft.start)) errors.push("End time must be later than start time.");
-        if (draft.type === "super" && draft.mode === "single" && (draft.placements.length !== 1 || draft.placements[0] !== "event")) errors.push("Single-selection Superodds can only be placed on Event details.");
-        if (draft.type === "super" && draft.mode === "full" && !["1X2", "12"].includes(draft.marketType)) errors.push("Full-market Superodds only supports 1X2 or 12.");
-        const validOdds = (value) => String(value).trim() !== "" && Number.isFinite(Number(value)) && Number(value) > 1;
-        if (!draft.legs.length || draft.legs.some((leg) => !leg.selection.trim() || !leg.market.trim() || !validOdds(leg.oldOdds) || !validOdds(leg.newOdds))) {
-          errors.push("Complete every selection and enter valid original and boosted odds.");
-        }
-        if (draft.type === "super" && draft.mode === "full") {
-          const expected = draft.marketType === "1X2" ? 3 : 2;
-          if (draft.legs.length !== expected) errors.push(`A complete ${draft.marketType} market requires ${expected} options.`);
-          const roles = draft.marketType === "1X2" ? ["home", "draw", "away"] : ["home", "away"];
-          if (roles.some((role) => draft.legs.filter((leg) => leg.market.trim().toLowerCase() === role).length !== 1)) errors.push(`A complete ${draft.marketType} market must include ${roles.join(", ")} exactly once.`);
-          if (new Set(draft.legs.map((leg) => leg.selection.trim().toLowerCase())).size !== draft.legs.length) errors.push("Each market option must be different.");
-        }
-        if (draft.type === "super" && draft.legs.some((leg) => validOdds(leg.oldOdds) && validOdds(leg.newOdds) && Number(leg.newOdds) <= Number(leg.oldOdds))) errors.push("Each Superodds boosted price must be greater than its original price.");
-        if ((draft.type === "sgp" || (draft.type === "super" && draft.mode === "single")) && draft.legs.some((leg) => leg.event && leg.event !== draft.event)) errors.push("All selected options must belong to the selected event.");
-        if (draft.type !== "super" && (!validOdds(draft.oldOdds) || !validOdds(draft.newOdds) || Number(draft.newOdds) <= Number(draft.oldOdds))) errors.push("Enter valid combined original and boosted odds; boosted odds must be greater.");
-        if (!Number.isFinite(Number(draft.boost)) || Number(draft.boost) <= 0) errors.push("Enter a boost percentage greater than 0.");
-        return errors;
-      }
-      function saveDraft(enabled) {
-        if (draft.type === "parlay") draft.newOdds = boostedCombinedOdds(draft.oldOdds, draft.boost);
-        const errors = validateDraft();
-        const errorBox = document.getElementById("formError");
-        if (errors.length) {
-          errorBox.innerHTML = `<strong>Please check the following:</strong><br>${errors.map((error) => `• ${esc(error)}`).join("<br>")}`;
-          errorBox.classList.add("show");
-          window.scrollTo({ top: 0, behavior: "smooth" });
-          return;
-        }
-        draft.enabled = enabled;
-        const saved = clone(draft);
-        const sorted = items.filter((item) => item.id !== editingId).sort((a, b) => a.sort - b.sort);
-        sorted.splice(Math.min(Math.max(0, Number(saved.sort) - 1), sorted.length), 0, saved);
-        items = sorted;
-        items.forEach((item, index) => { item.sort = index + 1; });
-        saveState();
-        closeEditor();
-        notify(enabled ? "Best Pick saved and enabled." : "Draft saved.");
       }
       function moveItem(id, direction) {
         const sorted = [...items].sort((a, b) => a.sort - b.sort);
@@ -1422,18 +1112,7 @@
         if (!row) return;
         const item = items.find((entry) => entry.id === row.dataset.id);
         if (!item) return;
-        if (button.classList.contains("edit-row")) openEditor(item);
-        if (button.classList.contains("duplicate-row")) {
-          const duplicate = clone(item);
-          duplicate.id = `bp-${Date.now()}`;
-          duplicate.sort = items.length + 1;
-          duplicate.name = `${duplicate.name} (Copy)`;
-          duplicate.enabled = false;
-          items.push(duplicate);
-          saveState();
-          renderList();
-          notify("Best Pick duplicated as a paused draft.");
-        }
+        if (button.classList.contains("edit-parlay")) openParlayEditor(item);
         if (button.classList.contains("preview-row")) showPreview(item);
         if (button.classList.contains("pause-row")) {
           item.enabled = !item.enabled;
@@ -1645,7 +1324,12 @@
       let draggedRow = null;
       let candidatePath = [];
       let candidateSelection = [];
-      const candidateLabels = { source: "Data Source", sport: "Sport", country: "Country / Region", league: "League", event: "Event", market: "Market", outcome: "Outcome" };
+      let candidateMode = "legacy";
+      let parlayLegs = [];
+      let editingParlayId = null;
+      const candidateLabels = { source: "Data Source", sport: "Sport", country: "Country / Region", league: "League", event: "Event", market: "Market", outcome: "Outcome", type: "Offer type", groupTitle: "Group", name: "Boost offer" };
+      const boostCandidateLevels = ["type", "groupTitle", "event", "name"];
+      const parlayCandidateLevels = ["source", "sport", "country", "league", "event", "market", "outcome"];
       const candidateLevels = {
         hot: ["source", "sport", "country", "league", "event", "market"],
         outright: ["source", "sport", "country", "league", "outcome"],
@@ -1710,29 +1394,128 @@
         renderLegacy();
       }
       function renderCandidate() {
-        const levels = candidateLevels[legacyCategory];
+        const isBoost = candidateMode === "boost";
+        const isParlay = candidateMode === "parlay";
+        const levels = isBoost ? boostCandidateLevels : isParlay ? parlayCandidateLevels : candidateLevels[legacyCategory];
         const level = levels[candidatePath.length];
-        const matching = candidatePool.filter((row) => row.category === legacyCategory && candidatePath.every((value, i) => row[levels[i]] === value));
+        const pool = isBoost ? boostCandidatePool : isParlay ? prematchPool : candidatePool;
+        const matching = pool.filter((row) => (isBoost ? activeType === "all" || row.type === activeType : isParlay ? new Date(row.kickoff).getTime() > Date.now() : row.category === legacyCategory) && candidatePath.every((value, i) => row[levels[i]] === value));
         const query = document.getElementById("candidateSearch").value.trim().toLowerCase();
-        const values = [...new Set(matching.map((row) => row[level]))].filter((value) => value.toLowerCase().includes(query));
+        const label = (value) => level === "type" ? typeNames[value] : value;
+        const values = [...new Set(matching.map((row) => row[level]))].filter((value) => label(value).toLowerCase().includes(query));
         document.getElementById("candidateLevel").textContent = `L${candidatePath.length} ${candidateLabels[level]}`;
         document.getElementById("candidateSearch").disabled = candidatePath.length === 0;
-        document.getElementById("candidatePath").innerHTML = candidatePath.map((value, i) => `<button type="button" data-path-index="${i}">${esc(candidateLabels[levels[i]])}<br><strong>${esc(value)}</strong> ✎</button>`).join("") + `<div>● ${esc(candidateLabels[level])}</div>`;
+        document.getElementById("candidatePath").innerHTML = candidatePath.map((value, i) => `<button type="button" data-path-index="${i}">${esc(candidateLabels[levels[i]])}<br><strong>${esc(levels[i] === "type" ? typeNames[value] : value)}</strong> ✎</button>`).join("") + `<div>● ${esc(candidateLabels[level])}</div>`;
         document.getElementById("candidateOptions").innerHTML = `<h4>${esc(candidateLabels[level])} <span class="legacy-updated">${values.length}</span></h4>` + (values.length ? values.map((value) => {
           const row = matching.find((item) => item[level] === value);
           const finalLevel = candidatePath.length === levels.length - 1;
-          const added = finalLevel && legacyDraft.lists[legacyCategory].some((item) => item.id === row.id);
+          const added = finalLevel && !isParlay && (isBoost ? items : legacyDraft.lists[legacyCategory]).some((item) => item.id === row.id);
           const selected = finalLevel && candidateSelection.some((item) => item.id === row.id);
-          return `<button type="button" class="candidate-choice ${selected ? "selected" : ""}" data-candidate-value="${esc(value)}" ${added ? "disabled" : ""}>${esc(value)} ${added ? " · Already added" : selected ? " ✓" : finalLevel ? " +" : " ›"}</button>`;
+          const detail = isBoost && finalLevel ? `<span class="event-meta">${esc(row.legs.map((leg) => `${leg.selection} · ${leg.market}`).join(" / "))} · ${esc(row.boost)}% boost · ${esc(formatDate(row.start))} to ${esc(formatDate(row.end))}</span>`
+            : isParlay && finalLevel ? `<span class="event-meta">${esc(row.event)} · ${esc(row.oldOdds)} · ${esc(formatDate(row.kickoff))}</span>` : "";
+          return `<button type="button" class="candidate-choice ${selected ? "selected" : ""}" data-candidate-value="${esc(value)}" ${added ? "disabled" : ""}>${esc(label(value))} ${added ? " · Already added" : selected ? " ✓" : finalLevel ? " +" : " ›"}${detail}</button>`;
         }).join("") : '<p class="empty-row">No available data</p>');
         document.getElementById("candidateSelected").innerHTML = `<strong>Selected (${candidateSelection.length})</strong><br>` + (candidateSelection.length
-          ? candidateSelection.map((row) => `<button type="button" data-remove-candidate="${esc(row.id)}">${esc(row.outcome || row.event || row.league)} ×</button>`).join("")
+          ? candidateSelection.map((row) => `<button type="button" data-remove-candidate="${esc(row.id)}">${esc(isBoost ? row.name : isParlay ? `${row.event} · ${row.outcome}` : row.outcome || row.event || row.league)} ×</button>`).join("")
           : "No selections yet");
-        document.getElementById("candidateConfirm").disabled = candidateSelection.length === 0;
+        document.getElementById("candidateConfirm").disabled = !isParlay && candidateSelection.length === 0;
       }
       function closeCandidate() {
         document.getElementById("candidateModal").classList.remove("open");
       }
+      function parlayPrices() {
+        if (!parlayLegs.length) return null;
+        const rawOdds = parlayLegs.reduce((total, leg) => total * Number(leg.oldOdds), 1);
+        const boostInput = document.getElementById("parlayBoost").value.trim();
+        const boost = Number(boostInput);
+        const original = Number(rawOdds.toFixed(2));
+        const boosted = 1 + (original - 1) * (1 + boost / 100);
+        if (!Number.isFinite(original) || original <= 1 || !boostInput || !Number.isFinite(boost) || boost <= 0 || !Number.isFinite(boosted)) return null;
+        return { original: original.toFixed(2), boosted: boosted.toFixed(2) };
+      }
+      function renderParlayEditor() {
+        const legs = document.getElementById("parlayLegs");
+        legs.innerHTML = parlayLegs.length ? parlayLegs.map((leg) => `<div class="parlay-selection"><div><strong>${esc(leg.outcome)}</strong><small>${esc(leg.event)} · ${esc(leg.market)} · ${esc(leg.oldOdds)} · ${esc(formatDate(leg.kickoff))}</small></div><button class="icon-button delete" type="button" data-remove-parlay-leg="${esc(leg.id)}" aria-label="Remove ${esc(leg.outcome)}">×</button></div>`).join("") : '<p class="result-label">Select outcomes from at least two prematch events.</p>';
+        const prices = parlayPrices();
+        document.getElementById("parlayOdds").textContent = prices ? `Combined odds: ${prices.original} → ${prices.boosted}` : "Combined odds: —";
+      }
+      function openParlayEditor(item = null) {
+        editingParlayId = item ? item.id : null;
+        parlayLegs = item ? item.legs.map((leg) => prematchPool.find((candidate) => candidate.id === leg.candidateId)).filter(Boolean) : [];
+        if (item && parlayLegs.length !== item.legs.length) {
+          notify("This recommendation contains selections no longer available in the candidate pool.");
+          return;
+        }
+        document.getElementById("parlayTitle").textContent = item ? "Edit Parlay Recommendation" : "Create Parlay Recommendation";
+        document.getElementById("parlayGroup").value = item?.groupTitle || "";
+        document.getElementById("parlayName").value = item?.cardTitle || "";
+        document.getElementById("parlaySubtitle").value = item?.subtitle || "";
+        document.getElementById("parlayBoost").value = item?.boost || "";
+        document.getElementById("parlayError").classList.remove("show");
+        renderParlayEditor();
+        document.getElementById("parlayModal").classList.add("open");
+      }
+      function saveParlay() {
+        const group = document.getElementById("parlayGroup").value.trim();
+        const name = document.getElementById("parlayName").value.trim();
+        const subtitle = document.getElementById("parlaySubtitle").value.trim();
+        const boost = document.getElementById("parlayBoost").value.trim();
+        const prices = parlayPrices();
+        const errors = [];
+        if (!group || !name) errors.push("Enter a group and recommendation title.");
+        if (new Set(parlayLegs.map((leg) => leg.eventId)).size < 2) errors.push("Select outcomes from at least two different events.");
+        if (parlayLegs.some((leg) => new Date(leg.kickoff).getTime() <= Date.now())) errors.push("Remove events that have already started.");
+        if (!prices) errors.push("Enter a valid boost percentage and select valid odds.");
+        if (errors.length) {
+          const error = document.getElementById("parlayError");
+          error.textContent = errors.join(" ");
+          error.classList.add("show");
+          return;
+        }
+        const previous = items.find((item) => item.id === editingParlayId);
+        if (editingParlayId && !previous) {
+          notify("The recommendation no longer exists.");
+          return;
+        }
+        let id = editingParlayId || `parlay-${Date.now()}`;
+        while (!editingParlayId && items.some((item) => item.id === id)) id += "-1";
+        const item = {
+          ...(previous || {}), id, sort: previous?.sort || items.length + 1, type: "parlay", parlayBuilder: true,
+          name, cardTitle: name, groupTitle: group, subtitle, boost, oldOdds: prices.original, newOdds: prices.boosted,
+          event: `${new Set(parlayLegs.map((leg) => leg.eventId)).size} prematch events`,
+          legs: parlayLegs.map((leg) => ({ candidateId: leg.id, event: leg.event, eventId: leg.eventId, kickoff: leg.kickoff, selection: leg.outcome, market: leg.market, oldOdds: leg.oldOdds, newOdds: leg.oldOdds })),
+          placements: ["home", "betslip"], start: previous?.start || "", end: parlayLegs.map((leg) => leg.kickoff).sort()[0],
+          enabled: previous ? previous.enabled : true,
+        };
+        if (previous) items[items.indexOf(previous)] = item;
+        else items.push(item);
+        saveState();
+        document.getElementById("parlayModal").classList.remove("open");
+        renderList();
+        notify("Parlay recommendation saved and published.");
+      }
+      document.getElementById("createParlayBtn").addEventListener("click", () => openParlayEditor());
+      document.getElementById("parlayClose").addEventListener("click", () => document.getElementById("parlayModal").classList.remove("open"));
+      document.getElementById("parlayCancel").addEventListener("click", () => document.getElementById("parlayModal").classList.remove("open"));
+      document.getElementById("parlaySave").addEventListener("click", saveParlay);
+      document.getElementById("parlayBoost").addEventListener("input", renderParlayEditor);
+      document.getElementById("parlayLegs").addEventListener("click", (event) => {
+        const button = event.target.closest("[data-remove-parlay-leg]");
+        if (!button) return;
+        parlayLegs = parlayLegs.filter((leg) => leg.id !== button.dataset.removeParlayLeg);
+        renderParlayEditor();
+      });
+      document.getElementById("chooseParlayLegs").addEventListener("click", () => {
+        candidateMode = "parlay";
+        candidatePath = [];
+        candidateSelection = [...parlayLegs];
+        document.getElementById("candidateTitle").textContent = "Select Prematch Events and Outcomes";
+        document.getElementById("candidateSearch").placeholder = "Search events, markets or selections";
+        document.getElementById("candidateSearch").value = "";
+        document.getElementById("candidateConfirm").textContent = "Confirm Selections";
+        document.getElementById("candidateModal").classList.add("open");
+        renderCandidate();
+      });
       renderSubmodules();
       renderLegacy();
       document.getElementById("bestPicksModule").addEventListener("click", (event) => {
@@ -1834,6 +1617,10 @@
         renderLegacy();
       });
       document.getElementById("openCandidate").addEventListener("click", () => {
+        candidateMode = "legacy";
+        document.getElementById("candidateTitle").textContent = "Select Sports Events";
+        document.getElementById("candidateSearch").placeholder = "Search events, markets or selections";
+        document.getElementById("candidateConfirm").textContent = "Confirm";
         candidatePath = [];
         candidateSelection = [];
         document.getElementById("candidateSearch").value = "";
@@ -1843,12 +1630,16 @@
       document.getElementById("candidateOptions").addEventListener("click", (event) => {
         const button = event.target.closest("[data-candidate-value]");
         if (!button) return;
-        const levels = candidateLevels[legacyCategory];
+        const isBoost = candidateMode === "boost";
+        const isParlay = candidateMode === "parlay";
+        const levels = isBoost ? boostCandidateLevels : isParlay ? parlayCandidateLevels : candidateLevels[legacyCategory];
         const value = button.dataset.candidateValue;
         if (candidatePath.length < levels.length - 1) {
           candidatePath.push(value);
         } else {
-          const row = candidatePool.find((item) => item.category === legacyCategory && candidatePath.every((part, i) => item[levels[i]] === part) && item[levels[candidatePath.length]] === value);
+          const pool = isBoost ? boostCandidatePool : isParlay ? prematchPool : candidatePool;
+          const row = pool.find((item) => (isBoost ? activeType === "all" || item.type === activeType : isParlay ? new Date(item.kickoff).getTime() > Date.now() : item.category === legacyCategory) && candidatePath.every((part, i) => item[levels[i]] === part) && item[levels[candidatePath.length]] === value);
+          if (!row) return;
           const index = candidateSelection.findIndex((item) => item.id === row.id);
           if (index >= 0) candidateSelection.splice(index, 1);
           else candidateSelection.push(row);
@@ -1871,6 +1662,24 @@
       });
       document.getElementById("candidateSearch").addEventListener("input", renderCandidate);
       document.getElementById("candidateConfirm").addEventListener("click", () => {
+        if (candidateMode === "parlay") {
+          parlayLegs = [...candidateSelection];
+          closeCandidate();
+          renderParlayEditor();
+          return;
+        }
+        if (candidateMode === "boost") {
+          candidateSelection.forEach((offer) => {
+            if (!items.some((item) => item.id === offer.id)) {
+              items.push({ ...clone(offer), sort: items.length + 1, enabled: true });
+            }
+          });
+          saveState();
+          closeCandidate();
+          renderList();
+          notify("Offers added and published.");
+          return;
+        }
         legacyDraft.lists[legacyCategory].push(...candidateSelection);
         closeCandidate();
         renderLegacy();
@@ -1904,24 +1713,16 @@
         renderSubmodules();
         renderList();
       });
-      document.getElementById("createBtn").addEventListener("click", () => openEditor());
-      document.getElementById("backToList").addEventListener("click", closeEditor);
-      document.getElementById("cancelEdit").addEventListener("click", closeEditor);
-      document.getElementById("saveDraft").addEventListener("click", () => saveDraft(false));
-      document.getElementById("saveEnable").addEventListener("click", () => saveDraft(true));
-      document.getElementById("previewSwitcher").addEventListener("click", (event) => {
-        const button = event.target.closest("[data-preview]");
-        if (!button) return;
-        previewLocation = button.dataset.preview;
-        previewLeg = null;
-        renderLivePreview();
-      });
-      document.getElementById("livePreview").addEventListener("click", (event) => {
-        const button = event.target.closest("[data-preview-target]");
-        if (!button) return;
-        previewLocation = button.dataset.previewTarget;
-        previewLeg = previewLocation === "betslip" ? Number(button.dataset.previewLeg ?? -1) : null;
-        renderLivePreview();
+      document.getElementById("createBtn").addEventListener("click", () => {
+        candidateMode = "boost";
+        candidatePath = [];
+        candidateSelection = [];
+        document.getElementById("candidateTitle").textContent = "Select Existing Boost Offers";
+        document.getElementById("candidateSearch").placeholder = "Search groups, events or offers";
+        document.getElementById("candidateConfirm").textContent = "Add & Publish";
+        document.getElementById("candidateSearch").value = "";
+        document.getElementById("candidateModal").classList.add("open");
+        renderCandidate();
       });
       document.getElementById("modalPreviewSwitcher").addEventListener("click", (event) => {
         const button = event.target.closest("[data-preview]");
@@ -1943,9 +1744,10 @@
       document.getElementById("previewModal").addEventListener("click", (event) => {
         if (event.target.id === "previewModal") closeModal();
       });
-      document.getElementById("previewAllBtn").addEventListener("click", () => showPreview(items[0] || freshDraft("parlay")));
-      document.getElementById("editorForm").addEventListener("change", (event) => {
-        if (event.target.dataset.field === "mode") document.getElementById("editorTypeBadge").textContent = typeNames[draft.type];
+      document.getElementById("previewAllBtn").addEventListener("click", () => {
+        const item = getFilteredItems()[0];
+        if (item) showPreview(item);
+        else notify("No offers available to preview.");
       });
       renderList();
       bestPickSync?.addEventListener("message", (event) => {
