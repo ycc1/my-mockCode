@@ -9,6 +9,7 @@
       * { box-sizing: border-box; }
       body { margin: 0; }
       button { font: inherit; }
+      [hidden] { display: none !important; }
       .top { height: 56px; padding: 0 24px; display: flex; align-items: center; gap: 24px; background: #111113; border-bottom: 1px solid #252528; }
       .logo { font-size: 23px; font-style: italic; font-weight: 900; letter-spacing: -1.5px; white-space: nowrap; }
       .logo span { color: #30dfc4; }
@@ -36,6 +37,21 @@
       .section-head h2 { font-size: 18px; margin: 0; }
       .view-all { border: 0; padding: 5px 0 5px 8px; color: #aaaab0; background: none; cursor: pointer; font-size: 12px; }
       .view-all:hover { color: white; }
+      .detail-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+      .detail-back { flex: 0 0 auto; border: 0; background: none; color: #ddd; cursor: pointer; font-size: 13px; }
+      .search-box { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 0; padding: 10px 12px; background: #1b1b1e; border-radius: 6px; color: #909098; }
+      .search-box input { width: 100%; padding: 0; border: 0; outline: 0; background: transparent; color: white; font: inherit; }
+      .search-box:focus-within { outline: 2px solid #30dfc4; }
+      .detail-tabs { display: flex; border-bottom: 1px solid #29292d; margin-bottom: 18px; }
+      .detail-tab { position: relative; flex: 1; padding: 12px; border: 0; background: transparent; color: #aaaab0; cursor: pointer; }
+      .detail-tab[aria-pressed="true"] { color: #fff; font-weight: bold; }
+      .detail-tab[aria-pressed="true"]::after { content: ""; position: absolute; bottom: -1px; left: 10%; right: 10%; height: 3px; border-radius: 3px; background: #30dfc4; }
+      .detail-pagination { display: flex; flex-direction: column; align-items: center; gap: 12px; margin: 26px 0 0; color: #aaaab0; font-size: 12px; }
+      .progress-track { width: 180px; max-width: 100%; height: 3px; background: #38383d; border-radius: 3px; }
+      .progress-value { height: 100%; background: #30dfc4; border-radius: inherit; }
+      .load-more { min-width: 180px; padding: 11px 20px; border: 0; border-radius: 6px; background: #26262a; color: white; cursor: pointer; }
+      .load-more:hover { background: #36363b; }
+      .empty-results { color: #aaaab0; text-align: center; padding: 30px 0; font-size: 13px; }
       .games { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px 10px; }
       .game { min-width: 0; }
       .game-art { position: relative; overflow: hidden; aspect-ratio: 390 / 480; border-radius: 8px; background: #292a2e; }
@@ -46,7 +62,7 @@
       .players { position: absolute; right: 6px; bottom: 6px; padding: 2px 6px; background: #171719d9; border-radius: 10px; color: #eee; font-size: 10px; }
       .game-name { margin: 7px 0 0; overflow: hidden; color: #efeff1; font-size: 13px; font-weight: 600; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
       .providers { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
-      .provider { display: grid; place-items: center; min-height: 55px; border-radius: 6px; background: #222226; font-size: clamp(11px, 1.3vw, 19px); font-weight: 900; font-style: italic; color: #f2cf45; text-align: center; }
+      .provider { display: grid; place-items: center; min-width: 0; min-height: 55px; border-radius: 6px; background: #222226; font-size: clamp(11px, 1.3vw, 19px); font-weight: 900; font-style: italic; color: #f2cf45; text-align: center; overflow-wrap: anywhere; }
       .provider:nth-child(2n) { color: #34d1ae; }
       .demo-note { margin: 16px 0 0; color: #77777e; font-size: 11px; }
       footer { margin-top: 30px; padding: 24px 0; border-top: 1px solid #252528; color: #85858b; font-size: 12px; }
@@ -114,13 +130,30 @@
             <div class="banner-copy"><small>✦ Discover your next favourite</small><h1>Fortune Ox</h1><p>Play your favourite casino games.</p><span>Play Now</span></div>
             <img class="banner-art" src="https://static.megwin.mx/assets/casino/450x345/pgsoft/51065.jpg" alt="" />
           </div>
-          <section class="section" aria-labelledby="favourites-title">
-            <div class="section-head"><h2 id="favourites-title">Favourites</h2><button class="view-all" type="button" data-section="favourites" aria-expanded="false">View All ›</button></div>
+          <section class="section overview-section" aria-labelledby="favourites-title">
+            <div class="section-head"><h2 id="favourites-title">Favourites</h2><button class="view-all" type="button" data-section="favourites">View All ›</button></div>
             <div class="games" id="favourites"></div>
           </section>
-          <section class="section" aria-labelledby="most-played-title">
-            <div class="section-head"><h2 id="most-played-title">Most Played</h2><button class="view-all" type="button" data-section="most-played" aria-expanded="false">View All ›</button></div>
+          <section class="section overview-section" aria-labelledby="most-played-title">
+            <div class="section-head"><h2 id="most-played-title">Most Played</h2><button class="view-all" type="button" data-section="most-played">View All ›</button></div>
             <div class="games" id="most-played"></div>
+          </section>
+          <section class="section detail-view" id="detail-view" aria-label="All favourite and most played games" hidden>
+            <div class="detail-toolbar">
+              <button class="detail-back" type="button">‹ Back</button>
+              <label class="search-box"><span aria-hidden="true">⌕</span><input id="game-search" type="search" placeholder="Search games" aria-label="Search games" /></label>
+            </div>
+            <div class="detail-tabs" aria-label="Game categories">
+              <button class="detail-tab" type="button" data-category="favourites" aria-pressed="true">Favourites</button>
+              <button class="detail-tab" type="button" data-category="most-played" aria-pressed="false">Most Played</button>
+            </div>
+            <div class="games" id="detail-games"></div>
+            <p class="empty-results" id="empty-results" hidden>No games found.</p>
+            <div class="detail-pagination">
+              <div class="progress-track" aria-hidden="true"><div class="progress-value" id="progress-value"></div></div>
+              <span id="game-count" aria-live="polite"></span>
+              <button class="load-more" type="button">Load More</button>
+            </div>
           </section>
           <section class="section" aria-labelledby="recommended-title">
             <div class="section-head"><h2 id="recommended-title">Juegos Recomendados</h2><button class="view-all" type="button" data-section="recommended" aria-expanded="false">View All ›</button></div>
@@ -161,10 +194,8 @@
         recommended: { games: games.slice(4).concat(games.slice(0, 4)), limit: 6, hot: true }
       };
       const money = new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      function renderSection(id, expanded = false) {
-        const section = sections[id];
-        const list = expanded ? section.games : section.games.slice(0, section.limit);
-        document.getElementById(id).innerHTML = list.map((game) => `
+      function gameHTML(game, section) {
+        return `
           <article class="game">
             <div class="game-art">
               <img src="https://static.megwin.mx/assets/casino/390x480/${game.image}.jpg" alt="${game.name}" loading="lazy" />
@@ -174,16 +205,69 @@
               <span class="players">♟ ${game.players.toLocaleString("en-US")}</span>
             </div>
             <p class="game-name" title="${game.name}">${game.name}</p>
-          </article>`).join("");
+          </article>`;
+      }
+      function renderSection(id, expanded = false) {
+        const section = sections[id];
+        const list = expanded ? section.games : section.games.slice(0, section.limit);
+        document.getElementById(id).innerHTML = list.map((game) => gameHTML(game, section)).join("");
       }
       Object.keys(sections).forEach((id) => renderSection(id));
+      const detailView = document.getElementById("detail-view");
+      const search = document.getElementById("game-search");
+      const detailTabs = document.querySelectorAll(".detail-tab");
+      const loadMore = document.querySelector(".load-more");
+      let detailCategory = "favourites";
+      let visibleCount = 12;
+      let detailTrigger;
+      function renderDetail() {
+        const section = sections[detailCategory];
+        const query = search.value.trim().toLowerCase();
+        const filtered = section.games.filter((game) => game.name.toLowerCase().includes(query));
+        const shown = filtered.slice(0, visibleCount);
+        document.getElementById("detail-games").innerHTML = shown.map((game) => gameHTML(game, section)).join("");
+        document.getElementById("empty-results").hidden = filtered.length !== 0;
+        document.getElementById("game-count").textContent = `Displaying ${shown.length} of ${filtered.length} games`;
+        document.getElementById("progress-value").style.width = `${filtered.length ? shown.length / filtered.length * 100 : 0}%`;
+        loadMore.hidden = shown.length >= filtered.length;
+        detailTabs.forEach((tab) => tab.setAttribute("aria-pressed", String(tab.dataset.category === detailCategory)));
+      }
       document.querySelectorAll(".view-all").forEach((button) => {
         button.addEventListener("click", () => {
+          if (button.dataset.section !== "recommended") {
+            detailTrigger = button;
+            detailCategory = button.dataset.section;
+            visibleCount = 12;
+            search.value = "";
+            document.querySelectorAll(".overview-section").forEach((section) => section.hidden = true);
+            detailView.hidden = false;
+            renderDetail();
+            window.scrollTo(0, 0);
+            return;
+          }
           const expanded = button.getAttribute("aria-expanded") !== "true";
           button.setAttribute("aria-expanded", String(expanded));
           button.textContent = expanded ? "Show Less ‹" : "View All ›";
           renderSection(button.dataset.section, expanded);
         });
+      });
+      document.querySelector(".detail-back").addEventListener("click", () => {
+        detailView.hidden = true;
+        document.querySelectorAll(".overview-section").forEach((section) => section.hidden = false);
+        detailTrigger.focus();
+      });
+      detailTabs.forEach((tab) => tab.addEventListener("click", () => {
+        detailCategory = tab.dataset.category;
+        visibleCount = 12;
+        renderDetail();
+      }));
+      search.addEventListener("input", () => {
+        visibleCount = 12;
+        renderDetail();
+      });
+      loadMore.addEventListener("click", () => {
+        visibleCount += 12;
+        renderDetail();
       });
     </script>
   </body>
