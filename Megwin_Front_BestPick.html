@@ -367,10 +367,12 @@
     }
     function offerExpandButton(item, expanded) {
       const count = (item.legs || []).length;
-      return `<button class="card-more" type="button" data-expand-offer="${esc(item.id)}" aria-expanded="${expanded}" aria-label="${esc(`${expanded ? "Close" : "View all"} ${count} selections for ${item.event}`)}">${expanded ? "Close" : `View All (${count})`}</button>`;
+      return count > 4 ? `<button class="card-more" type="button" data-expand-offer="${esc(item.id)}" aria-expanded="${expanded}" aria-label="${esc(`${expanded ? "Close" : "View all"} ${count} selections for ${item.event}`)}">${expanded ? "Close" : `View All (${count})`}</button>` : "";
     }
     function renderPicks() {
       clearTimeout(boostExpiryTimer);
+      const expandableIds = new Set(boostItems.filter((item) => (item.legs?.length || 0) > 4).map((item) => item.id));
+      for (const id of expandedOffers) if (!expandableIds.has(id)) expandedOffers.delete(id);
       const now = Date.now();
       const nextExpiry = boostItems.filter((item) => (item.parlayBuilder || item.superBuilder || item.type === "sgp") && item.enabled)
         .flatMap((item) => item.type === "sgp" ? [item.start, item.end] : [item.end])
