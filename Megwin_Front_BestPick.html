@@ -85,19 +85,24 @@
     .super-options del { color:#92999b; margin-right:5px; font-size:10px; }
     .boost-note { margin:8px 2px 0; color:#8e9094; font-size:10px; line-height:1.45; }
     .parlay-card .boost-note strong { display:block; color:#e7e8e9; font-size:11px; }
-    .parlay-more { margin:8px 2px 0; padding:0; border:0; background:none; color:var(--teal); cursor:pointer; font-size:11px; }
+    .card-more { flex:none; margin-left:8px; padding:6px 8px; border:0; border-radius:5px; background:#2b2c2f; color:#d6d6d8; cursor:pointer; font-size:11px; }
     .parlay-boost { margin:12px 2px 0; color:var(--teal); font-weight:700; font-size:12px; }
     .parlay-card .add-pick del { margin-right:6px; opacity:.65; }
     .parlay-card.selected { border-color:var(--teal); }
     .add-pick { width:100%; margin-top:8px; padding:9px; border:0; border-radius:5px; background:#53d5c6; color:#072b27; font-weight:700; cursor:pointer; }
     .picks.sgp-picks, .picks.super-picks { grid-auto-columns:minmax(260px, calc((100% - 8px) / 2)); }
-    .sgp-card { display:flex; flex-direction:column; min-height:368px; padding:20px; border-radius:14px; background:#202124; }
+    .parlay-card, .sgp-card { display:flex; flex-direction:column; align-self:start; height:360px; min-height:360px; overflow-wrap:anywhere; }
+    .parlay-card.expanded, .sgp-card.expanded { height:auto; min-height:calc(360px + var(--extra-legs) * 42px); }
+    .parlay-card .parlay-boost { margin: auto 2px 0; padding-top:8px; }
+    .parlay-card:not(.expanded) .boost-meta > span, .parlay-card:not(.expanded) .parlay-title, .sgp-card:not(.expanded) .sgp-event { display:-webkit-box; overflow:hidden; -webkit-box-orient:vertical; -webkit-line-clamp:2; }
+    .parlay-card:not(.expanded) .pick-title small, .parlay-card:not(.expanded) .boost-note strong, .parlay-card:not(.expanded) .boost-note-detail, .sgp-card:not(.expanded) .sgp-selection, .sgp-card:not(.expanded) .sgp-leg small { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .sgp-card { padding:20px; border-radius:14px; background:#202124; }
     .sgp-card .boost-meta { color:var(--teal); font-weight:700; }
     .picks.super-picks .pick { display:flex; flex-direction:column; min-height:368px; padding:20px; border:0; border-radius:14px; background:#202124; }
     .picks.super-picks .add-pick { margin-top:auto; }
     .sgp-event { margin:12px 0 5px; font-size:16px; font-weight:700; }
     .sgp-subtitle { color:#a0b7b5; font-size:12px; }
-    .sgp-leg { position:relative; margin:15px 0 0; padding-left:16px; font-size:13px; font-weight:700; }
+    .sgp-leg { position:relative; margin:10px 0 0; padding-left:16px; font-size:13px; font-weight:700; }
     .sgp-leg::before { position:absolute; left:0; color:#80aaa5; content:"•"; }
     .sgp-leg small { display:block; margin-top:5px; color:#a4a8ae; font-size:11px; font-weight:400; }
     .sgp-leg:last-of-type { margin-bottom:16px; }
@@ -287,7 +292,7 @@
     let boostItems = readStored(BEST_PICK_KEY, []);
     let activeCategory = null;
     let activeParlayGroup = null;
-    const expandedParlays = new Set();
+    const expandedOffers = new Set();
     let boostExpiryTimer;
     let slip = [];
     let receipt = null;
@@ -360,6 +365,10 @@
       const id = selectionId(category, row, index);
       return `<button class="price-row ${slip.some((item) => item.id === id) ? "selected" : ""}" type="button" data-pick-id="${esc(id)}" data-pick-label="${esc(selection.label)}" data-pick-event="${esc(row.event || row.league || row.market)}" data-pick-market="${esc(row.market)}" data-pick-odd="${selection.odd}" ${row.inactive ? "disabled" : ""}><span>${esc(selection.label)}${row.inactive ? ' <span class="pick-inactive">· Inactivo</span>' : ""}</span><span class="price">${decimalToAmerican(selection.odd)}</span></button>`;
     }
+    function offerExpandButton(item, expanded) {
+      const count = (item.legs || []).length;
+      return `<button class="card-more" type="button" data-expand-offer="${esc(item.id)}" aria-expanded="${expanded}" aria-label="${esc(`${expanded ? "Close" : "View all"} ${count} selections for ${item.event}`)}">${expanded ? "Close" : `View All (${count})`}</button>`;
+    }
     function renderPicks() {
       clearTimeout(boostExpiryTimer);
       const now = Date.now();
@@ -396,16 +405,18 @@
         }
         document.getElementById("picks").innerHTML = items.length ? items.map((item) => {
           if (item.type === "parlay") {
-            const expanded = expandedParlays.has(item.id);
+            const expanded = expandedOffers.has(item.id);
             const legs = item.legs || [];
-            const shown = expanded ? legs : legs.slice(0, 3);
+            const shown = expanded ? legs : legs.slice(0, 4);
             const selected = slip.some((pick) => pick.id === `boost:${item.id}`);
-            return `<article class="pick boost-card parlay-card ${selected ? "selected" : ""}"><div class="boost-meta"><span>${esc(item.groupTitle)}</span><span>${legs.length} legs</span></div><div class="pick-title">${esc(item.cardTitle || item.name)}<small>${esc(item.subtitle || "")}</small></div>${shown.map((leg) => `<div class="boost-note"><strong>• ${esc(leg.selection || leg.label)}</strong>${esc(leg.event || item.event)} · ${esc(leg.market || "")}</div>`).join("")}${legs.length > 3 ? `<button class="parlay-more" type="button" data-expand-parlay="${esc(item.id)}" aria-expanded="${expanded}">${expanded ? "Mostrar menos" : `${legs.length - 3} más`}</button>` : ""}<div class="parlay-boost">+${esc(item.boost)}% ACCA BOOST</div><button class="add-pick" type="button" data-offer-id="${esc(item.id)}" data-pick-id="boost:${esc(item.id)}" data-pick-label="${esc(item.cardTitle || item.name)}" data-pick-event="${esc(item.event)}" data-pick-market="${esc(item.subtitle || item.type)}" data-pick-odd="${esc(item.newOdds)}"><del>${esc(item.oldOdds)}</del> ${esc(item.newOdds)} · ${selected ? "✓" : "Añadir al boleto"}</button></article>`;
+            return `<article class="pick boost-card parlay-card ${selected ? "selected" : ""} ${expanded ? "expanded" : ""}" style="--extra-legs:${Math.max(1, legs.length - 4)}"><div class="boost-meta"><span>${esc(item.groupTitle)} · ${legs.length} legs</span>${offerExpandButton(item, expanded)}</div><div class="pick-title"><span class="parlay-title">${esc(item.cardTitle || item.name)}</span><small>${esc(item.subtitle || "")}</small></div>${shown.map((leg) => `<div class="boost-note"><strong>• ${esc(leg.selection || leg.label)}</strong><span class="boost-note-detail">${esc(leg.event || item.event)} · ${esc(leg.market || "")}</span></div>`).join("")}<div class="parlay-boost">+${esc(item.boost)}% ACCA BOOST</div><button class="add-pick" type="button" data-offer-id="${esc(item.id)}" data-pick-id="boost:${esc(item.id)}" data-pick-label="${esc(item.cardTitle || item.name)}" data-pick-event="${esc(item.event)}" data-pick-market="${esc(item.subtitle || item.type)}" data-pick-odd="${esc(item.newOdds)}"><del>${esc(item.oldOdds)}</del> ${esc(item.newOdds)} · ${selected ? "✓" : "Añadir al boleto"}</button></article>`;
           }
           if (item.type === "sgp") {
             const legs = item.legs || [];
+            const expanded = expandedOffers.has(item.id);
+            const shown = expanded ? legs : legs.slice(0, 4);
             const selected = slip.some((pick) => pick.id === `boost:${item.id}`);
-            return `<article class="pick sgp-card"><div class="boost-meta">SGP BOOST</div><div class="sgp-event">${esc(item.event)}</div><div class="sgp-subtitle">Same Game Parlay · ${legs.length} legs</div>${legs.map((leg) => `<div class="sgp-leg">${esc(leg.selection || leg.label)}<small>${esc(leg.market || "")}</small></div>`).join("")}<button class="sgp-odds ${selected ? "selected" : ""}" type="button" data-offer-id="${esc(item.id)}" data-pick-id="boost:${esc(item.id)}" data-pick-label="${esc(item.cardTitle || item.name)}" data-pick-event="${esc(item.event)}" data-pick-market="Same Game Parlay" data-pick-odd="${esc(item.newOdds)}" aria-label="${esc(`Add SGP Boost: ${item.event}, ${item.oldOdds} to ${item.newOdds}`)}"><span class="sgp-odds-label">Boosted SGP<br>odds</span><del>${esc(item.oldOdds)}</del><strong>${esc(item.newOdds)}</strong><span class="sgp-plus" aria-hidden="true">${selected ? "✓" : "+"}</span></button></article>`;
+            return `<article class="pick sgp-card ${expanded ? "expanded" : ""}" style="--extra-legs:${Math.max(1, legs.length - 4)}"><div class="boost-meta"><span>SGP BOOST</span>${offerExpandButton(item, expanded)}</div><div class="sgp-event">${esc(item.event)}</div><div class="sgp-subtitle">Same Game Parlay · ${legs.length} legs</div>${shown.map((leg) => `<div class="sgp-leg"><span class="sgp-selection">${esc(leg.selection || leg.label)}</span><small>${esc(leg.market || "")}</small></div>`).join("")}<button class="sgp-odds ${selected ? "selected" : ""}" type="button" data-offer-id="${esc(item.id)}" data-pick-id="boost:${esc(item.id)}" data-pick-label="${esc(item.cardTitle || item.name)}" data-pick-event="${esc(item.event)}" data-pick-market="Same Game Parlay" data-pick-odd="${esc(item.newOdds)}" aria-label="${esc(`Add SGP Boost: ${item.event}, ${item.oldOdds} to ${item.newOdds}`)}"><span class="sgp-odds-label">Boosted SGP<br>odds</span><del>${esc(item.oldOdds)}</del><strong>${esc(item.newOdds)}</strong><span class="sgp-plus" aria-hidden="true">${selected ? "✓" : "+"}</span></button></article>`;
           }
           if (item.type === "super" && item.mode === "full") {
             const resultMarket = item.market === "Full Time Result" || item.marketType === "1X2";
@@ -482,12 +493,15 @@
       document.getElementById("picks").scrollLeft = 0;
     });
     document.getElementById("picks").addEventListener("click", (event) => {
-      const toggle = event.target.closest("[data-expand-parlay]");
+      const toggle = event.target.closest("[data-expand-offer]");
       if (toggle) {
-        const id = toggle.dataset.expandParlay;
-        if (expandedParlays.has(id)) expandedParlays.delete(id);
-        else expandedParlays.add(id);
+        const id = toggle.dataset.expandOffer;
+        const scrollLeft = event.currentTarget.scrollLeft;
+        if (expandedOffers.has(id)) expandedOffers.delete(id);
+        else expandedOffers.add(id);
         renderPicks();
+        event.currentTarget.scrollLeft = scrollLeft;
+        [...event.currentTarget.querySelectorAll("[data-expand-offer]")].find((button) => button.dataset.expandOffer === id)?.focus({ preventScroll:true });
         return;
       }
       const button = event.target.closest("[data-pick-id]");
