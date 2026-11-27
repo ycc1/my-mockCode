@@ -753,7 +753,7 @@
         <div class="modal-head"><h3 id="parlayTitle">Create Parlay Recommendation</h3><button class="modal-close" id="parlayClose" type="button" aria-label="Close">×</button></div>
         <div id="parlayError" class="form-error" role="alert"></div>
         <div class="form-grid">
-          <div class="field"><label class="required" for="parlayGroup">Group</label><input class="input" id="parlayGroup" list="parlayGroupsList" placeholder="Choose or enter a group"><datalist id="parlayGroupsList"><option value="UEFA Champions League"><option value="Premier League"><option value="Liga MX"></datalist></div>
+          <div class="field" id="parlayGroupField"><label class="required" for="parlayGroup">Group</label><input class="input" id="parlayGroup" list="parlayGroupsList" placeholder="Choose or enter a group"><datalist id="parlayGroupsList"><option value="UEFA Champions League"><option value="Premier League"><option value="Liga MX"></datalist></div>
           <div class="field"><label class="required" for="parlayName">Recommendation title</label><input class="input" id="parlayName" placeholder="e.g. UCL FAVS"></div>
           <div class="field"><label for="parlaySubtitle">Subtitle</label><input class="input" id="parlaySubtitle" placeholder="e.g. Full Time Result"></div>
         </div>
@@ -983,7 +983,7 @@
           const matchesType = activeType === "all" || item.type === activeType;
           const matchesStatus = status === "all" || (status === "enabled" ? item.enabled : !item.enabled);
           const matchesPlacement = placement === "all" || item.placements.includes(placement);
-          const haystack = `${item.name} ${item.event} ${item.cardTitle} ${item.groupTitle}`.toLowerCase();
+          const haystack = `${item.name} ${item.event} ${item.cardTitle} ${item.type === "sgp" ? "" : item.groupTitle || ""}`.toLowerCase();
           return matchesType && matchesStatus && matchesPlacement && (!query || haystack.includes(query));
         });
       }
@@ -995,7 +995,7 @@
         const filtered = getFilteredItems();
         document.getElementById("resultLabel").textContent = `Showing ${filtered.length} of ${items.length} records`;
         const groups = [...new Set([...items].sort((a, b) => a.sort - b.sort).filter((item) => item.type === "parlay").map((item) => item.groupTitle || ""))];
-        document.getElementById("groupOrder").innerHTML = groups.length ? `Parlay group order (drag to reorder): ${groups.map((group) => `<span class="group-order-item" draggable="true" data-group-drag="${esc(group)}">⠿ ${esc(group || "—")}</span>`).join("")}` : "";
+        document.getElementById("groupOrder").innerHTML = activeType !== "sgp" && groups.length ? `Parlay group order (drag to reorder): ${groups.map((group) => `<span class="group-order-item" draggable="true" data-group-drag="${esc(group)}">⠿ ${esc(group || "—")}</span>`).join("")}` : "";
         const body = document.getElementById("tableBody");
         if (!filtered.length) {
           body.innerHTML = '<tr><td class="empty-row" colspan="10">No Best Picks found. Adjust your filters or add an offer from the candidate pool.</td></tr>';
@@ -1011,7 +1011,7 @@
             <td class="order-cell">${item.sort}</td>
             <td><span class="item-name">${esc(item.name)}</span><span class="item-sub">${esc(item.event)}</span></td>
             <td><span class="type-badge ${typeClass}">${esc(typeNames[item.type])}</span></td>
-            <td><span class="item-name">${esc(recommendation)}</span><span class="item-sub">${esc(item.groupTitle || "—")}</span></td>
+            <td><span class="item-name">${esc(recommendation)}</span>${item.type === "sgp" ? "" : `<span class="item-sub">${esc(item.groupTitle || "—")}</span>`}</td>
             <td>${esc(placementsLabel(item.placements))}</td>
             <td><span class="boost-value">${esc(boostText(item))}</span>${item.type === "super"
               ? item.legs.map((leg) => `<span class="item-sub">${esc(leg.selection)}: <del>${esc(leg.oldOdds || "—")}</del> → ${esc(leg.newOdds || "—")}</span>`).join("")
@@ -1047,7 +1047,7 @@
           <div class="sport-header"><span class="sport-logo">MEGWIN <span style="color:#2d7fd8">SPORTS</span></span><span class="sport-wallet">Balance　$1,250</span></div>
           <div class="sport-nav"><span>Home</span><span class="active">Football</span><span>Basketball</span><span>Live</span></div>
           <div class="preview-body">
-            <div class="preview-group-title">${esc(item.groupTitle || "Competition / Recommendations")}</div>
+            ${isSgp ? "" : `<div class="preview-group-title">${esc(item.groupTitle || "Competition / Recommendations")}</div>`}
             <div class="preview-event"><button type="button" class="preview-link" data-preview-target="event"><strong>${esc(item.event || "Select an event")}</strong></button><span>Today · 20:00</span></div>
             <div class="pick-card">
               <div class="pick-title">${esc(item.cardTitle || typeNames[item.type] || "Best Pick")}</div>
@@ -1644,7 +1644,6 @@
         if (isSgp) fillSgpPrices();
         if (isSgp && parlayLegs.length) {
           const firstLeg = parlayLegs[0];
-          if (!document.getElementById("parlayGroup").value) document.getElementById("parlayGroup").value = firstLeg.league;
           if (!document.getElementById("parlayName").value) document.getElementById("parlayName").value = `${firstLeg.event} SGP`;
         }
         legs.innerHTML = parlayLegs.length ? parlayLegs.map((leg) => {
@@ -1669,7 +1668,8 @@
         document.getElementById("parlayTitle").textContent = item
           ? editingParlayType === "sgp" ? "Edit SGP Boost" : "Edit Parlay Boost"
           : editingParlayType === "sgp" ? "Create SGP Boost" : activeType === "parlay" ? "Create Parlay Boost" : "Create Parlay Recommendation";
-        document.getElementById("parlayGroup").value = item?.groupTitle || "";
+        document.getElementById("parlayGroupField").hidden = editingParlayType === "sgp";
+        document.getElementById("parlayGroup").value = editingParlayType === "sgp" ? "" : item?.groupTitle || "";
         document.getElementById("parlayName").value = item?.cardTitle || "";
         document.getElementById("parlaySubtitle").value = item?.subtitle || "";
         document.getElementById("parlayError").classList.remove("show");
@@ -1693,7 +1693,7 @@
         const prices = parlayPrices();
         const errors = [];
         const eventCount = new Set(parlayLegs.map((leg) => leg.eventId)).size;
-        if (!group || !name) errors.push("Enter a group and recommendation title.");
+        if (editingParlayType === "sgp" ? !name : !group || !name) errors.push(editingParlayType === "sgp" ? "Enter a recommendation title." : "Enter a group and recommendation title.");
         if (editingParlayType === "sgp" && (parlayLegs.length < 2 || eventCount !== 1)) errors.push("Select at least two outcomes from the same event for an SGP.");
         if (editingParlayType === "sgp" && parlayLegs.some((leg) => {
           const value = sgpLegPrice(leg);
@@ -1719,7 +1719,7 @@
         const item = {
           ...(previous || {}), id, sort: previous?.sort || items.length + 1, type: editingParlayType,
           parlayBuilder: !sgp, sgpBuilder: sgp, boostFactor: sgp ? sgpBoostFactor : undefined,
-          name, cardTitle: name, groupTitle: group, subtitle, boost: String(prices.boost), oldOdds: prices.original, newOdds: prices.boosted,
+          name, cardTitle: name, groupTitle: sgp ? "" : group, subtitle, boost: String(prices.boost), oldOdds: prices.original, newOdds: prices.boosted,
           event: sgp ? parlayLegs[0].event : `${eventCount} prematch events`,
           legs: parlayLegs.map((leg) => ({ candidateId: leg.id, event: leg.event, eventId: leg.eventId, kickoff: leg.kickoff, selection: leg.outcome, market: leg.market, oldOdds: leg.oldOdds, newOdds: sgp ? formatDecimalOdds(Number(sgpLegPrice(leg))) : leg.oldOdds })),
           placements: ["home", "betslip"], start: previous?.start || "", end: parlayLegs.map((leg) => leg.kickoff).sort()[0],
